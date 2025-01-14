@@ -1,0 +1,33 @@
+{
+  "global" : {
+    "wwt" : "WeWorkTogether"
+  },
+  "login" : {
+    "welcome-to" : "Welcome to",
+    "welcome-description" : "Where every click brings your team closer and every sign-in brightens up your workspace. Ready to weave collaboration into the fabric of your day? Sign up or log in, and let's turn 'I' into 'We'!<br><blockquote><p>Unity is strength... when there is teamwork and collaboration, wonderful things can be achieved.</p></blockquote>"
+  },
+  "menu" : {
+    "home" : "Home",
+    "news" : "News",
+    "allNews" : "All News",
+    "newsByCategory" : "News by Category",
+    "multimedia" : "Multimedia",
+    "gallery" : "Gallery",
+    "videos" : "Videos",
+    "about" : "About",
+    "contact" : "Contact",
+    "login" : "Login",
+    "register" : "Register"
+  },
+  "news" : {
+    "all-news" : {
+      "title" : "News",
+      "subtitle" : "Connect with your Team and Company Culture",
+      "description" : "Dive into the latest internal updates and announcements that drive our organization forward. From notable achievements to events and projects, our intranet keeps you aligned and engaged in the daily life of our company.",
+      "no-content" : "No news available to display"
+    }
+  },
+  "welcome-back" : "Welcome back",
+  "Project" : "Project",
+  "Analytics" : "Analytics"
+}

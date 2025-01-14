@@ -1,0 +1,315 @@
+/* ----------------------------------------------------------------------------------------------------- */
+/*  @ Import/write your custom styles here.
+/*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
+/* ----------------------------------------------------------------------------------------------------- */
+@import './custom/patterns';
+@import 'assets/fonts/poppins/poppins.css';
+
+body {
+    zoom: 1;
+}
+
+.gradient-overlay {
+    --gradient-color: var(--fuse-bg-dialog-rgb);
+
+    &.to-b {
+        --origin: to bottom;
+        width: 100%;
+        height: 50%;
+    }
+
+    &.to-l {
+        --origin: to left;
+    }
+
+    &.to-r {
+        --origin: to right;
+    }
+
+    position: absolute;
+    background: linear-gradient(var(--origin), transparent 0%, rgba(var(--gradient-color), 1) 95%);
+
+
+    &.default {
+        --gradient-color: var(--fuse-bg-default-rgb);
+    }
+}
+
+.bg {
+    &-pattern {
+        @apply magicpattern;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center center;
+        background-repeat: repeat;
+        background-attachment: fixed;
+    }
+
+    &-overlay {
+        position: relative;
+
+        &:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.7);
+            z-index: 1;
+        }
+
+        .dark &:before {
+            background-color: rgba(0, 0, 0, 0.5) !important;
+        }
+    }
+}
+
+
+swiper-slide {
+    //background: red
+    display: flex;
+    justify-content: center;
+}
+
+.cal-month-view {
+    background-color: var(--fuse-bg-app-bar);
+
+    // Capitalize header days names
+    & .cal-cell {
+        text-transform: capitalize;
+    }
+
+    & .cal-day-number {
+        font-weight: 600;
+    }
+
+    & .cal-days {
+        // just top border
+        border-top: 1px solid var(--fuse-divider);
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+
+        // Remove last week bottom border
+        & > div:last-child > .cal-cell-row {
+            border-bottom: none;
+        }
+    }
+
+    .cal-cell-row {
+        // Hover over the month view week row
+        &:hover {
+            background-color: var(--fuse-primary-50);
+
+            .dark & {
+                background-color: rgba(var(--fuse-on-primary-50-rgb), 0.1);
+            }
+        }
+
+        // Hover on a specific day cell or when the day cell is open/selected
+        & .cal-cell:hover, .cal-month-view .cal-cell.cal-has-events.cal-open {
+            background-color: rgba(var(--fuse-on-primary-50-rgb), 0.4);
+        }
+
+        & .cal-day-cell {
+            min-height: unset;
+
+            &:hover * {
+                cursor: pointer;
+                user-select: none;
+            }
+        }
+
+        // Light
+        & .cal-today {
+            background-color: var(--fuse-primary-100);
+        }
+
+        // Dark
+        .dark & .cal-today {
+            background-color: var(--fuse-primary-800);
+        }
+    }
+
+    // Change colors of non selected weekend days
+    & .cal-day-cell.cal-weekend .cal-day-number {
+        color: var(--fuse-warn-600);
+    }
+
+    & .cal-day-cell.cal-weekend.cal-today .cal-day-number {
+        color: var(--fuse-warn-700);
+    }
+
+    & .cal-day-cell.cal-weekend.cal-out-month .cal-day-number {
+        color: var(--fuse-warn-500);
+    }
+}
+
+// Splide slider override
+.splide__slide {
+    & > * {
+        transition: transform 0.5s, opacity 0.5s;
+    }
+
+    &.is-active > :first-child {
+        transform: scale(1);
+    }
+
+    &:not(.is-active) > :first-child {
+        opacity: .7;
+        transform: scale(0.8);
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}
+
+// mat-dialog
+.dialog-mobile-fullscreen {
+    @media (max-width: 959px) {
+        //overflow: hidden;
+        //height: 95vh !important;
+        width: 91vw !important;
+        max-width: 91vw !important;
+        max-height: 95vh !important;
+
+        //& .mat-mdc-dialog-surface {
+        //  border-radius: 0 !important;
+        //}
+    }
+}
+
+.dialog-default-padding {
+    .mat-mdc-dialog-container .mdc-dialog__surface {
+        padding: 1.5rem !important;
+    }
+}
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+    padding: 0;
+}
+
+// cdk drag drop custom styles
+.cdk-drag {
+    &.cdk-drag-preview {
+        z-index: 1000;
+        overflow: hidden;
+        box-shadow: none;
+        height: 12rem !important;
+        padding-top: 2rem;
+        // make the inside a an effect of being lifted off the page and slightly rotated without cutting off the shadow
+        & > a {
+            transition: all .5s cubic-bezier(0, 0, 0.2, 1);
+            transform: rotate(13deg) scale(.8) !important;
+            transform-origin: center;
+            transform-style: preserve-3d;
+        }
+
+    }
+
+    &.cdk-drag-placeholder {
+        opacity: .5;
+    }
+
+    &.cdk-drag-animating {
+        transition: all .5s cubic-bezier(0, 0, 0.2, 1);
+        padding-top: 0;
+
+        & > a {
+            transform: rotate(0deg) scale(1) !important;
+        }
+    }
+}
+
+// quill editor custom styles
+quill-view {
+    .ql-container {
+        font-family: inherit;
+    }
+
+    .ql-container .ql-editor {
+        background: unset;
+
+        padding: 0;
+    }
+
+    p {
+        text-align: justify;
+        line-height: 1.5;
+
+        & > img {
+            padding: 1.5rem;
+        }
+    }
+}
+
+// inputs custom styles
+.input-valid {
+    & .mat-mdc-form-field-flex {
+        border: solid 1px green;
+        border-radius: 6px;
+    }
+}
+
+// Fill
+.custom-fill {
+    @apply fill-white;
+}
+
+
+.file-input {
+    @apply bg-white text-secondary font-normal;
+    @apply border border-gray-300 border-opacity-100 #{'!important'};
+
+    .dark & {
+        @apply bg-gray-100;
+    }
+
+    padding: 8px 16px;
+    border-radius: 6px;
+    display: flex;
+    width: 100%;
+    font-size: 14px;
+    margin-top: 8px;
+    cursor: pointer;
+    min-height: 40px;
+
+
+    .dark & {
+        background-color: rgba(0, 0, 0, 0.05);
+        @apply border-gray-500 #{'!important'};
+    }
+}
+
+.file-input:hover {
+    border-color: #3f51b5; /* Cambia a un color primario de Material */
+}
+
+.file-input:focus {
+    outline: none;
+    border-color: #3f51b5;
+    box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+}
+
+.mat-label {
+    @apply font-medium text-default;
+}
+
+.mat-hint {
+    @apply text-hint text-sm font-medium;
+}
+
+.confirmation-hint {
+    &-warn {
+        @apply bg-warn-400 bg-opacity-5
+    }
+}
+
+
+// Tailwind styles
+.flex-center {
+    @apply flex justify-center items-center;
+}

@@ -1,0 +1,858 @@
+{
+    "global" : {
+        "wwt" : "WeWorkTogether",
+        "signed-in-as" : "Conectado como",
+        "profile" : "Perfil",
+        "settings" : "Configuración",
+        "status" : "Estado",
+        "sign-out" : "Cerrar sesión"
+    },
+    "login" : {
+        "welcome-to" : "Bienvenido a",
+        "welcome-description" : "Donde cada clic acerca más a tu equipo y cada inicio de sesión ilumina tu espacio de trabajo. ¿Listo para tejer la colaboración en tu día a día? Regístrate o inicia sesión, ¡y transformemos el 'yo' en 'nosotros'!<br><blockquote><p>La unidad es la fuerza... cuando hay trabajo en equipo y colaboración, se pueden lograr cosas maravillosas. - Mattie Stepanek</p><blockquote>"
+    },
+    "menu" : {
+        "home" : "Inicio",
+        "news" : "Noticias",
+        "allNews" : "Todas las noticias",
+        "newsByCategory" : "Noticias por categoría",
+        "bio-bio" : "Radio Bío Bío",
+        "dashboards" : {
+            "title" : "Tableros",
+            "analytics" : "Analítica",
+            "projects" : "Proyectos"
+        },
+        "apps" : {
+            "title" : "Aplicaciones",
+            "contacts" : "Contactos",
+            "gallery" : "Galería",
+            "scrumboards" : "Tablero de scrum",
+            "benefits" : "Beneficios",
+            "files-library" : "Biblioteca de archivos"
+        },
+        "videos" : "Videos",
+        "admin" : {
+            "title" : "Administrador",
+            "users" : "Usuarios",
+            "news" : "Noticias",
+            "events" : "Eventos",
+            "albums" : "Álbumes",
+            "benefits" : "Beneficios",
+            "roles" : "Roles",
+            "permissions" : "Permisos",
+            "settings" : "Configuración"
+        }
+    },
+    "home" : {
+        "shortcuts" : {
+            "title" : "Accesos directos",
+            "description" : "Accede rápidamente a tus aplicaciones favoritas",
+            "apps" : {
+                "contacts" : "Contactos",
+                "analytics" : "Analítica",
+                "projects" : "Proyectos",
+                "tasks" : "Tareas",
+                "scrumboards" : "Tablero de scrum",
+                "news" : "Noticias",
+                "profile" : "Perfil",
+                "mail" : "Correo",
+                "calendar" : "Calendario",
+                "to-do" : "Tareas",
+                "security" : "Seguridad",
+                "benefits" : "Beneficios",
+                "files-library" : "Biblioteca de archivos"
+            }
+        },
+        "calendar" : {
+            "common" : {
+                "all-day" : "Todo el día"
+            },
+            "title" : "Calendario",
+            "monthly-calendar" : "Calendario mensual",
+            "list" : "Lista de eventos",
+            "description" : "Mantente al tanto de tus próximos eventos y reuniones"
+        },
+        "event" : {
+            "title" : "Detalle de actividad",
+            "description" : "Descripción",
+            "organizater" : "Organizador",
+            "location" : "Ubicación",
+            "startDate" : "Fecha de inicio"
+        }
+    },
+    "news" : {
+        "common" : {
+            "author" : "Autor",
+            "published" : "Publicado"
+        },
+        "all-news" : {
+            "title" : "Todas las noticias",
+            "subtitle" : "Conecta con tu Equipo y la Cultura de la Empresa",
+            "description" : "Sumérgete en las últimas actualizaciones y anuncios internos que impulsan nuestra organización. Desde logros destacados hasta eventos y proyectos, nuestra intranet te mantiene alineado y participativo en la vida cotidiana de nuestra empresa.",
+            "no-content" : "No hay noticias disponibles para mostrar",
+            "categories" : "Categorías",
+            "read-more" : "Ver más"
+        },
+        "single-news" : {
+            "title" : "Noticia",
+            "subtitle" : "Conecta con tu Equipo y la Cultura de la Empresa",
+            "description" : "Sumérgete en las últimas actualizaciones y anuncios internos que impulsan nuestra organización. Desde logros destacados hasta eventos y proyectos, nuestra intranet te mantiene alineado y participativo en la vida cotidiana de nuestra empresa.",
+            "no-content" : "No hay noticias disponibles para mostrar",
+            "published-by" : "Publicado por",
+            "comments" : "Comentarios",
+            "write-comment" : "Escribe un comentario..."
+        },
+        "bio-bio" : {
+            "title" : "Noticias de Radio Bío Bío",
+            "subtitle" : "Mantente Informado con Noticias Externas",
+            "description" : "Accede a las noticias más relevantes y actualizadas de Radio Bío Bío. Este servicio externo mejora la comunicación y el acceso a la información, manteniéndote al tanto de los eventos nacionales e internacionales que pueden impactar nuestro entorno laboral y social.",
+            "no-content" : "No hay noticias disponibles para mostrar en este momento",
+            "categories" : "Categorías",
+            "read-more" : "Abrir en Radio Bío Bío"
+        }
+    },
+    "profile" : {
+        "about-me" : "Acerca de mí",
+        "create-post" : "Crear publicación",
+        "photo" : "Foto",
+        "video" : "Video",
+        "home" : "Inicio",
+        "news" : "Noticias",
+        "what-is-on-your-mind" : "¿Qué tienes en mente?"
+    },
+    "albums" : {
+        "title" : "Álbumes",
+        "subtitle" : "Explora y Conecta con los Recuerdos de Nuestra Empresa",
+        "description" : "Explora álbumes temáticos de fotos subidas por nuestra empresa, que reflejan los momentos importantes y eventos especiales. Desde reuniones de equipo hasta celebraciones corporativas, nuestros álbumes te permiten descubrir y conectarte con los recuerdos visuales que destacan nuestra cultura y nuestros logros. Interactúa y comenta para mantenerte involucrado con la vida de nuestra organización.",
+        "no-content" : "No hay álbumes disponibles para mostrar en este momento",
+        "photos" : "Fotos",
+        "view-album" : "Ver álbum",
+        "detail" : {
+            "photos" : "Fotos",
+            "created-by" : "Creado por",
+            "created-at" : "Creado el",
+            "no-content" : "No hay fotos disponibles para mostrar en este álbum",
+            "comments" : "Comentarios",
+            "write-comment" : "Escribe un comentario..."
+        }
+    },
+    "scrumboard" : {
+        "boards" : {
+            "title" : "Tablero de Scrum",
+            "subtitle" : "Organiza y Gestiona tus Proyectos de Forma Efectiva",
+            "description" : "Organiza y gestiona tus proyectos de forma efectiva con el tablero de Scrum. Crea tareas, asigna responsables y establece fechas límite para mantener el progreso y la colaboración en tu equipo. Visualiza el estado de tus proyectos y tareas en tiempo real, y fomenta la transparencia y la responsabilidad en la ejecución de tus proyectos.",
+            "new" : {
+                "title" : "Nuevo tablero",
+                "fields" : {
+                    "name" : "Nombre",
+                    "name-placeholder" : "Nombre del tablero",
+                    "name-required" : "El nombre es obligatorio",
+                    "description" : "Descripción",
+                    "description-placeholder" : "Descripción del tablero",
+                    "description-required" : "La descripción es obligatoria",
+                    "members" : "Miembros",
+                    "members-placeholder" : "Agrega miembros al tablero",
+                    "members-required" : "Debes tener al menos un miembro en el tablero."
+                },
+                "create" : "Crear",
+                "discard" : "Descartar"
+            },
+            "details" : {
+                "boards" : "Tableros",
+                "settings" : "Configuración",
+                "add-a-card" : "Agregar tarjeta",
+                "add-another-card" : "Agregar otra tarjeta",
+                "add-a-list" : "Agregar lista",
+                "add-another-list" : "Agregar otra lista",
+                "rename-list" : "Renombrar lista",
+                "delete-list" : "Eliminar lista"
+            },
+            "card" : {
+                "title" : "Tarjeta",
+                "fields" : {
+                    "title" : "Título",
+                    "title-placeholder" : "Título de la tarjeta",
+                    "description" : "Descripción",
+                    "description-placeholder" : "Descripción de la tarjeta",
+                    "due-date" : "Fecha de vencimiento",
+                    "assignees" : "Asignado/s",
+                    "assignees-placeholder" : "Selecciona un miembro",
+                    "labels" : "Etiqueta/s",
+                    "labels-placeholder" : "Seleccione una etiqueta"
+                }
+            }
+        },
+        "settings" : {
+            "board-information" : {
+                "title" : "Información del tablero",
+                "subtitle" : "Completa la información de tu tablero",
+                "description" : "Actualiza la información de tu tablero",
+                "form" : {
+                    "title" : "Información del tablero",
+                    "description" : "Aquí puedes ver y editar la información de tu tablero.",
+                    "fields" : {
+                        "name" : "Nombre",
+                        "description" : "Descripción",
+                        "icon" : "Icono"
+                    }
+                }
+            },
+            "members" : {
+                "title" : "Miembros",
+                "description" : "Administra los miembros de tu tablero",
+                "heading" : "Miembros del tablero",
+                "heading-description" : "Aquí puedes ver y administrar los miembros de tu tablero.",
+                "add-member-input" : {
+                    "label" : "Miembros disponibles para agregar",
+                    "placeholder" : "Selecciona un miembro para agregar",
+                    "no-results" : "No hay miembros nuevos disponibles para agregar",
+                    "add" : "Agregar",
+                    "adding" : "Agregando"
+                },
+                "list" : {
+                    "title" : "Miembros del tablero",
+                    "no-content" : "No hay miembros en este tablero",
+                    "no-content-description" : "No hay miembros disponibles para mostrar en este tablero en este momento."
+                }
+            },
+            "labels" : {
+                "title" : "Etiquetas",
+                "description" : "Administra las etiquetas de tu tablero",
+                "add-label" : {
+                    "placeholder" : "Nombre de la etiqueta"
+                },
+                "list" : {
+                    "title" : "Lista de etiquetas",
+                    "no-content" : "No hay etiquetas en este tablero",
+                    "no-content-description" : "No hay etiquetas disponibles para mostrar en este tablero en este momento."
+                }
+            }
+        }
+    },
+    "benefits" : {
+        "title" : "Beneficios",
+        "subtitle" : "Descubre los Beneficios de Trabajar con Nosotros",
+        "description" : "Desde programas de bienestar y salud hasta descuentos y oportunidades de desarrollo profesional, nuestra empresa se preocupa por tu bienestar y crecimiento personal. Explora los beneficios disponibles y aprovecha al máximo tu experiencia laboral con nosotros.",
+        "no-content" : "No hay beneficios disponibles para mostrar en este momento",
+        "list" : {
+            "title" : "Lista de Beneficios",
+            "main-categories" : {
+                "title" : "Categorías destacadas",
+                "no-content" : "Sin categorías",
+                "no-content-description" : "No hay categorías disponibles para mostrar en este momento."
+            },
+            "main-benefits" : {
+                "title" : "Beneficios destacados",
+                "no-content" : "Sin beneficios",
+                "no-content-description" : "No hay beneficios disponibles para mostrar en este momento."
+            }
+        },
+        "category-detail" : {
+            "title" : "Detalle de la Categoría",
+            "no-content" : "Sin beneficios",
+            "no-content-description" : "No hay beneficios disponibles para mostrar en esta categoría en este momento",
+            "subcategory" : {
+                "title-list" : "Lista de Subcategorías"
+            },
+            "benefits" : {
+                "title-list" : "Lista de Beneficios"
+            }
+        },
+        "benefit-detail" : {
+            "main-benefits" : {
+                "title" : "Beneficios destacados",
+                "no-content" : "Sin beneficios",
+                "no-content-description" : "No hay beneficios disponibles para mostrar en este momento."
+            }
+        }
+    },
+    "files-library" : {
+        "title" : "Biblioteca de Archivos",
+        "subtitle" : "Explora y Descarga Archivos Importantes",
+        "description" : "Explora y descarga archivos importantes y documentos de la empresa. Desde manuales y políticas hasta presentaciones y formularios, nuestra biblioteca de archivos te permite acceder a la información que necesitas para realizar tu trabajo de manera eficiente y efectiva.",
+        "list" : {
+            "title" : "Lista de Archivos",
+            "no-content" : "No hay archivos disponibles para mostrar en este momento",
+            "search-placeholder" : "Buscar archivos..."
+        }
+    },
+    "user" : {
+        "settings" : {
+            "title" : "Configuración",
+            "personal-information" : {
+                "title" : "Información personal",
+                "description" : "Completa tu información personal",
+                "subtitle" : "Edita tu información personal para que sea más fácil para tus compañeros de trabajo encontrarte en la plataforma.",
+                "user-avatar" : "Sube tu foto de perfil",
+                "user-avatar-description" : "Aquí podrás actualizar tu avatar, la cual se mostrará en todos los lugares que aparezca tu nombre",
+                "user-detail" : "Detalles del usuario",
+                "user-detail-description" : "Aquí puedes ver y editar la información personal de un usuario, que es la información que se muestra en su perfil.",
+                "fields" : {
+                    "avatar" : "Foto de perfil",
+                    "firstname" : "Nombres",
+                    "lastname" : "Apellidos",
+                    "email" : "Correo",
+                    "phone" : "Teléfono",
+                    "city" : "Ciudad",
+                    "country" : "País",
+                    "birth-date" : "Fecha de nacimiento",
+                    "gender" : "Sexo",
+                    "bio" : "Información adicional"
+                }
+            },
+            "password-update" : {
+                "title" : "Actualizar Contraseña",
+                "subtitle" : "Mantén tu cuenta segura actualizando tu contraseña periódicamente.",
+                "description" : "Modifica tu contraseña de acceso para mantener tu cuenta segura.",
+                "fields" : {
+                    "current-password" : "Contraseña Actual",
+                    "new-password" : "Nueva Contraseña",
+                    "confirm-password" : "Confirmar Nueva Contraseña"
+                },
+                "update" : "Actualizar Contraseña",
+                "success" : "La contraseña ha sido actualizada con éxito",
+                "error" : "Se ha producido un error al actualizar la contraseña"
+            },
+            "contacts" : {
+                "title" : "Contactos",
+                "subtitle" : "Gestiona la información de tus contactos",
+                "description" : "Añade, elimina y actualiza la información de tus contactos para mantener tu libreta de direcciones al día.",
+                "email-list" : "Administra tus correos de contacto",
+                "email-list-description" : "Aquí puedes ver y administrar tus correos electrónicos.",
+                "phone-list" : "Administra tus números de contacto",
+                "phone-list-description" : "Aquí puedes ver y administrar tus números de teléfono.",
+                "social-list" : "Administra tus redes sociales",
+                "social-list-description" : "Aquí puedes ver y administrar tus redes sociales.",
+                "fields" : {
+                    "type" : "Tipo de contacto",
+                    "email" : "Correo",
+                    "number" : "Número",
+                    "label" : "Etiqueta"
+                },
+                "add-contact" : "Agregar Contacto",
+                "remove-contact" : "Eliminar Contacto",
+                "update-contact" : "Actualizar Contacto",
+                "no-contacts" : "No hay contactos disponibles en este momento."
+            }
+        }
+    },
+    "admin" : {
+        "users" : {
+            "title" : "Usuarios",
+            "subtitle" : "Administra los Usuarios de la Plataforma",
+            "description" : "Administra los usuarios de la plataforma, asigna roles y permisos, y mantén actualizada la información de contacto. Asegúrate de que cada miembro de la organización tenga acceso a las aplicaciones y recursos necesarios para colaborar y contribuir al éxito de la empresa.",
+            "new" : {
+                "title" : "Nuevo Usuario",
+                "email" : "Correo Electrónico",
+                "position" : "Cargo",
+                "invitationMessage" : "Mensaje de Invitación",
+                "role" : "Rol",
+                "send" : "Enviar invitación",
+                "success" : "La invitación ha sido enviada con éxito",
+                "error" : "Se ha producido un error al enviar la invitación"
+            },
+            "invitations" : {
+                "title" : "Invitaciones",
+                "noInvitations" : "No se encontraron invitaciones",
+                "email" : "Correo Electrónico",
+                "joined" : "Se Unió",
+                "discard" : "Descartar",
+                "resend" : "Reenviar",
+                "actions" : "Acciones"
+            }
+        },
+        "news" : {
+            "title" : "Noticias",
+            "table" : {
+                "id" : "ID",
+                "title" : "Título",
+                "category" : "Categoría",
+                "published" : "Publicado",
+                "cover" : "Portada",
+                "author" : "Autor",
+                "views" : "Vistas",
+                "actions" : "Acciones",
+                "view" : "Ver",
+                "edit" : "Editar",
+                "delete" : "Eliminar",
+                "no-content" : "No hay noticias disponibles para mostrar"
+            },
+            "delete" : {
+                "title" : "Eliminar Noticia",
+                "message" : "¿Estás seguro de que deseas eliminar esta noticia? No podrás deshacer esta acción.",
+                "cancel" : "Cancelar",
+                "delete" : "Eliminar",
+                "success" : "La noticia ha sido eliminada con éxito",
+                "error" : "Se ha producido un error al eliminar la noticia"
+            },
+            "list" : {
+                "title" : "Lista de Noticias",
+                "subtitle" : "Administra las noticias de la plataforma, crea y actualiza noticias, y mantén informados a los usuarios sobre los logros, eventos y anuncios importantes. Asegúrate de que cada miembro de la organización esté al tanto de las novedades y pueda participar activamente en la vida de la empresa.",
+                "description" : "Administra las Noticias de la Plataforma",
+                "no-content" : "No hay noticias disponibles para mostrar"
+            },
+            "create" : {
+                "title" : "Nueva Noticia",
+                "description" : "Crea una nueva noticia para compartir con los miembros de la organización",
+                "headline" : "Titular",
+                "headline-placeholder" : "Ejemplo: Celebración del Día de la Independencia",
+                "headline-required" : "El titular es obligatorio",
+                "category" : "Categoría",
+                "abstract" : "Resumen",
+                "abstract-placeholder" : "Ejemplo: El equipo celebró el Día de la Independencia con un almuerzo especial y actividades recreativas.",
+                "abstract-required" : "El resumen es obligatorio",
+                "content" : "Contenido",
+                "content-placeholder" : "Escribe aquí el contenido de la noticia...",
+                "cover" : "Portada",
+                "cover-hint" : "Arrastra y suelta una imagen aquí o haz clic para seleccionar un archivo",
+                "create" : "Crear"
+            },
+            "edit" : {
+                "title" : "Editar Noticia",
+                "headline" : "Titular",
+                "category" : "Categoría",
+                "abstract" : "Resumen",
+                "content" : "Contenido",
+                "cover" : "Portada",
+                "update" : "Actualizar"
+            },
+            "categories" : {
+                "title" : "Categorías",
+                "list" : {
+                    "title" : "Lista de Categorías",
+                    "subtitle" : "Administra las categorías de noticias disponibles en la plataforma, crea y actualiza categorías para organizar las noticias. Asegúrate de que cada noticia esté asociada a una categoría relevante y sea fácilmente accesible para los usuarios.",
+                    "description" : "Administra las categorías de noticias",
+                    "no-content" : "No hay categorías disponibles para mostrar"
+                },
+                "create" : {
+                    "title" : "Nueva Categoría",
+                    "subtitle" : "Crea una nueva categoría para organizar las noticias",
+                    "description" : "Crea una nueva categoría para organizar las noticias",
+                    "first-group" : {
+                        "title" : "Información de la categoría",
+                        "description" : "Los siguientes campos son requeridos para la creación de una categoría.",
+                        "fields" : {
+                            "name" : "Nombre",
+                            "name-placeholder" : "Escribe el nombre de la categoría",
+                            "description" : "Descripción",
+                            "description-placeholder" : "Escribe una descripción para tu categoría"
+                        }
+                    },
+                    "create" : "Crear"
+                }
+            }
+        },
+        "albums" : {
+            "title" : "Gestor de Álbumes",
+            "subtitle" : "Administra los Álbumes de la Plataforma",
+            "description" : "Crea y actualiza y elimina álbumes de fotos para compartir momentos importantes y eventos especiales con los miembros de la organización. Asegúrate de que cada álbum refleje la cultura y los logros de la empresa, y fomente la interacción y la participación de los usuarios.",
+            "table" : {
+                "id" : "ID",
+                "cover" : "Portada",
+                "name" : "Nombre",
+                "image-count" : "Cantidad de Imágenes",
+                "created-at" : "Creado el",
+                "views" : "Vistas",
+                "actions" : "Acciones",
+                "view" : "Ver",
+                "edit" : "Editar",
+                "delete" : "Eliminar",
+                "add-images" : "Agregar Imágenes",
+                "no-content" : "No hay álbumes disponibles para mostrar"
+            },
+            "new" : {
+                "title" : "Nuevo Álbum",
+                "name" : "Nombre",
+                "description" : "Descripción",
+                "cover" : "Portada",
+                "create" : "Crear"
+            },
+            "edit" : {
+                "title" : "Editar Álbum",
+                "name" : "Nombre",
+                "description" : "Descripción",
+                "cover" : "Portada",
+                "update" : "Actualizar"
+            },
+            "details" : {
+                "title" : "Detalle del Álbum",
+                "see-cover" : "Ver portada",
+                "edit" : "Editar",
+                "delete" : "Eliminar",
+                "table" : {
+                    "image" : "Imagen",
+                    "format" : "Formato",
+                    "size" : "Tamaño",
+                    "created-at" : "Creado el",
+                    "actions" : "Acciones",
+                    "delete" : "Eliminar",
+                    "no-content" : "No hay imágenes disponibles para mostrar"
+                },
+                "new" : {
+                    "title" : "Agregar Imágenes",
+                    "images" : "Imágenes",
+                    "upload" : "Subir"
+                }
+            }
+        },
+        "events" : {
+            "title" : "Eventos",
+            "subtitle" : "Administra los Eventos de la Plataforma",
+            "description" : "Administra los eventos de la plataforma, crea y actualiza eventos, y mantén informados a los usuarios sobre las reuniones, conferencias y actividades importantes. Asegúrate de que cada miembro de la organización esté al tanto de los eventos y pueda participar activamente en la vida de la empresa.",
+            "new" : {
+                "title" : "Nuevo Evento",
+                "name" : "Título",
+                "description" : "Descripción",
+                "isAllDay" : "Es Todo el Día",
+                "date" : "Fecha",
+                "schedule" : "Horario",
+                "noEndDate" : "Es Todo el Día",
+                "hour-start" : "Inicio",
+                "hour-end" : "Término",
+                "location" : "Ubicación",
+                "addUrl" : "Agregar URL",
+                "save" : "Guardar",
+                "next" : "Siguiente",
+                "back" : "Volver",
+                "actions" : "Acciones",
+                "view" : "Ver",
+                "edit" : "Editar",
+                "delete" : "Eliminar",
+                "url" : {
+                    "label" : "Nombre a mostrar",
+                    "url" : "Dirección URL",
+                    "platform" : "Plataforma",
+                    "latitude" : "Latitud",
+                    "longitude" : "Longitud"
+                },
+                "image" : "Imagen",
+                "capacity" : "Capacidad",
+                "organizer" : {
+                    "title" : "Organizador",
+                    "name" : "Nombre Completo",
+                    "email" : "Correo Electrónico",
+                    "phone" : {
+                        "countryCode" : "Código de País",
+                        "number" : "Número"
+                    }
+                },
+                "type" : "Tipo",
+                "status" : "Estado",
+                "eventTypes" : {
+                    "conference" : "Conferencia",
+                    "meetup" : "Reunión",
+                    "workshop" : "Taller",
+                    "seminar" : "Seminario",
+                    "webinar" : "Webinario",
+                    "hackathon" : "Hackathon",
+                    "concert" : "Concierto",
+                    "festival" : "Festival",
+                    "exhibition" : "Exposición",
+                    "fair" : "Feria",
+                    "show" : "Show",
+                    "performance" : "Actuación",
+                    "competition" : "Competencia",
+                    "game" : "Juego",
+                    "sports" : "Deportes"
+                },
+                "eventStatuses" : {
+                    "draft" : "Borrador",
+                    "published" : "Publicado",
+                    "cancelled" : "Cancelado",
+                    "postponed" : "Pospuesto",
+                    "rescheduled" : "Reprogramado",
+                    "ended" : "Finalizado"
+                },
+                "platforms" : {
+                    "gmeet" : "Google Meets",
+                    "zoom" : "Zoom",
+                    "teams" : "Microsoft Teams",
+                    "maps" : "Mapa (se abrirá un mapa)",
+                    "website" : "Página web",
+                    "other" : "Otro"
+                },
+                "step1Details" : "Agrega datos adicionales para la creación del evento",
+                "step1Title" : "Nuevo evento",
+                "step2Details" : "Agrega datos adicionales sobre la ubicación",
+                "step2Title" : "Detalles adicionales",
+                "step3Details" : "Agrega datos adicionales sobre el organizador",
+                "step3Title" : "Detalles del organizador"
+            }
+        },
+        "benefits" : {
+            "title" : "Beneficios",
+            "types" : {
+                "presential" : "Presencial",
+                "virtual" : "Virtual",
+                "hybrid" : "Híbrido"
+            },
+            "list" : {
+                "title" : "Lista de Beneficios",
+                "subtitle" : "Administra los Beneficios de la Plataforma",
+                "description" : "Administra los beneficios de la plataforma, crea y actualiza beneficios, y mantén informados a los usuarios sobre las oportunidades y descuentos disponibles. Asegúrate de que cada miembro de la organización pueda acceder a los beneficios y aprovechar al máximo su experiencia laboral con nosotros.",
+                "no-content" : "No hay beneficios disponibles para mostrar",
+                "table-columns" : {
+                    "id" : "ID",
+                    "title" : "Nombre",
+                    "type" : "Tipo",
+                    "category" : "Categoría",
+                    "company" : "Empresa",
+                    "discounts-count" : "Descuentos",
+                    "views" : "Vistas",
+                    "actions" : "Acciones"
+                },
+                "table-actions" : {
+                    "view" : "Ver",
+                    "edit" : "Editar",
+                    "delete" : "Eliminar"
+                }
+            },
+            "create" : {
+                "title" : "Nuevo Beneficio",
+                "subtitle" : "Crea un nuevo beneficio para la plataforma",
+                "description" : "Agrega un nuevo beneficio a la plataforma",
+                "field-groups" : {
+                    "information" : "Información del beneficio",
+                    "information-description" : "Los siguientes campos son requeridos para la creación de un beneficio.",
+                    "additional" : "Información adicional",
+                    "additional-description" : "Los siguientes campos son opcionales y pueden ser completados si es necesario."
+                },
+                "fields" : {
+                    "name" : "Nombre",
+                    "name-placeholder" : "Escribe el nombre del beneficio",
+                    "description" : "Descripción",
+                    "description-placeholder" : "Escribe una descripción para tu beneficio",
+                    "type" : "Tipo de beneficio",
+                    "type-options" : {
+                        "presential" : "Presencial",
+                        "virtual" : "Virtual",
+                        "hybrid" : "Híbrido"
+                    },
+                    "type-placeholder" : "Selecciona el tipo de beneficio",
+                    "category" : "Categoría",
+                    "subcategory" : "Subcategoría",
+                    "image" : "Imagen",
+                    "requirements" : "Requisitos",
+                    "requirements-placeholder" : "Escribe los requisitos para acceder al beneficio",
+                    "requirements-hint" : "Ejemplo: Presentar la tarjeta de identificación de la empresa",
+                    "conditions" : "Condiciones",
+                    "conditions-placeholder" : "Escribe las condiciones para acceder al beneficio",
+                    "conditions-hint" : "Ejemplo: Válido solo para compras en línea"
+                },
+                "create" : "Crear"
+            },
+            "edit" : {
+                "title" : "Editar Beneficio",
+                "name" : "Nombre",
+                "description" : "Descripción",
+                "category" : "Categoría",
+                "subcategory" : "Subcategoría",
+                "update" : "Actualizar"
+            },
+            "delete" : {
+                "title" : "Eliminar Beneficio",
+                "message" : "¿Estás seguro de que deseas eliminar este beneficio? <span class=\"font-medium\">No podrás deshacer esta acción.</span>",
+                "cancel" : "Cancelar",
+                "delete" : "Eliminar",
+                "success" : "El beneficio ha sido eliminado con éxito",
+                "error" : "Se ha producido un error al eliminar el beneficio"
+            },
+            "category" : {
+                "title" : "Categorías",
+                "list" : {
+                    "title" : "Lista de Categorías",
+                    "description" : "Administra las categorías de beneficios disponibles en la plataforma, crea y actualiza categorías para organizar los beneficios. Asegúrate de que cada beneficio esté asociado a una categoría relevante y sea fácilmente accesible para los usuarios.",
+                    "subtitle" : "Lista de categorías disponibles en la plataforma",
+                    "no-content" : "No hay categorías disponibles para mostrar",
+                    "table-columns" : {
+                        "id" : "ID",
+                        "name" : "Nombre",
+                        "parent" : "Padre",
+                        "active" : "Activo",
+                        "order" : "Orden",
+                        "actions" : "Acciones"
+                    },
+                    "table-actions" : {
+                        "view" : "Ver",
+                        "edit" : "Editar",
+                        "delete" : "Eliminar"
+                    }
+                },
+                "create" : {
+                    "title" : "Nueva Categoría",
+                    "subtitle" : "Crea una nueva categoría para organizar los beneficios",
+                    "description" : "Agrega una nueva categoría para organizar los beneficios disponibles en la plataforma",
+                    "field-groups" : {
+                        "information" : "Información de la categoría",
+                        "information-description" : "Los siguientes campos son requeridos para la creación de una categoría."
+                    },
+                    "fields" : {
+                        "name" : "Nombre",
+                        "name-placeholder" : "Escribe el nombre de la categoría",
+                        "description" : "Descripción",
+                        "description-placeholder" : "Escribe una descripción para tu categoría",
+                        "icon" : "Icono",
+                        "icon-hint" : "Icono que se mostrará en la lista de categorías",
+                        "image" : "Imagen",
+                        "image-hint" : "Imagen que se mostrará en el detalle de la categoría",
+                        "save" : "Crear"
+                    }
+                },
+                "delete" : {
+                    "title" : "Eliminar Categoría",
+                    "message" : "¿Estás seguro de que deseas eliminar esta categoría? <span class=\"font-medium\">No podrás deshacer esta acción.</span>",
+                    "hint" : "<span class=\"font-medium\">Todos los beneficios asociados a esta categoría serán eliminados.</span>",
+                    "cancel" : "Cancelar",
+                    "delete" : "Eliminar",
+                    "success" : "La categoría ha sido eliminada con éxito",
+                    "error" : "Se ha producido un error al eliminar la categoría"
+                }
+            },
+            "company" : {
+                "title" : "Empresas",
+                "description" : "Administra las empresas asociadas a los beneficios disponibles en la plataforma",
+                "list" : {
+                    "title" : "Lista de Empresas",
+                    "subtitle" : "Lista de empresas disponibles en la plataforma.",
+                    "description" : "Administra las empresas asociadas a los beneficios disponibles en la plataforma, crea y actualiza empresas para asociar con los beneficios. Asegúrate de que cada beneficio esté asociado a una empresa relevante y sea fácilmente accesible para los usuarios.",
+                    "no-content" : "No hay empresas disponibles para mostrar",
+                    "table-columns" : {
+                        "id" : "ID",
+                        "name" : "Nombre",
+                        "description" : "Descripción",
+                        "benefits-count" : "Beneficios",
+                        "actions" : "Acciones"
+                    },
+                    "table-actions" : {
+                        "view" : "Ver",
+                        "edit" : "Editar",
+                        "delete" : "Eliminar"
+                    }
+                },
+                "create" : {
+                    "title" : "Nueva Empresa",
+                    "subtitle" : "Crea una nueva empresa para asociar con los beneficios",
+                    "description" : "Agrega una nueva empresa para asociar con los beneficios disponibles en la plataforma",
+                    "field-groups" : {
+                        "information" : "Información de la empresa",
+                        "information-description" : "Los siguientes campos son requeridos para la creación de una empresa."
+                    },
+                    "fields" : {
+                        "name" : "Nombre",
+                        "name-placeholder" : "Escribe el nombre de la empresa",
+                        "description" : "Descripción",
+                        "description-placeholder" : "Escribe una descripción de la empresa",
+                        "image" : "Imagen",
+                        "image-hint" : "Se mostrará en el resumen y detalle del beneficio.",
+                        "save" : "Crear"
+                    }
+                },
+                "delete" : {
+                    "title" : "Eliminar Empresa",
+                    "message" : "¿Estás seguro de que deseas eliminar esta empresa? <span class=\"font-medium\">No podrás deshacer esta acción.</span>",
+                    "hint" : "<span class=\"font-medium\">Todos los beneficios asociados a esta empresa serán eliminados.</span>",
+                    "cancel" : "Cancelar",
+                    "delete" : "Eliminar",
+                    "success" : "La empresa ha sido eliminada con éxito",
+                    "error" : "Se ha producido un error al eliminar la empresa"
+                }
+            }
+        }
+    },
+    "actions" : {
+        "save" : "Guardar",
+        "save-changes" : "Guardar cambios",
+        "discard" : "Descartar",
+        "reset" : "Limpiar",
+        "clear" : "Limpiar",
+        "cancel" : "Cancelar",
+        "delete" : "Eliminar",
+        "select" : "Seleccionar",
+        "edit" : "Editar",
+        "view" : "Ver",
+        "create" : "Crear",
+        "update" : "Actualizar",
+        "send" : "Enviar",
+        "resend" : "Reenviar",
+        "add" : "Agregar",
+        "upload" : "Subir",
+        "next" : "Siguiente",
+        "back" : "Volver",
+        "addUrl" : "Agregar URL"
+    },
+    "errors" : {
+        "runtime" : {
+            "title" : "Error de tiempo de ejecución",
+            "message" : "Se ha producido un error inesperado. Por favor, inténtalo de nuevo más tarde."
+        },
+        "not-found" : {
+            "title" : "Página no encontrada",
+            "message" : "La página que estás buscando no se ha encontrado. Por favor, verifica la URL e inténtalo de nuevo."
+        },
+        "unauthorized" : {
+            "title" : "Acceso no autorizado",
+            "message" : "No tienes permiso para acceder a esta página. Por favor, inicia sesión con una cuenta autorizada."
+        },
+        "forbidden" : {
+            "title" : "Acceso denegado",
+            "message" : "No tienes permiso para acceder a esta página. Por favor, contacta al administrador del sistema para obtener acceso."
+        },
+        "service" : {
+            "title" : "Error del Servicio",
+            "message" : "Se ha producido un error al comunicarse con el servicio. Por favor, inténtalo de nuevo más tarde."
+        },
+        "validation" : {
+            "title" : "Error de Validación",
+            "message" : "Por favor, corrige los errores en el formulario antes de enviarlo."
+        },
+        "form" : {
+            "min-length" : "El contenido debe tener al menos {{length}} caracteres",
+            "max-length" : "El contenido no debe exceder los {{length}} caracteres",
+            "required" : "Este campo es obligatorio",
+            "invalid" : "El formulario contiene uno o más errores",
+            "password-must-match" : "Las contraseñas deben coincidir"
+        }
+    },
+    "selectors" : {
+        "news-category" : {
+            "title" : "Categoría de Noticias",
+            "no-categories" : "No hay categorías disponibles"
+        },
+        "benefit-category" : {
+            "title" : "Categorías",
+            "placeholder" : "Selecciona una categoría",
+            "no-data" : "No hay categorías disponibles",
+            "hint-parent" : "Si corresponde a una subcategoria, selecciona la categoría padre"
+        }
+    },
+    "messages" : {
+        "upload-complete" : "La carga se ha completado con éxito",
+        "upload-error" : "Se ha producido un error al subir el/los archivo(s)"
+    },
+    "welcome-back" : "Bienvenido de nuevo",
+    "Project" : "Proyecto",
+    "Analytics" : "Analítica",
+    "modal" : {
+        "confirmation-default" : {
+            "title" : "Confirmación de acción",
+            "message" : "¿Estás seguro de que deseas realizar esta acción?",
+            "cancel" : "Cancelar",
+            "confirm" : "Confirmar"
+        },
+        "delete-confirmation" : {
+            "title" : "Eliminar",
+            "message" : "¿Estás seguro de que deseas eliminar este elemento?, <span class=\"font-medium\">No podrás deshacer esta acción.</span>",
+            "cancel" : "Cancelar",
+            "confirm" : "Eliminar"
+        }
+    },
+    "notyf-modal" : {
+        "create" : {
+            "success" : "Creación exitosa",
+            "error" : "Error al crear"
+        }
+    },
+    "adjectives" : {
+        "more" : "más"
+    }
+}

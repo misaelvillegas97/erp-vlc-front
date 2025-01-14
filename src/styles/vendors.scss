@@ -1,0 +1,23 @@
+/* ----------------------------------------------------------------------------------------------------- */
+/*  @ Import third party library styles here.
+/* ----------------------------------------------------------------------------------------------------- */
+
+/* Perfect scrollbar */
+@import 'perfect-scrollbar/css/perfect-scrollbar.css';
+
+/* Quill */
+@import 'quill/dist/quill.snow.css';
+
+/* Splide (swipper gallery) */
+@import '@splidejs/splide/dist/css/splide.min.css';
+
+/* Lightgallery */
+@import 'lightgallery/scss/lightgallery';
+@import 'lightgallery/scss/lg-zoom';
+@import 'lightgallery/scss/lg-autoplay';
+
+/* Notyf */
+@import 'notyf/notyf.min.css';
+
+/* Overrides */
+@import './custom/quill';

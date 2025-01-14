@@ -1,0 +1,139 @@
+<div class="lg:absolute lg:inset-0 flex min-w-0 flex-col xl:overflow-hidden h-full">
+    <mat-drawer-container class="h-full w-full flex-auto relative">
+        <!-- Drawer -->
+        <mat-drawer
+            #drawer
+            [autoFocus]="false"
+            [mode]="drawerMode"
+            [opened]="drawerOpened"
+            class="dark:bg-gray-900 sm:w-96"
+        >
+            <!-- Header -->
+            @if (title) {
+                <div class="flex flex-0 p-8 pr-6 items-center justify-between sm:py-10 bg-hover border-b">
+                    <!-- Title -->
+                    <h2 [innerText]="title" class="text-3xl font-extrabold leading-none tracking-tight"></h2>
+                    <!-- Close button -->
+                    <div class="lg:hidden">
+                        <button (click)="drawer.close()" mat-icon-button>
+                            <mat-icon
+                                [svgIcon]="'heroicons_outline:x-mark'"
+                            ></mat-icon>
+                        </button>
+                    </div>
+                </div>
+            }
+            <!-- Panel links -->
+            <div class="flex flex-col divide-y border-b">
+                @for (panel of panels; track trackByFn($index, panel)) {
+                    @if (panel.children && panel.children.length) {
+                        <div class="py-5 px-8 flex">
+                            @if (panel.icon) {
+                                <mat-icon class="text-hint mr-3" [svgIcon]="panel.icon"></mat-icon>
+                            }
+                            <div class="">
+                                <h3 class="text-lg font-semibold text-primary">{{ panel.title }}</h3>
+                            </div>
+                        </div>
+
+                        @for (child of panel.children; track trackByFn($index, child)) {
+                            <a
+                                class="flex cursor-pointer px-8 py-5 dark:hover:bg-hover hover:bg-gray-100 group"
+                                [routerLink]="child.link"
+                                [routerLinkActive]="['bg-primary-50', 'dark:bg-hover']"
+                                [routerLinkActiveOptions]="{ exact: true }"
+                                ariaCurrentWhenActive="page"
+                                (click)="goToPanel(panel)"
+                                [disabled]="child.disabled"
+                            >
+                                <mat-icon
+                                    class="text-hint block group-aria-[current]:hidden"
+                                    [routerLinkActive]="['text-primary', 'dark:text-primary-500']"
+                                    [routerLinkActiveOptions]="{ exact: true }"
+                                    [svgIcon]="child.icon"
+                                ></mat-icon>
+                                <mat-icon
+                                    class="text-hint hidden group-aria-[current]:block"
+                                    [routerLinkActive]="['text-primary', 'dark:text-primary-500']"
+                                    [routerLinkActiveOptions]="{ exact: true }"
+                                    [svgIcon]="child.selectedIcon || child.icon"
+                                ></mat-icon>
+                                <div class="ml-3">
+                                    <div
+                                        class="font-medium leading-6"
+                                        [routerLinkActive]="['text-primary', 'dark:text-primary-500']"
+                                        [routerLinkActiveOptions]="{ exact: true }"
+                                    >
+                                        {{ child.title }}
+                                    </div>
+                                    <div class="text-secondary mt-0.5">
+                                        {{ child.description }}
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    } @else {
+                        <a
+                            class="flex cursor-pointer px-8 py-5 dark:hover:bg-hover hover:bg-gray-100 group"
+                            [routerLink]="panel.link"
+                            [routerLinkActive]="['bg-primary-50', 'dark:bg-hover', 'active']"
+                            [routerLinkActiveOptions]="{ exact: true }"
+                            ariaCurrentWhenActive="page"
+                            (click)="goToPanel(panel)"
+                            [disabled]="panel.disabled"
+                        >
+                            <mat-icon
+                                class="text-hint block group-aria-[current]:hidden"
+                                [routerLinkActive]="['text-primary', 'dark:text-primary-500']"
+                                [routerLinkActiveOptions]="{ exact: true }"
+                                [svgIcon]="panel.icon"
+                            ></mat-icon>
+                            <mat-icon
+                                class="text-hint hidden group-aria-[current]:block"
+                                [routerLinkActive]="['text-primary', 'dark:text-primary-500']"
+                                [routerLinkActiveOptions]="{ exact: true }"
+                                [svgIcon]="panel.selectedIcon || panel.icon"
+                            ></mat-icon>
+                            <div class="ml-3">
+                                <div
+                                    class="font-medium leading-6"
+                                    [routerLinkActive]="['text-primary', 'dark:text-primary-500']"
+                                    [routerLinkActiveOptions]="{ exact: true }"
+                                >
+                                    {{ panel.title }}
+                                </div>
+                                <div class="text-secondary mt-0.5">
+                                    {{ panel.description }}
+                                </div>
+                            </div>
+                        </a>
+                    }
+                }
+            </div>
+        </mat-drawer>
+
+        <!-- Drawer content, should scroll, no grow -->
+        <mat-drawer-content class="flex flex-col bg-transparent h-full xl:overflow-hidden">
+            @if (headerComponent) {
+                <ng-content select="drawer-header"></ng-content>
+            }
+
+            <!-- Main -->
+            <div cdkScrollable class="flex-auto flex flex-col overflow-y-auto">
+                <!-- Panel header -->
+                <div class="lg:hidden flex flex-row items-center w-full max-w-xs sm:max-w-5xl p-4">
+                    <!-- Drawer toggle -->
+                    <button (click)="drawer.toggle()" mat-icon-button>
+                        <mat-icon [svgIcon]="'heroicons_outline:bars-3'"></mat-icon>
+                    </button>
+
+                    <!-- Panel title -->
+                    <h3 class="ml-2 text-3xl font-bold leading-none tracking-tight lg:ml-0 self-center">
+                        {{ title }}
+                    </h3>
+                </div>
+                <ng-content select="drawer-content"></ng-content>
+            </div>
+        </mat-drawer-content>
+    </mat-drawer-container>
+</div>

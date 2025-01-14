@@ -1,0 +1,11 @@
+<mat-form-field class="w-full" subscriptSizing="dynamic">
+    <mat-label>{{ 'selectors.news-category.title' | transloco }}</mat-label>
+    <mat-select (selectionChange)="onCategoryChange($event)" [value]="selectedCategory">
+        @if (categories.length === 0) {
+            <mat-option [value]="null" selected="selected">{{ 'selectors.news-category.no-categories' | transloco }}</mat-option>
+        }
+        @for (category of categories; track category.value) {
+            <mat-option [value]="category.value">{{ category.label }}</mat-option>
+        }
+    </mat-select>
+</mat-form-field>

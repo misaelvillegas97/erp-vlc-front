@@ -1,0 +1,571 @@
+<script src="project.component.ts"></script>
+<div class="flex min-w-0 flex-auto flex-col">
+    <!-- Header -->
+    <div class="bg-card">
+        <div class="mx-auto flex w-full max-w-screen-xl flex-col px-6 sm:px-8">
+            <div class="my-8 flex min-w-0 flex-auto flex-col sm:my-12 sm:flex-row sm:items-center">
+                <!-- Avatar and name -->
+                <div class="flex min-w-0 flex-auto items-center">
+                    <div class="h-16 w-16 flex-0 overflow-hidden rounded-full">
+                        <img class="h-full w-full object-cover" src="images/avatars/brian-hughes.jpg"/>
+                    </div>
+                    <div class="ml-4 flex min-w-0 flex-col">
+                        <ng-container *transloco="let t">
+                            <div class="truncate text-2xl font-semibold leading-7 tracking-tight md:text-5xl md:leading-snug">{{ t('welcome-back') }}, Brian!</div>
+                        </ng-container>
+                        <div class="flex items-center">
+                            <mat-icon [svgIcon]="'heroicons_solid:bell'" class="icon-size-5"></mat-icon>
+                            <div class="text-secondary ml-1.5 truncate leading-6">You have 2 new messages and 15 new tasks</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Actions -->
+                <div class="mt-6 flex items-center space-x-3 sm:ml-2 sm:mt-0">
+                    <button [color]="'accent'" class="bg-accent" mat-flat-button>
+                        <mat-icon [svgIcon]="'heroicons_solid:envelope'" class="icon-size-5"></mat-icon>
+                        <span class="ml-2">Messages</span>
+                    </button>
+                    <button [color]="'primary'" mat-flat-button>
+                        <mat-icon [svgIcon]="'heroicons_solid:cog-8-tooth'" class="icon-size-5"></mat-icon>
+                        <span class="ml-2">Settings</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Project selector -->
+            <div
+                [matMenuTriggerFor]="projectsMenu"
+                class="bg-default relative flex cursor-pointer self-start overflow-hidden rounded-t-xl border border-b-0 pb-1 pl-5 pr-4 pt-2"
+                matRipple
+            >
+                <div class="flex items-center">
+                    <div class="overflow-hidden">
+                        <div class="truncate font-medium leading-6">{{ selectedProject }}</div>
+                    </div>
+                    <div class="flex items-center justify-center pl-2">
+                        <mat-icon [svgIcon]="'heroicons_mini:chevron-down'" class="icon-size-5"></mat-icon>
+                    </div>
+                </div>
+                <mat-menu #projectsMenu="matMenu" [xPosition]="'before'">
+                    <button (click)="selectedProject = 'ACME Corp. Backend App'" mat-menu-item>ACME Corp. Backend App</button>
+                    <button (click)="selectedProject = 'ACME Corp. Frontend App'" mat-menu-item>ACME Corp. Frontend App</button>
+                    <button (click)="selectedProject = 'Creapond'" mat-menu-item>Creapond</button>
+                    <button (click)="selectedProject = 'Withinpixels'" mat-menu-item>Withinpixels</button>
+                </mat-menu>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="-mt-px flex-auto border-t pt-4 sm:pt-6">
+        <div class="mx-auto w-full max-w-screen-xl">
+            <!-- Tabs -->
+            <mat-tab-group [animationDuration]="'0'" class="sm:px-2" mat-stretch-tabs="false">
+                <!-- Home -->
+                <mat-tab label="Home">
+                    <ng-template matTabContent>
+                        <div class="grid w-full min-w-0 grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
+                            <!-- Pending -->
+                            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow">
+                                <div class="flex items-start justify-between">
+                                    <div class="truncate text-lg font-medium leading-6 tracking-tight">Pendientes</div>
+                                </div>
+                                <div class="mt-2 flex-1 flex flex-col items-center justify-center">
+                                    <div class="text-7xl font-bold leading-none tracking-tight text-blue-500 sm:text-8xl">{{ orders.countOverview['pending'] || 0 }}</div>
+                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Órdenes</div>
+                                </div>
+                            </div>
+                            <!-- IN_PROGRESS -->
+                            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow">
+                                <div class="flex items-start justify-between">
+                                    <div class="truncate text-lg font-medium leading-6 tracking-tight">En progreso</div>
+                                </div>
+                                <div class="mt-2 flex-1 flex flex-col items-center justify-center">
+                                    <div class="text-7xl font-bold leading-none tracking-tight text-orange-500 sm:text-8xl">{{ orders.countOverview['middle'] || 0 }}</div>
+                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Órdenes</div>
+                                </div>
+                            </div>
+
+                            <!-- DELIVERED -->
+                            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow">
+                                <div class="flex items-start justify-between">
+                                    <div class="truncate text-lg font-medium leading-6 tracking-tight">Entregadas</div>
+                                </div>
+                                <div class="mt-2 flex-1 flex flex-col items-center justify-center">
+                                    <div class="text-7xl font-bold leading-none tracking-tight text-green-500 sm:text-8xl">{{ orders.countOverview['completed'] || 0 }}</div>
+                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Órdenes</div>
+                                </div>
+                            </div>
+
+                            <!-- CANCELED -->
+                            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow">
+                                <div class="flex items-start justify-between">
+                                    <div class="truncate text-lg font-medium leading-6 tracking-tight">Canceladas</div>
+                                </div>
+                                <div class="mt-2 flex-1 flex flex-col items-center justify-center">
+                                    <div class="text-7xl font-bold leading-none tracking-tight text-red-500 sm:text-8xl">{{ orders.countOverview['canceled'] || 0 }}</div>
+                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Órdenes</div>
+                                </div>
+                            </div>
+
+                            <!-- Github issues summary -->
+                            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-2 md:col-span-4">
+                                <div class="flex flex-col items-start justify-between sm:flex-row">
+                                    <div class="truncate text-lg font-medium leading-6 tracking-tight">Resumen por cliente</div>
+                                    <div class="mt-3 sm:ml-2 sm:mt-0">
+                                        <mat-button-toggle-group #githubIssuesWeekSelector="matButtonToggleGroup" value="this-week">
+                                            <mat-button-toggle value="last-week">Last Week</mat-button-toggle>
+                                            <mat-button-toggle value="this-week">This Week</mat-button-toggle>
+                                        </mat-button-toggle-group>
+                                    </div>
+                                </div>
+                                <div class="mt-8 grid w-full grid-flow-row grid-cols-1 gap-6 sm:mt-4 lg:grid-cols-2">
+                                    <!-- New vs. Closed -->
+                                    <div class="flex flex-auto flex-col">
+                                        <div class="text-secondary font-medium">Conteo por cliente</div>
+                                        <div class="flex flex-auto flex-col">
+                                            <apx-chart
+                                                [chart]="chartCountByClient.chart"
+                                                [colors]="chartCountByClient.colors"
+                                                [dataLabels]="chartCountByClient.dataLabels"
+                                                [grid]="chartCountByClient.grid"
+                                                [labels]="chartCountByClient.labels"
+                                                [legend]="chartCountByClient.legend"
+                                                [plotOptions]="chartCountByClient.plotOptions"
+                                                [series]="chartCountByClient.series"
+                                                [states]="chartCountByClient.states"
+                                                [stroke]="chartCountByClient.stroke"
+                                                [tooltip]="chartCountByClient.tooltip"
+                                                [xaxis]="chartCountByClient.xaxis"
+                                                [yaxis]="chartCountByClient.yaxis"
+                                                class="h-80 w-full flex-auto"
+                                            ></apx-chart>
+                                        </div>
+                                    </div>
+                                    <!-- Overview -->
+                                    <div class="flex flex-col">
+                                        <div class="text-secondary font-medium">Resumen</div>
+                                        <div class="mt-6 grid flex-auto grid-cols-4 gap-4">
+                                            <!-- Total orders -->
+                                            <div class="col-span-2 flex flex-col items-center justify-center rounded-2xl bg-indigo-50 px-1 py-8 text-indigo-800 dark:bg-white dark:bg-opacity-5 dark:text-indigo-400">
+                                                <div class="text-5xl font-semibold leading-none tracking-tight sm:text-7xl">
+                                                    {{ orders.orders.length }}
+                                                </div>
+                                                <div class="mt-1 text-sm font-medium sm:text-lg">Órdenes totales</div>
+                                            </div>
+                                            <!-- Closed -->
+                                            <div class="col-span-2 flex flex-col items-center justify-center rounded-2xl bg-green-50 px-1 py-8 text-green-800 dark:bg-white dark:bg-opacity-5 dark:text-green-500">
+                                                <div class="text-5xl font-semibold leading-none tracking-tight sm:text-7xl">
+                                                    {{ orders.countsByStatus['COMPLETED'] || 0 }}
+                                                </div>
+                                                <div class="mt-1 text-sm font-medium sm:text-lg">Órdenes finalizadas</div>
+                                            </div>
+                                            <!-- PENDING -->
+                                            <div class="text-secondary col-span-2 flex flex-col items-center justify-center rounded-2xl bg-gray-100 px-1 py-8 dark:bg-white dark:bg-opacity-5 sm:col-span-1">
+                                                <div class="text-5xl font-semibold leading-none tracking-tight">
+                                                    {{ orders.countsByStatus['PENDING'] || 0 }}
+                                                </div>
+                                                <div class="mt-1 text-center text-sm font-medium">Pendientes</div>
+                                            </div>
+                                            <!-- IN_PROGRESS -->
+                                            <div class="text-secondary col-span-2 flex flex-col items-center justify-center rounded-2xl bg-gray-100 px-1 py-8 dark:bg-white dark:bg-opacity-5 sm:col-span-1">
+                                                <div class="text-5xl font-semibold leading-none tracking-tight">
+                                                    {{ orders.countsByStatus['IN_PROGRESS'] || 0 }}
+                                                </div>
+                                                <div class="mt-1 text-center text-sm font-medium">Preparando</div>
+                                            </div>
+                                            <!-- SHIPPED -->
+                                            <div class="text-secondary col-span-2 flex flex-col items-center justify-center rounded-2xl bg-gray-100 px-1 py-8 dark:bg-white dark:bg-opacity-5 sm:col-span-1">
+                                                <div class="text-5xl font-semibold leading-none tracking-tight">
+                                                    {{ orders.countsByStatus['SHIPPED'] || 0 }}
+                                                </div>
+                                                <div class="mt-1 text-center text-sm font-medium">Enviadas</div>
+                                            </div>
+                                            <!-- IN_TRANSIT -->
+                                            <div class="text-secondary col-span-2 flex flex-col items-center justify-center rounded-2xl bg-gray-100 px-1 py-8 dark:bg-white dark:bg-opacity-5 sm:col-span-1">
+                                                <div class="text-5xl font-semibold leading-none tracking-tight">
+                                                    {{ orders.countsByStatus['IN_TRANSIT'] || 0 }}
+                                                </div>
+                                                <div class="mt-1 text-center text-sm font-medium">En tránsito</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Task distribution -->
+                            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-2 md:col-span-4 lg:col-span-2">
+                                <div class="flex flex-col items-start justify-between sm:flex-row">
+                                    <div class="truncate text-lg font-medium leading-6 tracking-tight">Task Distribution</div>
+                                    <div class="mt-3 sm:ml-2 sm:mt-0">
+                                        <mat-button-toggle-group #taskDistributionWeekSelector="matButtonToggleGroup" value="this-week">
+                                            <mat-button-toggle value="last-week">Last Week</mat-button-toggle>
+                                            <mat-button-toggle value="this-week">This Week</mat-button-toggle>
+                                        </mat-button-toggle-group>
+                                    </div>
+                                </div>
+                                <div class="mt-6 flex flex-auto flex-col">
+                                    <apx-chart
+                                        [chart]="chartTaskDistribution.chart"
+                                        [labels]="chartTaskDistribution.labels"
+                                        [legend]="chartTaskDistribution.legend"
+                                        [plotOptions]=" chartTaskDistribution.plotOptions"
+                                        [series]=" chartTaskDistribution.series"
+                                        [states]="chartTaskDistribution.states"
+                                        [stroke]="chartTaskDistribution.stroke"
+                                        [theme]="chartTaskDistribution.theme"
+                                        [tooltip]=" chartTaskDistribution.tooltip"
+                                        [yaxis]="chartTaskDistribution.yaxis"
+                                        class="h-80 w-full flex-auto"
+                                    ></apx-chart>
+                                </div>
+                                <div class="-m-6 mt-4 grid grid-cols-2 divide-x border-t bg-gray-50 dark:bg-transparent">
+                                    <div class="flex flex-col items-center justify-center p-6 sm:p-8">
+                                        <div class="text-5xl font-semibold leading-none tracking-tighter">
+                                            {{ data.taskDistribution.overview[taskDistributionWeekSelector.value]['new'] }}
+                                        </div>
+                                        <div class="text-secondary mt-1 text-center">New tasks</div>
+                                    </div>
+                                    <div class="flex flex-col items-center justify-center p-6 sm:p-8">
+                                        <div class="text-5xl font-semibold leading-none tracking-tighter">
+                                            {{ data.taskDistribution.overview[taskDistributionWeekSelector.value]['completed'] }}
+                                        </div>
+                                        <div class="text-secondary mt-1 text-center">Completed tasks</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Schedule -->
+                            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-2 md:col-span-4 lg:col-span-2">
+                                <div class="flex flex-col items-start justify-between sm:flex-row">
+                                    <div class="truncate text-lg font-medium leading-6 tracking-tight">Entregas próximas</div>
+                                </div>
+                                <div class="mt-2 flex flex-col divide-y">
+                                    @for (scheduleItem of orders.nextDeliveries; track trackByFn($index, scheduleItem)) {
+                                        <div class="flex flex-row items-center justify-between px-0.5 py-4">
+                                            <div class="flex flex-col">
+                                                <div class="font-medium">[{{ scheduleItem.orderNumber }}] {{scheduleItem.client}}</div>
+                                                <div class="-ml-0.5 mt-2 flex flex-col space-y-1 sm:mt-1 sm:flex-row sm:items-center sm:space-x-3 sm:space-y-0">
+                                                    @if (scheduleItem.deliveryDate) {
+                                                        <div class="flex items-center">
+                                                            <mat-icon class="text-hint icon-size-5" [svgIcon]=" 'heroicons_solid:clock'"></mat-icon>
+                                                            <div class="text-secondary ml-1.5 text-md">{{ scheduleItem.deliveryDate }}</div>
+                                                        </div>
+                                                    }
+                                                    @if (scheduleItem.deliveryLocation) {
+                                                        <div class="flex items-center">
+                                                            <mat-icon class="text-hint icon-size-5" [svgIcon]=" 'heroicons_solid:map-pin'"></mat-icon>
+                                                            <div class="text-secondary ml-1.5 text-md">{{ scheduleItem.deliveryLocation }}</div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <button mat-icon-button>
+                                                <mat-icon [svgIcon]=" 'heroicons_mini:chevron-right'"></mat-icon>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                </mat-tab>
+
+                <!-- Budget -->
+                <mat-tab label="Budget">
+                    <ng-template matTabContent>
+                        <div class="grid w-full min-w-0 grid-cols-1 gap-6 sm:grid-cols-6">
+                            <!-- Budget distribution -->
+                            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-3 lg:col-span-4">
+                                <div class="truncate text-lg font-medium leading-6 tracking-tight">Budget Distribution</div>
+                                <div class="flex flex-auto flex-col">
+                                    <apx-chart
+                                        [chart]="chartBudgetDistribution.chart"
+                                        [colors]=" chartBudgetDistribution.colors"
+                                        [dataLabels]=" chartBudgetDistribution.dataLabels"
+                                        [markers]=" chartBudgetDistribution.markers"
+                                        [plotOptions]=" chartBudgetDistribution.plotOptions"
+                                        [series]=" chartBudgetDistribution.series"
+                                        [stroke]=" chartBudgetDistribution.stroke"
+                                        [tooltip]=" chartBudgetDistribution.tooltip"
+                                        [xaxis]="chartBudgetDistribution.xaxis"
+                                        [yaxis]="chartBudgetDistribution.yaxis"
+                                        class="h-80 w-full flex-auto"
+                                    ></apx-chart>
+                                </div>
+                            </div>
+                            <!-- Expense -->
+                            <div class="grid grid-cols-1 gap-y-6 sm:col-span-3 lg:col-span-2">
+                                <!-- Weekly expenses -->
+                                <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-2">
+                                    <div class="flex items-start justify-between">
+                                        <div class="truncate text-lg font-medium leading-6 tracking-tight">Weekly Expenses</div>
+                                        <div class="-mr-3 -mt-2 ml-2">
+                                            <button [matMenuTriggerFor]=" weeklyExpensesMenu" mat-icon-button>
+                                                <mat-icon [svgIcon]=" 'heroicons_mini:ellipsis-vertical'" class="icon-size-5"></mat-icon>
+                                            </button>
+                                            <mat-menu #weeklyExpensesMenu="matMenu">
+                                                <button mat-menu-item>This week</button>
+                                                <button mat-menu-item>Last week</button>
+                                                <button mat-menu-item>2 weeks ago</button>
+                                            </mat-menu>
+                                        </div>
+                                    </div>
+                                    <div class="mt-1 flex items-center">
+                                        <div class="flex flex-col">
+                                            <div class="text-3xl font-semibold leading-tight tracking-tight">{{ data.weeklyExpenses.amount | currency: 'USD' }}</div>
+                                            <div class="flex items-center">
+                                                <mat-icon [svgIcon]=" 'heroicons_solid:arrow-trending-down'" class="mr-1 text-green-500 icon-size-5"></mat-icon>
+                                                <div class="text-secondary whitespace-nowrap text-sm font-medium leading-none">
+                                                    <span class="text-green-500">2%</span>
+                                                    below projected
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ml-8 flex flex-auto flex-col">
+                                            <apx-chart
+                                                [chart]=" chartWeeklyExpenses.chart"
+                                                [colors]=" chartWeeklyExpenses.colors"
+                                                [series]=" chartWeeklyExpenses.series"
+                                                [stroke]=" chartWeeklyExpenses.stroke"
+                                                [tooltip]=" chartWeeklyExpenses.tooltip"
+                                                [xaxis]=" chartWeeklyExpenses.xaxis"
+                                                [yaxis]=" chartWeeklyExpenses.yaxis"
+                                                class="h-16 w-full flex-auto"
+                                            ></apx-chart>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Monthly expenses -->
+                                <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-2">
+                                    <div class="flex items-start justify-between">
+                                        <div class="truncate text-lg font-medium leading-6 tracking-tight">Monthly Expenses</div>
+                                        <div class="-mr-3 -mt-2 ml-2">
+                                            <button [matMenuTriggerFor]=" monthlyExpensesMenu" mat-icon-button>
+                                                <mat-icon [svgIcon]=" 'heroicons_mini:ellipsis-vertical'" class="icon-size-5"></mat-icon>
+                                            </button>
+                                            <mat-menu #monthlyExpensesMenu="matMenu">
+                                                <button mat-menu-item>This week</button>
+                                                <button mat-menu-item>Last week</button>
+                                                <button mat-menu-item>2 weeks ago</button>
+                                            </mat-menu>
+                                        </div>
+                                    </div>
+                                    <div class="mt-1 flex items-center">
+                                        <div class="flex flex-col">
+                                            <div class="text-3xl font-semibold leading-tight tracking-tight">
+                                                {{ data.monthlyExpenses.amount | currency: 'USD' }}
+                                            </div>
+                                            <div class="flex items-center">
+                                                <mat-icon [svgIcon]=" 'heroicons_solid:arrow-trending-up'" class="mr-1 text-red-500 icon-size-5"></mat-icon>
+                                                <div class="text-secondary whitespace-nowrap text-sm font-medium leading-none">
+                                                    <span class="text-red-500">4%</span>
+                                                    above projected
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ml-8 flex flex-auto flex-col">
+                                            <apx-chart
+                                                [chart]=" chartMonthlyExpenses.chart"
+                                                [colors]=" chartMonthlyExpenses.colors"
+                                                [series]=" chartMonthlyExpenses.series"
+                                                [stroke]=" chartMonthlyExpenses.stroke"
+                                                [tooltip]=" chartMonthlyExpenses.tooltip"
+                                                [xaxis]=" chartMonthlyExpenses.xaxis"
+                                                [yaxis]=" chartMonthlyExpenses.yaxis"
+                                                class="h-16 w-full flex-auto"
+                                            ></apx-chart>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Yearly expenses -->
+                                <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-2">
+                                    <div class="flex items-start justify-between">
+                                        <div class="truncate text-lg font-medium leading-6 tracking-tight">Yearly Expenses</div>
+                                        <div class="-mr-3 -mt-2 ml-2">
+                                            <button [matMenuTriggerFor]=" yearlyExpensesMenu" mat-icon-button>
+                                                <mat-icon [svgIcon]=" 'heroicons_mini:ellipsis-vertical'" class="icon-size-5"></mat-icon>
+                                            </button>
+                                            <mat-menu #yearlyExpensesMenu="matMenu">
+                                                <button mat-menu-item>This week</button>
+                                                <button mat-menu-item>Last week</button>
+                                                <button mat-menu-item>2 weeks ago</button>
+                                            </mat-menu>
+                                        </div>
+                                    </div>
+                                    <div class="mt-1 flex items-center">
+                                        <div class="flex flex-col">
+                                            <div class="text-3xl font-semibold leading-tight tracking-tight">
+                                                {{ data.yearlyExpenses.amount | currency: 'USD' }}
+                                            </div>
+                                            <div class="flex items-center">
+                                                <mat-icon [svgIcon]=" 'heroicons_solid:arrow-trending-up'" class="mr-1 text-red-500 icon-size-5"></mat-icon>
+                                                <div class="text-secondary whitespace-nowrap text-sm font-medium leading-none">
+                                                    <span class="text-red-500">3%</span>
+                                                    above projected
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ml-8 flex flex-auto flex-col">
+                                            <apx-chart
+                                                [chart]=" chartYearlyExpenses.chart"
+                                                [colors]=" chartYearlyExpenses.colors"
+                                                [series]=" chartYearlyExpenses.series"
+                                                [stroke]=" chartYearlyExpenses.stroke"
+                                                [tooltip]=" chartYearlyExpenses.tooltip"
+                                                [xaxis]=" chartYearlyExpenses.xaxis"
+                                                [yaxis]=" chartYearlyExpenses.yaxis"
+                                                class="h-16 w-full flex-auto"
+                                            ></apx-chart>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Budget details -->
+                            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
+                                <div class="truncate text-lg font-medium leading-6 tracking-tight">
+                                    Últimas ordenes
+                                </div>
+
+                                <div class="mt-2 flex flex-auto flex-col overflow-x-auto">
+                                    <table
+                                        [dataSource]="$any(orders).orders"
+                                        class="min-w-240 overflow-y-visible"
+                                        mat-table
+                                    >
+                                        <!-- Order number -->
+                                        <ng-container matColumnDef="orderNumber" sticky>
+                                            <th *matHeaderCellDef mat-header-cell>Número de orden</th>
+                                            <td *matCellDef="let order" mat-cell>
+                                                <span class="flex items-center">
+                                                    <span class="ml-3 leading-4">{{ order.orderNumber }}</span>
+                                                </span>
+                                            </td>
+                                        </ng-container>
+
+                                        <!-- Client fantasy name -->
+                                        <ng-container matColumnDef="clientName">
+                                            <th *matHeaderCellDef mat-header-cell>Cliente</th>
+                                            <td *matCellDef="let order" mat-cell>
+                                                <span class="text-right font-medium">{{ order.client.fantasyName }}</span>
+                                            </td>
+                                        </ng-container>
+
+                                        <!-- Order type -->
+                                        <ng-container matColumnDef="type">
+                                            <th *matHeaderCellDef mat-header-cell>Tipo de orden</th>
+                                            <td *matCellDef="let order" mat-cell>
+                                                @switch (order.type) {
+                                                    @case ('PURCHASE_ORDER') {
+                                                        <span class="text-green text-sm">Orden de compra</span>
+                                                    }
+                                                    @case ('RETURN_ORDER') {
+                                                        <span class="text-red text-sm">Orden de devolución</span>
+                                                    }
+                                                    @default {
+                                                        <span class="text-blue text-sm">Estado desconocido</span>
+                                                    }
+                                                }
+                                            </td>
+                                        </ng-container>
+
+                                        <!-- Status -->
+                                        <ng-container matColumnDef="status">
+                                            <th *matHeaderCellDef mat-header-cell>Estado</th>
+                                            <td *matCellDef="let order" mat-cell>
+                                                @switch (order.status) {
+                                                    @case ('PENDING') {
+                                                        <span class="text-yellow-500 text-sm">Pendiente</span>
+                                                    }
+                                                    @case ('IN_PROGRESS') {
+                                                        <span class="text-blue-500 text-sm">En progreso</span>
+                                                    }
+                                                    @case ('READY_FOR_SHIPPING') {
+                                                        <span class="text-yellow-500 text-sm">Listo para envío</span>
+                                                    }
+                                                    @case ('SHIPPED') {
+                                                        <span class="text-green text-sm">Enviado</span>
+                                                    }
+                                                    @case ('IN_TRANSIT') {
+                                                        <span class="text-blue-500 text-sm">En tránsito</span>
+                                                    }
+                                                    @case ('DELIVERED') {
+                                                        <span class="text-green text-sm">Entregado</span>
+                                                    }
+                                                    @case ('CANCELED') {
+                                                        <span class="text-red text-sm">Cancelado</span>
+                                                    }
+                                                }
+                                            </td>
+                                        </ng-container>
+
+                                        <!-- Delivery location -->
+                                        <ng-container matColumnDef="deliveryLocation">
+                                            <th *matHeaderCellDef mat-header-cell>Ubicación de entrega</th>
+                                            <td *matCellDef="let order" mat-cell>
+                                                <span class="text-right font-medium">{{ order.deliveryLocation }}</span>
+                                            </td>
+                                        </ng-container>
+
+                                        <!-- Emission date -->
+                                        <ng-container matColumnDef="emissionDate">
+                                            <th *matHeaderCellDef mat-header-cell>Fecha de emisión</th>
+                                            <td *matCellDef="let order" mat-cell>
+                                                <span class="text-right font-medium">{{ order.emissionDate }}</span>
+                                            </td>
+                                        </ng-container>
+
+                                        <!-- DeliveryDate -->
+                                        <ng-container matColumnDef="deliveryDate">
+                                            <th *matHeaderCellDef mat-header-cell>Fecha de entrega</th>
+                                            <td *matCellDef="let order" mat-cell>
+                                                <span class="text-right font-medium">{{ order.deliveryDate }}</span>
+                                            </td>
+                                        </ng-container>
+
+                                        <tr *matHeaderRowDef=" orderColumns " mat-header-row></tr>
+                                        <tr *matRowDef="let row; columns: orderColumns" mat-row></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                </mat-tab>
+
+                <!-- Team -->
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <span class="inline-flex items-center space-x-2">
+                            <span class="">Team</span>
+                            <span class="rounded-full bg-primary-100 px-2 py-1 text-sm text-on-primary-100">9</span>
+                        </span>
+                    </ng-template>
+                    <ng-template matTabContent>
+                        <div class="grid w-full min-w-0 grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                            @for (member of data.teamMembers; track member) {
+                                <div class="bg-card flex flex-auto flex-col items-center overflow-hidden rounded-2xl shadow">
+                                    <!-- Avatar & Info -->
+                                    <div class="flex w-full flex-auto flex-col p-8 text-center">
+                                        <div class="mx-auto h-32 w-32 overflow-hidden rounded-full">
+                                            <img class="h-full w-full object-cover" [src]="member.avatar"/>
+                                        </div>
+                                        <div class="mt-6 font-medium">{{ member.name }}</div>
+                                        <div class="text-secondary">{{ member.title }}</div>
+                                    </div>
+                                    <!-- Email & Phone -->
+                                    <div class="flex w-full items-center divide-x border-t">
+                                        <a class="flex flex-auto items-center justify-center py-4 hover:bg-hover" [href]="'mailto:' + member.email">
+                                            <mat-icon class="text-hint icon-size-5" [svgIcon]=" 'heroicons_solid:envelope'"></mat-icon>
+                                            <span class="ml-2">Email</span>
+                                        </a>
+                                        <a class="flex flex-auto items-center justify-center py-4 hover:bg-hover" [href]="'tel:' + member.phone">
+                                            <mat-icon class="text-hint icon-size-5" [svgIcon]=" 'heroicons_solid:phone'"></mat-icon>
+                                            <span class="ml-2">Call</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </ng-template>
+                </mat-tab>
+            </mat-tab-group>
+        </div>
+    </div>
+</div>

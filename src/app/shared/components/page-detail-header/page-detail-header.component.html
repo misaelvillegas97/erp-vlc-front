@@ -1,0 +1,91 @@
+<div
+    [class.bg-card]="!portraitImage"
+    [class.bg-overlay]="portraitImage?.fileUrl"
+    [style.background-image]="portraitImage?.fileUrl ? 'url(' + portraitImage.fileUrl + ')' : ''"
+    class="bg-cover relative object-center"
+>
+    @if (!portraitImage) {
+        <bg-patterns pattern="waves"></bg-patterns>
+    }
+    <div class="flex flex-auto flex-col md:flex-row justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-6 sm:py-8 relative z-10 sm:px-4">
+        <div class="flex-1 min-w-0">
+            <!-- Breadcrumbs -->
+            @if (breadcrumbs) {
+                <div>
+                    <div class="flex flex-wrap items-center font-medium">
+                        @for (breadcrumb of breadcrumbs; track breadcrumb.label) {
+                            <a [routerLink]="breadcrumb.url" *ngIf="breadcrumb.url" class="whitespace-nowrap text-primary-500">{{ breadcrumb.label }}</a>
+                            <span *ngIf="!breadcrumb.url" class="whitespace-nowrap text-secondary">{{ breadcrumb.label }}</span>
+                            <div class="flex items-center ml-1 whitespace-nowrap" *ngIf="!$last">
+                                <mat-icon
+                                    [svgIcon]="'heroicons_mini:chevron-right'"
+                                    class="icon-size-5 text-secondary"></mat-icon>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            <!-- Title -->
+            <div class="mt-2">
+                <h2 [innerHtml]="title" class="text-3xl md:text-4xl font-extrabold leading-7 sm:leading-10"></h2>
+                <p [innerHtml]="subtitle" class="mt-4 text-justify"></p>
+
+                <mat-divider *ngIf="createdBy || date" class="my-5"></mat-divider>
+                <!-- Author and date -->
+                <div class="flex flex-col md:flex-row items-start md:items-center gap-x-4 gap-y-2">
+                    @if (createdBy) {
+                        <div class="flex-1 flex flex-row items-center gap-x-2">
+                            <img *ngIf="createdBy?.avatar?.fileUrl"
+                                 [src]="createdBy?.avatar?.fileUrl"
+                                 alt="Card cover image"
+                                 class="w-8 h-8 rounded-full object-cover">
+                            <div *ngIf="!createdBy?.avatar?.fileUrl" class="ring-bg-card flex h-8 w-8 flex-0 items-center justify-center rounded-full bg-gray-200 text-gray-500 font-medium">
+                                {{ createdBy?.name.charAt(0) }}
+                            </div>
+                            <strong [innerText]="createdBy.name"></strong>
+                        </div>
+                    }
+                    @if (date) {
+                        <div class="flex-0 flex flex-row md:flex-row-reverse items-center gap-x-2">
+                            <mat-icon class="w-8 h-8 bg-primary rounded-full p-2 text-white" svgIcon="heroicons_outline:calendar"></mat-icon>
+                            <strong>{{ date | date: "dd MMMM',' yyyy ' | ' HH:mm" }}</strong>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <!-- Actions -->
+        <div class="flex flex-col gap-5 shrink-0 justify-center sm:items-center mt-6 sm:mt-0 sm:ml-4">
+            @if (actions) {
+                <div class="flex flex-row gap-4">
+                    @for (action of actions; track action.label) {
+                        <button
+                            [color]="action.color"
+                            class="flex-1"
+                            mat-flat-button
+                            [routerLink]="action.url"
+                            *ngIf="action.url"
+                        >
+                            <mat-icon
+                                [svgIcon]="action.icon"
+                                class="icon-size-4"></mat-icon>
+                            <span class="ml-2 sm:hidden">{{ action.label }}</span>
+                        </button>
+                        <button
+                            [color]="action.color"
+                            class="flex-1"
+                            mat-flat-button
+                            *ngIf="!action.url"
+                            (click)="action.action()"
+                        >
+                            <mat-icon
+                                [svgIcon]="action.icon"
+                                class="icon-size-4"></mat-icon>
+                            <span class="ml-2 sm:hidden">{{ action.label }}</span>
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

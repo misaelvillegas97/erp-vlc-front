@@ -1,0 +1,8 @@
+{
+  "/api" : {
+    "target" : "http://viaduct.proxy.rlwy.net:53743",
+    "secure" : false,
+    "logLevel" : "debug",
+    "changeOrigin" : true
+  }
+}

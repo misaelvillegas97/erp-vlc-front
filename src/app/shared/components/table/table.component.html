@@ -1,0 +1,22 @@
+<table
+    (matSortChange)="sortChange.emit($event)"
+    [dataSource]="dataSource"
+    [trackBy]="trackByFn"
+    class="w-full bg-transparent"
+    mat-table
+    matSort
+>
+    <ng-content></ng-content>
+
+    <tr *matHeaderRowDef="displayedColumns" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
+    <tr
+        (contextmenu)="contextMenu.emit({$event, row})"
+        *matRowDef="let row; columns: displayedColumns"
+        class="hover:bg-accent-400/5 transition-all duration-300 ease-in-out"
+        mat-row
+    ></tr>
+    <!-- No data row -->
+    <tr *matNoDataRow class="text-center">
+        <td [attr.colspan]="displayedColumns.length" class="italic text-secondary select-none py-4 hover:bg-accent-400/5 transition-all duration-300 ease-in-out">{{ messageNoData || 'No data' }}</td>
+    </tr>
+</table>

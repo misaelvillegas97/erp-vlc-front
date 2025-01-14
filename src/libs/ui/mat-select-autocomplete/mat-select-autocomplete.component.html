@@ -1,0 +1,47 @@
+<mat-form-field [appearance]="appearance" class="w-full">
+  <mat-label [innerText]="label"></mat-label>
+  <mat-select
+    #selectElem
+    (selectionChange)="onSelectionChange($event)"
+    [(ngModel)]="selectedValue"
+    [formControl]="formControl"
+    [multiple]="multiple"
+    [placeholder]="placeholder"
+  >
+    <div class="box-search">
+      <mat-checkbox
+        (change)="toggleSelectAll($event)"
+        *ngIf="multiple"
+        [(ngModel)]="selectAllChecked"
+        class="box-select-all"
+        color="primary"
+      ></mat-checkbox>
+      <input
+        #searchInput
+        (input)="filterItem(searchInput.value)"
+        [ngClass]="{ 'pl-1': !multiple }"
+        [placeholder]="selectPlaceholder"
+        type="text"
+      />
+      <div
+        (click)="filterItem(''); searchInput.value = ''"
+        class="box-search-icon"
+      >
+        <button class="search-button" mat-icon-button>
+          <mat-icon aria-label="Search icon" class="mat-24">clear</mat-icon>
+        </button>
+      </div>
+    </div>
+    <mat-select-trigger>
+      {{ onDisplayString() }}
+    </mat-select-trigger>
+    <mat-option
+      *ngFor="let option of options; trackBy: trackByFn"
+      [disabled]="option.disabled"
+      [style.display]="hideOption(option) ? 'none' : 'flex'"
+      [value]="option[value]"
+    >{{ option[display] }}
+    </mat-option>
+  </mat-select>
+  <mat-hint *ngIf="showErrorMsg" style="color:red">{{ errorMsg }}</mat-hint>
+</mat-form-field>

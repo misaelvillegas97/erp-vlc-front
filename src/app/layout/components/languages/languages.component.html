@@ -1,0 +1,31 @@
+<!-- Button -->
+<button [matMenuTriggerFor]="languages" mat-icon-button>
+    <ng-container
+        *ngTemplateOutlet="flagImage; context: { $implicit: activeLang }"
+    ></ng-container>
+</button>
+
+<!-- Language menu -->
+<mat-menu #languages="matMenu" [xPosition]="'before'">
+    @for (lang of availableLangs; track trackByFn($index, lang)) {
+        <button mat-menu-item (click)="setActiveLang(lang.id)">
+      <span class="flex items-center">
+        <ng-container *ngTemplateOutlet=" flagImage; context: { $implicit: lang.id }"></ng-container>
+        <span class="ml-3">{{ lang.label }}</span></span>
+        </button>
+    }
+</mat-menu>
+
+<!-- Flag image template -->
+<ng-template #flagImage let-lang>
+    <span class="relative w-6 overflow-hidden rounded-sm shadow">
+        <span
+            class="absolute inset-0 ring-1 ring-inset ring-black ring-opacity-10"
+        ></span>
+        <img
+            [alt]="'Flag image for ' + lang"
+            [src]="'images/flags/' + flagCodes[lang].toUpperCase() + '.svg'"
+            class="w-full"
+        />
+    </span>
+</ng-template>

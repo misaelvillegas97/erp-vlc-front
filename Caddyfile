@@ -1,0 +1,43 @@
+# global options
+{
+    admin off # no se necesita la API de administración en el entorno de Railway
+    persist_config off # el almacenamiento no es persistente de todos modos
+    auto_https off # Railway maneja https por nosotros, esto causaría problemas si se deja habilitado
+    # runtime logs
+    log {
+        format json # establecer el formato de registro en modo json
+    }
+    # server options
+    servers {
+        trusted_proxies static private_ranges # confiar en el proxy de Railway
+    }
+}
+
+# site block, escucha en la variable de entorno $PORT, asignada automáticamente por Railway
+:{$PORT} {
+    # access logs
+    log {
+        format json # establecer el formato de registro de acceso en modo json
+        output stdout
+    }
+
+    # Manejar solicitudes de API
+    handle /api/* {
+        reverse_proxy wwt-auth:8080 {
+            transport http {
+                versions h1c
+            }
+        }
+    }
+
+    # Health check para Railway
+    respond /health 200
+
+    # Manejar solicitudes del frontend
+    handle {
+        root * /dist
+        encode gzip
+        file_server
+        try_files {path} /index.html
+    }
+}
