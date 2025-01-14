@@ -36,7 +36,7 @@ import { IDashboardOverview }                                                   
 })
 export class ProjectComponent implements OnInit, OnDestroy {
     chartCountByClient: ApexOptions = {};
-    chartTaskDistribution: ApexOptions = {};
+    chartCountByType: ApexOptions = {};
     chartBudgetDistribution: ApexOptions = {};
     chartWeeklyExpenses: ApexOptions = {};
     chartMonthlyExpenses: ApexOptions = {};
@@ -240,7 +240,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
         };
 
         // Task distribution
-        this.chartTaskDistribution = {
+        this.chartCountByType = {
             chart      : {
                 fontFamily: 'inherit',
                 foreColor : 'inherit',

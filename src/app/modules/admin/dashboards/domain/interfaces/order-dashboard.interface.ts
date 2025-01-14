@@ -37,5 +37,6 @@ export interface INextDelivery {
     orderNumber: string; // Número de orden
     deliveryDate: string; // Fecha de entrega
     deliveryLocation: string; // Ubicación de entrega
+    type: string; // Tipo de orden
     client: string; // Nombre del cliente
 }
