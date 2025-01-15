@@ -23,7 +23,7 @@
 
     # Manejar solicitudes de API
     handle /api/* {
-        reverse_proxy vlc-erp-back:8080 {
+        reverse_proxy erp-vlc-back:8080 {
             transport http {
                 versions h1c
             }
