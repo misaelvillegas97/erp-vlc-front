@@ -9,10 +9,9 @@
         "ng" : "ng",
         "start" : "ng serve --host 0.0.0.0",
         "start:prod" : "ng serve --host 0.0.0.0 --configuration production",
-        "build" : "ng build && npm run sentry:sourcemaps",
+        "build" : "ng build",
         "watch" : "ng build --watch --configuration development",
-        "test" : "ng test",
-        "sentry:sourcemaps" : "sentry-cli sourcemaps inject --org synergiq --project javascript-angular ./dist/fuse/browser && sentry-cli sourcemaps upload --org synergiq --project javascript-angular ./dist/fuse/browser"
+        "test" : "ng test"
     },
     "dependencies" : {
         "@angular/animations" : "18.0.5",
