@@ -3,8 +3,6 @@ FROM node:20-alpine as build
 
 WORKDIR /app
 
-ARG SENTRY_AUTH_TOKEN
-
 COPY package*.json ./
 
 RUN npm ci
