@@ -10,7 +10,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         link : '/home'
     },
     {
-        id   : 'dashboards',
+        id: 'dashboards.title',
         title: 'Dashboards',
         type : 'collapsable',
         icon : 'heroicons_outline:chart-pie',
@@ -46,7 +46,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         ]
     },
     {
-        id      : 'admin.title',
+        id: 'maintainers.title',
         type    : 'collapsable',
         icon    : 'heroicons_outline:cog',
         link    : '/admin',

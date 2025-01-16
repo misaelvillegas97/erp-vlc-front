@@ -22,25 +22,9 @@
             "analytics" : "Analítica",
             "projects" : "Proyectos"
         },
-        "apps" : {
-            "title" : "Aplicaciones",
-            "contacts" : "Contactos",
-            "gallery" : "Galería",
-            "scrumboards" : "Tablero de scrum",
-            "benefits" : "Beneficios",
-            "files-library" : "Biblioteca de archivos"
-        },
-        "videos" : "Videos",
-        "admin" : {
-            "title" : "Administrador",
-            "users" : "Usuarios",
-            "news" : "Noticias",
-            "events" : "Eventos",
-            "albums" : "Álbumes",
-            "benefits" : "Beneficios",
-            "roles" : "Roles",
-            "permissions" : "Permisos",
-            "settings" : "Configuración"
+        "maintainers" : {
+            "title" : "Mantenedores",
+            "clients" : "Clientes"
         }
     },
     "actions" : {
@@ -128,6 +112,7 @@
             "list" : {
                 "title" : "Mantenedor de clientes",
                 "subtitle" : "Administra los clientes de la aplicación",
+                "description" : "Lista de clientes",
                 "table" : {
                     "business-name" : "Razón social",
                     "fantasy-name" : "Nombre de fantasía",
@@ -138,7 +123,9 @@
                 }
             },
             "new" : {
-                "title" : "Nuevo cliente"
+                "title" : "Nuevo cliente",
+                "subtitle" : "Crea un nuevo cliente",
+                "description" : "Crear un nuevo cliente"
             }
         }
     },

@@ -21,52 +21,21 @@ export class ClientComponent {
     constructor(private readonly _translateService: TranslocoService) {
         this.panels = [
             {
-                id         : 'clients',
-                title      : this._translateService.translate('admin.news.title'),
-                description: this._translateService.translate('admin.news.description'),
-
-                children: [
-                    {
-                        id          : 'news.list',
-                        icon        : 'heroicons_outline:newspaper',
-                        selectedIcon: 'heroicons_solid:newspaper',
-                        title       : this._translateService.translate('admin.news.list.title'),
-                        description : this._translateService.translate('admin.news.list.description'),
-                        link        : [ '/admin', 'news' ]
-                    },
-                    {
-                        id          : 'news.create',
-                        icon        : 'heroicons_outline:plus-circle',
-                        selectedIcon: 'heroicons_solid:plus-circle',
-                        title       : this._translateService.translate('admin.news.create.title'),
-                        description : this._translateService.translate('admin.news.create.description'),
-                        link        : [ '/admin', 'news', 'create' ]
-                    },
-                ]
+                id          : 'client.list',
+                icon        : 'heroicons_outline:queue-list',
+                selectedIcon: 'heroicons_solid:queue-list',
+                title       : this._translateService.translate('maintainers.client.list.title'),
+                description : this._translateService.translate('maintainers.client.list.description'),
+                link        : [ '/maintainers', 'clients' ]
             },
             {
-                id         : 'categories',
-                title      : this._translateService.translate('admin.news.categories.title'),
-                description: this._translateService.translate('admin.news.categories.description'),
-                children   : [
-                    {
-                        id          : 'categories.list',
-                        icon        : 'heroicons_outline:tag',
-                        selectedIcon: 'heroicons_solid:tag',
-                        title       : this._translateService.translate('admin.news.categories.list.title'),
-                        description : this._translateService.translate('admin.news.categories.list.description'),
-                        link        : [ '/admin', 'news', 'categories' ]
-                    },
-                    {
-                        id          : 'categories.create',
-                        icon        : 'heroicons_outline:plus-circle',
-                        selectedIcon: 'heroicons_solid:plus-circle',
-                        title       : this._translateService.translate('admin.news.categories.create.title'),
-                        description : this._translateService.translate('admin.news.categories.create.description'),
-                        link        : [ '/admin', 'news', 'categories', 'create' ]
-                    }
-                ]
-            }
+                id          : 'client.new',
+                icon        : 'heroicons_outline:plus-circle',
+                selectedIcon: 'heroicons_solid:plus-circle',
+                title       : this._translateService.translate('maintainers.client.new.title'),
+                description : this._translateService.translate('maintainers.client.new.description'),
+                link        : [ '/maintainers', 'clients', 'new' ]
+            },
         ];
     }
 }
