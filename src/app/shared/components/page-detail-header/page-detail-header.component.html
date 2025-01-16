@@ -1,12 +1,5 @@
-<div
-    [class.bg-card]="!portraitImage"
-    [class.bg-overlay]="portraitImage?.fileUrl"
-    [style.background-image]="portraitImage?.fileUrl ? 'url(' + portraitImage.fileUrl + ')' : ''"
-    class="bg-cover relative object-center"
->
-    @if (!portraitImage) {
-        <bg-patterns pattern="waves"></bg-patterns>
-    }
+<div class="bg-cover relative object-center bg-card">
+    <bg-patterns pattern="waves"></bg-patterns>
     <div class="flex flex-auto flex-col md:flex-row justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-6 sm:py-8 relative z-10 sm:px-4">
         <div class="flex-1 min-w-0">
             <!-- Breadcrumbs -->

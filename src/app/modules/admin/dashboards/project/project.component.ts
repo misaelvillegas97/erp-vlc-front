@@ -13,6 +13,7 @@ import { ProjectService }                                                       
 import { ApexOptions, NgApexchartsModule }                                           from 'ng-apexcharts';
 import { Subject, takeUntil }                                                        from 'rxjs';
 import { IDashboardOverview }                                                        from '@modules/admin/dashboards/domain/interfaces/order-dashboard.interface';
+import { MatSortModule }                                                             from '@angular/material/sort';
 
 @Component({
     selector       : 'project',
@@ -20,7 +21,7 @@ import { IDashboardOverview }                                                   
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone     : true,
-    imports        : [
+    imports: [
         TranslocoModule,
         MatIconModule,
         MatButtonModule,
@@ -32,6 +33,7 @@ import { IDashboardOverview }                                                   
         MatTableModule,
         NgClass,
         CurrencyPipe,
+        MatSortModule,
     ],
 })
 export class ProjectComponent implements OnInit, OnDestroy {
@@ -43,7 +45,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     chartYearlyExpenses: ApexOptions = {};
     data: any;
     selectedProject: string = 'ACME Corp. Backend App';
-    orderColumns: string[] = [ 'orderNumber', 'clientName', 'type', 'status', 'deliveryLocation', 'deliveryDate', 'emissionDate' ];
+    orderColumns: string[] = [ 'orderNumber', 'clientName', 'type', 'status', 'deliveryLocation', 'emissionDate', 'deliveryDate', 'amount' ];
     orders: IDashboardOverview;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 

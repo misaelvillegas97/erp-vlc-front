@@ -95,7 +95,12 @@ export const appRoutes: Route[] = [
                     {path: 'crypto', loadChildren: () => import('app/modules/admin/dashboards/crypto/crypto.routes')},
                 ]
             },
-
+            {
+                path    : 'maintainers',
+                children: [
+                    {path: 'clients', loadChildren: () => import('app/modules/admin/maintainers/clients/client.routes')},
+                ]
+            }
         ]
     }
 ];

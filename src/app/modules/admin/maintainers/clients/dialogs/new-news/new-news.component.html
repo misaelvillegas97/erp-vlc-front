@@ -1,0 +1,124 @@
+<div *transloco="let t; read: 'admin.news.new'" class="flex flex-col max-h-full max-w-240 md:min-w-160 h-full overflow-hidden">
+    <!-- Header -->
+    <div class="flex h-16 flex-0 items-center justify-between bg-primary pl-6 pr-3 text-on-primary sm:pl-8 sm:pr-5">
+        <div [innerText]="title" class="text-lg font-medium"></div>
+        <button (click)="_matDialogRef.close()" mat-icon-button>
+            <mat-icon [svgIcon]="'heroicons_outline:x-mark'" class="text-current"></mat-icon>
+        </button>
+    </div>
+
+    <!-- Content -->
+    <form [formGroup]="newsForm" class="flex-1 flex flex-col overflow-y-auto p-6 sm:p-8 h-full gap-y-4 overflow-auto">
+        <!-- Name -->
+        <mat-form-field hintLabel="{{ newsForm.get('headline').value?.length || 0 }}/100" subscriptSizing="dynamic">
+            <mat-label [innerText]="t('headline')"></mat-label>
+            <input [placeholder]="t('headline-placeholder')" formControlName="headline" matInput maxlength="100"/>
+
+            <mat-error *ngIf="newsForm.controls.headline?.errors?.required">
+                {{ 'errors.form.required' | transloco }}
+            </mat-error>
+            <mat-error *ngIf="newsForm.controls.headline?.errors?.minlength">
+                {{ 'errors.form.min-length' | transloco:{ length: 10 } }}
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Description -->
+        <mat-form-field subscriptSizing="dynamic">
+            <mat-label [innerText]="t('abstract')"></mat-label>
+            <textarea [placeholder]="t('abstract-placeholder')" cdkTextareaAutosize formControlName="abstract" matInput></textarea>
+            <mat-error *ngIf="newsForm.controls.abstract?.errors?.required">
+                {{ 'errors.form.required' | transloco }}
+            </mat-error>
+            <mat-error *ngIf="newsForm.controls.abstract?.errors?.minlength">
+                {{ 'errors.form.min-length' | transloco:{ length: 10 } }}
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Body -->
+        @defer {
+            <div class="flex flex-col">
+                <mat-label class="font-semibold text-accent dark:text-white">Contenido*</mat-label>
+                <quill-editor
+                    class="mt-2"
+                    [placeholder]="t('content-placeholder')"
+                    [modules]="quillModules"
+                    [customModules]="customModules"
+                    format="json"
+                    bounds="self"
+                    formControlName="body"
+                ></quill-editor>
+            </div>
+        } @placeholder {
+            <span>cargando editor...</span>
+        }
+
+        <!-- Categories -->
+        <news-categories-selector formControlName="category">
+            <mat-error *ngIf="newsForm.controls.category?.errors?.required">
+                {{ 'errors.form.required' | transloco }}
+            </mat-error>
+        </news-categories-selector>
+
+        <mat-form-field subscriptSizing="dynamic">
+            <mat-label [innerText]="t('cover')"></mat-label>
+            <ngx-mat-dropzone>
+                <input fileInput formControlName="portraitImage" type="file"/>
+
+                @if ($any(newsForm.get('portraitImage').value); as file) {
+                    <mat-chip-row (removed)="remove()">
+                        {{ file.name }}
+                        <button matChipRemove>
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                    </mat-chip-row>
+                }
+
+                <mat-icon matSuffix>paper-clip</mat-icon>
+
+            </ngx-mat-dropzone>
+            <mat-icon matSuffix>upload_file</mat-icon>
+        </mat-form-field>
+        <div class="flex flex-col">
+            <h2 class="text-md font-medium">Vista previa de la portada</h2>
+            <div class="grid grid-cols-1">
+                @if ($any(newsForm.get('portraitImage').value); as file) {
+                    <image-upload-preview
+                        [file]="file"
+                        (remove)="remove()">
+                    </image-upload-preview>
+                } @else {
+                    <div class="w-full flex justify-center pt-4">
+                        <mat-card class="w-48 h-36 flex flex-col items-center justify-center gap-y-4">
+                            <mat-icon class="text-6xl">image</mat-icon>
+                            <span>No images selected</span>
+                        </mat-card>
+                    </div>
+                }
+            </div>
+        </div>
+    </form>
+
+    <!-- Actions -->
+    <div class="flex-0 py-4 flex justify-between flex-row sm:items-center gap-x-4 px-6 sm:px-8 border-t">
+        <!-- Discard -->
+        <button
+            (click)="_matDialogRef.close()"
+            class="w-full md:w-30 "
+            mat-stroked-button
+        >
+            Discard
+        </button>
+        <!-- Save as draft -->
+        <button
+            (click)="save()"
+            [disabled]="newsForm.disabled"
+            class="w-full md:w-30"
+            color="primary"
+            mat-flat-button
+            type="submit"
+        >
+            <span *ngIf="!newsForm.disabled" [innerText]="saveText"></span>
+            <mat-progress-spinner *ngIf="newsForm.disabled" [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
+        </button>
+    </div>
+</div>

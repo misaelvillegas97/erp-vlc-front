@@ -142,7 +142,7 @@
                                             <!-- Total orders -->
                                             <div class="col-span-2 flex flex-col items-center justify-center rounded-2xl bg-indigo-50 px-1 py-8 text-indigo-800 dark:bg-white dark:bg-opacity-5 dark:text-indigo-400">
                                                 <div class="text-5xl font-semibold leading-none tracking-tight sm:text-7xl">
-                                                    {{ orders.orders.length }}
+                                                    {{ orders.orders?.length }}
                                                 </div>
                                                 <div class="mt-1 text-sm font-medium sm:text-lg">Órdenes totales</div>
                                             </div>
@@ -215,7 +215,7 @@
                                     @for (scheduleItem of orders.nextDeliveries; track trackByFn($index, scheduleItem)) {
                                         <div class="flex flex-row items-center justify-between px-0.5 py-4">
                                             <div class="flex flex-col">
-                                                <div class="font-medium">[{{ scheduleItem.orderNumber }}] {{scheduleItem.client}}</div>
+                                                <div class="font-medium">[{{ scheduleItem.orderNumber }}] {{ scheduleItem.client }}</div>
                                                 <div class="-ml-0.5 mt-2 flex flex-col space-y-1 sm:mt-1 sm:flex-row sm:items-center sm:space-x-3 sm:space-y-0">
                                                     @if (scheduleItem.deliveryDate) {
                                                         <div class="flex items-center">
@@ -371,7 +371,7 @@
                             <!-- Budget details -->
                             <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
                                 <div class="truncate text-lg font-medium leading-6 tracking-tight">
-                                    Últimas ordenes
+                                    Últimas órdenes
                                 </div>
 
                                 <div class="mt-2 flex flex-auto flex-col overflow-x-auto">
@@ -379,13 +379,14 @@
                                         [dataSource]="$any(orders).orders"
                                         class="min-w-240 overflow-y-visible"
                                         mat-table
+                                        matSort
                                     >
                                         <!-- Order number -->
                                         <ng-container matColumnDef="orderNumber" sticky>
                                             <th *matHeaderCellDef mat-header-cell>Número de orden</th>
                                             <td *matCellDef="let order" mat-cell>
                                                 <span class="flex items-center">
-                                                    <span class="ml-3 leading-4">{{ order.orderNumber }}</span>
+                                                    <span class="ml-3 leading-4">{{ order?.orderNumber }}</span>
                                                 </span>
                                             </td>
                                         </ng-container>
@@ -394,7 +395,7 @@
                                         <ng-container matColumnDef="clientName">
                                             <th *matHeaderCellDef mat-header-cell>Cliente</th>
                                             <td *matCellDef="let order" mat-cell>
-                                                <span class="text-right font-medium">{{ order.client.fantasyName }}</span>
+                                                <span class="text-right font-medium">{{ order?.client?.fantasyName }}</span>
                                             </td>
                                         </ng-container>
 
@@ -402,7 +403,7 @@
                                         <ng-container matColumnDef="type">
                                             <th *matHeaderCellDef mat-header-cell>Tipo de orden</th>
                                             <td *matCellDef="let order" mat-cell>
-                                                @switch (order.type) {
+                                                @switch (order?.type) {
                                                     @case ('PURCHASE_ORDER') {
                                                         <span class="text-green text-sm">Orden de compra</span>
                                                     }
@@ -420,7 +421,7 @@
                                         <ng-container matColumnDef="status">
                                             <th *matHeaderCellDef mat-header-cell>Estado</th>
                                             <td *matCellDef="let order" mat-cell>
-                                                @switch (order.status) {
+                                                @switch (order?.status) {
                                                     @case ('PENDING') {
                                                         <span class="text-yellow-500 text-sm">Pendiente</span>
                                                     }
@@ -450,28 +451,42 @@
                                         <ng-container matColumnDef="deliveryLocation">
                                             <th *matHeaderCellDef mat-header-cell>Ubicación de entrega</th>
                                             <td *matCellDef="let order" mat-cell>
-                                                <span class="text-right font-medium">{{ order.deliveryLocation }}</span>
+                                                <span class="text-right font-medium">{{ order?.deliveryLocation }}</span>
                                             </td>
                                         </ng-container>
 
                                         <!-- Emission date -->
                                         <ng-container matColumnDef="emissionDate">
-                                            <th *matHeaderCellDef mat-header-cell>Fecha de emisión</th>
+                                            <th *matHeaderCellDef mat-header-cell mat-sort-header>Fecha de emisión</th>
                                             <td *matCellDef="let order" mat-cell>
-                                                <span class="text-right font-medium">{{ order.emissionDate }}</span>
+                                                <span class="text-right font-medium">{{ order?.emissionDate }}</span>
                                             </td>
                                         </ng-container>
 
                                         <!-- DeliveryDate -->
                                         <ng-container matColumnDef="deliveryDate">
-                                            <th *matHeaderCellDef mat-header-cell>Fecha de entrega</th>
+                                            <th *matHeaderCellDef mat-header-cell mat-sort-header>Fecha de entrega</th>
                                             <td *matCellDef="let order" mat-cell>
-                                                <span class="text-right font-medium">{{ order.deliveryDate }}</span>
+                                                <span class="text-right font-medium">{{ order?.deliveryDate }}</span>
                                             </td>
                                         </ng-container>
 
-                                        <tr *matHeaderRowDef=" orderColumns " mat-header-row></tr>
+                                        <!-- Amount -->
+                                        <ng-container matColumnDef="amount">
+                                            <th *matHeaderCellDef mat-header-cell>Monto</th>
+                                            <td *matCellDef="let order" mat-cell>
+                                                <span class="text-right font-medium">{{ order?.totalAmount | currency: 'CLP' }}</span>
+                                            </td>
+                                        </ng-container>
+
+                                        <tr *matHeaderRowDef="orderColumns" mat-header-row></tr>
                                         <tr *matRowDef="let row; columns: orderColumns" mat-row></tr>
+
+                                        <!-- No data -->
+                                        <tr *matNoDataRow class="h-64">
+                                            <td [attr.colspan]="orderColumns.length" class="text-center">
+                                                No hay órdenes disponibles para mostrar
+                                            </td>
                                     </table>
                                 </div>
                             </div>

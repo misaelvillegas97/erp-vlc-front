@@ -1,0 +1,94 @@
+<div *transloco="let t; read: 'maintainers.client'" class="flex flex-col min-w-0 w-full">
+    <page-header
+        [description]="t('list.subtitle')"
+        [subtitle]="t('list.title')">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-10 gap-y-4 sm:px-4">
+        <div class="flex flex-row w-full">
+            <!-- Title -->
+            <h2 class="flex-1 font-bold text-secondary text-xl self-center">{{ t('title') }}</h2>
+
+            <!-- New member button -->
+            <a
+                [matTooltip]="t('new.title')"
+                [routerLink]="['new']"
+                class="flex-0 font-bold py-2 px-4 rounded"
+                color="primary"
+                mat-icon-button
+            >
+                <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+            </a>
+        </div>
+
+        <div class="w-full">
+            <mat-form-field [subscriptSizing]="'dynamic'" class="fuse-mat-dense fuse-mat-rounded w-full">
+                <mat-icon
+                    [svgIcon]="'heroicons_solid:magnifying-glass'"
+                    class="icon-size-5"
+                    matPrefix
+                ></mat-icon>
+                <input #searchBar [formControl]="searchControl" [placeholder]="'Nombre de empresa'" matInput type="search"/>
+                @if (searchControl.errors?.minlength) {
+                    <mat-error>Mínimo 3 caracteres</mat-error>
+                }
+                <mat-hint class="ml-4">{{ searchBar.value?.length || 0 }}/100</mat-hint>
+            </mat-form-field>
+        </div>
+
+        <wwt-table
+            [data]="clients$"
+            [displayedColumns]="displayedColumns"
+            [messageNoData]="t('list.no-content')"
+            class="w-full"
+        >
+            <ng-container matColumnDef="businessName">
+                <th *matHeaderCellDef mat-header-cell><span class="select-none">{{ t('list.table.business-name') }}</span></th>
+                <td *matCellDef="let client" mat-cell>{{ client.businessName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="fantasyName">
+                <th *matHeaderCellDef mat-header-cell><span class="select-none">{{ t('list.table.fantasy-name') }}</span></th>
+                <td *matCellDef="let client" mat-cell>{{ client.fantasyName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="code">
+                <th *matHeaderCellDef mat-header-cell><span class="select-none">{{ t('list.table.code') }}</span></th>
+                <td *matCellDef="let client" mat-cell>{{ client.code }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="email">
+                <th *matHeaderCellDef mat-header-cell><span class="select-none">{{ t('list.table.email') }}</span></th>
+                <td *matCellDef="let client" mat-cell>{{ client.email }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="phone">
+                <th *matHeaderCellDef mat-header-cell><span class="select-none">{{ t('list.table.phone') }}</span></th>
+                <td *matCellDef="let client" mat-cell>{{ client.phoneNumber }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+                <th *matHeaderCellDef mat-header-cell><span class="select-none">{{ t('list.table.actions') }}</span></th>
+                <td *matCellDef="let news" mat-cell>
+                    <div class="flex justify-center gap-2">
+                        <button
+                            (click)="openEditDialog(news)"
+                            [matTooltip]="t('table.edit')"
+                            mat-icon-button
+                        >
+                            <mat-icon svgIcon="heroicons_outline:pencil"></mat-icon>
+                        </button>
+                        <button
+                            (click)="openDeleteDialog(news)"
+                            [matTooltip]="t('table.delete')"
+                            color="warn"
+                            mat-icon-button
+                        >
+                            <mat-icon svgIcon="heroicons_outline:trash"></mat-icon>
+                        </button>
+                    </div>
+                </td>
+            </ng-container>
+        </wwt-table>
+    </div>
+</div>
