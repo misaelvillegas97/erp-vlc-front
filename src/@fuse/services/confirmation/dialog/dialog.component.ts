@@ -1,4 +1,4 @@
-import { NgClass, NgStyle }                     from '@angular/common';
+import { NgClass }                              from '@angular/common';
 import { Component, inject, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule }                      from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule }     from '@angular/material/dialog';
@@ -26,7 +26,7 @@ import { TranslocoPipe }                        from '@ngneat/transloco';
   ],
   encapsulation: ViewEncapsulation.None,
   standalone : true,
-  imports: [ MatButtonModule, MatDialogModule, MatIconModule, NgClass, NgStyle, TranslocoPipe ],
+    imports: [ MatButtonModule, MatDialogModule, MatIconModule, NgClass, TranslocoPipe ],
 })
 export class FuseConfirmationDialogComponent {
   data: FuseConfirmationConfig = inject(MAT_DIALOG_DATA);

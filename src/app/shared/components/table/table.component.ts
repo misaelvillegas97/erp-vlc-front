@@ -2,9 +2,7 @@ import { AfterContentInit, Component, ContentChildren, EventEmitter, Input, OnIn
 import { MatSort, Sort }                                                                                              from '@angular/material/sort';
 import { MatColumnDef, MatHeaderRow, MatHeaderRowDef, MatNoDataRow, MatRow, MatRowDef, MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator }                                                                                               from '@angular/material/paginator';
-
-import { TranslocoDirective } from '@ngneat/transloco';
-import { Observable }         from 'rxjs';
+import { Observable }                                                                                                 from 'rxjs';
 
 import { trackByFn } from '@libs/ui/utils/utils';
 
@@ -14,7 +12,6 @@ import { trackByFn } from '@libs/ui/utils/utils';
     imports    : [
         MatSort,
         MatTable,
-        TranslocoDirective,
         MatHeaderRow,
         MatHeaderRowDef,
         MatRow,

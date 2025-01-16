@@ -1,4 +1,4 @@
-import { CurrencyPipe, NgClass }                                                     from '@angular/common';
+import { CurrencyPipe }                                                              from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewEncapsulation, } from '@angular/core';
 import { MatButtonModule }                                                           from '@angular/material/button';
 import { MatButtonToggleModule }                                                     from '@angular/material/button-toggle';
@@ -31,7 +31,6 @@ import { MatSortModule }                                                        
         MatButtonToggleModule,
         NgApexchartsModule,
         MatTableModule,
-        NgClass,
         CurrencyPipe,
         MatSortModule,
     ],
@@ -203,7 +202,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
                 hover: {
                     filter: {
                         type : 'darken',
-                        value: 0.75,
                     },
                 },
             },
@@ -274,7 +272,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
                 hover: {
                     filter: {
                         type : 'darken',
-                        value: 0.75,
                     },
                 },
             },

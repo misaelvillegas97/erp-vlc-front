@@ -1,4 +1,3 @@
-import { NgIf }                                                   from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewEncapsulation }        from '@angular/core';
 import { MatButtonModule }                                        from '@angular/material/button';
 import { MatIconModule }                                          from '@angular/material/icon';
@@ -23,7 +22,7 @@ import { Subject, takeUntil }                                     from 'rxjs';
     templateUrl  : './compact.component.html',
     encapsulation: ViewEncapsulation.None,
     standalone   : true,
-    imports      : [ FuseLoadingBarComponent, MatButtonModule, MatIconModule, LanguagesComponent, FuseFullscreenComponent, SearchComponent, ShortcutsComponent, MessagesComponent, NotificationsComponent, UserComponent, NgIf, RouterOutlet, QuickChatComponent, FuseVerticalNavigationComponent ],
+    imports: [ FuseLoadingBarComponent, MatButtonModule, MatIconModule, LanguagesComponent, FuseFullscreenComponent, SearchComponent, ShortcutsComponent, MessagesComponent, NotificationsComponent, UserComponent, RouterOutlet, QuickChatComponent, FuseVerticalNavigationComponent ],
 })
 export class CompactLayoutComponent implements OnInit, OnDestroy {
     isScreenSmall: boolean;

@@ -2,8 +2,8 @@
 /*  @ Import/write your custom styles here.
 /*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
 /* ----------------------------------------------------------------------------------------------------- */
-@import './custom/patterns';
-@import 'assets/fonts/poppins/poppins.css';
+@use './custom/patterns';
+@use 'assets/fonts/poppins/poppins.css';
 
 body {
     zoom: 1;

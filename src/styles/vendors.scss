@@ -3,21 +3,25 @@
 /* ----------------------------------------------------------------------------------------------------- */
 
 /* Perfect scrollbar */
-@import 'perfect-scrollbar/css/perfect-scrollbar.css';
+@use 'perfect-scrollbar/css/perfect-scrollbar.css';
 
 /* Quill */
-@import 'quill/dist/quill.snow.css';
+@use 'quill/dist/quill.snow.css';
 
 /* Splide (swipper gallery) */
-@import '@splidejs/splide/dist/css/splide.min.css';
+@use '@splidejs/splide/dist/css/splide.min.css';
 
 /* Lightgallery */
-@import 'lightgallery/scss/lightgallery';
-@import 'lightgallery/scss/lg-zoom';
-@import 'lightgallery/scss/lg-autoplay';
+@use 'lightgallery/scss/lightgallery';
+@use 'lightgallery/scss/lg-zoom';
+@use 'lightgallery/scss/lg-autoplay';
 
 /* Notyf */
-@import 'notyf/notyf.min.css';
+@use 'notyf/notyf.min.css';
 
 /* Overrides */
-@import './custom/quill';
+.ql-container {
+    min-height: unset !important;
+    height: unset !important;
+    //max-height: unset !important;
+}

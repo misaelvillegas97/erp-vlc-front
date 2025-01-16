@@ -1,7 +1,6 @@
 import { Component, OnInit }            from '@angular/core';
 import { MatIconAnchor, MatIconButton } from '@angular/material/button';
 import { MatDialog }                    from '@angular/material/dialog';
-import { MatDivider }                   from '@angular/material/divider';
 import { MatFormFieldModule }           from '@angular/material/form-field';
 import { MatIcon }                      from '@angular/material/icon';
 import { MatInputModule }               from '@angular/material/input';
@@ -15,9 +14,7 @@ import { PageHeaderComponent }                                                  
 import { Table }                                                                              from '@shared/components/table/table.component';
 import { BehaviorSubject, debounceTime, distinctUntilChanged, mergeMap, of, switchMap, take } from 'rxjs';
 import { takeUntilDestroyed }                                                                 from '@angular/core/rxjs-interop';
-import { AsyncPipe, DatePipe, JsonPipe }                                                      from '@angular/common';
 import { MatTableModule }                                                                     from '@angular/material/table';
-import { MatSort, MatSortHeader }                                                             from '@angular/material/sort';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators }                          from '@angular/forms';
 import { Client }                                                                             from '@modules/admin/maintainers/clients/domain/model/client';
 import { ClientService }                                                                      from '@modules/admin/maintainers/clients/client.service';
@@ -36,13 +33,7 @@ import { RouterLink }                                                           
         MatIconButton,
         MatInputModule,
         MatTableModule,
-        MatDivider,
         Table,
-        AsyncPipe,
-        JsonPipe,
-        DatePipe,
-        MatSortHeader,
-        MatSort,
         ReactiveFormsModule,
         RouterLink,
     ],

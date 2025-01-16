@@ -7,7 +7,6 @@ import { MatSelectModule }                          from '@angular/material/sele
 import { BehaviorSubject } from 'rxjs';
 
 import { NewsCategoryService } from './news-category.service';
-import { JsonPipe }            from '@angular/common';
 import { Selector }            from '../../model/selector';
 import { TranslocoPipe }       from '@ngneat/transloco';
 
@@ -20,7 +19,6 @@ import { TranslocoPipe }       from '@ngneat/transloco';
         MatSelectModule,
         MatOptionModule,
         MatLabel,
-        JsonPipe,
         TranslocoPipe
     ],
     providers  : [

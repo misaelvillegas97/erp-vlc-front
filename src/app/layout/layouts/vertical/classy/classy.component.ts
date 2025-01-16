@@ -1,4 +1,3 @@
-import { NgIf }                                                   from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewEncapsulation }        from '@angular/core';
 import { MatButtonModule }                                        from '@angular/material/button';
 import { MatIconModule }                                          from '@angular/material/icon';
@@ -25,7 +24,7 @@ import { User }                                                   from '@core/us
     templateUrl  : './classy.component.html',
     encapsulation: ViewEncapsulation.None,
     standalone   : true,
-    imports      : [ FuseLoadingBarComponent, FuseVerticalNavigationComponent, NotificationsComponent, UserComponent, NgIf, MatIconModule, MatButtonModule, LanguagesComponent, FuseFullscreenComponent, SearchComponent, ShortcutsComponent, MessagesComponent, RouterOutlet, QuickChatComponent ],
+    imports: [ FuseLoadingBarComponent, FuseVerticalNavigationComponent, NotificationsComponent, UserComponent, MatIconModule, MatButtonModule, LanguagesComponent, FuseFullscreenComponent, SearchComponent, ShortcutsComponent, MessagesComponent, RouterOutlet, QuickChatComponent ],
 })
 export class ClassyLayoutComponent implements OnInit, OnDestroy {
     isScreenSmall: boolean;

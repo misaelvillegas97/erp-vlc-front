@@ -1,4 +1,4 @@
-import { NgClass, NgTemplateOutlet, TitleCasePipe }                                                 from '@angular/common';
+import { NgClass, NgTemplateOutlet }                                                                from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, Input, OnDestroy, OnInit, } from '@angular/core';
 import { MatIconModule }                                                                            from '@angular/material/icon';
 import { MatMenuModule }                                                                            from '@angular/material/menu';
@@ -24,8 +24,7 @@ import { TranslocoDirective }                                                   
     NgTemplateOutlet,
     MatMenuModule,
     MatIconModule,
-    TranslocoDirective,
-    TitleCasePipe,
+      TranslocoDirective
   ],
 })
 export class FuseHorizontalNavigationBasicItemComponent

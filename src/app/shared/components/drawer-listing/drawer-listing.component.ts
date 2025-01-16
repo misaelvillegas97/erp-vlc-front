@@ -3,7 +3,6 @@ import { RouterLink, RouterLinkActive }                                         
 import { MatDrawer, MatSidenavModule }                                                                                                    from '@angular/material/sidenav';
 import { MatButtonModule }                                                                                                                from '@angular/material/button';
 import { MatIconModule }                                                                                                                  from '@angular/material/icon';
-import { NgClass, NgComponentOutlet, NgTemplateOutlet }                                                                                   from '@angular/common';
 
 import { Subject, takeUntil } from 'rxjs';
 
@@ -21,10 +20,7 @@ import { CdkScrollable }           from '@angular/cdk/overlay';
         MatSidenavModule,
         MatButtonModule,
         MatIconModule,
-        NgClass,
         RouterLink,
-        NgTemplateOutlet,
-        NgComponentOutlet,
         RouterLinkActive,
         CdkScrollable,
     ],

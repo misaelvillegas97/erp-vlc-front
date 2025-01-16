@@ -12,8 +12,6 @@ import { MatProgressSpinner }                                                   
 import { Router }                                                                             from '@angular/router';
 
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@ngneat/transloco';
-import { DropzoneCdkModule }                                   from '@ngx-dropzone/cdk';
-import { DropzoneMaterialModule }                              from '@ngx-dropzone/material';
 import { QuillEditorComponent }                                from 'ngx-quill';
 import { INotyfNotificationOptions, Notyf }                    from 'notyf';
 import { imageCompressor }                                     from 'quill-image-compress';
@@ -29,8 +27,6 @@ import { ClientService }                   from '@modules/admin/maintainers/clie
         PageDetailHeaderComponent,
         TranslocoDirective,
         CdkTextareaAutosize,
-        DropzoneCdkModule,
-        DropzoneMaterialModule,
         FormsModule,
         MatButton,
         MatCard,
