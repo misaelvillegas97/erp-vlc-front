@@ -15,7 +15,7 @@ export default [
                 },
             },
             {
-                path         : 'create',
+                path: 'new',
                 loadComponent: () => import('./pages/create/create.component').then(m => m.CreateComponent),
             },
             {path: '**', redirectTo: '', pathMatch: 'full'}

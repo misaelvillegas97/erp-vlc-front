@@ -8,7 +8,6 @@ import { FuseHorizontalNavigationComponent, FuseNavigationService, FuseVerticalN
 import { FuseMediaWatcherService }                                                                    from '@fuse/services/media-watcher';
 import { NavigationService }                                                                          from 'app/core/navigation/navigation.service';
 import { Navigation }                                                                                 from 'app/core/navigation/navigation.types';
-import { LanguagesComponent }                                                                         from 'app/layout/components/languages/languages.component';
 import { SearchComponent }                                                                            from 'app/layout/components/search/search.component';
 import { UserComponent }                                                                              from 'app/layout/components/user/user.component';
 import { Subject, takeUntil }                                                                         from 'rxjs';
@@ -23,7 +22,6 @@ import { Subject, takeUntil }                                                   
         FuseVerticalNavigationComponent,
         MatButtonModule,
         MatIconModule,
-        LanguagesComponent,
         FuseFullscreenComponent,
         SearchComponent,
         UserComponent,

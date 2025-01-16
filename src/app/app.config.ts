@@ -1,5 +1,5 @@
 import { provideHttpClient }                                                                                                       from '@angular/common/http';
-import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom, inject, provideZoneChangeDetection }                             from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom, inject, provideExperimentalZonelessChangeDetection }             from '@angular/core';
 import { DateAdapter, MAT_DATE_FORMATS }                                                                                           from '@angular/material/core';
 import { LuxonDateAdapter }                                                                                                        from '@angular/material-luxon-adapter';
 import { provideAnimations }                                                                                                       from '@angular/platform-browser/animations';
@@ -32,9 +32,8 @@ const config: SocketIoConfig = {
 
 export const appConfig: ApplicationConfig = {
     providers: [
-        provideZoneChangeDetection({
-            eventCoalescing: true
-        }),
+        // provideZoneChangeDetection({eventCoalescing: true}),
+        provideExperimentalZonelessChangeDetection(),
         provideAnimations(),
         provideHttpClient(),
         provideRouter(appRoutes,

@@ -126,6 +126,14 @@
                 "title" : "Nuevo cliente",
                 "subtitle" : "Crea un nuevo cliente",
                 "description" : "Crear un nuevo cliente"
+            },
+            "fields" : {
+                "business-name" : "Razón social",
+                "fantasy-name" : "Nombre de fantasía",
+                "code" : "Código",
+                "national-id" : "RUT",
+                "email" : "Correo",
+                "phone" : "Teléfono"
             }
         }
     },
