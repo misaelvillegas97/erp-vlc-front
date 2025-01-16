@@ -269,7 +269,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
                     },
                 },
             },
-            series     : [this.orders.countsByType['PURCHASE_ORDER'], this.orders.countsByType['RETURN_ORDER']],
+            series: [ this.orders.countsByType['PURCHASE_ORDER'] || 0, this.orders.countsByType['RETURN_ORDER'] || 0 ],
             states     : {
                 hover: {
                     filter: {
@@ -346,9 +346,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
             },
             tooltip    : {
                 theme: 'dark',
-                y    : {
-                    formatter: (val: number): string => `${ val }%`,
-                },
+                y: {formatter: (val: number): string => `${ val }%`,},
             },
             xaxis      : {
                 labels    : {
@@ -361,8 +359,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
                 categories: this.data.budgetDistribution.categories,
             },
             yaxis      : {
-                max       : (max: number): number =>
-                    parseInt((max + 10).toFixed(0), 10),
+                max: (max: number): number => parseInt((max + 10).toFixed(0), 10),
                 tickAmount: 7,
             },
         };
@@ -370,25 +367,17 @@ export class ProjectComponent implements OnInit, OnDestroy {
         // Weekly expenses
         this.chartWeeklyExpenses = {
             chart  : {
-                animations: {
-                    enabled: false,
-                },
+                animations: {enabled: false},
                 fontFamily: 'inherit',
                 foreColor : 'inherit',
                 height    : '100%',
                 type      : 'line',
-                sparkline : {
-                    enabled: true,
-                },
+                sparkline : {enabled: true},
             },
             colors : [ '#22D3EE' ],
             series : this.data.weeklyExpenses.series,
-            stroke : {
-                curve: 'smooth',
-            },
-            tooltip: {
-                theme: 'dark',
-            },
+            stroke : {curve: 'smooth'},
+            tooltip: {theme: 'dark'},
             xaxis  : {
                 type      : 'category',
                 categories: this.data.weeklyExpenses.labels,
@@ -403,33 +392,23 @@ export class ProjectComponent implements OnInit, OnDestroy {
         // Monthly expenses
         this.chartMonthlyExpenses = {
             chart  : {
-                animations: {
-                    enabled: false,
-                },
+                animations: {enabled: false},
                 fontFamily: 'inherit',
                 foreColor : 'inherit',
                 height    : '100%',
                 type      : 'line',
-                sparkline : {
-                    enabled: true,
-                },
+                sparkline : {enabled: true},
             },
             colors : [ '#4ADE80' ],
             series : this.data.monthlyExpenses.series,
-            stroke : {
-                curve: 'smooth',
-            },
-            tooltip: {
-                theme: 'dark',
-            },
+            stroke : {curve: 'smooth'},
+            tooltip: {theme: 'dark'},
             xaxis  : {
                 type      : 'category',
                 categories: this.data.monthlyExpenses.labels,
             },
             yaxis  : {
-                labels: {
-                    formatter: (val): string => `$${ val }`,
-                },
+                labels: {formatter: (val): string => `$${ val }`},
             },
         };
 
