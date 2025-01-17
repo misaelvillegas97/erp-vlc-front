@@ -96,6 +96,12 @@ export const appRoutes: Route[] = [
                 ]
             },
             {
+                path    : 'administration',
+                children: [
+
+                ]
+            },
+            {
                 path    : 'maintainers',
                 children: [
                     {path: 'clients', loadChildren: () => import('app/modules/admin/maintainers/clients/client.routes')},

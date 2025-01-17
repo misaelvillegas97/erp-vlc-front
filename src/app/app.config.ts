@@ -2,7 +2,6 @@ import { provideHttpClient }                                                    
 import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom, inject, provideExperimentalZonelessChangeDetection }             from '@angular/core';
 import { DateAdapter, MAT_DATE_FORMATS }                                                                                           from '@angular/material/core';
 import { LuxonDateAdapter }                                                                                                        from '@angular/material-luxon-adapter';
-import { provideAnimations }                                                                                                       from '@angular/platform-browser/animations';
 import { PreloadAllModules, provideRouter, withComponentInputBinding, withInMemoryScrolling, withPreloading, withViewTransitions } from '@angular/router';
 
 import { IonicStorageModule }                                 from '@ionic/storage-angular';
@@ -14,13 +13,14 @@ import { SocketIoConfig, SocketIoModule }                     from 'ngx-socket-i
 import { firstValueFrom }                                     from 'rxjs';
 
 
-import { provideAuth }         from '@core/auth/auth.provider';
-import { provideIcons }        from '@core/icons/icons.provider';
-import { TranslocoHttpLoader } from '@core/transloco/transloco.http-loader';
-import { provideFuse }         from '@fuse';
-import { StorageService }      from '@fuse/services/storage';
-import { appRoutes }           from 'app/app.routes';
-import { mockApiServices }     from 'app/mock-api';
+import { provideAuth }            from '@core/auth/auth.provider';
+import { provideIcons }           from '@core/icons/icons.provider';
+import { TranslocoHttpLoader }    from '@core/transloco/transloco.http-loader';
+import { provideFuse }            from '@fuse';
+import { StorageService }         from '@fuse/services/storage';
+import { appRoutes }              from 'app/app.routes';
+import { mockApiServices }        from 'app/mock-api';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 const config: SocketIoConfig = {
     url    : 'localhost:5000/ws/board',
@@ -34,7 +34,7 @@ export const appConfig: ApplicationConfig = {
     providers: [
         // provideZoneChangeDetection({eventCoalescing: true}),
         provideExperimentalZonelessChangeDetection(),
-        provideAnimations(),
+        provideAnimationsAsync(),
         provideHttpClient(),
         provideRouter(appRoutes,
             withComponentInputBinding(),
@@ -123,7 +123,7 @@ export const appConfig: ApplicationConfig = {
                 services: mockApiServices,
             },
             fuse   : {
-                layout : 'enterprise',
+                layout: 'dense',
                 scheme : 'light',
                 screens: {
                     sm: '600px',

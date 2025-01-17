@@ -78,7 +78,8 @@
             "max-length" : "El contenido no debe exceder los {{length}} caracteres",
             "required" : "Este campo es obligatorio",
             "invalid" : "El formulario contiene uno o más errores",
-            "password-must-match" : "Las contraseñas deben coincidir"
+            "password-must-match" : "Las contraseñas deben coincidir",
+            "pattern" : "El campo no cumple con el formato requerido. {{pattern}}"
         }
     },
     "selectors" : {
@@ -125,12 +126,14 @@
             "new" : {
                 "title" : "Nuevo cliente",
                 "subtitle" : "Crea un nuevo cliente",
-                "description" : "Crear un nuevo cliente"
+                "description" : "Crear un nuevo cliente",
+                "success" : "Cliente creado exitosamente"
             },
             "fields" : {
                 "business-name" : "Razón social",
                 "fantasy-name" : "Nombre de fantasía",
                 "code" : "Código",
+                "code-hint" : "Código único para identificar al cliente (Sin espacios ni caracteres especiales)",
                 "national-id" : "RUT",
                 "email" : "Correo",
                 "phone" : "Teléfono"

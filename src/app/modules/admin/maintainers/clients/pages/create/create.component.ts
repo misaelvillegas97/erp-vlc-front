@@ -2,7 +2,7 @@ import { NgIf }                                                                 
 import { Component, OnInit }                                                                  from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatButton }                                                                          from '@angular/material/button';
-import { MatError, MatFormField, MatLabel }                                                   from '@angular/material/form-field';
+import { MatError, MatFormFieldModule, MatLabel }                                             from '@angular/material/form-field';
 import { MatInput }                                                                           from '@angular/material/input';
 import { MatProgressSpinner }                                                                 from '@angular/material/progress-spinner';
 import { Router }                                                                             from '@angular/router';
@@ -21,7 +21,7 @@ import { ClientService }                                       from '@modules/ad
         FormsModule,
         MatButton,
         MatError,
-        MatFormField,
+        MatFormFieldModule,
         MatInput,
         MatLabel,
         MatProgressSpinner,
@@ -29,7 +29,12 @@ import { ClientService }                                       from '@modules/ad
         ReactiveFormsModule,
         TranslocoPipe
     ],
-    templateUrl: './create.component.html'
+    templateUrl: './create.component.html',
+    styles     : `
+        :host {
+            height: 100%;
+        }
+    `
 })
 export class CreateComponent implements OnInit {
     public clientForm: UntypedFormGroup;
@@ -47,7 +52,7 @@ export class CreateComponent implements OnInit {
         this.clientForm = this._formBuilder.group({
             businessName: [ '', [ Validators.required ] ],
             fantasyName : [ '', [ Validators.required ] ],
-            code        : [ '', [ Validators.required ] ],
+            code: [ '', [] ],
             nationalId  : [ '', [ Validators.required ] ],
             email       : [ '', [ Validators.required, Validators.email ] ],
             phone       : [ '', [ Validators.required ] ],
@@ -57,9 +62,6 @@ export class CreateComponent implements OnInit {
     submit() {
         if (this.clientForm.invalid) {
             this.clientForm.markAllAsTouched();
-            if (this.clientForm.get('portraitImage').invalid) this._notyf.error({message: this._translateService.translate('errors.validation.image'), ...this.notyfOptions()});
-            if (this.clientForm.get('body').invalid) this._notyf.error({message: this._translateService.translate('errors.validation.body'), ...this.notyfOptions()});
-            if (this.clientForm.get('category').invalid) this._notyf.error({message: this._translateService.translate('errors.validation.category'), ...this.notyfOptions()});
             this._notyf.error({message: this._translateService.translate('errors.validation.message'), ...this.notyfOptions()});
             return;
         }
@@ -70,8 +72,8 @@ export class CreateComponent implements OnInit {
             .post(this.clientForm.getRawValue())
             .subscribe({
                 next : (result) => {
-                    this._notyf.success({message: this._translateService.translate('success.news.create'), ...this.notyfOptions()});
-                    this._router.navigate([ '/admin', 'news' ]);
+                    this._notyf.success({message: this._translateService.translate('maintainers.client.new.success'), ...this.notyfOptions()});
+                    this._router.navigate([ '/maintainers', 'clients' ]);
                 },
                 error: (error) => {
                     this._notyf.error({message: this._translateService.translate('errors.service.message')});

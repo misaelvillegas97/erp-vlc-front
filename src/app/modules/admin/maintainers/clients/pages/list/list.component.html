@@ -44,22 +44,22 @@
         >
             <ng-container matColumnDef="businessName">
                 <th *matHeaderCellDef mat-header-cell><span class="select-none">{{ t('list.table.business-name') }}</span></th>
-                <td *matCellDef="let client" mat-cell>{{ client.businessName }}</td>
+                <td *matCellDef="let client" mat-cell><span [title]="client.businessName" class="line-clamp-1">{{ client.businessName }}</span></td>
             </ng-container>
 
             <ng-container matColumnDef="fantasyName">
                 <th *matHeaderCellDef mat-header-cell><span class="select-none">{{ t('list.table.fantasy-name') }}</span></th>
-                <td *matCellDef="let client" mat-cell>{{ client.fantasyName }}</td>
+                <td *matCellDef="let client" mat-cell><span [title]="client.fantasyName" class="line-clamp-1">{{ client.fantasyName }}</span></td>
             </ng-container>
 
             <ng-container matColumnDef="code">
                 <th *matHeaderCellDef mat-header-cell><span class="select-none">{{ t('list.table.code') }}</span></th>
-                <td *matCellDef="let client" mat-cell>{{ client.code }}</td>
+                <td *matCellDef="let client" mat-cell><span [title]="client.code" class="line-clamp-1">{{ client.code }}</span></td>
             </ng-container>
 
             <ng-container matColumnDef="email">
                 <th *matHeaderCellDef mat-header-cell><span class="select-none">{{ t('list.table.email') }}</span></th>
-                <td *matCellDef="let client" mat-cell>{{ client.email }}</td>
+                <td *matCellDef="let client" mat-cell><span [title]="client.email" class="line-clamp-1">{{ client.email }}</span></td>
             </ng-container>
 
             <ng-container matColumnDef="phone">

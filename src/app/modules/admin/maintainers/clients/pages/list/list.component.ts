@@ -1,24 +1,23 @@
-import { Component, OnInit }            from '@angular/core';
-import { MatIconAnchor, MatIconButton } from '@angular/material/button';
-import { MatDialog }                    from '@angular/material/dialog';
-import { MatFormFieldModule }           from '@angular/material/form-field';
-import { MatIcon }                      from '@angular/material/icon';
-import { MatInputModule }               from '@angular/material/input';
-import { MatTooltip }                   from '@angular/material/tooltip';
+import { Component, OnInit }                            from '@angular/core';
+import { takeUntilDestroyed }                           from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatIconAnchor, MatIconButton }                 from '@angular/material/button';
+import { MatFormFieldModule }                           from '@angular/material/form-field';
+import { MatIcon }                                      from '@angular/material/icon';
+import { MatInputModule }                               from '@angular/material/input';
+import { MatTableModule }                               from '@angular/material/table';
+import { MatTooltip }                                   from '@angular/material/tooltip';
+import { RouterLink }                                   from '@angular/router';
 
-import { TranslocoDirective, TranslocoService } from '@ngneat/transloco';
-import { Notyf }                                from 'notyf';
-
-import { FuseConfirmationService }                                                            from '@fuse/services/confirmation';
-import { PageHeaderComponent }                                                                from '@layout/components/page-header/page-header.component';
-import { Table }                                                                              from '@shared/components/table/table.component';
+import { TranslocoDirective, TranslocoService }                                               from '@ngneat/transloco';
+import { Notyf }                                                                              from 'notyf';
 import { BehaviorSubject, debounceTime, distinctUntilChanged, mergeMap, of, switchMap, take } from 'rxjs';
-import { takeUntilDestroyed }                                                                 from '@angular/core/rxjs-interop';
-import { MatTableModule }                                                                     from '@angular/material/table';
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators }                          from '@angular/forms';
-import { Client }                                                                             from '@modules/admin/maintainers/clients/domain/model/client';
-import { ClientService }                                                                      from '@modules/admin/maintainers/clients/client.service';
-import { RouterLink }                                                                         from '@angular/router';
+
+import { FuseConfirmationService } from '@fuse/services/confirmation';
+import { PageHeaderComponent }     from '@layout/components/page-header/page-header.component';
+import { Table }                   from '@shared/components/table/table.component';
+import { Client }                  from '@modules/admin/maintainers/clients/domain/model/client';
+import { ClientService }           from '@modules/admin/maintainers/clients/client.service';
 
 @Component({
     selector   : 'app-list',
@@ -35,7 +34,7 @@ import { RouterLink }                                                           
         MatTableModule,
         Table,
         ReactiveFormsModule,
-        RouterLink,
+        RouterLink
     ],
     templateUrl: './list.component.html'
 })
@@ -46,11 +45,9 @@ export class ListComponent implements OnInit {
     private _notyf = new Notyf();
 
     constructor(
-        private readonly _formBuilder: FormBuilder,
         private readonly _fuseConfirmationService: FuseConfirmationService,
         private readonly _clientService: ClientService,
         private readonly _translationService: TranslocoService,
-        private readonly _matDialog: MatDialog,
     ) {
         this._subscribeToSearchControl();
         this._clientService.clients$
