@@ -1,5 +1,5 @@
 import { provideHttpClient }                                                                                                       from '@angular/common/http';
-import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom, inject, provideExperimentalZonelessChangeDetection }             from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, inject, provideAppInitializer, provideExperimentalZonelessChangeDetection }       from '@angular/core';
 import { DateAdapter, MAT_DATE_FORMATS }                                                                                           from '@angular/material/core';
 import { LuxonDateAdapter }                                                                                                        from '@angular/material-luxon-adapter';
 import { PreloadAllModules, provideRouter, withComponentInputBinding, withInMemoryScrolling, withPreloading, withViewTransitions } from '@angular/router';
@@ -94,26 +94,19 @@ export const appConfig: ApplicationConfig = {
             },
             loader: TranslocoHttpLoader,
         }),
-        {
-            // Preload the default language before the app starts to prevent empty/jumping content
-            provide   : APP_INITIALIZER,
-            useFactory: () => {
-                const translocoService = inject(TranslocoService);
-                const storageService = inject(StorageService);
+        provideAppInitializer(async () => {
+            const translocoService = inject(TranslocoService);
+            const storageService = inject(StorageService);
 
-                return () => storageService.whenReady().then(() => {
-                    storageService.get('activeLang').then((defaultLang) => {
-                        if (!defaultLang)
-                            defaultLang = translocoService.getDefaultLang();
+            await storageService.whenReady();
+            storageService.get('activeLang').then((defaultLang) => {
+                if (!defaultLang)
+                    defaultLang = translocoService.getDefaultLang();
 
-                        translocoService.setActiveLang(defaultLang);
-                        return firstValueFrom(translocoService.load(defaultLang));
-                    });
-                });
-            },
-            multi     : true,
-            deps      : [ TranslocoService, StorageService ],
-        },
+                translocoService.setActiveLang(defaultLang);
+                return firstValueFrom(translocoService.load(defaultLang));
+            });
+        }),
         // Fuse
         provideAuth(),
         provideIcons(),
