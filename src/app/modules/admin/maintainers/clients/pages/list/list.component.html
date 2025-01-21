@@ -69,24 +69,20 @@
 
             <ng-container matColumnDef="actions">
                 <th *matHeaderCellDef mat-header-cell><span class="select-none">{{ t('list.table.actions') }}</span></th>
-                <td *matCellDef="let news" mat-cell>
-                    <div class="flex justify-center gap-2">
-                        <button
-                            (click)="openEditDialog(news)"
-                            [matTooltip]="t('table.edit')"
-                            mat-icon-button
-                        >
-                            <mat-icon svgIcon="heroicons_outline:pencil"></mat-icon>
-                        </button>
-                        <button
-                            (click)="openDeleteDialog(news)"
-                            [matTooltip]="t('table.delete')"
-                            color="warn"
-                            mat-icon-button
-                        >
-                            <mat-icon svgIcon="heroicons_outline:trash"></mat-icon>
-                        </button>
-                    </div>
+                <td *matCellDef="let client" mat-cell>
+                    <button [matMenuTriggerFor]="clientMenu" mat-icon-button>
+                        <mat-icon
+                            class="icon-size-5"
+                            svgIcon="heroicons_outline:ellipsis-vertical"
+                        ></mat-icon>
+                    </button>
+                    <mat-menu #clientMenu="matMenu">
+                        <button mat-menu-item matTooltip="Próximamente">Asociar producto/s</button>
+                        <button mat-menu-item>Ver órdenes</button>
+                        <button mat-menu-item>Editar</button>
+                        <button mat-menu-item>Eliminar</button>
+                    </mat-menu>
+
                 </td>
             </ng-container>
         </wwt-table>

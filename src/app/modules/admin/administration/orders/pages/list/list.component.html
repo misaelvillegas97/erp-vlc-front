@@ -1,0 +1,163 @@
+<div *transloco="let t; read: 'operations.orders'" class="flex flex-col min-w-0 w-full">
+    <page-header
+        [description]="t('list.subtitle')"
+        [subtitle]="t('list.title')">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-screen-xl mx-auto py-10 gap-y-4 sm:px-4">
+        <div class="flex flex-row w-full">
+            <!-- Title -->
+            <h2 class="flex-1 font-bold text-secondary text-xl self-center">{{ t('title') }}</h2>
+
+            <!-- New member button -->
+            <a
+                [matTooltip]="t('new.title')"
+                [routerLink]="['new']"
+                class="flex-0 font-bold py-2 px-4 rounded"
+                color="primary"
+                mat-icon-button
+            >
+                <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+            </a>
+        </div>
+
+        <table
+            [dataSource]="orders$"
+            class="min-w-240 w-full overflow-y-visible bg-transparent"
+            mat-table
+            matSort
+        >
+            <!-- Order number -->
+            <ng-container matColumnDef="orderNumber" sticky>
+                <th *matHeaderCellDef mat-header-cell>Número de orden</th>
+                <td *matCellDef="let order" mat-cell>
+                    <span class="flex items-center">
+                        <span class="ml-3 leading-4">{{ order?.orderNumber }}</span>
+                    </span>
+                </td>
+            </ng-container>
+
+            <!-- Client fantasy name -->
+            <ng-container matColumnDef="businessName">
+                <th *matHeaderCellDef mat-header-cell>Cliente</th>
+                <td *matCellDef="let order" mat-cell>
+                    <span class="text-right font-medium">{{ order?.client?.fantasyName }}</span>
+                </td>
+            </ng-container>
+
+            <!-- Order type -->
+            <ng-container matColumnDef="type">
+                <th *matHeaderCellDef mat-header-cell>Tipo de orden</th>
+                <td *matCellDef="let order" mat-cell>
+                    @switch (order?.type) {
+                        @case ('PURCHASE_ORDER') {
+                            <span class="text-green text-sm">Orden de compra</span>
+                        }
+                        @case ('RETURN_ORDER') {
+                            <span class="text-red text-sm">Orden de devolución</span>
+                        }
+                        @default {
+                            <span class="text-blue text-sm">Estado desconocido</span>
+                        }
+                    }
+                </td>
+            </ng-container>
+
+            <!-- Status -->
+            <ng-container matColumnDef="status">
+                <th *matHeaderCellDef mat-header-cell>Estado</th>
+                <td *matCellDef="let order" mat-cell>
+                    @switch (order?.status) {
+                        @case ('PENDING') {
+                            <span class="text-yellow-500 text-sm">Pendiente</span>
+                        }
+                        @case ('IN_PROGRESS') {
+                            <span class="text-blue-500 text-sm">En progreso</span>
+                        }
+                        @case ('READY_FOR_SHIPPING') {
+                            <span class="text-yellow-500 text-sm">Listo para envío</span>
+                        }
+                        @case ('SHIPPED') {
+                            <span class="text-green text-sm">Enviado</span>
+                        }
+                        @case ('IN_TRANSIT') {
+                            <span class="text-blue-500 text-sm">En tránsito</span>
+                        }
+                        @case ('DELIVERED') {
+                            <span class="text-green text-sm">Entregado</span>
+                        }
+                        @case ('CANCELED') {
+                            <span class="text-red text-sm">Cancelado</span>
+                        }
+                    }
+                </td>
+            </ng-container>
+
+            <!-- Delivery location -->
+            <ng-container matColumnDef="deliveryLocation">
+                <th *matHeaderCellDef mat-header-cell>Ubicación de entrega</th>
+                <td *matCellDef="let order" mat-cell>
+                    <span class="text-right font-medium">{{ order?.deliveryLocation }}</span>
+                </td>
+            </ng-container>
+
+            <!-- Emission date -->
+            <ng-container matColumnDef="emissionDate">
+                <th *matHeaderCellDef mat-header-cell mat-sort-header>Fecha de emisión</th>
+                <td *matCellDef="let order" mat-cell>
+                    <span class="text-right font-medium">{{ order?.emissionDate }}</span>
+                </td>
+            </ng-container>
+
+            <!-- DeliveryDate -->
+            <ng-container matColumnDef="deliveryDate">
+                <th *matHeaderCellDef mat-header-cell mat-sort-header>Fecha de entrega</th>
+                <td *matCellDef="let order" mat-cell>
+                    <span class="text-right font-medium">{{ order?.deliveryDate }}</span>
+                </td>
+            </ng-container>
+
+            <!-- Amount -->
+            <ng-container matColumnDef="amount">
+                <th *matHeaderCellDef mat-header-cell>Monto</th>
+                <td *matCellDef="let order" mat-cell>
+                    <span class="text-right font-medium">{{ order?.totalAmount | currency: 'CLP':'symbol-narrow' }}</span>
+                </td>
+            </ng-container>
+
+            <!-- Invoice -->
+            <ng-container matColumnDef="invoice">
+                <th *matHeaderCellDef mat-header-cell>Factura</th>
+                <td *matCellDef="let order" mat-cell>
+                    @if (order?.invoice) {
+                        <span class="text-right font-medium">{{ order?.invoice?.number }}</span>
+                    } @else {
+                        <button mat-icon-button>
+                            <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+                        </button>
+                    }
+                </td>
+            </ng-container>
+
+            <!-- Actions -->
+            <ng-container matColumnDef="actions">
+                <th *matHeaderCellDef mat-header-cell></th>
+                <td *matCellDef="let order" mat-cell>
+                    <button [matTooltip]="'Ver orden'" [routerLink]="['view', order.id]" mat-icon-button>
+                        <mat-icon svgIcon="heroicons_outline:eye"></mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+
+            <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+            <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+
+            <!-- No data -->
+            <tr *matNoDataRow class="h-16">
+                <td [attr.colspan]="displayedColumns.length" class="text-center italic mat-hint">
+                    No hay órdenes disponibles para mostrar
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

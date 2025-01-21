@@ -46,6 +46,21 @@ export const defaultNavigation: FuseNavigationItem[] = [
         ]
     },
     {
+        id      : 'operations.title',
+        title   : 'Operations',
+        type    : 'collapsable',
+        icon    : 'heroicons_outline:briefcase',
+        children: [
+            {
+                id   : 'operations.orders',
+                title: 'All News',
+                type : 'basic',
+                link : '/orders',
+                icon : 'heroicons_outline:document-text'
+            }
+        ]
+    },
+    {
         id: 'maintainers.title',
         type    : 'collapsable',
         icon    : 'heroicons_outline:cog',

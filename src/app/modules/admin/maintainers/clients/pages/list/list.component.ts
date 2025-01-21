@@ -13,16 +13,17 @@ import { TranslocoDirective, TranslocoService }                                 
 import { Notyf }                                                                              from 'notyf';
 import { BehaviorSubject, debounceTime, distinctUntilChanged, mergeMap, of, switchMap, take } from 'rxjs';
 
-import { FuseConfirmationService } from '@fuse/services/confirmation';
-import { PageHeaderComponent }     from '@layout/components/page-header/page-header.component';
-import { Table }                   from '@shared/components/table/table.component';
-import { Client }                  from '@modules/admin/maintainers/clients/domain/model/client';
-import { ClientService }           from '@modules/admin/maintainers/clients/client.service';
+import { FuseConfirmationService }              from '@fuse/services/confirmation';
+import { PageHeaderComponent }                  from '@layout/components/page-header/page-header.component';
+import { Table }                                from '@shared/components/table/table.component';
+import { Client }                               from '@modules/admin/maintainers/clients/domain/model/client';
+import { ClientService }                        from '@modules/admin/maintainers/clients/client.service';
+import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 
 @Component({
     selector   : 'app-list',
     standalone : true,
-    imports    : [
+    imports: [
         PageHeaderComponent,
         TranslocoDirective,
         MatIcon,
@@ -34,7 +35,10 @@ import { ClientService }           from '@modules/admin/maintainers/clients/clie
         MatTableModule,
         Table,
         ReactiveFormsModule,
-        RouterLink
+        RouterLink,
+        MatMenu,
+        MatMenuItem,
+        MatMenuTrigger
     ],
     templateUrl: './list.component.html'
 })

@@ -22,9 +22,63 @@
             "analytics" : "Analítica",
             "projects" : "Proyectos"
         },
+        "operations" : {
+            "title" : "Operaciones",
+            "orders" : "Órdenes"
+        },
         "maintainers" : {
             "title" : "Mantenedores",
             "clients" : "Clientes"
+        }
+    },
+    "operations" : {
+        "orders" : {
+            "title" : "Órdenes",
+            "list" : {
+                "title" : "Listado de órdenes",
+                "subtitle" : "Administra las órdenes de compra o devolución",
+                "description" : "Lista de órdenes",
+                "table" : {
+                    "order-number" : "Número de orden",
+                    "client" : "Cliente",
+                    "total" : "Total",
+                    "status" : "Estado",
+                    "actions" : "Acciones"
+                }
+            }
+        }
+    },
+    "maintainers" : {
+        "client" : {
+            "title" : "Clientes",
+            "list" : {
+                "title" : "Mantenedor de clientes",
+                "subtitle" : "Administra los clientes de la aplicación",
+                "description" : "Lista de clientes",
+                "table" : {
+                    "business-name" : "Razón social",
+                    "fantasy-name" : "Nombre de fantasía",
+                    "code" : "Código",
+                    "email" : "Correo",
+                    "phone" : "Teléfono",
+                    "actions" : "Acciones"
+                }
+            },
+            "new" : {
+                "title" : "Nuevo cliente",
+                "subtitle" : "Crea un nuevo cliente",
+                "description" : "Crear un nuevo cliente",
+                "success" : "Cliente creado exitosamente"
+            },
+            "fields" : {
+                "business-name" : "Razón social",
+                "fantasy-name" : "Nombre de fantasía",
+                "code" : "Código",
+                "code-hint" : "Código único para identificar al cliente (Sin espacios ni caracteres especiales)",
+                "national-id" : "RUT",
+                "email" : "Correo",
+                "phone" : "Teléfono"
+            }
         }
     },
     "actions" : {
@@ -47,6 +101,20 @@
         "next" : "Siguiente",
         "back" : "Volver",
         "addUrl" : "Agregar URL"
+    },
+    "modal" : {
+        "confirmation-default" : {
+            "title" : "Confirmación de acción",
+            "message" : "¿Estás seguro de que deseas realizar esta acción?",
+            "cancel" : "Cancelar",
+            "confirm" : "Confirmar"
+        },
+        "delete-confirmation" : {
+            "title" : "Eliminar",
+            "message" : "¿Estás seguro de que deseas eliminar este elemento?, <span class=\"font-medium\">No podrás deshacer esta acción.</span>",
+            "cancel" : "Cancelar",
+            "confirm" : "Eliminar"
+        }
     },
     "errors" : {
         "runtime" : {
@@ -91,55 +159,6 @@
         }
     },
     "welcome-back" : "Bienvenido de nuevo",
-    "Project" : "Proyecto",
-    "Analytics" : "Analítica",
-    "modal" : {
-        "confirmation-default" : {
-            "title" : "Confirmación de acción",
-            "message" : "¿Estás seguro de que deseas realizar esta acción?",
-            "cancel" : "Cancelar",
-            "confirm" : "Confirmar"
-        },
-        "delete-confirmation" : {
-            "title" : "Eliminar",
-            "message" : "¿Estás seguro de que deseas eliminar este elemento?, <span class=\"font-medium\">No podrás deshacer esta acción.</span>",
-            "cancel" : "Cancelar",
-            "confirm" : "Eliminar"
-        }
-    },
-    "maintainers" : {
-        "client" : {
-            "title" : "Clientes",
-            "list" : {
-                "title" : "Mantenedor de clientes",
-                "subtitle" : "Administra los clientes de la aplicación",
-                "description" : "Lista de clientes",
-                "table" : {
-                    "business-name" : "Razón social",
-                    "fantasy-name" : "Nombre de fantasía",
-                    "code" : "Código",
-                    "email" : "Correo",
-                    "phone" : "Teléfono",
-                    "actions" : "Acciones"
-                }
-            },
-            "new" : {
-                "title" : "Nuevo cliente",
-                "subtitle" : "Crea un nuevo cliente",
-                "description" : "Crear un nuevo cliente",
-                "success" : "Cliente creado exitosamente"
-            },
-            "fields" : {
-                "business-name" : "Razón social",
-                "fantasy-name" : "Nombre de fantasía",
-                "code" : "Código",
-                "code-hint" : "Código único para identificar al cliente (Sin espacios ni caracteres especiales)",
-                "national-id" : "RUT",
-                "email" : "Correo",
-                "phone" : "Teléfono"
-            }
-        }
-    },
     "notyf-modal" : {
         "create" : {
             "success" : "Creación exitosa",
