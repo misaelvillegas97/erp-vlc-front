@@ -132,7 +132,7 @@
                     @if (order?.invoice) {
                         <span class="text-right font-medium">{{ order?.invoice?.number }}</span>
                     } @else {
-                        <button mat-icon-button>
+                        <button mat-icon-button (click)="openAddInvoiceDialog(order)">
                             <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
                         </button>
                     }

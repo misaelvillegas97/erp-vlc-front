@@ -1,4 +1,4 @@
-import { Component }                                                                                                                                    from '@angular/core';
+import { Component, inject }                                                                                                                            from '@angular/core';
 import { PageHeaderComponent }                                                                                                                          from '@layout/components/page-header/page-header.component';
 import { TranslocoDirective, TranslocoService }                                                                                                         from '@ngneat/transloco';
 import { MatIcon }                                                                                                                                      from '@angular/material/icon';
@@ -14,6 +14,8 @@ import { OrdersService }                                                        
 import { CurrencyPipe }                                                                                                                                 from '@angular/common';
 import { MatSort, MatSortHeader }                                                                                                                       from '@angular/material/sort';
 import { takeUntilDestroyed }                                                                                                                           from '@angular/core/rxjs-interop';
+import { MatDialog }                                                                                                                                    from '@angular/material/dialog';
+import { AddInvoiceComponent }                                                                                                                          from '@modules/admin/administration/orders/dialogs/add-invoice/add-invoice.component';
 
 @Component({
     selector   : 'app-list',
@@ -43,6 +45,8 @@ import { takeUntilDestroyed }                                                   
     templateUrl: './list.component.html'
 })
 export class ListComponent {
+    readonly dialog = inject(MatDialog);
+
     public orders$: BehaviorSubject<Order[]> = new BehaviorSubject<Order[]>(null);
     public readonly displayedColumns: string[] = [ 'orderNumber', 'businessName', 'type', 'status', 'invoice', 'deliveryLocation', 'deliveryDate', 'emissionDate', 'amount', 'actions' ];
 
@@ -57,5 +61,18 @@ export class ListComponent {
             .pipe(takeUntilDestroyed())
             .subscribe((orders) => this.orders$.next(orders));
 
+    }
+
+    openAddInvoiceDialog(order: Order): void {
+        const invoiceDialog = this.dialog.open(AddInvoiceComponent, {
+            data : order,
+            width: '500px'
+        });
+
+        invoiceDialog.afterClosed().subscribe((result) => {
+            if (result) {
+                this._notyf.success(this._translationService.translate('operations.orders.invoice.added'));
+            }
+        });
     }
 }
