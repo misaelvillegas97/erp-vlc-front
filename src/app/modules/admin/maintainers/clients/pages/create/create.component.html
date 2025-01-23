@@ -78,10 +78,10 @@
                 <mat-label>{{ 'maintainers.client.fields.phone' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.client.fields.phone' | transloco"
-                    formControlName="phone"
+                    formControlName="phoneNumber"
                     matInput
                 />
-                <mat-error *ngIf="clientForm.controls.phone.invalid">
+                <mat-error *ngIf="clientForm.controls.phoneNumber.invalid">
                     {{ 'errors.form.required' | transloco }}
                 </mat-error>
             </mat-form-field>

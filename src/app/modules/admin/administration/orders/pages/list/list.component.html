@@ -78,7 +78,7 @@
                         <mat-option value="PENDING">Pendiente</mat-option>
                         <mat-option value="IN_PROGRESS">En progreso</mat-option>
                         <mat-option value="READY_FOR_SHIPPING">Listo para envío</mat-option>
-                        <mat-option value="SHIPPED">Enviado</mat-option>
+                        <mat-option value="INVOICED">Facturado</mat-option>
                         <mat-option value="IN_TRANSIT">En tránsito</mat-option>
                         <mat-option value="DELIVERED">Entregado</mat-option>
                         <mat-option value="CANCELED">Cancelado</mat-option>
@@ -180,8 +180,8 @@
                             @case ('READY_FOR_SHIPPING') {
                                 <span class="text-yellow-500 text-sm">Listo para envío</span>
                             }
-                            @case ('SHIPPED') {
-                                <span class="text-green text-sm">Enviado</span>
+                            @case ('INVOICED') {
+                                <span class="text-blue-500 text-sm">Facturado</span>
                             }
                             @case ('IN_TRANSIT') {
                                 <span class="text-blue-500 text-sm">En tránsito</span>
@@ -333,11 +333,8 @@
                             @case ('READY_FOR_SHIPPING') {
                                 <span class="text-yellow-500 text-sm">Listo para envío</span>
                             }
-                            @case ('SHIPPED') {
-                                <span class="text-green text-sm">Enviado</span>
-                            }
-                            @case ('IN_TRANSIT') {
-                                <span class="text-blue-500 text-sm">En tránsito</span>
+                            @case ('INVOICED') {
+                                <span class="text-blue-500 text-sm">Facturado</span>
                             }
                             @case ('DELIVERED') {
                                 <span class="text-green text-sm">Entregado</span>
@@ -366,7 +363,7 @@
                             >
                                 <mat-option class="text-sm" value="PENDING">Pendiente</mat-option>
                                 <mat-option class="text-sm" value="IN_PROGRESS">En progreso</mat-option>
-                                <mat-option class="text-sm" value="SHIPPED">Enviado</mat-option>
+                                <mat-option class="text-sm" value="INVOICED">Facturado</mat-option>
                                 <mat-option class="text-sm" value="DELIVERED">Entregado</mat-option>
                                 <mat-option class="text-sm" value="CANCELED">Cancelado</mat-option>
                             </mat-select>

@@ -55,7 +55,7 @@ export class CreateComponent implements OnInit {
             code: [ '', [] ],
             nationalId  : [ '', [ Validators.required ] ],
             email       : [ '', [ Validators.required, Validators.email ] ],
-            phone       : [ '', [ Validators.required ] ],
+            phoneNumber: [ '', [ Validators.required ] ],
         });
     }
 
