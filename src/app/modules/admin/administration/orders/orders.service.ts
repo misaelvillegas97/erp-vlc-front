@@ -21,6 +21,8 @@ export class OrdersService {
     }
 
     public getAll(query?: any): void {
+        console.log('query', query);
+
         const params = new HttpParams();
 
         if (query) params.set('query', query);

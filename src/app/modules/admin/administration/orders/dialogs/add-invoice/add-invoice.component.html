@@ -1,8 +1,56 @@
-<h2 mat-dialog-title>Agregar factura</h2>
-<mat-dialog-content>
-    Lorem ipsum dolor sit amet, consectetur adipisicing elit. A accusamus asperiores deleniti distinctio dolorem eveniet, excepturi in ipsam maxime nemo nisi nulla officia quam, quisquam quo reiciendis sit, temporibus vel?
+<h2 class="text-lg border-b pb-4" mat-dialog-title>Ingresar factura</h2>
+<mat-dialog-content class="py-4">
+    <form (ngSubmit)="submit()" [formGroup]="form" class="space-y-2">
+        <mat-form-field class="w-full">
+            <mat-label>Número de factura</mat-label>
+            <input formControlName="invoiceNumber" matInput>
+            @if (form.get('invoiceNumber').hasError('required')) {
+                <mat-error [innerText]="'errors.form.required' | transloco"></mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field class="w-full">
+            <mat-label>Estado</mat-label>
+            <mat-select formControlName="status">
+                @for (status of statuses; track status.value) {
+                    <mat-option [value]="status.value">{{ status.label }}</mat-option>
+                }
+            </mat-select>
+            @if (form.get('status').hasError('required')) {
+                <mat-error [innerText]="'errors.form.required' | transloco"></mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field class="w-full">
+            <mat-label>Fecha de emisión</mat-label>
+            <input [matDatepicker]="picker" formControlName="emissionDate" matInput>
+            <mat-datepicker-toggle [for]="picker" matSuffix></mat-datepicker-toggle>
+            <mat-datepicker #picker disabled="false"></mat-datepicker>
+            @if (form.get('emissionDate').hasError('required')) {
+                <mat-error [innerText]="'errors.form.required' | transloco"></mat-error>
+            }
+        </mat-form-field>
+    </form>
+
+    <table style="float: right">
+        <tbody>
+            @let subtotal = order().totalAmount;
+            @let iva = subtotal * 0.19;
+            @let total = subtotal * 1.19;
+        <tr>
+            <td class="text-right font-medium">Valor neto:</td>
+            <td class="px-2">{{ subtotal | currency:'CLP':'symbol-narrow' }}</td>
+        </tr>
+        <tr>
+            <td class="text-right font-medium">IVA:</td>
+            <td class="px-2">{{ iva | currency:'CLP':'symbol-narrow' }}</td>
+        </tr>
+        <tr>
+            <td class="text-right font-medium">Valor bruto:</td>
+            <td class="px-2">{{ total | currency:'CLP':'symbol-narrow' }}</td>
+        </tr>
+        </tbody>
+    </table>
 </mat-dialog-content>
-<mat-dialog-actions align="end">
+<mat-dialog-actions align="end" class="">
     <button color="secondary" mat-button mat-dialog-close>Cerrar</button>
-    <button [mat-dialog-close]="true" cdkFocusInitial color="primary" mat-flat-button>Guardar</button>
+    <button (click)="submit()" cdkFocusInitial color="primary" mat-flat-button>Guardar</button>
 </mat-dialog-actions>

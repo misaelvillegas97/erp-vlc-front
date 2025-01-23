@@ -45,6 +45,9 @@
                     "status" : "Estado",
                     "actions" : "Acciones"
                 }
+            },
+            "invoice" : {
+                "added" : "Factura {{invoiceNumber}} ingresada exitosamente"
             }
         }
     },

@@ -13,5 +13,7 @@ export interface Order {
     emissionDate: string;
     observations?: string;
     invoiceNumber?: string;
+    totalAmount?: number;
     products: OrderProduct[];
+    invoice?: any;
 }

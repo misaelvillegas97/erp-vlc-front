@@ -22,7 +22,7 @@
         </div>
 
         <table
-            [dataSource]="orders$"
+            [dataSource]="orders()"
             class="min-w-240 w-full overflow-y-visible bg-transparent"
             mat-table
             matSort
@@ -37,12 +37,30 @@
                 </td>
             </ng-container>
 
+            <!-- Order number filter -->
+            <ng-container matColumnDef="orderNumberFilter">
+                <th *matHeaderCellDef mat-header-cell>
+                    <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
+                        <input (keyup.enter)="filterOrders()" (ngModelChange)="orderNumberFilter.set($event)" [ngModel]="orderNumberFilter()" matInput type="number">
+                    </mat-form-field>
+                </th>
+            </ng-container>
+
             <!-- Client fantasy name -->
             <ng-container matColumnDef="businessName">
                 <th *matHeaderCellDef mat-header-cell>Cliente</th>
                 <td *matCellDef="let order" mat-cell>
                     <span class="text-right font-medium">{{ order?.client?.fantasyName }}</span>
                 </td>
+            </ng-container>
+
+            <!-- Client fantasy name filter -->
+            <ng-container matColumnDef="businessNameFilter">
+                <th *matHeaderCellDef mat-header-cell>
+                    <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
+                        <input (keyup.enter)="filterOrders()" (ngModelChange)="businessNameFilter.set($event)" [ngModel]="businessNameFilter()" matInput>
+                    </mat-form-field>
+                </th>
             </ng-container>
 
             <!-- Order type -->
@@ -61,6 +79,18 @@
                         }
                     }
                 </td>
+            </ng-container>
+
+            <!-- Order type filter -->
+            <ng-container matColumnDef="typeFilter">
+                <th *matHeaderCellDef mat-header-cell>
+                    <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
+                        <mat-select (closed)="filterOrders()" (ngModelChange)="typeFilter.set($event)" [ngModel]="typeFilter()" multiple>
+                            <mat-option value="PURCHASE_ORDER">Orden de compra</mat-option>
+                            <mat-option value="RETURN_ORDER">Orden de devolución</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </th>
             </ng-container>
 
             <!-- Status -->
@@ -93,12 +123,37 @@
                 </td>
             </ng-container>
 
+            <!-- Status filter -->
+            <ng-container matColumnDef="statusFilter">
+                <th *matHeaderCellDef mat-header-cell>
+                    <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
+                        <mat-select (closed)="filterOrders()" (ngModelChange)="statusFilter.set($event)" [ngModel]="statusFilter()" multiple>
+                            <mat-option value="PENDING">Pendiente</mat-option>
+                            <mat-option value="IN_PROGRESS">En progreso</mat-option>
+                            <mat-option value="READY_FOR_SHIPPING">Listo para envío</mat-option>
+                            <mat-option value="SHIPPED">Enviado</mat-option>
+                            <mat-option value="DELIVERED">Entregado</mat-option>
+                            <mat-option value="CANCELED">Cancelado</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </th>
+            </ng-container>
+
             <!-- Delivery location -->
             <ng-container matColumnDef="deliveryLocation">
                 <th *matHeaderCellDef mat-header-cell>Ubicación de entrega</th>
                 <td *matCellDef="let order" mat-cell>
                     <span class="text-right font-medium">{{ order?.deliveryLocation }}</span>
                 </td>
+            </ng-container>
+
+            <!-- Delivery location filter -->
+            <ng-container matColumnDef="deliveryLocationFilter">
+                <th *matHeaderCellDef mat-header-cell>
+                    <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
+                        <input (keyup.enter)="filterOrders()" (ngModelChange)="deliveryLocationFilter.set($event)" [ngModel]="deliveryLocationFilter()" matInput>
+                    </mat-form-field>
+                </th>
             </ng-container>
 
             <!-- Emission date -->
@@ -109,6 +164,15 @@
                 </td>
             </ng-container>
 
+            <!-- Emission date filter -->
+            <ng-container matColumnDef="emissionDateFilter">
+                <th *matHeaderCellDef mat-header-cell>
+                    <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
+                        <input (keyup.enter)="filterOrders()" (ngModelChange)="emissionDateFilter.set($event)" [ngModel]="emissionDateFilter()" matInput>
+                    </mat-form-field>
+                </th>
+            </ng-container>
+
             <!-- DeliveryDate -->
             <ng-container matColumnDef="deliveryDate">
                 <th *matHeaderCellDef mat-header-cell mat-sort-header>Fecha de entrega</th>
@@ -117,12 +181,30 @@
                 </td>
             </ng-container>
 
+            <!-- DeliveryDate filter -->
+            <ng-container matColumnDef="deliveryDateFilter">
+                <th *matHeaderCellDef mat-header-cell>
+                    <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
+                        <input (keyup.enter)="filterOrders()" (ngModelChange)="deliveryDateFilter.set($event)" [ngModel]="deliveryDateFilter()" matInput>
+                    </mat-form-field>
+                </th>
+            </ng-container>
+
             <!-- Amount -->
             <ng-container matColumnDef="amount">
                 <th *matHeaderCellDef mat-header-cell>Monto</th>
                 <td *matCellDef="let order" mat-cell>
                     <span class="text-right font-medium">{{ order?.totalAmount | currency: 'CLP':'symbol-narrow' }}</span>
                 </td>
+            </ng-container>
+
+            <!-- Amount filter -->
+            <ng-container matColumnDef="amountFilter">
+                <th *matHeaderCellDef mat-header-cell>
+                    <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
+                        <input (keyup.enter)="filterOrders()" (ngModelChange)="amountFilter.set($event)" [ngModel]="amountFilter()" matInput>
+                    </mat-form-field>
+                </th>
             </ng-container>
 
             <!-- Invoice -->
@@ -139,6 +221,15 @@
                 </td>
             </ng-container>
 
+            <!-- Invoice filter -->
+            <ng-container matColumnDef="invoiceFilter">
+                <th *matHeaderCellDef mat-header-cell>
+                    <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
+                        <input (keyup.enter)="filterOrders()" (ngModelChange)="invoiceFilter.set($event)" [ngModel]="invoiceFilter()" matInput>
+                    </mat-form-field>
+                </th>
+            </ng-container>
+
             <!-- Actions -->
             <ng-container matColumnDef="actions">
                 <th *matHeaderCellDef mat-header-cell></th>
@@ -149,7 +240,13 @@
                 </td>
             </ng-container>
 
+            <!-- Actions filter -->
+            <ng-container matColumnDef="actionsFilter">
+                <th *matHeaderCellDef mat-header-cell></th>
+            </ng-container>
+
             <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+            <tr *matHeaderRowDef="displayedFilterColumns" mat-header-row></tr>
             <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
 
             <!-- No data -->
