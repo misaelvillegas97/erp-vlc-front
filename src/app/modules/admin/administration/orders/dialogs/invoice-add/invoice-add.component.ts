@@ -10,6 +10,9 @@ import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/fo
 import { Order }                                               from '@modules/admin/administration/orders/domain/model/order';
 import { TranslocoPipe }                                       from '@ngneat/transloco';
 import { InvoiceStatusEnum }                                   from '@modules/admin/administration/orders/domain/enums/invoice-status.enum';
+import { OrdersService }                                       from '@modules/admin/administration/orders/orders.service';
+import { firstValueFrom }                                      from 'rxjs';
+import { Notyf }                                               from 'notyf';
 
 @Component({
     selector   : 'app-add-invoice',
@@ -24,31 +27,47 @@ import { InvoiceStatusEnum }                                   from '@modules/ad
         ReactiveFormsModule,
         TranslocoPipe
     ],
-    templateUrl: './add-invoice.component.html'
+    templateUrl: './invoice-add.component.html'
 })
-export class AddInvoiceComponent {
+export class InvoiceAddComponent {
     readonly fb = inject(UntypedFormBuilder);
     readonly dialogRef = inject(MatDialogRef);
     readonly data = inject(MAT_DIALOG_DATA);
+    readonly service = inject(OrdersService);
     readonly order: ModelSignal<Order> = model(this.data.order);
     readonly statuses = [
         {value: InvoiceStatusEnum.ISSUED, label: 'Emitida'},
         {value: InvoiceStatusEnum.RECEIVED_WITHOUT_OBSERVATIONS, label: 'Recibida sin observaciones'},
         {value: InvoiceStatusEnum.RECEIVED_WITH_OBSERVATIONS, label: 'Recibida con observaciones'}
     ];
-
     form = this.fb.group({
         invoiceNumber: [ this.order().invoice?.invoiceNumber, [ Validators.required ] ],
         status       : [ this.order().invoice?.status || InvoiceStatusEnum.ISSUED, [ Validators.required ] ],
         emissionDate : [ {value: this.order().invoice?.emissionDate, disabled: true}, [ Validators.required ] ],
     });
+    private readonly _notyf = new Notyf();
 
-    submit() {
+    async submit() {
         if (this.form.invalid) {
             this.form.markAllAsTouched();
             return;
         }
 
-        this.dialogRef.close(this.form.getRawValue());
+        const data: any = this.form.getRawValue();
+
+        const parsed = {
+            invoiceNumber: parseInt(data.invoiceNumber, 10),
+            status       : data.status,
+            emissionDate : data.emissionDate.toFormat('yyyy-MM-dd')
+        };
+
+        this.form.disable();
+
+        firstValueFrom(this.service.addInvoice(this.order().id, parsed))
+            .then(() => this.dialogRef.close())
+            .catch(() => {
+                this.form.enable();
+                this._notyf.error('Error al agregar la factura');
+            });
     }
 }

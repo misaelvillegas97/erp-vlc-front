@@ -176,6 +176,7 @@
             "PENDING" : "Pendiente",
             "IN_PROGRESS" : "En progreso",
             "INVOICED" : "Facturado",
+            "SHIPPED" : "Enviado",
             "DELIVERED" : "Entregado",
             "CANCELED" : "Cancelado"
         }

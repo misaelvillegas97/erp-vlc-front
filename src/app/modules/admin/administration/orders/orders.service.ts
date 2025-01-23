@@ -33,4 +33,8 @@ export class OrdersService {
                 error: () => this._notyf.error(this._translateService.translate('operations.orders.list.error'))
             });
     }
+
+    public addInvoice(orderId: string, invoice: any) {
+        return this._httpClient.post('/api/orders/' + orderId + '/invoice', invoice);
+    }
 }

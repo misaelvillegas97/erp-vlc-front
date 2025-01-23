@@ -125,8 +125,18 @@
                 <!-- Status filter -->
                 <ng-container matColumnDef="statusFilter">
                     <th *matHeaderCellDef mat-header-cell>
-                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
-                            <mat-select (closed)="filterOrders()" (ngModelChange)="statusFilter.set($event)" [matTooltip]="translatedSelectedStatus().toString()" [ngModel]="statusFilter()" multiple>
+                        <mat-form-field
+                            [matTooltipClass]="'whitespace-pre-wrap'"
+                            [matTooltip]="translatedSelectedStatus().toString()"
+                            class="fuse-mat-dense w-full"
+                            subscriptSizing="dynamic"
+                        >
+                            <mat-select
+                                (closed)="filterOrders()"
+                                (ngModelChange)="statusFilter.set($event)"
+                                [ngModel]="statusFilter()"
+                                multiple
+                            >
                                 <mat-option class="text-sm" value="PENDING">Pendiente</mat-option>
                                 <mat-option class="text-sm" value="IN_PROGRESS">En progreso</mat-option>
                                 <mat-option class="text-sm" value="SHIPPED">Enviado</mat-option>
@@ -210,13 +220,11 @@
                     <th *matHeaderCellDef mat-header-cell>Factura</th>
                     <td *matCellDef="let order" mat-cell>
                         @if (order?.invoice) {
-                            <span class="text-sm">{{ order?.invoice?.number }}</span>
+                            <span class="text-sm cursor-pointer" (click)="openInvoiceDetail(order)">{{ order?.invoice?.invoiceNumber }}</span>
                         } @else {
-                            <div class="flex-center">
-                                <button mat-icon-button (click)="openAddInvoiceDialog(order)">
-                                    <mat-icon svgIcon="heroicons_outline:plus" class="icon-size-5"></mat-icon>
-                                </button>
-                            </div>
+                            <button mat-icon-button (click)="openAddInvoiceDialog(order)">
+                                <mat-icon svgIcon="heroicons_outline:plus" class="icon-size-5"></mat-icon>
+                            </button>
                         }
                     </td>
                 </ng-container>

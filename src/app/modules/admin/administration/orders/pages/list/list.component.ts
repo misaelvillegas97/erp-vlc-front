@@ -14,7 +14,6 @@ import { CurrencyPipe }                                                         
 import { MatSort, MatSortHeader }                                                                                                                       from '@angular/material/sort';
 import { takeUntilDestroyed }                                                                                                                           from '@angular/core/rxjs-interop';
 import { MatDialog }                                                                                                                                    from '@angular/material/dialog';
-import { AddInvoiceComponent }                                                                                                                          from '@modules/admin/administration/orders/dialogs/add-invoice/add-invoice.component';
 import { MatFormFieldModule }                                                                                                                           from '@angular/material/form-field';
 import { MatInputModule }                                                                                                                               from '@angular/material/input';
 import { MatSelectModule }                                                                                                                              from '@angular/material/select';
@@ -22,6 +21,7 @@ import { FormsModule }                                                          
 import { OrderTypeEnum }                                                                                                                                from '@modules/admin/administration/orders/domain/enums/order-type.enum';
 import { OrderStatusEnum }                                                                                                                              from '@modules/admin/administration/orders/domain/enums/order-status.enum';
 import { CdkTextareaAutosize }                                                                                                                          from '@angular/cdk/text-field';
+import { InvoiceAddComponent }                                                                                                                          from '@modules/admin/administration/orders/dialogs/invoice-add/invoice-add.component';
 
 @Component({
     selector   : 'app-list',
@@ -119,23 +119,25 @@ export class ListComponent {
             .subscribe((orders) => this.orders.set(orders));
     }
 
+    filterOrders(): void {
+        const filters = this.filters();
+
+        this._orderService.getAll(filters);
+    }
+
     openAddInvoiceDialog(order: Order): void {
-        const invoiceDialog = this.dialog.open(AddInvoiceComponent, {
+        const invoiceDialog = this.dialog.open(InvoiceAddComponent, {
             data: {order},
             width: '500px'
         });
 
         invoiceDialog.afterClosed().subscribe((result) => {
-            if (result) {
-                console.log(result);
+            if (result)
                 this._notyf.success(this._translationService.translate('operations.orders.invoice.added', {invoiceNumber: result.invoiceNumber}));
-            }
         });
     }
 
-    filterOrders(): void {
-        const filters = this.filters();
-
-        this._orderService.getAll(filters);
+    openInvoiceDetail(order: Order) {
+        console.log('order', order);
     }
 }

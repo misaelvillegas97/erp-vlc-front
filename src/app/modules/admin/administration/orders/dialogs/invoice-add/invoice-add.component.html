@@ -3,7 +3,7 @@
     <form (ngSubmit)="submit()" [formGroup]="form" class="space-y-2">
         <mat-form-field class="w-full">
             <mat-label>Número de factura</mat-label>
-            <input formControlName="invoiceNumber" matInput>
+            <input formControlName="invoiceNumber" matInput type="number">
             @if (form.get('invoiceNumber').hasError('required')) {
                 <mat-error [innerText]="'errors.form.required' | transloco"></mat-error>
             }
