@@ -21,6 +21,7 @@ import { MatSelectModule }                                                      
 import { FormsModule }                                                                                                                                  from '@angular/forms';
 import { OrderTypeEnum }                                                                                                                                from '@modules/admin/administration/orders/domain/enums/order-type.enum';
 import { OrderStatusEnum }                                                                                                                              from '@modules/admin/administration/orders/domain/enums/order-status.enum';
+import { CdkTextareaAutosize }                                                                                                                          from '@angular/cdk/text-field';
 
 @Component({
     selector   : 'app-list',
@@ -50,7 +51,7 @@ import { OrderStatusEnum }                                                      
         MatInputModule,
         MatSelectModule,
         FormsModule,
-
+        CdkTextareaAutosize
     ],
     templateUrl: './list.component.html'
 })
@@ -59,15 +60,15 @@ export class ListComponent {
     public orders = signal<Order[]>([]);
     public readonly displayedColumns: string[] = [ 'orderNumber', 'businessName', 'type', 'status', 'invoice', 'deliveryLocation', 'deliveryDate', 'emissionDate', 'amount', 'actions' ];
     public readonly displayedFilterColumns: string[] = this.displayedColumns.map((column) => column + 'Filter');
-    orderNumberFilter: WritableSignal<number> = signal<number>(undefined);
-    businessNameFilter: WritableSignal<string> = signal<string>(undefined);
-    typeFilter: WritableSignal<OrderTypeEnum[]> = signal<OrderTypeEnum[]>(undefined);
-    statusFilter: WritableSignal<OrderStatusEnum[]> = signal<OrderStatusEnum[]>(undefined);
-    deliveryLocationFilter: WritableSignal<string> = signal<string>(undefined);
-    emissionDateFilter: WritableSignal<string> = signal<string>(undefined);
-    deliveryDateFilter: WritableSignal<string> = signal<string>(undefined);
-    amountFilter: WritableSignal<number> = signal<number>(undefined);
-    invoiceFilter: WritableSignal<number> = signal<number>(undefined);
+    public orderNumberFilter: WritableSignal<number> = signal<number>(undefined);
+    public businessNameFilter: WritableSignal<string> = signal<string>(undefined);
+    public typeFilter: WritableSignal<OrderTypeEnum[]> = signal<OrderTypeEnum[]>(undefined);
+    public statusFilter: WritableSignal<OrderStatusEnum[]> = signal<OrderStatusEnum[]>(undefined);
+    public deliveryLocationFilter: WritableSignal<string> = signal<string>(undefined);
+    public emissionDateFilter: WritableSignal<string> = signal<string>(undefined);
+    public deliveryDateFilter: WritableSignal<string> = signal<string>(undefined);
+    public amountFilter: WritableSignal<number> = signal<number>(undefined);
+    public invoiceFilter: WritableSignal<number> = signal<number>(undefined);
     public filters = computed(() => {
         const filter = {};
 
@@ -100,6 +101,12 @@ export class ListComponent {
 
         return filter;
     });
+    public translatedSelectedStatus = computed(() => {
+        const mapped = this.statusFilter() ? this.statusFilter().map((status) => this._translationService.translate('enums.order-status.' + status)) : [];
+        return mapped.join(',\n ');
+    });
+
+
     private _notyf = new Notyf();
 
     constructor(

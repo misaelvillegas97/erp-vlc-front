@@ -540,7 +540,8 @@
                     @apply icon-size-6;
                 }
 
-                /* Make mat-select usable as prefix and suffix */
+                /* Make
+                 usable as prefix and suffix */
                 .mat-mdc-select {
                     display: flex;
                     align-items: center;
@@ -774,11 +775,11 @@
                 }
 
                 .mat-mdc-form-field-infix {
-                    min-height: 40px;
+                    min-height: 36px;
 
                     /* Textarea */
                     textarea.mat-mdc-input-element {
-                        margin: 8px 0;
+                        margin: 4px 0;
                     }
                 }
             }
@@ -1404,4 +1405,12 @@ textarea.mat-mdc-input-element {
             font-weight: 200;
         }
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* @ Mat select */
+/* -------------------------------------------------------------------------- */
+
+.mat-mdc-select-min-line {
+    @apply text-sm #{'!important'};
 }

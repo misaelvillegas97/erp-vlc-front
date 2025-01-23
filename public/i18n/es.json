@@ -170,5 +170,14 @@
     },
     "adjectives" : {
         "more" : "más"
+    },
+    "enums" : {
+        "order-status" : {
+            "PENDING" : "Pendiente",
+            "IN_PROGRESS" : "En progreso",
+            "INVOICED" : "Facturado",
+            "DELIVERED" : "Entregado",
+            "CANCELED" : "Cancelado"
+        }
     }
 }
