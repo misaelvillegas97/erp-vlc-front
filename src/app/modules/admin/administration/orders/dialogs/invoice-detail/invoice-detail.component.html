@@ -53,16 +53,16 @@
                 {{ 'enums.invoice-status.' + order().invoice.status | transloco }}
             </div>
             <div>
+                <span class="font-medium mr-1">Fecha de emisión:</span>
+                {{ order().invoice.emissionDate | date:'dd/MM/yyyy' }}
+            </div>
+            <div>
                 <span class="font-medium mr-1">Valor neto:</span>
                 {{ order().invoice.netAmount | currency:'CLP':'symbol-narrow' }}
             </div>
             <div>
                 <span class="font-medium mr-1">IVA:</span>
                 {{ order().invoice.taxAmount | currency:'CLP':'symbol-narrow' }}
-            </div>
-            <div>
-                <span class="font-medium mr-1">Fecha de emisión:</span>
-                {{ order().invoice.emissionDate | date:'dd/MM/yyyy' }}
             </div>
             <div>
                 <span class="font-medium mr-1">Valor bruto:</span>

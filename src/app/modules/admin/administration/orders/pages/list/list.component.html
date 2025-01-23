@@ -169,7 +169,7 @@
                     </div>
 
                     <div class="text-sm">
-                        <strong>Estado:</strong>
+                        <strong class="mr-1">Estado:</strong>
                         @switch (order.status) {
                             @case ('PENDING') {
                                 <span class="text-yellow-500 text-sm">Pendiente</span>
@@ -213,17 +213,15 @@
                     </div>
 
                     <div class="text-sm">
-                        <strong>Factura:</strong>
+                        <strong class="mr-1">Factura:</strong>
                         @if (order?.invoice) {
-                            <span class="cursor-pointer ml-1" (click)="openInvoiceDetail(order)">
-                                {{ order?.invoice?.invoiceNumber }}
-                            </span>
+                            <span class="cursor-pointer" (click)="openInvoiceDetail(order)">{{ order?.invoice?.invoiceNumber }}</span>
                         } @else {
-                            <span class="ml-1">Sin factura asociada</span>
+                            <span>Sin factura asociada</span>
                         }
                     </div>
 
-                    <div class="mt-2 text-right">
+                    <div class="mt-2 flex justify-end gap-2">
                         <button
                             class="shadow-none"
                             mat-mini-fab
@@ -234,6 +232,15 @@
                             @if (!order.invoice) {
                                 <mat-icon class="icon-size-4">add</mat-icon>
                             }
+                        </button>
+
+                        <button
+                            class="shadow-none"
+                            mat-mini-fab
+                            [matTooltip]="order.invoice ? 'Ver factura' : 'Agregar factura'"
+                            (click)="openOrderDetail(order)"
+                        >
+                            <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:eye"></mat-icon>
                         </button>
                     </div>
                 </div>

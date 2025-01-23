@@ -1,9 +1,9 @@
-import { Injectable }                  from '@angular/core';
-import { HttpClient, HttpParams }      from '@angular/common/http';
-import { TranslocoService }            from '@ngneat/transloco';
-import { Notyf }                       from 'notyf';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { Order }                       from '@modules/admin/administration/orders/domain/model/order';
+import { Injectable }                       from '@angular/core';
+import { HttpClient, HttpParams }           from '@angular/common/http';
+import { TranslocoService }                 from '@ngneat/transloco';
+import { Notyf }                            from 'notyf';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { Order }                            from '@modules/admin/administration/orders/domain/model/order';
 
 @Injectable({providedIn: 'root'})
 export class OrdersService {
@@ -35,6 +35,7 @@ export class OrdersService {
     }
 
     public addInvoice(orderId: string, invoice: any) {
-        return this._httpClient.post('/api/orders/' + orderId + '/invoice', invoice);
+        return this._httpClient.post('/api/orders/' + orderId + '/invoice', invoice)
+            .pipe(tap(() => this.getAll()));
     }
 }
