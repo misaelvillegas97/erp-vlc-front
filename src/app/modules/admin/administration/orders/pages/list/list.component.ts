@@ -22,6 +22,7 @@ import { OrderTypeEnum }                                                        
 import { OrderStatusEnum }                                                                                                                              from '@modules/admin/administration/orders/domain/enums/order-status.enum';
 import { CdkTextareaAutosize }                                                                                                                          from '@angular/cdk/text-field';
 import { InvoiceAddComponent }                                                                                                                          from '@modules/admin/administration/orders/dialogs/invoice-add/invoice-add.component';
+import { InvoiceDetailComponent }                                                                                                                       from '@modules/admin/administration/orders/dialogs/invoice-detail/invoice-detail.component';
 
 @Component({
     selector   : 'app-list',
@@ -138,6 +139,8 @@ export class ListComponent {
     }
 
     openInvoiceDetail(order: Order) {
-        console.log('order', order);
+        const invoiceDialog = this.dialog.open(InvoiceDetailComponent, {
+            data: {order}
+        });
     }
 }
