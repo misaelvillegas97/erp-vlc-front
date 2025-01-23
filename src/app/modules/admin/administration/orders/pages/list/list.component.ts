@@ -1,8 +1,8 @@
-import { Component, computed, inject, signal, WritableSignal }                                                                                          from '@angular/core';
+import { Component, computed, inject, model, ModelSignal, signal, WritableSignal }                                                                      from '@angular/core';
 import { PageHeaderComponent }                                                                                                                          from '@layout/components/page-header/page-header.component';
 import { TranslocoDirective, TranslocoService }                                                                                                         from '@ngneat/transloco';
 import { MatIcon }                                                                                                                                      from '@angular/material/icon';
-import { MatIconAnchor, MatIconButton }                                                                                                                 from '@angular/material/button';
+import { MatButtonModule, MatIconAnchor }                                                                                                               from '@angular/material/button';
 import { MatTooltip }                                                                                                                                   from '@angular/material/tooltip';
 import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatNoDataRow, MatRow, MatRowDef, MatTable } from '@angular/material/table';
 import { RouterLink }                                                                                                                                   from '@angular/router';
@@ -47,7 +47,7 @@ import { InvoiceDetailComponent }                                               
         MatNoDataRow,
         MatHeaderRow,
         MatRow,
-        MatIconButton,
+        MatButtonModule,
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
@@ -61,15 +61,18 @@ export class ListComponent {
     public orders = signal<Order[]>([]);
     public readonly displayedColumns: string[] = [ 'orderNumber', 'businessName', 'type', 'status', 'invoice', 'deliveryLocation', 'deliveryDate', 'emissionDate', 'amount', 'actions' ];
     public readonly displayedFilterColumns: string[] = this.displayedColumns.map((column) => column + 'Filter');
-    public orderNumberFilter: WritableSignal<number> = signal<number>(undefined);
-    public businessNameFilter: WritableSignal<string> = signal<string>(undefined);
-    public typeFilter: WritableSignal<OrderTypeEnum[]> = signal<OrderTypeEnum[]>(undefined);
-    public statusFilter: WritableSignal<OrderStatusEnum[]> = signal<OrderStatusEnum[]>(undefined);
-    public deliveryLocationFilter: WritableSignal<string> = signal<string>(undefined);
-    public emissionDateFilter: WritableSignal<string> = signal<string>(undefined);
-    public deliveryDateFilter: WritableSignal<string> = signal<string>(undefined);
-    public amountFilter: WritableSignal<number> = signal<number>(undefined);
-    public invoiceFilter: WritableSignal<number> = signal<number>(undefined);
+    public orderNumberFilter: ModelSignal<number> = model<number>(undefined);
+    public businessNameFilter: ModelSignal<string> = model<string>(undefined);
+    public typeFilter: ModelSignal<OrderTypeEnum[]> = model<OrderTypeEnum[]>(undefined);
+    public statusFilter: ModelSignal<OrderStatusEnum[]> = model<OrderStatusEnum[]>(undefined);
+    public deliveryLocationFilter: ModelSignal<string> = model<string>(undefined);
+    public emissionDateFilter: ModelSignal<string> = model<string>(undefined);
+    public deliveryDateFilter: ModelSignal<string> = model<string>(undefined);
+    public amountFilter: ModelSignal<number> = model<number>(undefined);
+    public invoiceFilter: ModelSignal<number> = model<number>(undefined);
+
+    public showMobileFilters: WritableSignal<boolean> = signal<boolean>(false);
+
     public filters = computed(() => {
         const filter = {};
 

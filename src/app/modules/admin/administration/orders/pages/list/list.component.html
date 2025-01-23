@@ -1,15 +1,25 @@
 <div *transloco="let t; read: 'operations.orders'" class="flex flex-col min-w-0 w-full">
+    <!-- Encabezado de la página -->
     <page-header
         [description]="t('list.subtitle')"
         [subtitle]="t('list.title')">
     </page-header>
 
     <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-max mx-auto py-10 gap-y-4 sm:px-4">
-        <div class="flex flex-row w-full">
-            <!-- Title -->
-            <h2 class="flex-1 font-bold text-secondary text-xl self-center">{{ t('title') }}</h2>
 
-            <!-- New member button -->
+        <div class="flex flex-row w-full">
+            <h2 class="flex-1 font-bold text-secondary text-xl self-center">
+                {{ t('title') }}
+            </h2>
+            <div class="block sm:hidden">
+                <button
+                    (click)="showMobileFilters.set(!showMobileFilters())"
+                    class="btn-primary px-4 py-2 rounded"
+                    mat-icon-button
+                >
+                    <mat-icon [svgIcon]="showMobileFilters() ? 'heroicons_solid:funnel' : 'heroicons_outline:funnel'"></mat-icon>
+                </button>
+            </div>
             <a
                 [matTooltip]="t('new.title')"
                 [routerLink]="['new']"
@@ -21,7 +31,217 @@
             </a>
         </div>
 
-        <div class="block relative max-w-full overflow-auto">
+        @if (showMobileFilters()) {
+            <div class="block sm:hidden border rounded p-4 w-full space-y-4">
+                <mat-form-field class="w-full" subscriptSizing="dynamic">
+                    <mat-label>Número de orden</mat-label>
+                    <input
+                        matInput
+                        type="number"
+                        [ngModel]="orderNumberFilter()"
+                        (ngModelChange)="orderNumberFilter.set($event)"
+                        (keyup.enter)="filterOrders()"
+                    />
+                </mat-form-field>
+
+                <mat-form-field class="w-full" subscriptSizing="dynamic">
+                    <mat-label>Cliente</mat-label>
+                    <input
+                        matInput
+                        [ngModel]="businessNameFilter()"
+                        (ngModelChange)="businessNameFilter.set($event)"
+                        (keyup.enter)="filterOrders()"
+                    />
+                </mat-form-field>
+
+                <mat-form-field class="w-full" subscriptSizing="dynamic">
+                    <mat-label>Tipo de orden</mat-label>
+                    <mat-select
+                        [ngModel]="typeFilter()"
+                        (ngModelChange)="typeFilter.set($event)"
+                        (closed)="filterOrders()"
+                        multiple
+                    >
+                        <mat-option value="PURCHASE_ORDER">Orden de compra</mat-option>
+                        <mat-option value="RETURN_ORDER">Orden de devolución</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field class="w-full" subscriptSizing="dynamic">
+                    <mat-label>Estado</mat-label>
+                    <mat-select
+                        [ngModel]="statusFilter()"
+                        (ngModelChange)="statusFilter.set($event)"
+                        (closed)="filterOrders()"
+                        multiple
+                    >
+                        <mat-option value="PENDING">Pendiente</mat-option>
+                        <mat-option value="IN_PROGRESS">En progreso</mat-option>
+                        <mat-option value="READY_FOR_SHIPPING">Listo para envío</mat-option>
+                        <mat-option value="SHIPPED">Enviado</mat-option>
+                        <mat-option value="IN_TRANSIT">En tránsito</mat-option>
+                        <mat-option value="DELIVERED">Entregado</mat-option>
+                        <mat-option value="CANCELED">Cancelado</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field class="w-full" subscriptSizing="dynamic">
+                    <mat-label>Ubicación de entrega</mat-label>
+                    <input
+                        matInput
+                        [ngModel]="deliveryLocationFilter()"
+                        (ngModelChange)="deliveryLocationFilter.set($event)"
+                        (keyup.enter)="filterOrders()"
+                    />
+                </mat-form-field>
+
+                <mat-form-field class="w-full" subscriptSizing="dynamic">
+                    <mat-label>Fecha de emisión</mat-label>
+                    <input
+                        matInput
+                        [ngModel]="emissionDateFilter()"
+                        (ngModelChange)="emissionDateFilter.set($event)"
+                        (keyup.enter)="filterOrders()"
+                    />
+                </mat-form-field>
+
+                <mat-form-field class="w-full" subscriptSizing="dynamic">
+                    <mat-label>Fecha de entrega</mat-label>
+                    <input
+                        matInput
+                        [ngModel]="deliveryDateFilter()"
+                        (ngModelChange)="deliveryDateFilter.set($event)"
+                        (keyup.enter)="filterOrders()"
+                    />
+                </mat-form-field>
+
+                <mat-form-field class="w-full" subscriptSizing="dynamic">
+                    <mat-label>Monto</mat-label>
+                    <input
+                        matInput
+                        type="number"
+                        [ngModel]="amountFilter()"
+                        (ngModelChange)="amountFilter.set($event)"
+                        (keyup.enter)="filterOrders()"
+                    />
+                </mat-form-field>
+
+                <mat-form-field class="w-full" subscriptSizing="dynamic">
+                    <mat-label>Factura</mat-label>
+                    <input
+                        matInput
+                        [ngModel]="invoiceFilter()"
+                        (ngModelChange)="invoiceFilter.set($event)"
+                        (keyup.enter)="filterOrders()"
+                    />
+                </mat-form-field>
+
+                <div class="text-right">
+                    <button class="btn-primary px-4 py-2 rounded" (click)="filterOrders(); showMobileFilters.set(false)">
+                        Aplicar filtros
+                    </button>
+                </div>
+            </div>
+        }
+
+        <!-- LISTADO DE TARJETAS (SOLO MOBILE) -->
+        <div class="block sm:hidden space-y-4 w-full">
+            <!-- Itera sobre la data filtrada para móvil -->
+            @for (order of orders(); track order.id) {
+                <div class="border rounded shadow p-4">
+                    <div class="font-semibold text-base">Número de orden: {{ order?.orderNumber }}</div>
+
+                    <div class="text-sm mt-1"><strong>Cliente:</strong> {{ order.businessName }}</div>
+
+                    <div class="text-sm">
+                        <strong>Tipo:</strong>
+                        @switch (order.type) {
+                            @case ('PURCHASE_ORDER') {
+                                <span class="text-green text-sm">Orden de compra</span>
+                            }
+                            @case ('RETURN_ORDER') {
+                                <span class="text-red text-sm">Orden de devolución</span>
+                            }
+                            @default {
+                                <span class="text-blue text-sm">Desconocido</span>
+                            }
+                        }
+                    </div>
+
+                    <div class="text-sm">
+                        <strong>Estado:</strong>
+                        @switch (order.status) {
+                            @case ('PENDING') {
+                                <span class="text-yellow-500 text-sm">Pendiente</span>
+                            }
+                            @case ('IN_PROGRESS') {
+                                <span class="text-blue-500 text-sm">En progreso</span>
+                            }
+                            @case ('READY_FOR_SHIPPING') {
+                                <span class="text-yellow-500 text-sm">Listo para envío</span>
+                            }
+                            @case ('SHIPPED') {
+                                <span class="text-green text-sm">Enviado</span>
+                            }
+                            @case ('IN_TRANSIT') {
+                                <span class="text-blue-500 text-sm">En tránsito</span>
+                            }
+                            @case ('DELIVERED') {
+                                <span class="text-green text-sm">Entregado</span>
+                            }
+                            @case ('CANCELED') {
+                                <span class="text-red-600 text-sm">Cancelado</span>
+                            }
+                        }
+                    </div>
+
+                    <div class="text-sm">
+                        <strong>Ubicación de entrega:</strong> {{ order?.deliveryLocation }}
+                    </div>
+
+                    <div class="text-sm">
+                        <strong>Fecha de emisión:</strong> {{ order?.emissionDate }}
+                    </div>
+
+                    <div class="text-sm">
+                        <strong>Fecha de entrega:</strong> {{ order?.deliveryDate }}
+                    </div>
+
+                    <div class="text-sm">
+                        <strong>Monto:</strong>
+                        {{ order?.totalAmount | currency:'CLP':'symbol-narrow' }}
+                    </div>
+
+                    <div class="text-sm">
+                        <strong>Factura:</strong>
+                        @if (order?.invoice) {
+                            <span class="cursor-pointer ml-1" (click)="openInvoiceDetail(order)">
+                                {{ order?.invoice?.invoiceNumber }}
+                            </span>
+                        } @else {
+                            <span class="ml-1">Sin factura asociada</span>
+                        }
+                    </div>
+
+                    <div class="mt-2 text-right">
+                        <button
+                            class="shadow-none"
+                            mat-mini-fab
+                            [matTooltip]="order.invoice ? 'Ver factura' : 'Agregar factura'"
+                            (click)="order.invoice ? openInvoiceDetail(order) : openAddInvoiceDialog(order)"
+                        >
+                            <mat-icon class="icon-size-4">receipt_long</mat-icon>
+                            @if (!order.invoice) {
+                                <mat-icon class="icon-size-4">add</mat-icon>
+                            }
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- TABLA (SOLO DESKTOP/TABLET) -->
+        <div class="  relative max-w-full overflow-auto w-full">
             <table
                 [dataSource]="orders()"
                 class="min-w-240 w-full overflow-y-visible bg-transparent"
