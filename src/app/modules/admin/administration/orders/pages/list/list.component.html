@@ -32,7 +32,7 @@
                 <th *matHeaderCellDef mat-header-cell>Número de orden</th>
                 <td *matCellDef="let order" mat-cell>
                     <span class="flex items-center">
-                        <span class="ml-3 leading-4">{{ order?.orderNumber }}</span>
+                        <span class="font-medium text-sm">{{ order?.orderNumber }}</span>
                     </span>
                 </td>
             </ng-container>
@@ -50,7 +50,7 @@
             <ng-container matColumnDef="businessName">
                 <th *matHeaderCellDef mat-header-cell>Cliente</th>
                 <td *matCellDef="let order" mat-cell>
-                    <span class="text-right font-medium">{{ order?.client?.fantasyName }}</span>
+                    <span class="font-medium text-sm">{{ order?.client?.fantasyName }}</span>
                 </td>
             </ng-container>
 
@@ -143,7 +143,7 @@
             <ng-container matColumnDef="deliveryLocation">
                 <th *matHeaderCellDef mat-header-cell>Ubicación de entrega</th>
                 <td *matCellDef="let order" mat-cell>
-                    <span class="text-right font-medium">{{ order?.deliveryLocation }}</span>
+                    <span [title]="order?.deliveryLocation" class="text-sm line-clamp-1">{{ order?.deliveryLocation }}</span>
                 </td>
             </ng-container>
 
@@ -160,7 +160,7 @@
             <ng-container matColumnDef="emissionDate">
                 <th *matHeaderCellDef mat-header-cell mat-sort-header>Fecha de emisión</th>
                 <td *matCellDef="let order" mat-cell>
-                    <span class="text-right font-medium">{{ order?.emissionDate }}</span>
+                    <span class="text-sm">{{ order?.emissionDate }}</span>
                 </td>
             </ng-container>
 
@@ -177,7 +177,7 @@
             <ng-container matColumnDef="deliveryDate">
                 <th *matHeaderCellDef mat-header-cell mat-sort-header>Fecha de entrega</th>
                 <td *matCellDef="let order" mat-cell>
-                    <span class="text-right font-medium">{{ order?.deliveryDate }}</span>
+                    <span class="text-sm">{{ order?.deliveryDate }}</span>
                 </td>
             </ng-container>
 
@@ -194,7 +194,7 @@
             <ng-container matColumnDef="amount">
                 <th *matHeaderCellDef mat-header-cell>Monto</th>
                 <td *matCellDef="let order" mat-cell>
-                    <span class="text-right font-medium">{{ order?.totalAmount | currency: 'CLP':'symbol-narrow' }}</span>
+                    <span class="text-sm">{{ order?.totalAmount | currency: 'CLP':'symbol-narrow' }}</span>
                 </td>
             </ng-container>
 
@@ -212,11 +212,13 @@
                 <th *matHeaderCellDef mat-header-cell>Factura</th>
                 <td *matCellDef="let order" mat-cell>
                     @if (order?.invoice) {
-                        <span class="text-right font-medium">{{ order?.invoice?.number }}</span>
+                        <span class="text-sm">{{ order?.invoice?.number }}</span>
                     } @else {
-                        <button mat-icon-button (click)="openAddInvoiceDialog(order)">
-                            <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
-                        </button>
+                        <div class="flex-center">
+                            <button mat-icon-button (click)="openAddInvoiceDialog(order)">
+                                <mat-icon svgIcon="heroicons_outline:plus" class="icon-size-5"></mat-icon>
+                            </button>
+                        </div>
                     }
                 </td>
             </ng-container>
@@ -245,8 +247,8 @@
                 <th *matHeaderCellDef mat-header-cell></th>
             </ng-container>
 
-            <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
-            <tr *matHeaderRowDef="displayedFilterColumns" mat-header-row></tr>
+            <tr *matHeaderRowDef="displayedColumns" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
+            <tr *matHeaderRowDef="displayedFilterColumns" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
             <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
 
             <!-- No data -->
