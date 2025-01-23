@@ -13,9 +13,9 @@
             </h2>
             <div class="block sm:hidden">
                 <button
+                    mat-icon-button
                     (click)="showMobileFilters.set(!showMobileFilters())"
                     class="btn-primary px-4 py-2 rounded"
-                    mat-icon-button
                 >
                     <mat-icon [svgIcon]="showMobileFilters() ? 'heroicons_solid:funnel' : 'heroicons_outline:funnel'"></mat-icon>
                 </button>
@@ -241,7 +241,7 @@
         </div>
 
         <!-- TABLA (SOLO DESKTOP/TABLET) -->
-        <div class="  relative max-w-full overflow-auto w-full">
+        <div class="hidden sm:block relative max-w-full overflow-auto w-full">
             <table
                 [dataSource]="orders()"
                 class="min-w-240 w-full overflow-y-visible bg-transparent"
