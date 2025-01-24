@@ -267,7 +267,7 @@
                 <ng-container matColumnDef="orderNumberFilter">
                     <th *matHeaderCellDef mat-header-cell>
                         <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                            <textarea (keyup.enter)="filterOrders()" (ngModelChange)="orderNumberFilter.set($event)" [ngModel]="orderNumberFilter()" cdkTextareaAutosize matInput type="number"></textarea>
+                            <input (keyup.enter)="filterOrders()" (ngModelChange)="orderNumberFilter.set($event)" [ngModel]="orderNumberFilter()" matInput type="number">
                         </mat-form-field>
                     </th>
                 </ng-container>

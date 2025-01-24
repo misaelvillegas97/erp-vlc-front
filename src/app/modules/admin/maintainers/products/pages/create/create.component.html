@@ -1,0 +1,98 @@
+<div *transloco="let t; read: 'maintainers.products'" class="flex flex-col min-w-0 w-full">
+    <page-detail-header
+        [subtitle]="t('new.description')"
+        [title]="t('new.title')"
+    ></page-detail-header>
+    <!-- Content -->
+    <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-4 sm:px-4">
+        <!-- Content -->
+        <form [formGroup]="form" class="flex flex-col items-center gap-y-4 w-full md:w-1/2 py-4">
+            <!-- Fields: name, description and unitaryPrice -->
+            <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-label>{{ t('fields.name') | transloco }}</mat-label>
+                <input
+                    [placeholder]="t('fields.name') | transloco"
+                    formControlName="name"
+                    matInput
+                />
+                @if (form.get('name').hasError('required')) {
+                    <mat-error [innerText]="'errors.form.required' | transloco"></mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-label>{{ t('fields.description') | transloco }}</mat-label>
+                <textarea
+                    [placeholder]="t('fields.description') | transloco"
+                    cdkTextareaAutosize
+                    formControlName="description"
+                    matInput>
+                </textarea>
+
+                @if (form.get('description').hasError('required')) {
+                    <mat-error [innerText]="'errors.form.required' | transloco"></mat-error>
+                }
+            </mat-form-field>
+
+            <!-- UPC code -->
+            <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-label>{{ t('fields.upc-code') | transloco }}</mat-label>
+                <input
+                    [placeholder]="t('fields.upc-code') | transloco"
+                    formControlName="upcCode"
+                    matInput
+                    pattern="^[0-9]*$"
+                />
+
+                <mat-hint>{{ t('fields.upc-code-hint') | transloco }}</mat-hint>
+
+                @if (form.get('upcCode').hasError('required')) {
+                    <mat-error [innerText]="'errors.form.required' | transloco"></mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-label>{{ t('fields.unitary-price') | transloco }}</mat-label>
+                <input
+                    [placeholder]="t('fields.unitary-price') | transloco"
+                    formControlName="unitaryPrice"
+                    matInput
+                    type="number"
+                />
+
+                @if (form.get('unitaryPrice').hasError('required')) {
+                    <mat-error [innerText]="'errors.form.required' | transloco"></mat-error>
+                }
+            </mat-form-field>
+
+            <!-- Actions -->
+            <div class="flex-0 pt-4 w-full flex md:justify-end flex-col md:flex-row sm:items-center gap-6">
+                <!-- Reset -->
+                <button
+                    class="w-full md:w-30"
+                    color="secondary"
+                    mat-flat-button
+                    type="reset"
+                >
+                    <span [innerText]="'actions.reset' | transloco"></span>
+                </button>
+
+                <button
+                    (click)="submit()"
+                    [disabled]="form.disabled"
+                    class="w-full md:w-30"
+                    color="primary"
+                    mat-flat-button
+                    type="submit"
+                >
+                    @if (form.disabled) {
+                        <mat-progress-spinner [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
+                    } @else {
+                        <span [innerText]="'actions.save' | transloco"></span>
+                    }
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>

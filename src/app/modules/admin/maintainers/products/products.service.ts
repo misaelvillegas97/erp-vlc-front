@@ -1,12 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient }         from '@angular/common/http';
+import { Observable }         from 'rxjs';
+import { Product }            from '@modules/admin/maintainers/products/domain/model/product';
 
 @Injectable({providedIn: 'root'})
 export class ProductsService {
     readonly #http: HttpClient = inject(HttpClient);
 
-    findAll() {
-        return this.#http.get('/api/products');
+    findAll(query: any, {signal}: { signal: AbortSignal }): Observable<Product[]> {
+        return this.#http.get<Product[]>('/api/products', {params: query});
     }
 
     create(product: any) {

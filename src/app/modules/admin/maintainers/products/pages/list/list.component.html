@@ -1,1 +1,165 @@
-<p>list works!</p>
+<div *transloco="let t; read: 'maintainers.products'" class="flex flex-col min-w-0 w-full">
+    <!-- Encabezado de la página -->
+    <page-header
+        [description]="t('list.subtitle')"
+        [subtitle]="t('list.title')">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-max mx-auto py-10 gap-y-4 sm:px-4">
+
+        <div class="flex flex-row w-full">
+            <h2 class="flex-1 font-bold text-secondary text-xl self-center">
+                {{ t('title') }}
+            </h2>
+            <a
+                [matTooltip]="t('new.title')"
+                [routerLink]="['new']"
+                class="flex-0 font-bold py-2 px-4 rounded"
+                color="primary"
+                mat-icon-button
+            >
+                <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+            </a>
+        </div>
+
+        <!-- LISTADO DE TARJETAS (SOLO MOBILE) -->
+        <div class="block sm:hidden space-y-4 w-full">
+            <!-- Itera sobre la data filtrada para móvil -->
+            @for (product of productsResource.value(); track product.id) {
+                <div class="border rounded shadow p-4">
+                    <div class="font-semibold text-base">{{ product.name }}</div>
+
+                    <!-- Description -->
+                    <div class="text-sm whitespace-pre-wrap line-clamp-2">{{ product.description }}</div>
+
+                    <div class="mt-2 flex justify-end gap-2">
+                        <button
+                            class="shadow-none"
+                            mat-mini-fab
+                            matTooltip="Agregar factura"
+
+                        >
+                            <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:eye"></mat-icon>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- TABLA (SOLO DESKTOP/TABLET) -->
+        <div class="hidden sm:block relative max-w-full overflow-auto w-full">
+            <table
+                [dataSource]="productsResource.value()"
+                class="min-w-240 w-full overflow-y-visible bg-transparent"
+                mat-table
+                matSort
+            >
+                <!-- Name -->
+                <ng-container matColumnDef="name">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.name') }}</th>
+                    <td *matCellDef="let product" mat-cell>
+                        <span class="font-medium text-sm">{{ product.name }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="nameFilter">
+                    <th *matHeaderCellDef mat-header-cell>
+                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                            <input (keyup.enter)="filterProducts()" (ngModelChange)="nameFilter.set($event)" [ngModel]="nameFilter()" matInput/>
+                        </mat-form-field>
+                    </th>
+                </ng-container>
+
+                <!-- UPC code -->
+                <ng-container matColumnDef="upcCode">
+                    <th *matHeaderCellDef mat-header-cell>{{ t('fields.upc-code') }}</th>
+                    <td *matCellDef="let product" mat-cell>
+                        <span class="text-sm">{{ product.upcCode }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="upcCodeFilter">
+                    <th *matHeaderCellDef mat-header-cell>
+                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                            <input (keyup.enter)="filterProducts()" (ngModelChange)="upcCodeFilter.set($event)" [ngModel]="upcCodeFilter()" matInput/>
+                        </mat-form-field>
+                    </th>
+                </ng-container>
+
+                <!-- Description -->
+                <ng-container matColumnDef="description">
+                    <th *matHeaderCellDef mat-header-cell>{{ t('fields.description') }}</th>
+                    <td *matCellDef="let product" mat-cell>
+                        <span class="text-sm">{{ product.description }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="descriptionFilter">
+                    <th *matHeaderCellDef mat-header-cell></th>
+                </ng-container>
+
+                <!-- Price -->
+                <ng-container matColumnDef="unitaryPrice">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.unitary-price') }}</th>
+                    <td *matCellDef="let product" mat-cell>
+                        <span class="text-sm">{{ product.unitaryPrice | currency:'CLP':'symbol-narrow' }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="unitaryPriceFilter">
+                    <th *matHeaderCellDef mat-header-cell>
+                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                            <input (keyup.enter)="filterProducts()" (ngModelChange)="unitaryPriceFilter.set($event)" [ngModel]="unitaryPriceFilter()" matInput/>
+                        </mat-form-field>
+                    </th>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                    <th *matHeaderCellDef mat-header-cell></th>
+                    <td *matCellDef="let product" mat-cell>
+                        <div class="flex justify-end gap-2">
+                            <button
+                                [matMenuTriggerFor]="menu"
+                                [matTooltip]="t('delete.title')"
+                                class="shadow-none"
+                                mat-icon-button
+                            >
+                                <mat-icon svgIcon="heroicons_outline:ellipsis-vertical"></mat-icon>
+                            </button>
+
+                            <mat-menu #menu="matMenu">
+                                <button (click)="associateClient(product)" mat-menu-item>
+                                    <mat-icon class="icon-size-4" svgIcon="heroicons_outline:link"></mat-icon>
+                                    <span>Asociar a cliente</span>
+                                </button>
+                                <button (click)="editProduct(product)" mat-menu-item>
+                                    <mat-icon class="icon-size-4" svgIcon="heroicons_outline:pencil"></mat-icon>
+                                    <span>{{ 'actions.edit' | transloco }}</span>
+                                </button>
+                                <button (click)="delete(product)" mat-menu-item>
+                                    <mat-icon class="icon-size-4" svgIcon="heroicons_outline:trash"></mat-icon>
+                                    <span>{{ 'actions.delete' | transloco }}</span>
+                                </button>
+                            </mat-menu>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actionsFilter">
+                    <th *matHeaderCellDef mat-header-cell></th>
+                </ng-container>
+
+                <tr *matHeaderRowDef="displayedColumns" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
+                <tr *matHeaderRowDef="displayedFilterColumns" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
+                <tr *matRowDef="let row; columns: displayedColumns" class="hover:bg-hover" mat-row></tr>
+
+                <!-- No data -->
+                <tr *matNoDataRow class="h-16">
+                    <td [attr.colspan]="displayedColumns.length" class="text-center italic mat-hint">
+                        {{ t('list.no-data') }}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

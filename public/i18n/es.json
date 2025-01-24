@@ -90,13 +90,8 @@
                 "title" : "Mantenedor de productos",
                 "subtitle" : "Administra los productos de la aplicación",
                 "description" : "Lista de productos",
-                "table" : {
-                    "name" : "Nombre",
-                    "category" : "Categoría",
-                    "price" : "Precio",
-                    "stock" : "Stock",
-                    "actions" : "Acciones"
-                }
+                "no-data" : "No hay productos disponibles"
+
             },
             "new" : {
                 "title" : "Nuevo producto",
@@ -106,9 +101,10 @@
             },
             "fields" : {
                 "name" : "Nombre",
-                "category" : "Categoría",
-                "price" : "Precio",
-                "stock" : "Stock"
+                "description" : "Descripción",
+                "upc-code" : "Código UPC",
+                "upc-code-hint" : "Código de barras único para identificar el producto",
+                "unitary-price" : "Precio unitario"
             }
         }
     },

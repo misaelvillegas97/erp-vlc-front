@@ -20,7 +20,6 @@ import { MatSelectModule }                                                      
 import { FormsModule }                                                                                                                                  from '@angular/forms';
 import { OrderTypeEnum }                                                                                                                                from '@modules/admin/administration/orders/domain/enums/order-type.enum';
 import { OrderStatusEnum }                                                                                                                              from '@modules/admin/administration/orders/domain/enums/order-status.enum';
-import { CdkTextareaAutosize }                                                                                                                          from '@angular/cdk/text-field';
 import { InvoiceAddComponent }                                                                                                                          from '@modules/admin/administration/orders/dialogs/invoice-add/invoice-add.component';
 import { InvoiceDetailComponent }                                                                                                                       from '@modules/admin/administration/orders/dialogs/invoice-detail/invoice-detail.component';
 
@@ -51,8 +50,7 @@ import { InvoiceDetailComponent }                                               
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
-        FormsModule,
-        CdkTextareaAutosize
+        FormsModule
     ],
     templateUrl: './list.component.html'
 })
