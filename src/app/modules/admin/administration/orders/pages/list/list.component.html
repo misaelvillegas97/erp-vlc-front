@@ -444,10 +444,28 @@
                     <th *matHeaderCellDef mat-header-cell>Factura</th>
                     <td *matCellDef="let order" mat-cell>
                         @if (order?.invoice) {
-                            <span class="text-sm cursor-pointer" (click)="openInvoiceDetail(order)">{{ order?.invoice?.invoiceNumber }}</span>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm cursor-pointer">{{ order?.invoice?.invoiceNumber }}</span>
+                                <button
+                                    class="shadow-none"
+                                    mat-icon-button
+                                    [matTooltip]="'Ver factura'"
+                                    (click)="openInvoiceDetail(order)"
+                                >
+                                    <mat-icon class="icon-size-4">receipt_long</mat-icon>
+                                </button>
+                            </div>
                         } @else {
-                            <button mat-icon-button (click)="openAddInvoiceDialog(order)">
-                                <mat-icon svgIcon="heroicons_outline:plus" class="icon-size-5"></mat-icon>
+                            <button
+                                class="shadow-none"
+                                mat-icon-button
+                                [matTooltip]="'Agregar factura'"
+                                (click)="openAddInvoiceDialog(order)"
+                            >
+                                <mat-icon class="icon-size-4">receipt_long</mat-icon>
+                                @if (!order.invoice) {
+                                    <mat-icon class="icon-size-4">add</mat-icon>
+                                }
                             </button>
                         }
                     </td>

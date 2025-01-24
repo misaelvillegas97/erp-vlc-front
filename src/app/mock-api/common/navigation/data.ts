@@ -7,7 +7,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         title: 'Home',
         type : 'basic',
         icon : 'heroicons_outline:home',
-        link : '/home'
+        link: '/dashboards/project'
     },
     {
         id: 'dashboards.title',
@@ -72,6 +72,12 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 link: '/maintainers/clients',
                 icon: 'heroicons_outline:building-storefront'
             },
+            {
+                id  : 'maintainers.products',
+                type: 'basic',
+                link: '/maintainers/products',
+                icon: 'heroicons_outline:shopping-bag'
+            }
         ]
     }
 ];

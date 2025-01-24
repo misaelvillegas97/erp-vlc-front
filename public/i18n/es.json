@@ -28,7 +28,8 @@
         },
         "maintainers" : {
             "title" : "Mantenedores",
-            "clients" : "Clientes"
+            "clients" : "Clientes",
+            "products" : "Productos"
         }
     },
     "operations" : {
@@ -81,6 +82,33 @@
                 "national-id" : "RUT",
                 "email" : "Correo",
                 "phone" : "Teléfono"
+            }
+        },
+        "products" : {
+            "title" : "Productos",
+            "list" : {
+                "title" : "Mantenedor de productos",
+                "subtitle" : "Administra los productos de la aplicación",
+                "description" : "Lista de productos",
+                "table" : {
+                    "name" : "Nombre",
+                    "category" : "Categoría",
+                    "price" : "Precio",
+                    "stock" : "Stock",
+                    "actions" : "Acciones"
+                }
+            },
+            "new" : {
+                "title" : "Nuevo producto",
+                "subtitle" : "Crea un nuevo producto",
+                "description" : "Crear un nuevo producto",
+                "success" : "Producto creado exitosamente"
+            },
+            "fields" : {
+                "name" : "Nombre",
+                "category" : "Categoría",
+                "price" : "Precio",
+                "stock" : "Stock"
             }
         }
     },

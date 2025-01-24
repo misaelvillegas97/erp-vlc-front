@@ -1,0 +1,10 @@
+<drawer-listing
+    *transloco="let t; read: 'admin.benefits'"
+    [panels]="panels"
+    [selectedPanel]="'list'"
+    [title]="'maintainers.products.title' | transloco"
+>
+    <drawer-content class="h-full">
+        <router-outlet></router-outlet>
+    </drawer-content>
+</drawer-listing>
