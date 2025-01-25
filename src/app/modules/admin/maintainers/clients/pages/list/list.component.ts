@@ -91,8 +91,8 @@ export class ListComponent implements OnInit {
                 distinctUntilChanged(),
                 switchMap((value) => {
                     value = value.trim();
-                    if (!value) return this._clientService.getAll();
-                    else if (value.length >= 3 && value.length < 100) return this._clientService.getAll(value);
+                    if (!value) return this._clientService.findAll();
+                    else if (value.length >= 3 && value.length < 100) return this._clientService.findAll(value);
                     else return of('invalid');
                 })
             )

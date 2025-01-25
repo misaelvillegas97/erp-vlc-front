@@ -21,7 +21,7 @@ export class ClientService {
         return this._clients$.asObservable();
     }
 
-    getAll(query?: string): Observable<Client[]> {
+    findAll(query?: string): Observable<Client[]> {
         const params = new HttpParams();
 
         if (query) params.set('query', query);
@@ -36,7 +36,7 @@ export class ClientService {
         return this._httpClient.post<Client>('api/clients', category).pipe(
             tap(() => this._notyf.success(this._translateService.translate('admin.news.category.create.success'))),
             tap(() => this._clients$.next(null)),
-            mergeMap(() => this.getAll())
+            mergeMap(() => this.findAll())
         );
     }
 
@@ -44,7 +44,7 @@ export class ClientService {
         return this._httpClient.delete<void>(`api/clients/${ id }`).pipe(
             tap(() => this._notyf.success(this._translateService.translate('admin.news.category.delete.success'))),
             tap(() => this._clients$.next(null)),
-            mergeMap(() => this.getAll())
+            mergeMap(() => this.findAll())
         );
     }
 }

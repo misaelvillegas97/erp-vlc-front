@@ -1,1 +1,48 @@
-<p>associate-client works!</p>
+<h2 class="text-lg border-b pb-2" mat-dialog-title>
+    Asociar producto: {{ product.name }}
+</h2>
+
+<mat-dialog-content class="py-4">
+    <form [formGroup]="form" class="space-y-4">
+
+        <!-- Selector de cliente -->
+        <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Cliente</mat-label>
+            <mat-select formControlName="clientId">
+                @if (!clientsResource.isLoading()) {
+                    @for (client of clientsResource.value(); track client.id) {
+                        <mat-option [value]="client.id">{{ client.fantasyName }}</mat-option>
+                    } @empty {
+                        <mat-option disabled>No hay clientes</mat-option>
+                    }
+                } @else {
+                    <mat-option disabled>Cargando clientes...</mat-option>
+                }
+            </mat-select>
+            @if (form.get('clientId')?.hasError('required')) {
+                <mat-error>Selecciona un cliente</mat-error>
+            }
+        </mat-form-field>
+
+        <!-- Provider code (numérico) -->
+        <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Código de proveedor</mat-label>
+            <input
+                formControlName="providerCode"
+                matInput
+                placeholder="Ej: 12345"
+                type="number"
+            />
+            @if (form.get('providerCode')?.hasError('required')) {
+                <mat-error>Ingresa el código de proveedor</mat-error>
+            }
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="pt-2">
+    <button color="warn" mat-button mat-dialog-close>Cancelar</button>
+    <button (click)="submit()" color="primary" mat-raised-button>
+        Guardar
+    </button>
+</mat-dialog-actions>

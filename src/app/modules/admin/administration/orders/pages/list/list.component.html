@@ -13,9 +13,9 @@
             </h2>
             <div class="block sm:hidden">
                 <button
-                    mat-icon-button
                     (click)="showMobileFilters.set(!showMobileFilters())"
                     class="btn-primary px-4 py-2 rounded"
+                    mat-icon-button
                 >
                     <mat-icon [svgIcon]="showMobileFilters() ? 'heroicons_solid:funnel' : 'heroicons_outline:funnel'"></mat-icon>
                 </button>
@@ -325,22 +325,22 @@
                     <td *matCellDef="let order" mat-cell>
                         @switch (order?.status) {
                             @case ('PENDING') {
-                                <span class="text-yellow-500 text-sm">Pendiente</span>
+                                <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 text-xs font-medium text-yellow-800 ring-1 ring-yellow-600/20 ring-inset">Pendiente</span>
                             }
                             @case ('IN_PROGRESS') {
-                                <span class="text-blue-500 text-sm">En progreso</span>
+                                <span class="inline-flex items-center rounded-md bg-blue-50 px-2 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset">En progreso</span>
                             }
                             @case ('READY_FOR_SHIPPING') {
-                                <span class="text-yellow-500 text-sm">Listo para envío</span>
+                                <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 text-xs font-medium text-yellow-800 ring-1 ring-yellow-600/20 ring-inset">Listo para envío</span>
                             }
                             @case ('INVOICED') {
-                                <span class="text-blue-500 text-sm">Facturado</span>
+                                <span class="inline-flex items-center rounded-md bg-blue-50 px-2 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset">Facturado</span>
                             }
                             @case ('DELIVERED') {
-                                <span class="text-green text-sm">Entregado</span>
+                                <span class="inline-flex items-center rounded-md bg-green-50 px-2 text-xs font-medium text-green-700 ring-1 ring-green-600/20 ring-inset">Entregado</span>
                             }
                             @case ('CANCELED') {
-                                <span class="text-red text-sm">Cancelado</span>
+                                <span class="inline-flex items-center rounded-md bg-red-50 px-2 text-xs font-medium text-red-700 ring-1 ring-red-600/10 ring-inset">Cancelado</span>
                             }
                         }
                     </td>

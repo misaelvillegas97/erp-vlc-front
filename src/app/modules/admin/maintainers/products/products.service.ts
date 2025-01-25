@@ -14,4 +14,8 @@ export class ProductsService {
     create(product: any) {
         return this.#http.post('/api/products', product);
     }
+
+    associateClient({productId, clientId, providerCode}: any) {
+        return this.#http.post(`/api/products/${ productId }/provider-code`, {clientId, providerCode});
+    }
 }

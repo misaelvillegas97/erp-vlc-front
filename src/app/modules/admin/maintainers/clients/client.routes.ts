@@ -11,7 +11,7 @@ export default [
                 path         : '',
                 loadComponent: () => import('./pages/list/list.component').then(m => m.ListComponent),
                 resolve      : {
-                    clients: () => inject(ClientService).getAll(),
+                    clients: () => inject(ClientService).findAll(),
                 },
             },
             {
