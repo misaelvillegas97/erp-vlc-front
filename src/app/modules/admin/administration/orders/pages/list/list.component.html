@@ -41,12 +41,14 @@
                         [ngModel]="orderNumberFilter()"
                         (ngModelChange)="orderNumberFilter.set($event)"
                         (keyup.enter)="filterOrders()"
+                        placeholder="Ej: 1234"
                     />
                 </mat-form-field>
 
                 <mat-form-field class="w-full" subscriptSizing="dynamic">
                     <mat-label>Cliente</mat-label>
                     <input
+                        placeholder="Ej: Brinks"
                         matInput
                         [ngModel]="businessNameFilter()"
                         (ngModelChange)="businessNameFilter.set($event)"
@@ -61,6 +63,7 @@
                         (ngModelChange)="typeFilter.set($event)"
                         (closed)="filterOrders()"
                         multiple
+                        placeholder="Tipo de orden"
                     >
                         <mat-option value="PURCHASE_ORDER">Orden de compra</mat-option>
                         <mat-option value="RETURN_ORDER">Orden de devolución</mat-option>
@@ -74,6 +77,7 @@
                         (ngModelChange)="statusFilter.set($event)"
                         (closed)="filterOrders()"
                         multiple
+                        placeholder="Estado"
                     >
                         <mat-option value="PENDING">Pendiente</mat-option>
                         <mat-option value="IN_PROGRESS">En progreso</mat-option>
@@ -98,6 +102,7 @@
                 <mat-form-field class="w-full" subscriptSizing="dynamic">
                     <mat-label>Fecha de emisión</mat-label>
                     <input
+                        placeholder="yyyy-MM-dd"
                         matInput
                         [ngModel]="emissionDateFilter()"
                         (ngModelChange)="emissionDateFilter.set($event)"
@@ -108,6 +113,7 @@
                 <mat-form-field class="w-full" subscriptSizing="dynamic">
                     <mat-label>Fecha de entrega</mat-label>
                     <input
+                        placeholder="yyyy-MM-dd"
                         matInput
                         [ngModel]="deliveryDateFilter()"
                         (ngModelChange)="deliveryDateFilter.set($event)"
@@ -118,6 +124,7 @@
                 <mat-form-field class="w-full" subscriptSizing="dynamic">
                     <mat-label>Monto</mat-label>
                     <input
+                        placeholder="Ej: 10000"
                         matInput
                         type="number"
                         [ngModel]="amountFilter()"
@@ -129,6 +136,7 @@
                 <mat-form-field class="w-full" subscriptSizing="dynamic">
                     <mat-label>Factura</mat-label>
                     <input
+                        placeholder="Ej: 1234"
                         matInput
                         [ngModel]="invoiceFilter()"
                         (ngModelChange)="invoiceFilter.set($event)"
@@ -267,7 +275,14 @@
                 <ng-container matColumnDef="orderNumberFilter">
                     <th *matHeaderCellDef mat-header-cell>
                         <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                            <input (keyup.enter)="filterOrders()" (ngModelChange)="orderNumberFilter.set($event)" [ngModel]="orderNumberFilter()" matInput type="number">
+                            <input
+                                (keyup.enter)="filterOrders()"
+                                (ngModelChange)="orderNumberFilter.set($event)"
+                                [ngModel]="orderNumberFilter()"
+                                matInput
+                                placeholder="Ej: 1234"
+                                type="number"
+                            >
                         </mat-form-field>
                     </th>
                 </ng-container>
@@ -284,7 +299,13 @@
                 <ng-container matColumnDef="businessNameFilter">
                     <th *matHeaderCellDef mat-header-cell>
                         <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                            <input (keyup.enter)="filterOrders()" (ngModelChange)="businessNameFilter.set($event)" [ngModel]="businessNameFilter()" matInput>
+                            <input
+                                (keyup.enter)="filterOrders()"
+                                (ngModelChange)="businessNameFilter.set($event)"
+                                [ngModel]="businessNameFilter()"
+                                matInput
+                                placeholder="Ej: Brinks"
+                            >
                         </mat-form-field>
                     </th>
                 </ng-container>
@@ -311,7 +332,13 @@
                 <ng-container matColumnDef="typeFilter">
                     <th *matHeaderCellDef mat-header-cell>
                         <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                            <mat-select (closed)="filterOrders()" (ngModelChange)="typeFilter.set($event)" [ngModel]="typeFilter()" multiple>
+                            <mat-select
+                                (closed)="filterOrders()"
+                                (ngModelChange)="typeFilter.set($event)"
+                                [ngModel]="typeFilter()"
+                                multiple
+                                placeholder="Sin filtro"
+                            >
                                 <mat-option class="text-sm" value="PURCHASE_ORDER">Orden de compra</mat-option>
                                 <mat-option class="text-sm" value="RETURN_ORDER">Orden de devolución</mat-option>
                             </mat-select>
@@ -360,6 +387,7 @@
                                 (ngModelChange)="statusFilter.set($event)"
                                 [ngModel]="statusFilter()"
                                 multiple
+                                placeholder="Sin filtro"
                             >
                                 <mat-option class="text-sm" value="PENDING">Pendiente</mat-option>
                                 <mat-option class="text-sm" value="IN_PROGRESS">En progreso</mat-option>
@@ -400,7 +428,13 @@
                 <ng-container matColumnDef="emissionDateFilter">
                     <th *matHeaderCellDef mat-header-cell>
                         <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                            <input (keyup.enter)="filterOrders()" (ngModelChange)="emissionDateFilter.set($event)" [ngModel]="emissionDateFilter()" matInput>
+                            <input
+                                (keyup.enter)="filterOrders()"
+                                (ngModelChange)="emissionDateFilter.set($event)"
+                                [ngModel]="emissionDateFilter()"
+                                matInput
+                                placeholder="yyyy-MM-dd"
+                            >
                         </mat-form-field>
                     </th>
                 </ng-container>
@@ -417,7 +451,13 @@
                 <ng-container matColumnDef="deliveryDateFilter">
                     <th *matHeaderCellDef mat-header-cell>
                         <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                            <input (keyup.enter)="filterOrders()" (ngModelChange)="deliveryDateFilter.set($event)" [ngModel]="deliveryDateFilter()" matInput>
+                            <input
+                                (keyup.enter)="filterOrders()"
+                                (ngModelChange)="deliveryDateFilter.set($event)"
+                                [ngModel]="deliveryDateFilter()"
+                                matInput
+                                placeholder="yyyy-MM-dd"
+                            >
                         </mat-form-field>
                     </th>
                 </ng-container>
@@ -434,7 +474,14 @@
                 <ng-container matColumnDef="amountFilter">
                     <th *matHeaderCellDef mat-header-cell>
                         <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                            <input (keyup.enter)="filterOrders()" (ngModelChange)="amountFilter.set($event)" [ngModel]="amountFilter()" matInput>
+                            <input
+                                (keyup.enter)="filterOrders()"
+                                (ngModelChange)="amountFilter.set($event)"
+                                [ngModel]="amountFilter()"
+                                matInput
+                                placeholder="Ej: 10000"
+                                type="number"
+                            >
                         </mat-form-field>
                     </th>
                 </ng-container>
@@ -453,7 +500,7 @@
                                         class="shadow-none"
                                         mat-icon-button
                                         [matTooltip]="'Ver factura'"
-                                        (click)="openInvoiceDetail(order)"
+                                        (click)="$event.stopPropagation(); openInvoiceDetail(order)"
                                     >
                                         <mat-icon class="icon-size-4">receipt_long</mat-icon>
                                     </button>
@@ -463,7 +510,7 @@
                                     class="shadow-none"
                                     mat-icon-button
                                     [matTooltip]="'Agregar factura'"
-                                    (click)="openAddInvoiceDialog(order)"
+                                    (click)="$event.stopPropagation(); openAddInvoiceDialog(order)"
                                 >
                                     <mat-icon class="icon-size-4">receipt_long</mat-icon>
                                     @if (!order.invoice) {
@@ -479,7 +526,13 @@
                 <ng-container matColumnDef="invoiceFilter">
                     <th *matHeaderCellDef mat-header-cell>
                         <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                            <input (keyup.enter)="filterOrders()" (ngModelChange)="invoiceFilter.set($event)" [ngModel]="invoiceFilter()" matInput>
+                            <input
+                                (keyup.enter)="filterOrders()"
+                                (ngModelChange)="invoiceFilter.set($event)"
+                                [ngModel]="invoiceFilter()"
+                                matInput
+                                placeholder="Ej: 1234"
+                            >
                         </mat-form-field>
                     </th>
                 </ng-container>
@@ -487,11 +540,7 @@
                 <!-- Actions -->
                 <ng-container matColumnDef="actions">
                     <th *matHeaderCellDef mat-header-cell></th>
-                    <td *matCellDef="let order" mat-cell>
-                        <button (click)="view(order)" [matTooltip]="'Ver orden'" mat-icon-button>
-                            <mat-icon svgIcon="heroicons_outline:eye"></mat-icon>
-                        </button>
-                    </td>
+                    <td *matCellDef="let order" mat-cell></td>
                 </ng-container>
 
                 <!-- Actions filter -->
@@ -501,7 +550,7 @@
 
                 <tr *matHeaderRowDef="displayedColumns" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
                 <tr *matHeaderRowDef="displayedFilterColumns" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
-                <tr *matRowDef="let row; columns: displayedColumns" class="hover:bg-hover" mat-row></tr>
+                <tr (click)="view(row)" *matRowDef="let row; columns: displayedColumns" class="hover:bg-hover" mat-row></tr>
 
                 <!-- No data -->
                 <tr *matNoDataRow class="h-16">
