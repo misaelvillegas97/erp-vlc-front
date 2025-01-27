@@ -1,41 +1,35 @@
-<h2 class="text-lg border-b pb-4" mat-dialog-title>Detalle de factura {{ order().invoice?.invoiceNumber }}</h2>
+<h2 class="text-lg border-b pb-4" mat-dialog-title>Detalle de la orden {{ order().invoice?.invoiceNumber }}</h2>
 <mat-dialog-content class="py-4">
-    @let subtotal = order().invoice.netAmount;
-    @let iva = order().invoice.taxAmount;
-    @let total = order().invoice.totalAmount;
-
     <div class="hidden sm:block">
         <table class="w-full text-default sm:table-fixed">
             <tbody>
             <tr class="border-b">
-                <td class="px-4 py-2 font-medium">Número de factura:</td>
-                <td class="border-r px-4 py-2">
-                    {{ order().invoice.invoiceNumber }}
-                </td>
-                <td class="px-4 py-2 font-medium">Valor neto:</td>
-                <td class="px-4 py-2">
-                    {{ order().invoice.netAmount | currency:'CLP':'symbol-narrow' }}
-                </td>
+                <td class="px-4 py-2 font-medium">Número de orden:</td>
+                <td class="border-r px-4 py-2">{{ order().orderNumber }}</td>
+
+                <td class="px-4 py-2 font-medium">Cliente:</td>
+                <td class="px-4 py-2">{{ order().client.fantasyName }}</td>
             </tr>
             <tr class="border-b">
                 <td class="px-4 py-2 font-medium">Estado:</td>
-                <td class="border-r px-4 py-2">
-                    {{ 'enums.invoice-status.' + order().invoice.status | transloco }}
-                </td>
-                <td class="px-4 py-2 font-medium">IVA:</td>
-                <td class="px-4 py-2">
-                    {{ order().invoice.taxAmount | currency:'CLP':'symbol-narrow' }}
-                </td>
+                <td class="border-r px-4 py-2">{{ 'enums.order-status.' + order().status | transloco }}</td>
+
+                <td class="px-4 py-2 font-medium">Dirección de entrega:</td>
+                <td class="px-4 py-2 ">{{ order().deliveryLocation }}</td>
+            </tr>
+            <tr class="border-b">
+                <td class="px-4 py-2 font-medium">Fecha de emisión:</td>
+                <td class="border-r px-4 py-2">{{ order().emissionDate | date:'dd/MM/yyyy' }}</td>
+
+                <td class="px-4 py-2 font-medium">Factura:</td>
+                <td class="px-4 py-2">{{ order().invoice ? order().invoice.invoiceNumber : 'Sin factura' }}</td>
             </tr>
             <tr>
-                <td class="px-4 py-2 font-medium">Fecha de emisión:</td>
-                <td class="border-r px-4 py-2">
-                    {{ order().invoice.emissionDate | date:'dd/MM/yyyy' }}
-                </td>
-                <td class="px-4 py-2 font-medium">Valor bruto:</td>
-                <td class="px-4 py-2">
-                    {{ order().invoice.totalAmount | currency:'CLP':'symbol-narrow' }}
-                </td>
+                <td class="px-4 py-2 font-medium">Fecha de entrega:</td>
+                <td class="border-r px-4 py-2">{{ order().deliveryDate | date:'dd/MM/yyyy' }}</td>
+
+                <td class="px-4 py-2 font-medium">Estado de factura:</td>
+                <td class="px-4 py-2">{{ order().invoice ? ('enums.invoice-status.' + order().invoice.status | transloco) : 'Sin factura' }}</td>
             </tr>
             </tbody>
         </table>
@@ -45,28 +39,36 @@
     <div class="block sm:hidden">
         <div class="rounded space-y-2 text-default">
             <div>
-                <span class="font-medium mr-1">Número de factura:</span>
-                {{ order().invoice.invoiceNumber }}
+                <span class="font-medium mr-1">Número de orden:</span>
+                {{ order().orderNumber }}
             </div>
             <div>
                 <span class="font-medium mr-1">Estado:</span>
-                {{ 'enums.invoice-status.' + order().invoice.status | transloco }}
+                {{ 'enums.order-status.' + order().status | transloco }}
+            </div>
+            <div>
+                <span class="font-medium mr-1">Cliente:</span>
+                {{ order().client.fantasyName }}
             </div>
             <div>
                 <span class="font-medium mr-1">Fecha de emisión:</span>
-                {{ order().invoice.emissionDate | date:'dd/MM/yyyy' }}
+                {{ order().emissionDate | date:'dd/MM/yyyy' }}
             </div>
             <div>
-                <span class="font-medium mr-1">Valor neto:</span>
-                {{ subtotal | currency:'CLP':'symbol-narrow' }}
+                <span class="font-medium mr-1">Fecha de entrega:</span>
+                {{ order().deliveryDate | date:'dd/MM/yyyy' }}
             </div>
             <div>
-                <span class="font-medium mr-1">IVA:</span>
-                {{ iva | currency:'CLP':'symbol-narrow' }}
+                <span class="font-medium mr-1">Dirección de entrega:</span>
+                {{ order().deliveryLocation }}
             </div>
             <div>
-                <span class="font-medium mr-1">Valor bruto:</span>
-                {{ total | currency:'CLP':'symbol-narrow' }}
+                <span class="font-medium mr-1">Factura:</span>
+                {{ order().invoice ? order().invoice.invoiceNumber : 'Sin factura' }}
+            </div>
+            <div>
+                <span class="font-medium mr-1">Estado de factura:</span>
+                {{ order().invoice ? ('enums.invoice-status.' + order().invoice.status | transloco) : 'Sin factura' }}
             </div>
         </div>
     </div>
@@ -77,7 +79,7 @@
     <div class="hidden sm:block overflow-x-auto">
         <table
             [dataSource]="order().products"
-            class=" w-full overflow-y-visible"
+            class="w-full overflow-y-visible"
             mat-table
         >
             <ng-container matColumnDef="product">
@@ -143,7 +145,7 @@
 
     <!-- Versión Móvil -->
     <div class="block md:hidden space-y-4">
-        @for (product of order().products; track order().id) {
+        @for (product of order().products; track product.id) {
             <div class="bg-white shadow rounded p-4">
                 <div class="font-medium text-gray-700 mb-1">
                     {{ product.description }}
@@ -164,11 +166,11 @@
 
         <!-- Totales (Net, IVA, Total) en móvil -->
         <div class="bg-white shadow rounded p-4">
-            <div class="flex justify-between text-sm mb-2">
+            <div class="flex justify-between text-sm mb-2 border-b">
                 <span class="font-semibold">Valor neto:</span>
                 <span>{{ productsTotal() | currency:'CLP':'symbol-narrow' }}</span>
             </div>
-            <div class="flex justify-between text-sm mb-2">
+            <div class="flex justify-between text-sm mb-2 border-b">
                 <span class="font-semibold">IVA:</span>
                 <span>{{ productsTotal() * 0.19 | currency:'CLP':'symbol-narrow' }}</span>
             </div>
@@ -181,7 +183,7 @@
 
     <h3 class="text-lg text-default mt-4">Observaciones</h3>
     <hr class="my-2">
-    <p class="whitespace-pre-wrap">{{ order().invoice.observations || 'Sin observaciones' }}</p>
+    <p class="whitespace-pre-wrap">{{ order().observations || 'Sin observaciones' }}</p>
 </mat-dialog-content>
 <mat-dialog-actions align="end" class="">
     <button color="default" mat-button mat-dialog-close>Cerrar</button>

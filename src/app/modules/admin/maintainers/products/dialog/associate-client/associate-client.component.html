@@ -8,9 +8,9 @@
         <!-- Selector de cliente -->
         <mat-form-field appearance="fill" class="w-full">
             <mat-label>Cliente</mat-label>
-            <mat-select formControlName="clientId">
+            <mat-select [placeholder]="clientsResource.isLoading() ? 'Cargando clientes...' : 'Selecciona un cliente'" formControlName="clientId">
                 @if (!clientsResource.isLoading()) {
-                    @for (client of clientsResource.value(); track client.id) {
+                    @for (client of clients(); track client.id) {
                         <mat-option [value]="client.id">{{ client.fantasyName }}</mat-option>
                     } @empty {
                         <mat-option disabled>No hay clientes</mat-option>

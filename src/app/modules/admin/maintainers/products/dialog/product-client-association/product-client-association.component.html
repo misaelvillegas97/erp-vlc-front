@@ -1,0 +1,39 @@
+<h2 class="text-lg border-b pb-4" mat-dialog-title>
+    Clientes asociados al producto
+</h2>
+
+<mat-dialog-content class="py-4">
+    <table class="w-full">
+        <thead>
+        <tr>
+            <th class="text-left">Cliente</th>
+            <th class="text-left">Código de proveedor</th>
+        </tr>
+        </thead>
+        <tbody>
+            @for (association of product.providerCodes; track association.id) {
+                <tr>
+                    <td>{{ association.client.fantasyName }}</td>
+                    <td>{{ association.providerCode }}</td>
+                    <td>
+                        <button
+                            (click)="removeAssociation(association)"
+                            mat-icon-button
+                            matTooltip="Eliminar asociación"
+                        >
+                            <mat-icon svgIcon="heroicons_outline:trash" class="icon-size-4"></mat-icon>
+                        </button>
+                    </td>
+                </tr>
+            } @empty {
+                <tr>
+                    <td colspan="2" class="text-center">No hay clientes asociados</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="pt-2">
+    <button color="warn" mat-button mat-dialog-close>Cerrar</button>
+</mat-dialog-actions>

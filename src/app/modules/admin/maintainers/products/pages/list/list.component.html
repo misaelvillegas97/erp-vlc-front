@@ -128,6 +128,10 @@
                             </button>
 
                             <mat-menu #menu="matMenu">
+                                <button (click)="viewAssociation(product)" mat-menu-item>
+                                    <mat-icon class="icon-size-4" svgIcon="heroicons_outline:eye"></mat-icon>
+                                    <span>{{ 'actions.view' | transloco }}</span>
+                                </button>
                                 <button (click)="associateClient(product)" mat-menu-item>
                                     <mat-icon class="icon-size-4" svgIcon="heroicons_outline:link"></mat-icon>
                                     <span>Asociar a cliente</span>

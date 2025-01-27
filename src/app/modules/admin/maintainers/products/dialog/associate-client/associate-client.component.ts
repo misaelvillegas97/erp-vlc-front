@@ -1,4 +1,4 @@
-import { Component, inject }                                                                                 from '@angular/core';
+import { Component, computed, inject }                                                                       from '@angular/core';
 import { MatButton }                                                                                         from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { MatError, MatFormField, MatLabel }                                                                  from '@angular/material/form-field';
@@ -49,6 +49,13 @@ export class AssociateClientComponent {
             return this.clientService.findAll();
         },
     });
+
+    readonly clients = computed(() => {
+        const existingAssociations = this.product.providerCodes?.map(({client}) => client.id);
+
+        return this.clientsResource.value().filter((client) => !existingAssociations.includes(client.id));
+    });
+
     readonly #notyf = new Notyf();
 
     submit() {

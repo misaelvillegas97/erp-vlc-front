@@ -10,7 +10,7 @@ import { Order }                                                                
 import { Notyf }                                                                                                                                        from 'notyf';
 import { FuseConfirmationService }                                                                                                                      from '../../../../../../../@fuse/services/confirmation';
 import { OrdersService }                                                                                                                                from '@modules/admin/administration/orders/orders.service';
-import { CurrencyPipe }                                                                                                                                 from '@angular/common';
+import { CurrencyPipe, DatePipe }                                                                                                                       from '@angular/common';
 import { MatSort, MatSortHeader }                                                                                                                       from '@angular/material/sort';
 import { takeUntilDestroyed }                                                                                                                           from '@angular/core/rxjs-interop';
 import { MatDialog }                                                                                                                                    from '@angular/material/dialog';
@@ -22,6 +22,7 @@ import { OrderTypeEnum }                                                        
 import { OrderStatusEnum }                                                                                                                              from '@modules/admin/administration/orders/domain/enums/order-status.enum';
 import { InvoiceAddComponent }                                                                                                                          from '@modules/admin/administration/orders/dialogs/invoice-add/invoice-add.component';
 import { InvoiceDetailComponent }                                                                                                                       from '@modules/admin/administration/orders/dialogs/invoice-detail/invoice-detail.component';
+import { OrderDetailDialog }                                                                                                                            from '@modules/admin/administration/orders/dialogs/order-detail/order-detail.dialog';
 
 @Component({
     selector   : 'app-list',
@@ -50,7 +51,8 @@ import { InvoiceDetailComponent }                                               
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
-        FormsModule
+        FormsModule,
+        DatePipe
     ],
     templateUrl: './list.component.html'
 })
@@ -127,6 +129,10 @@ export class ListComponent {
         this._orderService.getAll(filters);
     }
 
+    view(order: Order) {
+        this.dialog.open(OrderDetailDialog, {data: {order}});
+    }
+
     openAddInvoiceDialog(order: Order): void {
         const invoiceDialog = this.dialog.open(InvoiceAddComponent, {
             data: {order},
@@ -140,7 +146,7 @@ export class ListComponent {
     }
 
     openInvoiceDetail(order: Order) {
-        const invoiceDialog = this.dialog.open(InvoiceDetailComponent, {
+        this.dialog.open(InvoiceDetailComponent, {
             data: {order}
         });
     }

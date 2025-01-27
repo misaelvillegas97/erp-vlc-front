@@ -18,6 +18,7 @@ import { rxResource }                                          from '@angular/co
 import { MatMenu, MatMenuItem, MatMenuTrigger }                from '@angular/material/menu';
 import { AssociateClientComponent }                            from '@modules/admin/maintainers/products/dialog/associate-client/associate-client.component';
 import { FuseConfirmationService }                             from '../../../../../../../@fuse/services/confirmation';
+import { ProductClientAssociationComponent }                   from '@modules/admin/maintainers/products/dialog/product-client-association/product-client-association.component';
 
 @Component({
     selector   : 'app-list',
@@ -74,7 +75,22 @@ export class ListComponent {
     }
 
     associateClient(product: Product) {
-        this.#dialog.open(AssociateClientComponent, {data: {product}});
+        const associationDialog = this.#dialog.open(AssociateClientComponent, {data: {product}});
+
+        associationDialog.afterClosed().subscribe((result) => result && this.productsResource.reload());
+    }
+
+    viewAssociation(product: Product) {
+        const associationDialog = this.#dialog.open(
+            ProductClientAssociationComponent,
+            {
+                data     : {product},
+                autoFocus: false,
+                width    : '700px'
+            }
+        );
+
+        associationDialog.afterClosed().subscribe(() => this.productsResource.reload());
     }
 
     delete(product: Product) {

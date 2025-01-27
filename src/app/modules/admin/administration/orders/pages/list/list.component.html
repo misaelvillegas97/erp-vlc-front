@@ -200,11 +200,11 @@
                     </div>
 
                     <div class="text-sm">
-                        <strong>Fecha de emisión:</strong> {{ order?.emissionDate }}
+                        <strong>Fecha de emisión:</strong> {{ order?.emissionDate | date:'dd-MM-yyyy' }}
                     </div>
 
                     <div class="text-sm">
-                        <strong>Fecha de entrega:</strong> {{ order?.deliveryDate }}
+                        <strong>Fecha de entrega:</strong> {{ order?.deliveryDate | date:'dd-MM-yyyy' }}
                     </div>
 
                     <div class="text-sm">
@@ -237,8 +237,8 @@
                         <button
                             class="shadow-none"
                             mat-mini-fab
-                            [matTooltip]="order.invoice ? 'Ver factura' : 'Agregar factura'"
-                            (click)="openOrderDetail(order)"
+                            matTooltip="Ver orden"
+                            (click)="view(order)"
                         >
                             <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:eye"></mat-icon>
                         </button>
@@ -392,7 +392,7 @@
                 <ng-container matColumnDef="emissionDate">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>Fecha de emisión</th>
                     <td *matCellDef="let order" mat-cell>
-                        <span class="text-sm">{{ order?.emissionDate }}</span>
+                        <span class="text-sm">{{ order?.emissionDate | date:'dd-MM-yyyy' }}</span>
                     </td>
                 </ng-container>
 
@@ -409,7 +409,7 @@
                 <ng-container matColumnDef="deliveryDate">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>Fecha de entrega</th>
                     <td *matCellDef="let order" mat-cell>
-                        <span class="text-sm">{{ order?.deliveryDate }}</span>
+                        <span class="text-sm">{{ order?.deliveryDate | date:'dd-MM-yyyy' }}</span>
                     </td>
                 </ng-container>
 
@@ -443,30 +443,34 @@
                 <ng-container matColumnDef="invoice">
                     <th *matHeaderCellDef mat-header-cell>Factura</th>
                     <td *matCellDef="let order" mat-cell>
-                        @if (order?.invoice) {
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm cursor-pointer">{{ order?.invoice?.invoiceNumber }}</span>
+                        @if (order?.type === 'RETURN_ORDER') {
+                            <span class="text-sm">No aplica</span>
+                        } @else {
+                            @if (order?.invoice) {
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm cursor-pointer">{{ order?.invoice?.invoiceNumber }}</span>
+                                    <button
+                                        class="shadow-none"
+                                        mat-icon-button
+                                        [matTooltip]="'Ver factura'"
+                                        (click)="openInvoiceDetail(order)"
+                                    >
+                                        <mat-icon class="icon-size-4">receipt_long</mat-icon>
+                                    </button>
+                                </div>
+                            } @else {
                                 <button
                                     class="shadow-none"
                                     mat-icon-button
-                                    [matTooltip]="'Ver factura'"
-                                    (click)="openInvoiceDetail(order)"
+                                    [matTooltip]="'Agregar factura'"
+                                    (click)="openAddInvoiceDialog(order)"
                                 >
                                     <mat-icon class="icon-size-4">receipt_long</mat-icon>
+                                    @if (!order.invoice) {
+                                        <mat-icon class="icon-size-4">add</mat-icon>
+                                    }
                                 </button>
-                            </div>
-                        } @else {
-                            <button
-                                class="shadow-none"
-                                mat-icon-button
-                                [matTooltip]="'Agregar factura'"
-                                (click)="openAddInvoiceDialog(order)"
-                            >
-                                <mat-icon class="icon-size-4">receipt_long</mat-icon>
-                                @if (!order.invoice) {
-                                    <mat-icon class="icon-size-4">add</mat-icon>
-                                }
-                            </button>
+                            }
                         }
                     </td>
                 </ng-container>
@@ -484,7 +488,7 @@
                 <ng-container matColumnDef="actions">
                     <th *matHeaderCellDef mat-header-cell></th>
                     <td *matCellDef="let order" mat-cell>
-                        <button [matTooltip]="'Ver orden'" [routerLink]="['view', order.id]" mat-icon-button>
+                        <button (click)="view(order)" [matTooltip]="'Ver orden'" mat-icon-button>
                             <mat-icon svgIcon="heroicons_outline:eye"></mat-icon>
                         </button>
                     </td>
