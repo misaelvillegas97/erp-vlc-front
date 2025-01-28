@@ -1,6 +1,6 @@
 import { provideHttpClient }                                                                                                       from '@angular/common/http';
 import { ApplicationConfig, importProvidersFrom, inject, provideAppInitializer, provideExperimentalZonelessChangeDetection }       from '@angular/core';
-import { DateAdapter, MAT_DATE_FORMATS }                                                                                           from '@angular/material/core';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE }                                                                          from '@angular/material/core';
 import { LuxonDateAdapter }                                                                                                        from '@angular/material-luxon-adapter';
 import { PreloadAllModules, provideRouter, withComponentInputBinding, withInMemoryScrolling, withPreloading, withViewTransitions } from '@angular/router';
 
@@ -60,13 +60,17 @@ export const appConfig: ApplicationConfig = {
             useClass: LuxonDateAdapter,
         },
         {
+            provide : MAT_DATE_LOCALE,
+            useValue: 'es-CL',
+        },
+        {
             provide : MAT_DATE_FORMATS,
             useValue: {
                 parse  : {
                     dateInput: 'D',
                 },
                 display: {
-                    dateInput         : 'DDD',
+                    dateInput: 'D', // dd-MM-yyyy | DDD for complete date label
                     monthYearLabel    : 'LLL yyyy',
                     dateA11yLabel     : 'DD',
                     monthYearA11yLabel: 'LLLL yyyy',

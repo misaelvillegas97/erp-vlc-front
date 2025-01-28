@@ -1,0 +1,224 @@
+<div *transloco="let t; read: 'operations.orders.new'" class="flex flex-col min-w-0 w-full">
+    <page-detail-header
+        [subtitle]="t('description')"
+        [title]="t('title')"
+    ></page-detail-header>
+    <!-- Content -->
+    <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-4 sm:px-4">
+        <!-- Content -->
+        <form [formGroup]="form" class="flex flex-col items-center gap-y-4 w-full py-4">
+            <!-- Fields: client, status, type, deliveryDate, deliveryLocation and products list -->
+            <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'operations.orders.fields.client' | transloco }}</mat-label>
+                <input [matAutocomplete]="clientsAutocomplete"
+                       [placeholder]="'operations.orders.fields.client' | transloco"
+                       autofocus="autofocus"
+                       formControlName="client"
+                       matInput
+                       type="text"
+                />
+
+                <mat-autocomplete #clientsAutocomplete="matAutocomplete"
+                                  [displayWith]="displayClientWithFn('fantasyName')"
+                                  autoActiveFirstOption
+                >
+                    @if (!clientsResource.isLoading()) {
+                        @for (client of clientsResource.value(); track client.id) {
+                            <mat-option [value]="client">{{ client.fantasyName }}</mat-option>
+                        } @empty {
+                            <mat-option disabled="disabled">{{ 'operations.orders.fields.client-empty' | transloco }}</mat-option>
+                        }
+                    } @else {
+                        <mat-option disabled="disabled">{{ 'operations.orders.fields.client-loading' | transloco }}</mat-option>
+                    }
+                </mat-autocomplete>
+
+                @if (form.controls.client.hasError('required')) {
+                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                }
+            </mat-form-field>
+
+            <!-- Status -->
+            <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'operations.orders.fields.status' | transloco }}</mat-label>
+                <input [matAutocomplete]="statusAutocomplete"
+                       [placeholder]="'operations.orders.fields.status' | transloco"
+                       formControlName="status"
+                       matInput
+                       type="text"
+                />
+                <mat-autocomplete #statusAutocomplete="matAutocomplete"
+                                  [displayWith]="displayWithSelectorFn('label')"
+                                  autoActiveFirstOption
+                >
+                    @for (status of statusResource.value(); track status.value) {
+                        <mat-option [value]="status">{{ status.label }}</mat-option>
+                    } @empty {
+                        <mat-option disabled="disabled">{{ 'operations.orders.fields.status-empty' | transloco }}</mat-option>
+                    }
+                </mat-autocomplete>
+
+                @if (form.controls.status.hasError('required')) {
+                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                }
+            </mat-form-field>
+
+            <!-- Delivery date -->
+            <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'operations.orders.fields.delivery-date' | transloco }}</mat-label>
+                <mat-hint>{{ 'operations.orders.fields.delivery-date-hint' | transloco }}</mat-hint>
+                <input [matDatepicker]="deliveryDate"
+                       formControlName="deliveryDate"
+                       matInput
+                       placeholder="DD/MM/YYYY"
+                />
+                <mat-datepicker-toggle [for]="deliveryDate" matSuffix></mat-datepicker-toggle>
+                <mat-datepicker #deliveryDate></mat-datepicker>
+
+                @if (form.controls.deliveryDate.hasError('required')) {
+                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                }
+            </mat-form-field>
+
+            <!-- Delivery location -->
+            <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'operations.orders.fields.delivery-location' | transloco }}</mat-label>
+                <input formControlName="deliveryLocation"
+                       matInput
+                       placeholder="{{ 'operations.orders.fields.delivery-location' | transloco }}"
+                />
+
+                @if (form.controls.deliveryLocation.hasError('required')) {
+                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                }
+            </mat-form-field>
+
+            <!-- Products list -->
+            <hr class="my-2">
+            <h3 class="text-lg text-default">{{ 'operations.orders.fields.products' | transloco }}</h3>
+            <!-- Product autocomplete, plus button to add product to list, once added, reset the input -->
+            <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'operations.orders.fields.products' | transloco }}</mat-label>
+                <input [matAutocomplete]="productsAutocomplete"
+                       [placeholder]="'operations.orders.fields.products' | transloco"
+                       formControlName="productInput"
+                       matInput
+                       type="text"
+                />
+                <mat-autocomplete #productsAutocomplete="matAutocomplete"
+                                  (optionSelected)="addProduct($event?.option?.value)"
+                                  [displayWith]="displayProductWithFn('name')"
+                                  autoActiveFirstOption
+                >
+                    @if (!productsResource.isLoading()) {
+                        @for (product of productsResource.value() || []; track product.id) {
+                            <mat-option [value]="product">{{ product.name }}</mat-option>
+                        } @empty {
+                            <mat-option disabled="disabled">{{ 'operations.orders.fields.products-empty' | transloco }}</mat-option>
+                        }
+                    } @else {
+                        <mat-option disabled="disabled">{{ 'operations.orders.fields.products-loading' | transloco }}</mat-option>
+                    }
+                </mat-autocomplete>
+            </mat-form-field>
+
+            <!-- Products list from form array form.controls.products.value -->
+            <table [dataSource]="form.controls.products?.value" [trackBy]="trackByFn"
+                   class="w-full overflow-y-visible"
+                   formArrayName="products"
+                   mat-table
+            >
+                <!-- Name -->
+                <ng-container matColumnDef="name">
+                    <th *matHeaderCellDef mat-header-cell>{{ 'operations.orders.fields.products' | transloco }}</th>
+                    <td *matCellDef="let product; let rowIndex = index" [formGroupName]="rowIndex" mat-cell>
+                        <span class="text-default font-medium">{{ product.name }}</span>
+                    </td>
+                </ng-container>
+
+                <!-- UPC code -->
+                <ng-container matColumnDef="upcCode">
+                    <th *matHeaderCellDef class="mat-col-w-3" mat-header-cell>{{ 'operations.orders.fields.upc-code' | transloco }}</th>
+                    <td *matCellDef="let product; let rowIndex = index" [formGroupName]="rowIndex" class="mat-col-w-3" mat-cell>
+                        <span>{{ product.upcCode }}</span>
+                    </td>
+                </ng-container>
+
+                <!-- Quantity -->
+                <ng-container matColumnDef="quantity">
+                    <th *matHeaderCellDef class="mat-col-w-2" mat-header-cell>{{ 'operations.orders.fields.quantity' | transloco }}</th>
+                    <td *matCellDef="let rowIndex = index" [formGroupName]="rowIndex" class="mat-col-w-2" mat-cell>
+                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                            <input [placeholder]="'operations.orders.fields.quantity' | transloco"
+                                   formControlName="quantity"
+                                   matInput
+                                   type="number"
+                            />
+                        </mat-form-field>
+                    </td>
+                </ng-container>
+
+                <!-- Unitary price -->
+                <ng-container matColumnDef="unitaryPrice">
+                    <th *matHeaderCellDef class="mat-col-w-2" mat-header-cell>{{ 'operations.orders.fields.unitary-price' | transloco }}</th>
+                    <td *matCellDef="let rowIndex = index" [formGroupName]="rowIndex" class="mat-col-w-2" mat-cell>
+                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                            <input [placeholder]="'operations.orders.fields.unitary-price' | transloco"
+                                   formControlName="unitaryPrice"
+                                   matInput
+                                   type="number"
+                            />
+                        </mat-form-field>
+                    </td>
+                </ng-container>
+
+                <!-- Actions -->
+                <ng-container matColumnDef="actions">
+                    <th *matHeaderCellDef class="w-12" mat-header-cell></th>
+                    <td *matCellDef="let product" class="w-12" mat-cell>
+                        <button (click)="removeProduct(product)" mat-icon-button type="button">
+                            <mat-icon class="icon-size-4" svgIcon="heroicons_solid:trash"></mat-icon>
+                        </button>
+                    </td>
+                </ng-container>
+                <tr *matHeaderRowDef="['name', 'upcCode', 'quantity', 'unitaryPrice', 'actions']" mat-header-row></tr>
+                <tr *matRowDef="let row; columns: ['name', 'upcCode', 'quantity', 'unitaryPrice', 'actions']" mat-row></tr>
+
+                <!-- No data -->
+                <tr *matNoDataRow class="h-16">
+                    <td [attr.colspan]="5" class="text-center italic mat-hint">{{ 'operations.orders.fields.products-empty' | transloco }}</td>
+                </tr>
+            </table>
+
+            <!-- Actions -->
+            <div class="flex-0 pt-4 w-full flex md:justify-end flex-col md:flex-row sm:items-center gap-6">
+                <!-- Reset -->
+                <button
+                    class="w-full md:w-30"
+                    color="secondary"
+                    mat-flat-button
+                    type="reset"
+                >
+                    <span [innerText]="'actions.reset' | transloco"></span>
+                </button>
+
+                <button
+                    (click)="submit()"
+                    [disabled]="form.disabled"
+                    class="w-full md:w-auto"
+                    color="primary"
+                    mat-flat-button
+                    type="submit"
+                >
+                    @if (form.disabled) {
+                        <mat-progress-spinner [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
+                    } @else {
+                        <span [innerText]="'actions.save' | transloco"></span>
+                        <span class="mat-hint italic pl-1">(alt + enter)</span>
+                    }
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>

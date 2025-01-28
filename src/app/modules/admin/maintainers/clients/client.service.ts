@@ -1,5 +1,5 @@
-import { Injectable }             from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 import { TranslocoService }                                  from '@ngneat/transloco';
 import { Notyf }                                             from 'notyf';
@@ -21,12 +21,9 @@ export class ClientService {
         return this._clients$.asObservable();
     }
 
-    findAll(query?: string): Observable<Client[]> {
-        const params = new HttpParams();
+    findAll(query?: any, layout: 'FULL' | 'COMPACT' = 'FULL'): Observable<Client[]> {
 
-        if (query) params.set('query', query);
-
-        return this._httpClient.get<Client[]>('api/clients', {params}).pipe(
+        return this._httpClient.get<Client[]>('api/clients', {params: {...query, layout}}).pipe(
             retry({count: 3, delay: 1000, resetOnSuccess: true}),
             tap(clients => this._clients$.next(clients))
         );

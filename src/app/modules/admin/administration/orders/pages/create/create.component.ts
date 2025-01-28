@@ -1,0 +1,133 @@
+import { Component, inject, model, resource }                                                                   from '@angular/core';
+import { PageDetailHeaderComponent }                                                                            from '@shared/components/page-detail-header/page-detail-header.component';
+import { TranslocoDirective, TranslocoPipe, TranslocoService }                                                  from '@ngneat/transloco';
+import { MatFormFieldModule }                                                                                   from '@angular/material/form-field';
+import { FormsModule, ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { MatInputModule }                                                                                       from '@angular/material/input';
+import { OrdersService }                                                                                        from '@modules/admin/administration/orders/orders.service';
+import { Router }                                                                                               from '@angular/router';
+import { OrderStatusEnumValues }                                                                                from '@modules/admin/administration/orders/domain/enums/order-status.enum';
+import { OrderTypeEnum }                                                                                        from '@modules/admin/administration/orders/domain/enums/order-type.enum';
+import { MatAutocompleteModule }                                                                                from '@angular/material/autocomplete';
+import { ClientService }                                                                                        from '@modules/admin/maintainers/clients/client.service';
+import { rxResource, toSignal }                                                                                 from '@angular/core/rxjs-interop';
+import { debounceTime }                                                                                         from 'rxjs';
+import { MatButton, MatIconButton }                                                                             from '@angular/material/button';
+import { MatProgressSpinner }                                                                                   from '@angular/material/progress-spinner';
+import { Selector }                                                                                             from '@shared/selectors/model/selector';
+import { displayWithFn }                                                                                        from '@core/utils';
+import { Client }                                                                                               from '@modules/admin/maintainers/clients/domain/model/client';
+import { MatDatepickerModule }                                                                                  from '@angular/material/datepicker';
+import { ProductsService }                                                                                      from '@modules/admin/maintainers/products/products.service';
+import { Product }                                                                                              from '@modules/admin/maintainers/products/domain/model/product';
+import { MatIcon }                                                                                              from '@angular/material/icon';
+import { MatTableModule }                                                                                       from '@angular/material/table';
+import { trackByFn }                                                                                            from '@libs/ui/utils/utils';
+
+@Component({
+    selector   : 'app-create',
+    imports    : [
+        PageDetailHeaderComponent,
+        TranslocoDirective,
+        TranslocoPipe,
+        MatFormFieldModule,
+        ReactiveFormsModule,
+        MatInputModule,
+        MatAutocompleteModule,
+        MatDatepickerModule,
+        MatButton,
+        MatProgressSpinner,
+        MatIcon,
+        FormsModule,
+        MatTableModule,
+        MatIconButton
+    ],
+    templateUrl: './create.component.html'
+})
+export class CreateComponent {
+    readonly #fb = inject(UntypedFormBuilder);
+    readonly #router = inject(Router);
+    readonly #translationService = inject(TranslocoService);
+    readonly #ordersService = inject(OrdersService);
+    readonly #clientService = inject(ClientService);
+    readonly #productsService = inject(ProductsService);
+
+    form: UntypedFormGroup = this.#fb.group({
+        client          : [ '', [ Validators.required ] ],
+        status          : [ OrderStatusEnumValues[0], [ Validators.required ] ],
+        type            : [ OrderTypeEnum.PURCHASE_ORDER, [ Validators.required ] ],
+        deliveryDate    : [ undefined, [ Validators.required ] ],
+        deliveryLocation: [ '', [ Validators.required ] ],
+        productInput    : [ '' ],
+        products        : this.#fb.array([], [ Validators.required ])
+    });
+
+    // Clients
+    readonly clientInput = toSignal(this.form.get('client').valueChanges.pipe(debounceTime(300)));
+    readonly clientsResource = rxResource({
+        request: () => this.clientInput() || '',
+        loader : ({request, abortSignal}) => {
+            if (!request) return this.#clientService.findAll({}, 'COMPACT');
+            return this.#clientService.findAll({fantasyName: request}, 'COMPACT');
+        },
+    });
+
+    // Status
+    readonly statusInput = toSignal(this.form.get('status').valueChanges.pipe(debounceTime(300)));
+    readonly statusResource = resource({
+        request: () => this.statusInput() || '',
+        loader : async ({request}) => {
+            if (!request) return OrderStatusEnumValues;
+            return OrderStatusEnumValues.filter((status) => status.label.toLowerCase().includes(request.toLowerCase()));
+        },
+    });
+
+    // Products
+    readonly productsInput = model<any>();
+    readonly productsResource = rxResource({
+        request: () => this.productsInput() || '',
+        loader : ({request}) => {
+            if (!request) return this.#productsService.findAll({});
+            return this.#productsService.findAll({name: request});
+        }
+    });
+
+    // Display functions
+    protected readonly displayWithSelectorFn = displayWithFn<Selector>;
+    protected readonly displayClientWithFn = displayWithFn<Client>;
+    protected readonly displayProductWithFn = displayWithFn<Product>;
+    protected readonly trackByFn = trackByFn;
+
+    addProduct(product: Product) {
+        console.log('product', product);
+
+        const productFormArray = this.form.get('products') as UntypedFormArray;
+
+        productFormArray.push(this.#fb.group({
+            id          : [ product.id, [ Validators.required ] ],
+            name        : [ product.name, [ Validators.required ] ],
+            upcCode     : [ product.upcCode, [ Validators.required ] ],
+            quantity    : [ 1, [ Validators.required ] ],
+            unitaryPrice: [ product.unitaryPrice, [ Validators.required ] ]
+        }));
+
+        this.form.get('productInput').reset();
+    }
+
+    removeProduct(product: any) {
+        console.log('product', product);
+    }
+
+    submit() {
+        if (this.form.invalid) {
+            this.form.markAllAsTouched();
+            return;
+        }
+
+        this.form.disable();
+
+        setTimeout(() => {
+            this.form.enable();
+        }, 5000);
+    }
+}

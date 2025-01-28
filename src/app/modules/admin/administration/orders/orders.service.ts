@@ -1,5 +1,5 @@
 import { Injectable }                       from '@angular/core';
-import { HttpClient, HttpParams }           from '@angular/common/http';
+import { HttpClient }                       from '@angular/common/http';
 import { TranslocoService }                 from '@ngneat/transloco';
 import { Notyf }                            from 'notyf';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
@@ -21,12 +21,6 @@ export class OrdersService {
     }
 
     public getAll(query?: any): void {
-        console.log('query', query);
-
-        const params = new HttpParams();
-
-        if (query) params.set('query', query);
-
         this._httpClient.get<Order[]>('/api/orders', {params: query})
             .subscribe({
                 next : (orders) => this._orders$.next(orders),

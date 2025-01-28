@@ -28,6 +28,14 @@ export class OrdersComponent {
                 icon        : 'heroicons_outline:document-text',
                 selectedIcon: 'heroicons_solid:document-text',
                 link        : '/orders'
+            },
+            {
+                id          : 'orders.new',
+                title       : this._translateService.translate('operations.orders.new.title'),
+                description : this._translateService.translate('operations.orders.new.subtitle'),
+                icon        : 'heroicons_outline:plus-circle',
+                selectedIcon: 'heroicons_solid:plus-circle',
+                link        : '/orders/new'
             }
         ];
     }

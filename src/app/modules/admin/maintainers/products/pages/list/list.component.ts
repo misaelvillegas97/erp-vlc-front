@@ -67,7 +67,7 @@ export class ListComponent {
 
     productsResource = rxResource<Product[], any>({
         request: () => this.#filters(),
-        loader : ({request, abortSignal}) => this.#service.findAll(request, {signal: abortSignal}),
+        loader: ({request, abortSignal}) => this.#service.findAll(request),
     });
 
     filterProducts() {

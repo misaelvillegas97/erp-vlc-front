@@ -313,3 +313,25 @@ quill-view {
 .flex-center {
     @apply flex justify-center items-center;
 }
+
+
+/**
+    Custom styles for the Angular Material Theme
+ */
+.mat-column-actions {
+    flex: 0 0 80px;
+}
+
+.mat-col-w {
+    &-1 {
+        flex: 0 0 8.333333%;
+    }
+
+    &-2 {
+        flex: 0 0 16.666667%;
+    }
+
+    &-3 {
+        flex: 0 0 25%;
+    }
+}

@@ -5,7 +5,7 @@ import { MatIcon }                                                              
 import { MatButtonModule, MatIconAnchor }                                                                                                               from '@angular/material/button';
 import { MatTooltip }                                                                                                                                   from '@angular/material/tooltip';
 import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatNoDataRow, MatRow, MatRowDef, MatTable } from '@angular/material/table';
-import { RouterLink }                                                                                                                                   from '@angular/router';
+import { Router, RouterLink }                                                                                                                           from '@angular/router';
 import { Order }                                                                                                                                        from '@modules/admin/administration/orders/domain/model/order';
 import { Notyf }                                                                                                                                        from 'notyf';
 import { FuseConfirmationService }                                                                                                                      from '../../../../../../../@fuse/services/confirmation';
@@ -23,6 +23,8 @@ import { OrderStatusEnum }                                                      
 import { InvoiceAddComponent }                                                                                                                          from '@modules/admin/administration/orders/dialogs/invoice-add/invoice-add.component';
 import { InvoiceDetailComponent }                                                                                                                       from '@modules/admin/administration/orders/dialogs/invoice-detail/invoice-detail.component';
 import { OrderDetailDialog }                                                                                                                            from '@modules/admin/administration/orders/dialogs/order-detail/order-detail.dialog';
+import { trackByFn }                                                                                                                                    from '@libs/ui/utils/utils';
+import { round }                                                                                                                                        from 'lodash-es';
 
 @Component({
     selector   : 'app-list',
@@ -54,10 +56,15 @@ import { OrderDetailDialog }                                                    
         FormsModule,
         DatePipe
     ],
-    templateUrl: './list.component.html'
+    templateUrl: './list.component.html',
+    host       : {
+        // Listen for client to press alt + n to add a new order
+        '(document:keydown.Alt.n)': 'router.navigate(["/orders", "new"])'
+    }
 })
 export class ListComponent {
     readonly dialog = inject(MatDialog);
+    readonly router = inject(Router);
     public orders = signal<Order[]>([]);
     public readonly displayedColumns: string[] = [ 'orderNumber', 'businessName', 'type', 'status', 'invoice', 'deliveryLocation', 'deliveryDate', 'emissionDate', 'amount', 'actions' ];
     public readonly displayedFilterColumns: string[] = this.displayedColumns.map((column) => column + 'Filter');
@@ -150,4 +157,7 @@ export class ListComponent {
             data: {order}
         });
     }
+
+    protected readonly trackByFn = trackByFn;
+    protected readonly round = round;
 }

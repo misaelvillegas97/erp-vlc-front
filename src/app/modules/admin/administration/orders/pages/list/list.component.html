@@ -259,6 +259,7 @@
         <div class="hidden sm:block relative max-w-full overflow-auto w-full">
             <table
                 [dataSource]="orders()"
+                [trackBy]="trackByFn"
                 class="min-w-240 w-full overflow-y-visible bg-transparent"
                 mat-table
                 matSort

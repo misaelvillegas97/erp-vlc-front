@@ -13,7 +13,8 @@ export default [
                 resolve      : {
                     orders: () => inject(OrdersService).getAll()
                 }
-            }
+            },
+            {path: 'new', loadComponent: () => import('./pages/create/create.component').then((m) => m.CreateComponent)},
         ]
     }
 ] satisfies Routes;

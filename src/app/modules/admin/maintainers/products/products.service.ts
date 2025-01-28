@@ -7,7 +7,7 @@ import { Product }            from '@modules/admin/maintainers/products/domain/m
 export class ProductsService {
     readonly #http: HttpClient = inject(HttpClient);
 
-    findAll(query: any, {signal}: { signal: AbortSignal }): Observable<Product[]> {
+    findAll(query: any): Observable<Product[]> {
         return this.#http.get<Product[]>('/api/products', {params: query});
     }
 

@@ -49,6 +49,33 @@
             },
             "invoice" : {
                 "added" : "Factura {{invoiceNumber}} ingresada exitosamente"
+            },
+            "new" : {
+                "title" : "Nueva orden",
+                "subtitle" : "Crea una nueva orden",
+                "description" : "Crear una nueva orden",
+                "success" : "Orden creada exitosamente"
+            },
+            "fields" : {
+                "client" : "Cliente",
+                "client-hint" : "Selecciona un cliente",
+                "client-empty" : "No hay clientes disponibles",
+                "client-loading" : "Cargando clientes...",
+                "delivery-date" : "Fecha de entrega",
+                "delivery-date-hint" : "Fecha en la que se entregará la orden",
+                "delivery-location" : "Ubicación de entrega",
+                "products" : "Producto",
+                "products-hint" : "Selecciona un producto",
+                "products-empty" : "No hay productos disponibles",
+                "quantity" : "Cantidad",
+                "quantity-hint" : "Cantidad de productos a solicitar",
+                "unitary-price" : "Precio unitario",
+                "total" : "Total",
+                "total-hint" : "Total de la orden",
+                "status" : "Estado",
+                "status-hint" : "Estado de la orden, por defecto es pendiente",
+                "status-empty" : "No hay estados disponibles",
+                "upc-code" : "Código UPC"
             }
         }
     },
