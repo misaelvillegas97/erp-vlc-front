@@ -6,7 +6,7 @@
     <!-- Content -->
     <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-4 sm:px-4">
         <!-- Content -->
-        <form [formGroup]="clientForm" class="flex flex-col items-center gap-y-4 w-full md:w-1/2 py-4">
+        <form [formGroup]="form" class="flex flex-col items-center gap-y-4 w-full md:w-1/2 py-4">
             <!-- Fields: businessName, fantasyName, code, nationalId, email, phone -->
             <mat-form-field class="w-full" subscriptSizing="dynamic">
                 <mat-label>{{ 'maintainers.client.fields.business-name' | transloco }}</mat-label>
@@ -15,7 +15,7 @@
                     formControlName="businessName"
                     matInput
                 />
-                <mat-error *ngIf="clientForm.controls.businessName.invalid">
+                <mat-error *ngIf="form.controls.businessName.invalid">
                     {{ 'errors.form.required' | transloco }}
                 </mat-error>
             </mat-form-field>
@@ -27,7 +27,7 @@
                     formControlName="fantasyName"
                     matInput
                 />
-                <mat-error *ngIf="clientForm.controls.fantasyName.invalid">
+                <mat-error *ngIf="form.controls.fantasyName.invalid">
                     {{ 'errors.form.required' | transloco }}
                 </mat-error>
             </mat-form-field>
@@ -41,10 +41,10 @@
                     matInput
                     pattern="^[a-zA-Z0-9]*$"
                 />
-                <mat-error *ngIf="clientForm.controls.code.hasError('required')">
+                <mat-error *ngIf="form.controls.code.hasError('required')">
                     {{ 'errors.form.required' | transloco }}
                 </mat-error>
-                <mat-error *ngIf="clientForm.controls.code.hasError('pattern')">
+                <mat-error *ngIf="form.controls.code.hasError('pattern')">
                     {{ 'errors.form.pattern' | transloco: { pattern: '^[a-zA-Z0-9]*$' } }}
                 </mat-error>
                 <mat-hint>{{ 'maintainers.client.fields.code-hint' | transloco }}</mat-hint>
@@ -57,7 +57,7 @@
                     formControlName="nationalId"
                     matInput
                 />
-                <mat-error *ngIf="clientForm.controls.nationalId.invalid">
+                <mat-error *ngIf="form.controls.nationalId.invalid">
                     {{ 'errors.form.required' | transloco }}
                 </mat-error>
             </mat-form-field>
@@ -69,7 +69,7 @@
                     formControlName="email"
                     matInput
                 />
-                <mat-error *ngIf="clientForm.controls.email.invalid">
+                <mat-error *ngIf="form.controls.email.invalid">
                     {{ 'errors.form.required' | transloco }}
                 </mat-error>
             </mat-form-field>
@@ -81,10 +81,64 @@
                     formControlName="phoneNumber"
                     matInput
                 />
-                <mat-error *ngIf="clientForm.controls.phoneNumber.invalid">
+                <mat-error *ngIf="form.controls.phoneNumber.invalid">
                     {{ 'errors.form.required' | transloco }}
                 </mat-error>
             </mat-form-field>
+
+            <!-- Fields: addressSearch with autocomplete -->
+            <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'maintainers.client.fields.address' | transloco }}</mat-label>
+                <input
+                    [matAutocomplete]="addressSearchAutocomplete"
+                    [placeholder]="'maintainers.client.fields.address' | transloco"
+                    formControlName="addressSearch"
+                    matInput
+                />
+                <mat-error *ngIf="form.controls.addressSearch.invalid">
+                    {{ 'errors.form.required' | transloco }}
+                </mat-error>
+
+                <mat-autocomplete
+                    #addressSearchAutocomplete="matAutocomplete"
+                    [displayWith]="displayWithFn"
+                >
+                    @if (!addressResource.isLoading()) {
+                        @for (place of addressResource.value(); track place) {
+                            <mat-option (onSelectionChange)="selectAddress(place)" [value]="place">
+                                {{ place.address }}
+                            </mat-option>
+                        }
+                    } @else {
+                        <mat-option>
+                            <div class="inline-flex">
+                                <mat-progress-spinner [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
+                                <span class="ml-2">Búsqueda en curso...</span>
+                            </div>
+                        </mat-option>
+                    }
+                </mat-autocomplete>
+            </mat-form-field>
+
+            <!-- List of selected addresses -->
+            <mat-list class="w-full">
+                @for (address of form.controls.addresses?.value || []; track address) {
+                    <mat-list-item>
+                        <div class="flex items-center w-full">
+                            <div class="flex-1">
+                                <h3 mat-line>{{ address.address }}</h3>
+                                <p mat-line>{{ address.city }}</p>
+                            </div>
+                            <button
+                                (click)="removeAddress(address)"
+                                mat-icon-button
+                            >
+                                <mat-icon [svgIcon]="'heroicons_solid:trash'"></mat-icon>
+                            </button>
+                        </div>
+                    </mat-list-item>
+                }
+            </mat-list>
 
             <!-- Actions -->
             <div class="flex-0 pt-4 w-full flex md:justify-end flex-col md:flex-row sm:items-center gap-6">
@@ -100,14 +154,14 @@
 
                 <button
                     (click)="submit()"
-                    [disabled]="clientForm.disabled"
+                    [disabled]="form.disabled"
                     class="w-full md:w-30"
                     color="primary"
                     mat-flat-button
                     type="submit"
                 >
-                    <span *ngIf="!clientForm.disabled" [innerText]="'actions.save' | transloco"></span>
-                    <mat-progress-spinner *ngIf="clientForm.disabled" [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
+                    <span *ngIf="!form.disabled" [innerText]="'actions.save' | transloco"></span>
+                    <mat-progress-spinner *ngIf="form.disabled" [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
                 </button>
             </div>
         </form>

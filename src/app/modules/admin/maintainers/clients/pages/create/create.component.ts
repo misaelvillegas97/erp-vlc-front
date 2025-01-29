@@ -1,7 +1,7 @@
 import { NgIf }                                                                               from '@angular/common';
-import { Component, OnInit }                                                                  from '@angular/core';
+import { Component, inject, resource, ResourceRef }                                           from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { MatButton }                                                                          from '@angular/material/button';
+import { MatButton, MatIconButton }                                                           from '@angular/material/button';
 import { MatError, MatFormFieldModule, MatLabel }                                             from '@angular/material/form-field';
 import { MatInput }                                                                           from '@angular/material/input';
 import { MatProgressSpinner }                                                                 from '@angular/material/progress-spinner';
@@ -11,11 +11,20 @@ import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@ngneat/tra
 import { INotyfNotificationOptions, Notyf }                    from 'notyf';
 import { PageDetailHeaderComponent }                           from '@shared/components/page-detail-header/page-detail-header.component';
 import { ClientService }                                       from '@modules/admin/maintainers/clients/client.service';
+import { toSignal }                                            from '@angular/core/rxjs-interop';
+import { debounceTime, firstValueFrom }                        from 'rxjs';
+import { OpenStreetMapService }                                from '@shared/services/open-street-map.service';
+import { MatAutocomplete, MatAutocompleteTrigger, MatOption }  from '@angular/material/autocomplete';
+import { ReadablePlace }                                       from '@shared/domain/model/place';
+import { displayWithFn }                                       from '@core/utils';
+import { MatList, MatListItem }                                from '@angular/material/list';
+import { MatLine }                                             from '@angular/material/core';
+import { MatIcon }                                             from '@angular/material/icon';
 
 @Component({
     selector   : 'app-create',
     standalone : true,
-    imports    : [
+    imports: [
         PageDetailHeaderComponent,
         TranslocoDirective,
         FormsModule,
@@ -27,7 +36,15 @@ import { ClientService }                                       from '@modules/ad
         MatProgressSpinner,
         NgIf,
         ReactiveFormsModule,
-        TranslocoPipe
+        TranslocoPipe,
+        MatAutocomplete,
+        MatOption,
+        MatAutocompleteTrigger,
+        MatListItem,
+        MatLine,
+        MatIconButton,
+        MatIcon,
+        MatList
     ],
     templateUrl: './create.component.html',
     styles     : `
@@ -36,56 +53,81 @@ import { ClientService }                                       from '@modules/ad
         }
     `
 })
-export class CreateComponent implements OnInit {
-    public clientForm: UntypedFormGroup;
+export class CreateComponent {
+    readonly #fb = inject(UntypedFormBuilder);
+    readonly #router = inject(Router);
+    readonly #translateService = inject(TranslocoService);
+    readonly #clientService = inject(ClientService);
+    readonly #osmService = inject(OpenStreetMapService);
+    readonly #notyf = new Notyf();
 
-    private readonly _notyf = new Notyf();
+    form: UntypedFormGroup = this.#fb.group({
+        businessName : [ '', [ Validators.required ] ],
+        fantasyName  : [ '', [ Validators.required ] ],
+        code         : [ '', [] ],
+        nationalId   : [ '', [ Validators.required ] ],
+        email        : [ '', [ Validators.required, Validators.email ] ],
+        phoneNumber  : [ '', [ Validators.required ] ],
+        addressSearch: [ '', [] ],
+        address      : this.#fb.array([])
+    });
 
-    constructor(
-        private readonly _translateService: TranslocoService,
-        private readonly _formBuilder: UntypedFormBuilder,
-        private readonly _clientService: ClientService,
-        private readonly _router: Router
-    ) {}
+    // Address
+    readonly addressInput = toSignal(this.form.get('addressSearch').valueChanges.pipe(debounceTime(500)));
+    readonly addressResource: ResourceRef<ReadablePlace[]> = resource<ReadablePlace[], string>({
+        request: () => this.addressInput() || '',
+        loader : async ({request}) => {
+            if (!request) return [];
 
-    ngOnInit(): void {
-        this.clientForm = this._formBuilder.group({
-            businessName: [ '', [ Validators.required ] ],
-            fantasyName : [ '', [ Validators.required ] ],
-            code: [ '', [] ],
-            nationalId  : [ '', [ Validators.required ] ],
-            email       : [ '', [ Validators.required, Validators.email ] ],
-            phoneNumber: [ '', [ Validators.required ] ],
-        });
-    }
+            const places = await firstValueFrom(this.#osmService.search(request));
+
+            const readablePlaces: ReadablePlace[] = places.map((place) => ({
+                address : `${ place.address.road }${ place.address.house_number ? ' #' + place.address.house_number : '' }, ${ place.address.city }, ${ place.address.state }, ${ place.address.country }`,
+                postcode: place.address.postcode,
+                lat     : place.lat,
+                lon     : place.lon,
+                location: place.address
+            }));
+
+            return readablePlaces;
+        }
+    });
+    protected readonly displayWithFn = displayWithFn<ReadablePlace>('address');
 
     submit() {
-        if (this.clientForm.invalid) {
-            this.clientForm.markAllAsTouched();
-            this._notyf.error({message: this._translateService.translate('errors.validation.message'), ...this.notyfOptions()});
+        if (this.form.invalid) {
+            this.form.markAllAsTouched();
+            this.#notyf.error({message: this.#translateService.translate('errors.validation.message'), ...this.notyfOptions()});
             return;
         }
 
-        this.clientForm.disable();
+        this.form.disable();
 
-        this._clientService
-            .post(this.clientForm.getRawValue())
+        this.#clientService
+            .post(this.form.getRawValue())
             .subscribe({
                 next : (result) => {
-                    this._notyf.success({message: this._translateService.translate('maintainers.client.new.success'), ...this.notyfOptions()});
-                    this._router.navigate([ '/maintainers', 'clients' ]);
+                    this.#notyf.success({message: this.#translateService.translate('maintainers.client.new.success'), ...this.notyfOptions()});
+                    this.#router.navigate([ '/maintainers', 'clients' ]);
                 },
                 error: (error) => {
-                    this._notyf.error({message: this._translateService.translate('errors.service.message')});
-                    this.clientForm.enable();
+                    this.#notyf.error({message: this.#translateService.translate('errors.service.message')});
+                    this.form.enable();
                 }
             });
     }
 
-    notyfOptions = (): Partial<INotyfNotificationOptions> => ({
+    private notyfOptions = (): Partial<INotyfNotificationOptions> => ({
         duration   : 5000,
         ripple     : true,
         position   : {x: 'right', y: 'top'},
         dismissible: true
+    });
+
+    private addressGroupBuilder = (): UntypedFormGroup => this.#fb.group({
+        street: [ undefined, [ Validators.required ] ],
+        city  : [ undefined, [ Validators.required ] ],
+        lat   : [ undefined, [ Validators.required ] ],
+        long  : [ undefined, [ Validators.required ] ]
     });
 }

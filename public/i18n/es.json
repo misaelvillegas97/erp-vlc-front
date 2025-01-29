@@ -108,7 +108,8 @@
                 "code-hint" : "Código único para identificar al cliente (Sin espacios ni caracteres especiales)",
                 "national-id" : "RUT",
                 "email" : "Correo",
-                "phone" : "Teléfono"
+                "phone" : "Teléfono",
+                "address" : "Dirección"
             }
         },
         "products" : {
