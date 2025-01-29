@@ -292,7 +292,7 @@
                 <ng-container matColumnDef="businessName">
                     <th *matHeaderCellDef mat-header-cell>Cliente</th>
                     <td *matCellDef="let order" mat-cell>
-                        <span class="font-medium text-sm">{{ order?.client?.fantasyName }}</span>
+                        <span class="font-medium text-sm">{{ order?.client?.fantasyName || 'Cliente eliminado' }}</span>
                     </td>
                 </ng-container>
 

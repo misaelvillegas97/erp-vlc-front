@@ -1,11 +1,10 @@
-import { HttpClient }                                                                 from '@angular/common/http';
-import { inject, Injectable }                                                         from '@angular/core';
-import { AuthUtils }                                                                  from 'app/core/auth/auth.utils';
-import { UserService }                                                                from 'app/core/user/user.service';
-import { catchError, lastValueFrom, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
-import { ICompany }                                                                   from '@core/domain/interfaces/company.interface';
-import { CreateUserDto }                                                              from '@core/auth/domain/create-user.dto';
-import { User }                                                                       from '@core/user/user.types';
+import { HttpClient }                                                  from '@angular/common/http';
+import { inject, Injectable }                                          from '@angular/core';
+import { AuthUtils }                                                   from 'app/core/auth/auth.utils';
+import { UserService }                                                 from 'app/core/user/user.service';
+import { catchError, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import { CreateUserDto }                                               from '@core/auth/domain/create-user.dto';
+import { User }                                                        from '@core/user/user.types';
 
 @Injectable({providedIn: 'root'})
 export class AuthService {
@@ -15,7 +14,7 @@ export class AuthService {
 
 
     get accessToken(): string {
-        return localStorage.getItem('accessToken') ?? '';
+        return localStorage.getItem('accessToken') ?? undefined;
     }
 
     /**
@@ -106,7 +105,7 @@ export class AuthService {
                     // in using the token, you should generate a new one on the server
                     // side and attach it to the response object. Then the following
                     // piece of code can replace the token with the refreshed one.
-                    if (response.accessToken) {
+                    if (response.token) {
                         this.accessToken = response.token;
                     }
 
@@ -125,18 +124,17 @@ export class AuthService {
     /**
      * Sign out
      */
-    async signOut() {
-        // Remove session from backend and blacklist the token
-        await lastValueFrom(this._httpClient.post('api/auth/sign-out', {}));
+    signOut(): Observable<boolean> {
+        return this._httpClient.post('api/auth/sign-out', {}).pipe(
+            tap(() => {
+                // Remove the access token from the local storage
+                localStorage.removeItem('accessToken');
 
-        // Remove the access token from the local storage
-        localStorage.removeItem('accessToken');
-
-        // Set the authenticated flag to false
-        this._authenticated = false;
-
-        // Return the observable
-        return true;
+                // Set the authenticated flag to false
+                this._authenticated = false;
+            }),
+            map(() => true) // Return true after successful sign-out
+        );
     }
 
     /**
@@ -191,6 +189,7 @@ export class AuthService {
         }
 
         // If the access token exists, and it didn't expire, sign in using it
+        console.log('Sign in using token');
         return this.signInUsingToken();
     }
 

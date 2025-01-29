@@ -22,6 +22,7 @@ export interface Location {
     road: string;
     neighbourhood: string;
     city: string;
+    town: string;
     county: string;
     state: string;
     'ISO3166-2-lvl4': string;

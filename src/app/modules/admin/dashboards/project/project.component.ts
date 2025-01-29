@@ -184,7 +184,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
             grid       : {
                 borderColor: 'var(--fuse-border)',
             },
-            labels     : Object.values(this.orders.countsByClient).map((client) => client.fantasyName),
+            labels: Object.values(this.orders.countsByClient).map((client) => client?.fantasyName || 'Cliente eliminado'),
             legend     : {
                 show: true,
             },

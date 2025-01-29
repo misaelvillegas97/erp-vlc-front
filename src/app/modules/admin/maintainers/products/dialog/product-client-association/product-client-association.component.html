@@ -13,7 +13,13 @@
         <tbody>
             @for (association of product.providerCodes; track association.id) {
                 <tr>
-                    <td>{{ association.client.fantasyName }}</td>
+                    <td>
+                        @if (association.client?.fantasyName) {
+                            {{ association.client.fantasyName }}
+                        } @else {
+                            <span class="italic mat-hint text-base">Cliente eliminado</span>
+                        }
+                    </td>
                     <td>{{ association.providerCode }}</td>
                     <td>
                         <button

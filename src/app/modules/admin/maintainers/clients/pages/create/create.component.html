@@ -101,17 +101,18 @@
 
                 <mat-autocomplete
                     #addressSearchAutocomplete="matAutocomplete"
+                    (optionSelected)="addAddress($event.option.value)"
                     [displayWith]="displayWithFn"
                 >
                     @if (!addressResource.isLoading()) {
                         @for (place of addressResource.value(); track place) {
-                            <mat-option (onSelectionChange)="selectAddress(place)" [value]="place">
+                            <mat-option [value]="place">
                                 {{ place.address }}
                             </mat-option>
                         }
                     } @else {
                         <mat-option>
-                            <div class="inline-flex">
+                            <div class="inline-flex items-center">
                                 <mat-progress-spinner [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
                                 <span class="ml-2">Búsqueda en curso...</span>
                             </div>
@@ -121,24 +122,30 @@
             </mat-form-field>
 
             <!-- List of selected addresses -->
-            <mat-list class="w-full">
-                @for (address of form.controls.addresses?.value || []; track address) {
-                    <mat-list-item>
-                        <div class="flex items-center w-full">
-                            <div class="flex-1">
-                                <h3 mat-line>{{ address.address }}</h3>
-                                <p mat-line>{{ address.city }}</p>
-                            </div>
-                            <button
-                                (click)="removeAddress(address)"
-                                mat-icon-button
-                            >
-                                <mat-icon [svgIcon]="'heroicons_solid:trash'"></mat-icon>
-                            </button>
-                        </div>
-                    </mat-list-item>
-                }
-            </mat-list>
+            @for (address of form.get('address').value; track address) {
+                <div class="flex items-center w-full max-w-full">
+                    <div class="flex-1">
+                        <h3 mat-line class="font-medium">{{ address.street }}</h3>
+                        <p mat-line class="text-sm text-secondary">{{ address.city }}</p>
+                    </div>
+                    <button
+                        matTooltip="Abrir en Google Maps"
+                        (click)="openInGmaps(address)"
+                        mat-icon-button
+                        type="button"
+                    >
+                        <mat-icon [svgIcon]="'heroicons_solid:map-pin'"></mat-icon>
+                    </button>
+                    <button
+                        (click)="removeAddress($index)"
+                        matTooltip="Eliminar"
+                        mat-icon-button
+                        type="button"
+                    >
+                        <mat-icon [svgIcon]="'heroicons_solid:trash'"></mat-icon>
+                    </button>
+                </div>
+            }
 
             <!-- Actions -->
             <div class="flex-0 pt-4 w-full flex md:justify-end flex-col md:flex-row sm:items-center gap-6">

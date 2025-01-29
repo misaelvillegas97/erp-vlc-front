@@ -1,11 +1,11 @@
-import { NgIf }                                                                               from '@angular/common';
-import { Component, inject, resource, ResourceRef }                                           from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { MatButton, MatIconButton }                                                           from '@angular/material/button';
-import { MatError, MatFormFieldModule, MatLabel }                                             from '@angular/material/form-field';
-import { MatInput }                                                                           from '@angular/material/input';
-import { MatProgressSpinner }                                                                 from '@angular/material/progress-spinner';
-import { Router }                                                                             from '@angular/router';
+import { NgIf }                                                                                                 from '@angular/common';
+import { Component, inject, resource, ResourceRef }                                                             from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { MatButton, MatIconButton }                                                                             from '@angular/material/button';
+import { MatError, MatFormFieldModule, MatLabel }                                                               from '@angular/material/form-field';
+import { MatInput }                                                                                             from '@angular/material/input';
+import { MatProgressSpinner }                                                                                   from '@angular/material/progress-spinner';
+import { Router }                                                                                               from '@angular/router';
 
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@ngneat/transloco';
 import { INotyfNotificationOptions, Notyf }                    from 'notyf';
@@ -17,9 +17,10 @@ import { OpenStreetMapService }                                from '@shared/ser
 import { MatAutocomplete, MatAutocompleteTrigger, MatOption }  from '@angular/material/autocomplete';
 import { ReadablePlace }                                       from '@shared/domain/model/place';
 import { displayWithFn }                                       from '@core/utils';
-import { MatList, MatListItem }                                from '@angular/material/list';
 import { MatLine }                                             from '@angular/material/core';
 import { MatIcon }                                             from '@angular/material/icon';
+import { MatTooltip }                                          from '@angular/material/tooltip';
+import { ClientAddress }                                       from '@modules/admin/maintainers/clients/domain/model/client-address';
 
 @Component({
     selector   : 'app-create',
@@ -40,11 +41,10 @@ import { MatIcon }                                             from '@angular/ma
         MatAutocomplete,
         MatOption,
         MatAutocompleteTrigger,
-        MatListItem,
         MatLine,
         MatIconButton,
         MatIcon,
-        MatList
+        MatTooltip
     ],
     templateUrl: './create.component.html',
     styles     : `
@@ -82,7 +82,7 @@ export class CreateComponent {
             const places = await firstValueFrom(this.#osmService.search(request));
 
             const readablePlaces: ReadablePlace[] = places.map((place) => ({
-                address : `${ place.address.road }${ place.address.house_number ? ' #' + place.address.house_number : '' }, ${ place.address.city }, ${ place.address.state }, ${ place.address.country }`,
+                address: `${ place.address.road }${ place.address.house_number ? ' #' + place.address.house_number : '' }, ${ place.address.city ?? place.address.town }, ${ place.address.state }, ${ place.address.country }`,
                 postcode: place.address.postcode,
                 lat     : place.lat,
                 lon     : place.lon,
@@ -92,7 +92,30 @@ export class CreateComponent {
             return readablePlaces;
         }
     });
+
+    // Display
     protected readonly displayWithFn = displayWithFn<ReadablePlace>('address');
+
+    addAddress(place: ReadablePlace) {
+        const array = this.form.get('address') as UntypedFormArray;
+        array.push(this.#fb.group({
+            street: [ place.address ],
+            city  : [ place.location.city || place.location.town ],
+            lat   : [ place.lat ],
+            long  : [ place.lon ]
+        }));
+
+        this.form.get('addressSearch').setValue('');
+    }
+
+    removeAddress(index: number) {
+        const array = this.form.get('address') as UntypedFormArray;
+        array.removeAt(index);
+    }
+
+    openInGmaps(place: ClientAddress) {
+        window.open(`https://www.google.com/maps/search/?api=1&query=${ place.lat },${ place.long }`, '_blank');
+    }
 
     submit() {
         if (this.form.invalid) {

@@ -11,7 +11,7 @@ import { OrderTypeEnum }                                                        
 import { MatAutocompleteModule }                                                                                from '@angular/material/autocomplete';
 import { ClientService }                                                                                        from '@modules/admin/maintainers/clients/client.service';
 import { rxResource, toSignal }                                                                                 from '@angular/core/rxjs-interop';
-import { debounceTime }                                                                                         from 'rxjs';
+import { debounceTime, of }                                                                                     from 'rxjs';
 import { MatButton, MatIconButton }                                                                             from '@angular/material/button';
 import { MatProgressSpinner }                                                                                   from '@angular/material/progress-spinner';
 import { Selector }                                                                                             from '@shared/selectors/model/selector';
@@ -69,8 +69,11 @@ export class CreateComponent {
     readonly clientsResource = rxResource({
         request: () => this.clientInput() || '',
         loader : ({request, abortSignal}) => {
-            if (!request) return this.#clientService.findAll({}, 'COMPACT');
-            return this.#clientService.findAll({fantasyName: request}, 'COMPACT');
+            if (!request) return this.#clientService.findAll({});
+            if (typeof request === 'object')
+                return of([]);
+
+            return this.#clientService.findAll({fantasyName: request});
         },
     });
 
