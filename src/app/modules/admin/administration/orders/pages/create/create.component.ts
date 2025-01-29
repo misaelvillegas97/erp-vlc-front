@@ -11,7 +11,7 @@ import { OrderTypeEnum }                                                        
 import { MatAutocompleteModule }                                                                                from '@angular/material/autocomplete';
 import { ClientService }                                                                                        from '@modules/admin/maintainers/clients/client.service';
 import { rxResource, toSignal }                                                                                 from '@angular/core/rxjs-interop';
-import { debounceTime, of }                                                                                     from 'rxjs';
+import { debounceTime, firstValueFrom }                                                                         from 'rxjs';
 import { MatButton, MatIconButton }                                                                             from '@angular/material/button';
 import { MatProgressSpinner }                                                                                   from '@angular/material/progress-spinner';
 import { Selector }                                                                                             from '@shared/selectors/model/selector';
@@ -24,6 +24,8 @@ import { MatIcon }                                                              
 import { MatTableModule }                                                                                       from '@angular/material/table';
 import { trackByFn }                                                                                            from '@libs/ui/utils/utils';
 import { CurrencyPipe }                                                                                         from '@angular/common';
+import { ClientAddress, ClientAddressMapper }                                                                   from '@modules/admin/maintainers/clients/domain/model/client-address';
+import { OpenStreetMapService }                                                                                 from '@shared/services/open-street-map.service';
 
 @Component({
     selector   : 'app-create',
@@ -53,6 +55,7 @@ export class CreateComponent {
     readonly #ordersService = inject(OrdersService);
     readonly #clientService = inject(ClientService);
     readonly #productsService = inject(ProductsService);
+    readonly #osmService = inject(OpenStreetMapService);
 
     form: UntypedFormGroup = this.#fb.group({
         client          : [ '', [ Validators.required ] ],
@@ -70,10 +73,33 @@ export class CreateComponent {
         request: () => this.clientInput() || '',
         loader : ({request, abortSignal}) => {
             if (!request) return this.#clientService.findAll({});
-            if (typeof request === 'object')
-                return of([]);
+            if (typeof request === 'object') return this.#clientService.findAll({});
 
             return this.#clientService.findAll({fantasyName: request});
+        },
+    });
+
+    // Client addresses
+    readonly deliveryLocationInput = toSignal(this.form.get('deliveryLocation').valueChanges.pipe(debounceTime(300)));
+    readonly deliveryLocationResource = resource<ClientAddress[], any>({
+        request: () => ({client: this.clientInput(), address: this.deliveryLocationInput()}),
+        loader : async ({request}) => {
+            console.log('request', request);
+            if (!request.client || typeof request.client !== 'object' || !request.client?.address) return [];
+
+            const addresses = request.client.address;
+
+            if (!request.address) return addresses;
+
+            const filteredAddresses = addresses.filter((address) => address.street.toLowerCase().includes(request.address.toLowerCase()));
+
+            if (filteredAddresses && filteredAddresses.length > 0) return addresses;
+
+            const address = await firstValueFrom(this.#osmService.search(request.address));
+
+            if (!address) return [];
+
+            return ClientAddressMapper.mapFromPlaceArray(address);
         },
     });
 
@@ -151,4 +177,6 @@ export class CreateComponent {
             this.form.enable();
         }, 5000);
     }
+
+    protected readonly displayWithFn = displayWithFn<ClientAddress>('street');
 }

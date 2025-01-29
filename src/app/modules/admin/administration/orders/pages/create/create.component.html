@@ -81,16 +81,47 @@
             </mat-form-field>
 
             <!-- Delivery location -->
+            <!--            <mat-form-field class="w-full" subscriptSizing="dynamic">-->
+            <!--                <mat-label>{{ 'operations.orders.fields.delivery-location' | transloco }}</mat-label>-->
+            <!--                <input formControlName="deliveryLocation"-->
+            <!--                       matInput-->
+            <!--                       placeholder="{{ 'operations.orders.fields.delivery-location' | transloco }}"-->
+            <!--                />-->
+
+            <!--                @if (form.controls.deliveryLocation.hasError('required')) {-->
+            <!--                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>-->
+            <!--                }-->
+            <!--            </mat-form-field>-->
             <mat-form-field class="w-full" subscriptSizing="dynamic">
                 <mat-label>{{ 'operations.orders.fields.delivery-location' | transloco }}</mat-label>
-                <input formControlName="deliveryLocation"
+                <input [matAutocomplete]="deliveryLocationAutocomplete"
+                       [placeholder]="'operations.orders.fields.delivery-location' | transloco"
+                       formControlName="deliveryLocation"
                        matInput
-                       placeholder="{{ 'operations.orders.fields.delivery-location' | transloco }}"
+                       type="text"
                 />
+                <mat-autocomplete #deliveryLocationAutocomplete="matAutocomplete"
+                                  autoActiveFirstOption
+                >
+                    @if (!deliveryLocationResource.isLoading()) {
+                        @for (address of deliveryLocationResource.value(); track address) {
+                            <mat-option [value]="address.street">{{ address.street }}</mat-option>
+                        } @empty {
+                            <!-- If no exists delivery locations, let create a new one -->
+                            @let deliveryLocation = form.controls.deliveryLocation.value;
 
-                @if (form.controls.deliveryLocation.hasError('required')) {
-                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
-                }
+                            @if (deliveryLocation && deliveryLocation.length > 0) {
+                                <mat-option [value]="deliveryLocation">
+                                    {{ deliveryLocation }}
+                                </mat-option>
+                            } @else {
+                                <mat-option class="italic font-medium" disabled="disabled">No hay direcciones de entrega disponibles. Ingrese una para crear.</mat-option>
+                            }
+                        }
+                    } @else {
+                        <mat-option disabled="disabled">{{ 'operations.orders.fields.delivery-location-loading' | transloco }}</mat-option>
+                    }
+                </mat-autocomplete>
             </mat-form-field>
 
             <!-- Products list -->
