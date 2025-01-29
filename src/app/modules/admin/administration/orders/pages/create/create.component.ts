@@ -1,4 +1,4 @@
-import { Component, inject, model, resource }                                                                   from '@angular/core';
+import { Component, computed, inject, resource }                                                                from '@angular/core';
 import { PageDetailHeaderComponent }                                                                            from '@shared/components/page-detail-header/page-detail-header.component';
 import { TranslocoDirective, TranslocoPipe, TranslocoService }                                                  from '@ngneat/transloco';
 import { MatFormFieldModule }                                                                                   from '@angular/material/form-field';
@@ -23,10 +23,11 @@ import { Product }                                                              
 import { MatIcon }                                                                                              from '@angular/material/icon';
 import { MatTableModule }                                                                                       from '@angular/material/table';
 import { trackByFn }                                                                                            from '@libs/ui/utils/utils';
+import { CurrencyPipe }                                                                                         from '@angular/common';
 
 @Component({
     selector   : 'app-create',
-    imports    : [
+    imports: [
         PageDetailHeaderComponent,
         TranslocoDirective,
         TranslocoPipe,
@@ -40,7 +41,8 @@ import { trackByFn }                                                            
         MatIcon,
         FormsModule,
         MatTableModule,
-        MatIconButton
+        MatIconButton,
+        CurrencyPipe
     ],
     templateUrl: './create.component.html'
 })
@@ -83,13 +85,31 @@ export class CreateComponent {
     });
 
     // Products
-    readonly productsInput = model<any>();
+    readonly productsInput = toSignal(this.form.get('productInput').valueChanges.pipe(debounceTime(300)));
+    readonly selectedProducts = toSignal(this.form.get('products').valueChanges);
     readonly productsResource = rxResource({
         request: () => this.productsInput() || '',
         loader : ({request}) => {
             if (!request) return this.#productsService.findAll({});
+
             return this.#productsService.findAll({name: request});
         }
+    });
+    readonly productsTotal = computed(() => {
+        const selectedProducts = this.selectedProducts();
+        let subtotal: number = 0,
+            iva: number = 0,
+            total: number = 0;
+
+        console.log('selectedProducts', selectedProducts);
+
+        if (!selectedProducts?.length) return {subtotal, iva, total};
+
+        subtotal = selectedProducts.reduce((acc, product) => acc + (product.quantity * product.unitaryPrice), 0);
+        iva = subtotal * 0.19;
+        total = subtotal + iva;
+
+        return {subtotal, iva, total};
     });
 
     // Display functions
@@ -99,8 +119,6 @@ export class CreateComponent {
     protected readonly trackByFn = trackByFn;
 
     addProduct(product: Product) {
-        console.log('product', product);
-
         const productFormArray = this.form.get('products') as UntypedFormArray;
 
         productFormArray.push(this.#fb.group({

@@ -181,8 +181,41 @@
                         </button>
                     </td>
                 </ng-container>
+
+                <!-- Footer columns: subtotal, iva and total amount -->
+                <ng-container matColumnDef="dummy">
+                    <td *matFooterCellDef mat-footer-cell></td>
+                </ng-container>
+
+                <ng-container matColumnDef="footerNetAmount">
+                    <td *matFooterCellDef class="text-right font-medium" mat-footer-cell>Valor neto:</td>
+                </ng-container>
+
+                <ng-container matColumnDef="footerTaxAmount">
+                    <td *matFooterCellDef class="text-right font-medium" mat-footer-cell>IVA:</td>
+                </ng-container>
+
+                <ng-container matColumnDef="footerTotalAmount">
+                    <td *matFooterCellDef class="text-right font-medium" mat-footer-cell>Valor bruto:</td>
+                </ng-container>
+
+                <ng-container matColumnDef="footerNetAmountValue">
+                    <td *matFooterCellDef mat-footer-cell>{{ productsTotal().subtotal | currency:'CLP':'symbol-narrow' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="footerTaxAmountValue">
+                    <td *matFooterCellDef mat-footer-cell>{{ productsTotal().iva | currency:'CLP':'symbol-narrow' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="footerTotalAmountValue">
+                    <td *matFooterCellDef mat-footer-cell>{{ productsTotal().total | currency:'CLP':'symbol-narrow' }}</td>
+                </ng-container>
+
                 <tr *matHeaderRowDef="['name', 'upcCode', 'quantity', 'unitaryPrice', 'actions']" mat-header-row></tr>
                 <tr *matRowDef="let row; columns: ['name', 'upcCode', 'quantity', 'unitaryPrice', 'actions']" mat-row></tr>
+                <tr *matFooterRowDef="['dummy', 'dummy', 'footerNetAmount', 'footerNetAmountValue', 'dummy']" class="bg-transparent h-8" mat-footer-row></tr>
+                <tr *matFooterRowDef="['dummy', 'dummy', 'footerTaxAmount', 'footerTaxAmountValue', 'dummy']" class="bg-transparent h-8" mat-footer-row></tr>
+                <tr *matFooterRowDef="['dummy', 'dummy', 'footerTotalAmount', 'footerTotalAmountValue', 'dummy']" class="bg-transparent h-8" mat-footer-row></tr>
 
                 <!-- No data -->
                 <tr *matNoDataRow class="h-16">
