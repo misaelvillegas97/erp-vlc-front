@@ -63,7 +63,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 title: 'Invoices',
                 type : 'basic',
                 link : '/operations/invoices',
-                icon : 'heroicons_outline:document-currency-dollar'
+                icon: 'mat_outline:receipt_long'
             }
         ]
     },

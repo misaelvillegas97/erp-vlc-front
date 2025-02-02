@@ -775,6 +775,7 @@
                 }
 
                 .mat-mdc-form-field-infix {
+                    @apply text-sm;
                     min-height: 36px;
 
                     /* Textarea */

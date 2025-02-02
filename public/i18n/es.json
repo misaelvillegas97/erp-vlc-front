@@ -24,7 +24,8 @@
         },
         "operations" : {
             "title" : "Operaciones",
-            "orders" : "Órdenes"
+            "orders" : "Órdenes",
+            "invoices" : "Facturas"
         },
         "maintainers" : {
             "title" : "Mantenedores",

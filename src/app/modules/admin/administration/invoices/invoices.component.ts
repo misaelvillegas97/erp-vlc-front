@@ -23,8 +23,8 @@ export class InvoicesComponent {
                 id          : 'invoices.list',
                 title       : this._translateService.translate('operations.invoices.list.title'),
                 description : this._translateService.translate('operations.invoices.list.subtitle'),
-                icon        : 'heroicons_outline:document-currency-dollar',
-                selectedIcon: 'heroicons_solid:document-currency-dollar',
+                icon        : 'mat_outline:receipt_long',
+                selectedIcon: 'mat_solid:receipt_long',
                 link        : '/invoices'
             },
             {
