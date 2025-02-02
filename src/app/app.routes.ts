@@ -96,13 +96,11 @@ export const appRoutes: Route[] = [
                 ]
             },
             {
-                path    : 'administration',
+                path    : 'operations',
                 children: [
-
+                    {path: 'orders', loadChildren: () => import('app/modules/admin/administration/orders/orders.routes')},
+                    {path: 'invoices', loadChildren: () => import('app/modules/admin/administration/invoices/invoices.routes')},
                 ]
-            },
-            {
-                path: 'orders', loadChildren: () => import('app/modules/admin/administration/orders/orders.routes')
             },
             {
                 path    : 'maintainers',

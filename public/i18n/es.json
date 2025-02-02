@@ -39,6 +39,7 @@
                 "title" : "Listado de órdenes",
                 "subtitle" : "Administra las órdenes de compra o devolución",
                 "description" : "Lista de órdenes",
+                "product-list" : "Lista de productos",
                 "table" : {
                     "order-number" : "Número de orden",
                     "client" : "Cliente",
@@ -76,6 +77,37 @@
                 "status-hint" : "Estado de la orden, por defecto es pendiente",
                 "status-empty" : "No hay estados disponibles",
                 "upc-code" : "Código UPC"
+            }
+        },
+        "invoices" : {
+            "title" : "Facturas",
+            "list" : {
+                "title" : "Listado de facturas",
+                "subtitle" : "Administra las facturas de compra",
+                "description" : "Lista de facturas",
+                "table" : {
+                    "invoice-number" : "Número de factura",
+                    "client" : "Cliente",
+                    "total" : "Total",
+                    "status" : "Estado",
+                    "actions" : "Acciones"
+                }
+            },
+            "new" : {
+                "title" : "Nueva factura",
+                "subtitle" : "Crea una nueva factura",
+                "description" : "Crear una nueva factura",
+                "success" : "Factura creada exitosamente"
+            },
+            "fields" : {
+                "client" : "Cliente",
+                "client-empty" : "No hay clientes disponibles",
+                "client-loading" : "Cargando clientes...",
+                "invoice-number" : "Factura",
+                "status" : "Estado",
+                "emission-date" : "Fecha de emisión",
+                "due-date" : "Fecha de vencimiento",
+                "net-amount" : "Monto neto"
             }
         }
     },

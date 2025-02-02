@@ -1,7 +1,7 @@
 import { OrderTypeEnum }   from '@modules/admin/administration/orders/domain/enums/order-type.enum';
 import { OrderStatusEnum } from '@modules/admin/administration/orders/domain/enums/order-status.enum';
 import { OrderProduct }    from '@modules/admin/administration/orders/domain/model/order-product';
-import { Invoice }         from '@modules/admin/administration/orders/domain/model/invoice';
+import { Invoice }         from '@modules/admin/administration/invoices/domains/model/invoice';
 import { Client }          from '@modules/admin/maintainers/clients/domain/model/client';
 
 export interface Order {

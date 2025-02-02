@@ -1,0 +1,226 @@
+<div *transloco="let t; read: 'operations.invoices'" class="flex flex-col min-w-0 w-full">
+    <!-- Encabezado de la página -->
+    <page-header
+        [description]="t('list.subtitle')"
+        [subtitle]="t('list.title')">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-max mx-auto py-10 gap-y-4 sm:px-4">
+        <div class="flex flex-row w-full">
+            <h2 class="flex-1 font-bold text-secondary text-xl self-center">
+                {{ t('title') }}
+            </h2>
+            <div class="block sm:hidden">
+                <button (click)="showMobileFilters.set(!showMobileFilters())" class="btn-primary px-4 py-2 rounded" mat-icon-button>
+                    <mat-icon [svgIcon]="showMobileFilters() ? 'heroicons_solid:funnel' : 'heroicons_outline:funnel'"></mat-icon>
+                </button>
+            </div>
+            <a
+                [matTooltip]="t('new.title')"
+                [routerLink]="['new']"
+                class="flex-0 font-bold py-2 px-4 rounded"
+                color="primary"
+                mat-icon-button
+            >
+                <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+            </a>
+        </div>
+
+        <div class="relative max-w-full overflow-auto w-full">
+            <table [dataSource]="invoicesResource.value()"
+                   [trackBy]="trackByFn"
+                   class="min-w-240 w-full overflow-y-visible bg-transparent"
+                   mat-table
+                   matSort
+            >
+                <ng-container matColumnDef="invoiceNumber">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.invoice-number') }}</th>
+                    <td *matCellDef="let row" mat-cell>{{ row.invoiceNumber }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="invoiceNumberFilter">
+                    <th *matHeaderCellDef mat-header-cell>
+                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                            <input
+                                [formControl]="invoiceNumberFormControl"
+                                matInput
+                                placeholder="{{ t('fields.invoice-number') }}"
+                                type="number"
+                            />
+                        </mat-form-field>
+                    </th>
+                </ng-container>
+
+                <ng-container matColumnDef="client">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.client') }}</th>
+                    <td *matCellDef="let row" mat-cell>{{ row.client.fantasyName }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="clientFilter">
+                    <th *matHeaderCellDef mat-header-cell>
+                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                            <mat-select [formControl]="clientFormControl"
+                                        multiple
+                                        placeholder="{{ t('fields.client') }}"
+                            >
+                                @if (!clientsResource.isLoading()) {
+                                    @for (client of clientsResource.value(); track client.id) {
+                                        <mat-option [value]="client">{{ client.fantasyName }}</mat-option>
+                                    }
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </th>
+                </ng-container>
+
+                <!-- Status -->
+                <ng-container matColumnDef="status">
+                    <th *matHeaderCellDef mat-header-cell>Estado</th>
+                    <td *matCellDef="let invoice" mat-cell>
+                        @switch (invoice?.status) {
+                            @case (InvoiceStatusEnum.ISSUED) {
+                                <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 text-xs font-medium text-yellow-800 ring-1 ring-yellow-600/20 ring-inset">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
+                            }
+                            @case (InvoiceStatusEnum.RECEIVED_WITHOUT_OBSERVATIONS) {
+                                <span class="inline-flex items-center rounded-md bg-blue-50 px-2 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset">En progreso</span>
+                            }
+                            @case (InvoiceStatusEnum.RECEIVED_WITH_OBSERVATIONS) {
+                                <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 text-xs font-medium text-yellow-800 ring-1 ring-yellow-600/20 ring-inset">Listo para envío</span>
+                            }
+                            @case (InvoiceStatusEnum.PAID) {
+                                <span class="inline-flex items-center rounded-md bg-green-50 px-2 text-xs font-medium text-green-700 ring-1 ring-green-600/20 ring-inset">Entregado</span>
+                            }
+                            @case (InvoiceStatusEnum.REJECTED) {
+                                <span class="inline-flex items-center rounded-md bg-red-50 px-2 text-xs font-medium text-red-700 ring-1 ring-red-600/10 ring-inset">Cancelado</span>
+                            }
+                        }
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="statusFilter">
+                    <th *matHeaderCellDef mat-header-cell>
+                        <mat-form-field
+                            [matTooltipClass]="'whitespace-pre-wrap'"
+                            [matTooltip]="translatedSelectedStatus().toString()"
+                            class="fuse-mat-dense w-full"
+                            subscriptSizing="dynamic"
+                        >
+                            <mat-select
+                                [formControl]="statusFormControl"
+                                multiple
+                                placeholder="Sin filtro"
+                            >
+                                @for (status of invoiceStatuses; track status) {
+                                    <mat-option class="text-sm" [value]="status">{{ 'enums.invoice-status.' + status | transloco }}</mat-option>
+                                } @empty {
+                                    <mat-option class="text-sm" [value]="null">Sin filtros</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </th>
+                </ng-container>
+
+                <!-- Delivery assignment -->
+                <ng-container matColumnDef="deliveryAssignment">
+                    <th *matHeaderCellDef mat-header-cell>Asignación de entrega</th>
+                    <td *matCellDef="let invoice" mat-cell>
+                        @if (invoice.deliveryAssignment) {
+                            <span>{{ invoice.deliveryAssignment.name }}</span>
+                        } @else {
+                            <span class="text-gray-400">Sin asignar</span>
+                        }
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="deliveryAssignmentFilter">
+                    <th *matHeaderCellDef mat-header-cell>
+                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                            <mat-select [formControl]="deliveryAssignmentFormControl"
+                                        multiple
+                                        placeholder="Asignación de entrega"
+                            >
+                                <!--                                @if (!deliveryAssignmentsResource.isLoading()) {-->
+                                <!--                                    @for (deliveryAssignment of deliveryAssignmentsResource.value(); track deliveryAssignment.id) {-->
+                                <!--                                        <mat-option [value]="deliveryAssignment">{{ deliveryAssignment.name }}</mat-option>-->
+                                <!--                                    }-->
+                                <!--                                }-->
+                            </mat-select>
+                        </mat-form-field>
+                    </th>
+                </ng-container>
+
+                <!-- Emission date -->
+                <ng-container matColumnDef="emissionDate">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.emission-date') }}</th>
+                    <td *matCellDef="let invoice" mat-cell>{{ invoice.emissionDate | date: 'dd-MM-yyyy' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="emissionDateFilter">
+                    <th *matHeaderCellDef mat-header-cell>
+                        <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
+                            <mat-label>Hola</mat-label>
+                            <mat-date-range-input [formGroup]="emissionDateFormControl" [rangePicker]="pickerEmissionDate">
+                                <input formControlName="start" matStartDate placeholder="Start date">
+                                <input formControlName="end" matEndDate placeholder="End date">
+                            </mat-date-range-input>
+                            <mat-datepicker-toggle [for]="pickerEmissionDate" matIconSuffix></mat-datepicker-toggle>
+                            <mat-date-range-picker #pickerEmissionDate></mat-date-range-picker>
+                        </mat-form-field>
+                        <pre>{{ emissionDateFormControl.value | json }}</pre>
+                    </th>
+                </ng-container>
+
+                <!-- Due date -->
+                <ng-container matColumnDef="dueDate">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.due-date') }}</th>
+                    <td *matCellDef="let invoice" mat-cell>{{ invoice.dueDate | date: 'dd-MM-yyyy' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="dueDateFilter">
+                    <th *matHeaderCellDef mat-header-cell>
+                        <!--                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">-->
+                        <!--                            <mat-date-range-input [formGroup]="dueDateFormControl" [rangePicker]="pickerDueDate">-->
+                        <!--                                <input matStartDate formControlName="start" placeholder="Start date">-->
+                        <!--                                <input matEndDate formControlName="end" placeholder="End date">-->
+                        <!--                            </mat-date-range-input>-->
+                        <!--                            <mat-datepicker-toggle matIconSuffix [for]="pickerDueDate"></mat-datepicker-toggle>-->
+                        <!--                            <mat-date-range-picker #pickerDueDate></mat-date-range-picker>-->
+                        <!--                        </mat-form-field>-->
+                    </th>
+                </ng-container>
+
+                <!-- Net amount -->
+                <ng-container matColumnDef="netAmount">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.net-amount') }}</th>
+                    <td *matCellDef="let invoice" mat-cell>{{ invoice.netAmount | currency: 'CLP': 'symbol-narrow' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="netAmountFilter">
+                    <th *matHeaderCellDef mat-header-cell>
+                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                            <input
+                                [formControl]="netAmountFormControl"
+                                matInput
+                                placeholder="{{ t('fields.net-amount') }}"
+                                type="number"
+                            />
+                            <input
+                                [formControl]="netAmountFormControl"
+                                matInput
+                                placeholder="{{ t('fields.net-amount') }}"
+                                type="number"
+                            />
+                        </mat-form-field>
+                    </th>
+                </ng-container>
+
+                <!-- Tax amount -->
+                <!-- Total amount -->
+
+                <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+                <tr *matHeaderRowDef="displayedColumnsFilters" mat-header-row></tr>
+                <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+            </table>
+        </div>
+    </div>
+</div>

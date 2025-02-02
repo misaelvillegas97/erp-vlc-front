@@ -12,7 +12,7 @@ import { FuseConfirmationService }                                              
 import { OrdersService }                                                                                                                                from '@modules/admin/administration/orders/orders.service';
 import { CurrencyPipe, DatePipe }                                                                                                                       from '@angular/common';
 import { MatSort, MatSortHeader }                                                                                                                       from '@angular/material/sort';
-import { takeUntilDestroyed }                                                                                                                           from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal }                                                                                                                 from '@angular/core/rxjs-interop';
 import { MatDialog }                                                                                                                                    from '@angular/material/dialog';
 import { MatFormFieldModule }                                                                                                                           from '@angular/material/form-field';
 import { MatInputModule }                                                                                                                               from '@angular/material/input';
@@ -25,6 +25,8 @@ import { InvoiceDetailComponent }                                               
 import { OrderDetailDialog }                                                                                                                            from '@modules/admin/administration/orders/dialogs/order-detail/order-detail.dialog';
 import { trackByFn }                                                                                                                                    from '@libs/ui/utils/utils';
 import { round }                                                                                                                                        from 'lodash-es';
+import { BreakpointObserver, Breakpoints }                                                                                                              from '@angular/cdk/layout';
+import { map }                                                                                                                                          from 'rxjs';
 
 @Component({
     selector   : 'app-list',
@@ -65,6 +67,10 @@ import { round }                                                                
 export class ListComponent {
     readonly dialog = inject(MatDialog);
     readonly router = inject(Router);
+    readonly breakpointObserver = inject(BreakpointObserver);
+    readonly isMobile$ = this.breakpointObserver.observe(Breakpoints.Handset).pipe(map((result) => result.matches));
+
+    public isMobile = toSignal(this.isMobile$, {initialValue: false});
     public orders = signal<Order[]>([]);
     public readonly displayedColumns: string[] = [ 'orderNumber', 'businessName', 'type', 'status', 'invoice', 'deliveryLocation', 'deliveryDate', 'emissionDate', 'amount', 'actions' ];
     public readonly displayedFilterColumns: string[] = this.displayedColumns.map((column) => column + 'Filter');

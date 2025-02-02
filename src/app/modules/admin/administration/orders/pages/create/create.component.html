@@ -19,7 +19,7 @@
                 />
 
                 <mat-autocomplete #clientsAutocomplete="matAutocomplete"
-                                  [displayWith]="displayClientWithFn('fantasyName')"
+                                  [displayWith]="displayClientWithFn"
                                   autoActiveFirstOption
                 >
                     @if (!clientsResource.isLoading()) {
@@ -48,7 +48,7 @@
                        type="text"
                 />
                 <mat-autocomplete #statusAutocomplete="matAutocomplete"
-                                  [displayWith]="displayWithSelectorFn('label')"
+                                  [displayWith]="displayWithSelectorFn"
                                   autoActiveFirstOption
                 >
                     @for (status of statusResource.value(); track status.value) {
@@ -81,17 +81,6 @@
             </mat-form-field>
 
             <!-- Delivery location -->
-            <!--            <mat-form-field class="w-full" subscriptSizing="dynamic">-->
-            <!--                <mat-label>{{ 'operations.orders.fields.delivery-location' | transloco }}</mat-label>-->
-            <!--                <input formControlName="deliveryLocation"-->
-            <!--                       matInput-->
-            <!--                       placeholder="{{ 'operations.orders.fields.delivery-location' | transloco }}"-->
-            <!--                />-->
-
-            <!--                @if (form.controls.deliveryLocation.hasError('required')) {-->
-            <!--                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>-->
-            <!--                }-->
-            <!--            </mat-form-field>-->
             <mat-form-field class="w-full" subscriptSizing="dynamic">
                 <mat-label>{{ 'operations.orders.fields.delivery-location' | transloco }}</mat-label>
                 <input [matAutocomplete]="deliveryLocationAutocomplete"
@@ -126,7 +115,7 @@
 
             <!-- Products list -->
             <hr class="my-2">
-            <h3 class="text-lg text-default">{{ 'operations.orders.fields.products' | transloco }}</h3>
+            <h3 class="text-lg text-default">{{ 'operations.orders.list.product-list' | transloco }}</h3>
             <!-- Product autocomplete, plus button to add product to list, once added, reset the input -->
             <mat-form-field class="w-full" subscriptSizing="dynamic">
                 <mat-label>{{ 'operations.orders.fields.products' | transloco }}</mat-label>
@@ -138,7 +127,7 @@
                 />
                 <mat-autocomplete #productsAutocomplete="matAutocomplete"
                                   (optionSelected)="addProduct($event?.option?.value)"
-                                  [displayWith]="displayProductWithFn('name')"
+                                  [displayWith]="displayProductWithFn"
                                   autoActiveFirstOption
                 >
                     @if (!productsResource.isLoading()) {

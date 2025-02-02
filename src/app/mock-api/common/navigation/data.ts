@@ -53,10 +53,17 @@ export const defaultNavigation: FuseNavigationItem[] = [
         children: [
             {
                 id   : 'operations.orders',
-                title: 'All News',
+                title: 'Orders',
                 type : 'basic',
-                link : '/orders',
+                link : '/operations/orders',
                 icon : 'heroicons_outline:document-text'
+            },
+            {
+                id   : 'operations.invoices',
+                title: 'Invoices',
+                type : 'basic',
+                link : '/operations/invoices',
+                icon : 'heroicons_outline:document-currency-dollar'
             }
         ]
     },

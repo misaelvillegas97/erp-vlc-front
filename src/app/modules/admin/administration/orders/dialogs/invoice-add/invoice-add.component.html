@@ -28,6 +28,13 @@
                 <mat-error [innerText]="'errors.form.required' | transloco"></mat-error>
             }
         </mat-form-field>
+
+        <mat-form-field class="w-full">
+            <mat-label>Fecha de vencimiento</mat-label>
+            <input [matDatepicker]="picker2" formControlName="dueDate" matInput>
+            <mat-datepicker-toggle [for]="picker2" matSuffix></mat-datepicker-toggle>
+            <mat-datepicker #picker2 disabled="false"></mat-datepicker>
+        </mat-form-field>
     </form>
 
     <table style="float: right">

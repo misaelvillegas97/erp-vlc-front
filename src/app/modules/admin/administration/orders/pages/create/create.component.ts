@@ -68,7 +68,7 @@ export class CreateComponent {
     });
 
     // Clients
-    readonly clientInput = toSignal(this.form.get('client').valueChanges.pipe(debounceTime(300)));
+    readonly clientInput = toSignal(this.form.get('client').valueChanges.pipe(debounceTime(1_000)));
     readonly clientsResource = rxResource({
         request: () => this.clientInput() || '',
         loader : ({request, abortSignal}) => {
@@ -80,7 +80,7 @@ export class CreateComponent {
     });
 
     // Client addresses
-    readonly deliveryLocationInput = toSignal(this.form.get('deliveryLocation').valueChanges.pipe(debounceTime(300)));
+    readonly deliveryLocationInput = toSignal(this.form.get('deliveryLocation').valueChanges.pipe(debounceTime(1_000)));
     readonly deliveryLocationResource = resource<ClientAddress[], any>({
         request: () => ({client: this.clientInput(), address: this.deliveryLocationInput()}),
         loader : async ({request}) => {
@@ -142,9 +142,9 @@ export class CreateComponent {
     });
 
     // Display functions
-    protected readonly displayWithSelectorFn = displayWithFn<Selector>;
-    protected readonly displayClientWithFn = displayWithFn<Client>;
-    protected readonly displayProductWithFn = displayWithFn<Product>;
+    protected readonly displayWithSelectorFn = displayWithFn<Selector>('label');
+    protected readonly displayClientWithFn = displayWithFn<Client>('fantasyName');
+    protected readonly displayProductWithFn = displayWithFn<Product>('name');
     protected readonly trackByFn = trackByFn;
 
     addProduct(product: Product) {
