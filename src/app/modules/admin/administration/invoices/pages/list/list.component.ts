@@ -1,30 +1,30 @@
-import { Component, computed, inject, resource, signal }              from '@angular/core';
-import { InvoicesService }                                            from '@modules/admin/administration/invoices/invoices.service';
-import { InvoiceStatusEnum }                                          from '@modules/admin/administration/invoices/domains/enums/invoice-status.enum';
-import { TranslocoDirective, TranslocoPipe, TranslocoService }        from '@ngneat/transloco';
-import { debounceTime, firstValueFrom, map }                          from 'rxjs';
-import { PageHeaderComponent }                                        from '@layout/components/page-header/page-header.component';
-import { MatIcon }                                                    from '@angular/material/icon';
-import { MatIconAnchor, MatIconButton }                               from '@angular/material/button';
-import { MatTooltip }                                                 from '@angular/material/tooltip';
-import { RouterLink }                                                 from '@angular/router';
-import { BreakpointObserver, Breakpoints }                            from '@angular/cdk/layout';
-import { toSignal }                                                   from '@angular/core/rxjs-interop';
-import { MatTableModule }                                             from '@angular/material/table';
-import { MatSortModule }                                              from '@angular/material/sort';
-import { trackByFn }                                                  from '@libs/ui/utils/utils';
-import { MatInput }                                                   from '@angular/material/input';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule }   from '@angular/forms';
-import { MatAutocompleteModule }                                      from '@angular/material/autocomplete';
-import { ClientService }                                              from '@modules/admin/maintainers/clients/client.service';
-import { MatSelect }                                                  from '@angular/material/select';
-import { MatFormFieldModule }                                         from '@angular/material/form-field';
-import { CurrencyPipe, DatePipe, JsonPipe }                           from '@angular/common';
-import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker } from '@angular/material/datepicker';
+import { Component, computed, inject, resource, signal }                                        from '@angular/core';
+import { InvoicesService }                                                                      from '@modules/admin/administration/invoices/invoices.service';
+import { InvoiceStatusEnum }                                                                    from '@modules/admin/administration/invoices/domains/enums/invoice-status.enum';
+import { TranslocoDirective, TranslocoPipe, TranslocoService }                                  from '@ngneat/transloco';
+import { debounceTime, firstValueFrom, map }                                                    from 'rxjs';
+import { PageHeaderComponent }                                                                  from '@layout/components/page-header/page-header.component';
+import { MatIcon }                                                                              from '@angular/material/icon';
+import { MatIconAnchor, MatIconButton }                                                         from '@angular/material/button';
+import { MatTooltip }                                                                           from '@angular/material/tooltip';
+import { RouterLink }                                                                           from '@angular/router';
+import { BreakpointObserver, Breakpoints }                                                      from '@angular/cdk/layout';
+import { toSignal }                                                                             from '@angular/core/rxjs-interop';
+import { MatTableModule }                                                                       from '@angular/material/table';
+import { MatSortModule }                                                                        from '@angular/material/sort';
+import { trackByFn }                                                                            from '@libs/ui/utils/utils';
+import { MatInput }                                                                             from '@angular/material/input';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule }                             from '@angular/forms';
+import { MatAutocompleteModule }                                                                from '@angular/material/autocomplete';
+import { ClientService }                                                                        from '@modules/admin/maintainers/clients/client.service';
+import { MatSelect }                                                                            from '@angular/material/select';
+import { MatFormFieldModule }                                                                   from '@angular/material/form-field';
+import { CurrencyPipe, DatePipe }                                                               from '@angular/common';
+import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker, MatEndDate, MatStartDate } from '@angular/material/datepicker';
 
 @Component({
     selector   : 'app-list',
-    imports    : [
+    imports: [
         TranslocoDirective,
         PageHeaderComponent,
         MatIcon,
@@ -40,13 +40,14 @@ import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker } from '@ang
         MatAutocompleteModule,
         MatSelect,
         ReactiveFormsModule,
-        MatDateRangeInput,
         TranslocoPipe,
         DatePipe,
-        MatDatepickerToggle,
-        MatDateRangePicker,
         CurrencyPipe,
-        JsonPipe
+        MatStartDate,
+        MatEndDate,
+        MatDateRangeInput,
+        MatDatepickerToggle,
+        MatDateRangePicker
     ],
     templateUrl: './list.component.html'
 })
@@ -59,35 +60,44 @@ export class ListComponent {
 
     isMobile = toSignal(this.isMobile$, {initialValue: false});
 
-    displayedColumns = [ 'invoiceNumber', 'client', 'status', 'emissionDate', 'dueDate', 'netAmount' ];
-    displayedColumnsFilters = [ 'invoiceNumberFilter', 'clientFilter', 'statusFilter', 'emissionDateFilter', 'dueDateFilter', 'netAmountFilter' ];
+    displayedColumns = [ 'invoiceNumber', 'client', 'status', 'emissionDate', 'dueDate', 'netAmount', 'taxAmount', 'totalAmount' ];
+    displayedColumnsFilters = [ 'invoiceNumberFilter', 'clientFilter', 'statusFilter', 'emissionDateFilter', 'dueDateFilter', 'netAmountFilter', 'taxAmountFilter', 'totalAmountFilter' ];
 
     // formControls
     invoiceNumberFormControl = new FormControl();
     clientFormControl = new FormControl();
     statusFormControl = new FormControl();
     emissionDateFormControl = new FormGroup({
-        start: new FormControl<Date | null>(new Date()),
-        end  : new FormControl<Date | null>(new Date()),
+        from: new FormControl<Date>(undefined),
+        to  : new FormControl<Date>(undefined),
     });
     dueDateFormControl = new FormGroup({
-        start: new FormControl<Date | null>(null),
-        end  : new FormControl<Date | null>(null),
+        from: new FormControl<Date>(undefined),
+        to  : new FormControl<Date>(undefined),
     });
-    netAmountFormControl = new FormControl();
-    taxAmountFormControl = new FormControl();
-    totalAmountFormControl = new FormControl();
+    netAmountFormControl = new FormGroup({
+        from: new FormControl<number>(undefined),
+        to  : new FormControl<number>(undefined),
+    });
+    taxAmountFormControl = new FormGroup({
+        from: new FormControl<number>(undefined),
+        to  : new FormControl<number>(undefined),
+    });
+    totalAmountFormControl = new FormGroup({
+        from: new FormControl<number>(undefined),
+        to  : new FormControl<number>(undefined),
+    });
     deliveryAssignmentFormControl = new FormControl();
 
     // signals from formControls
     invoiceNumberFilter = toSignal(this.invoiceNumberFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
     clientFilter = toSignal(this.clientFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
     statusFilter = toSignal(this.statusFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: []});
-    emissionDateFilter = toSignal(this.emissionDateFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: {start: null, end: null}});
-    dueDateFilter = toSignal(this.dueDateFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: {start: null, end: null}});
-    netAmountFilter = toSignal(this.netAmountFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
-    taxAmountFilter = toSignal(this.taxAmountFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
-    totalAmountFilter = toSignal(this.totalAmountFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
+    emissionDateFilter = toSignal(this.emissionDateFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: {from: undefined, to: undefined}});
+    dueDateFilter = toSignal(this.dueDateFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: {from: undefined, to: undefined}});
+    netAmountFilter = toSignal(this.netAmountFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: {from: undefined, to: undefined}});
+    taxAmountFilter = toSignal(this.taxAmountFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: {from: undefined, to: undefined}});
+    totalAmountFilter = toSignal(this.totalAmountFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: {from: undefined, to: undefined}});
     deliveryAssignmentFilter = toSignal(this.deliveryAssignmentFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
 
     showMobileFilters = signal<boolean>(false);

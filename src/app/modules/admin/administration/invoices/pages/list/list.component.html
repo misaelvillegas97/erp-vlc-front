@@ -158,15 +158,13 @@
                 <ng-container matColumnDef="emissionDateFilter">
                     <th *matHeaderCellDef mat-header-cell>
                         <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
-                            <mat-label>Hola</mat-label>
                             <mat-date-range-input [formGroup]="emissionDateFormControl" [rangePicker]="pickerEmissionDate">
-                                <input formControlName="start" matStartDate placeholder="Start date">
-                                <input formControlName="end" matEndDate placeholder="End date">
+                                <input formControlName="from" matStartDate placeholder="Start date">
+                                <input formControlName="to" matEndDate placeholder="End date">
                             </mat-date-range-input>
                             <mat-datepicker-toggle [for]="pickerEmissionDate" matIconSuffix></mat-datepicker-toggle>
                             <mat-date-range-picker #pickerEmissionDate></mat-date-range-picker>
                         </mat-form-field>
-                        <pre>{{ emissionDateFormControl.value | json }}</pre>
                     </th>
                 </ng-container>
 
@@ -178,14 +176,14 @@
 
                 <ng-container matColumnDef="dueDateFilter">
                     <th *matHeaderCellDef mat-header-cell>
-                        <!--                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">-->
-                        <!--                            <mat-date-range-input [formGroup]="dueDateFormControl" [rangePicker]="pickerDueDate">-->
-                        <!--                                <input matStartDate formControlName="start" placeholder="Start date">-->
-                        <!--                                <input matEndDate formControlName="end" placeholder="End date">-->
-                        <!--                            </mat-date-range-input>-->
-                        <!--                            <mat-datepicker-toggle matIconSuffix [for]="pickerDueDate"></mat-datepicker-toggle>-->
-                        <!--                            <mat-date-range-picker #pickerDueDate></mat-date-range-picker>-->
-                        <!--                        </mat-form-field>-->
+                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                            <mat-date-range-input [formGroup]="dueDateFormControl" [rangePicker]="pickerDueDate">
+                                <input formControlName="from" matStartDate placeholder="Start date">
+                                <input formControlName="to" matEndDate placeholder="End date">
+                            </mat-date-range-input>
+                            <mat-datepicker-toggle [for]="pickerDueDate" matIconSuffix></mat-datepicker-toggle>
+                            <mat-date-range-picker #pickerDueDate></mat-date-range-picker>
+                        </mat-form-field>
                     </th>
                 </ng-container>
 
@@ -197,25 +195,83 @@
 
                 <ng-container matColumnDef="netAmountFilter">
                     <th *matHeaderCellDef mat-header-cell>
-                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
-                            <input
-                                [formControl]="netAmountFormControl"
-                                matInput
-                                placeholder="{{ t('fields.net-amount') }}"
-                                type="number"
-                            />
-                            <input
-                                [formControl]="netAmountFormControl"
-                                matInput
-                                placeholder="{{ t('fields.net-amount') }}"
-                                type="number"
-                            />
-                        </mat-form-field>
+                        <div [formGroup]="netAmountFormControl" class="flex gap-2">
+                            <mat-form-field class="fuse-mat-dense flex-1" subscriptSizing="dynamic">
+                                <input
+                                    formControlName="from"
+                                    matInput
+                                    placeholder="$ {{ t('fields.from') }}"
+                                    type="number"
+                                />
+                            </mat-form-field>
+                            <mat-form-field class="fuse-mat-dense flex-1" subscriptSizing="dynamic">
+                                <input
+                                    formControlName="to"
+                                    matInput
+                                    placeholder="$ {{ t('fields.to') }}"
+                                    type="number"
+                                />
+                            </mat-form-field>
+                        </div>
                     </th>
                 </ng-container>
 
                 <!-- Tax amount -->
+                <ng-container matColumnDef="taxAmount">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.tax-amount') }}</th>
+                    <td *matCellDef="let invoice" mat-cell>{{ invoice.taxAmount | currency: 'CLP': 'symbol-narrow' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="taxAmountFilter">
+                    <th *matHeaderCellDef mat-header-cell>
+                        <div [formGroup]="taxAmountFormControl" class="flex gap-2">
+                            <mat-form-field class="fuse-mat-dense flex-1" subscriptSizing="dynamic">
+                                <input
+                                    formControlName="from"
+                                    matInput
+                                    placeholder="$ {{ t('fields.from') }}"
+                                    type="number"
+                                />
+                            </mat-form-field>
+                            <mat-form-field class="fuse-mat-dense flex-1" subscriptSizing="dynamic">
+                                <input
+                                    formControlName="to"
+                                    matInput
+                                    placeholder="$ {{ t('fields.to') }}"
+                                    type="number"
+                                />
+                            </mat-form-field>
+                        </div>
+                    </th>
+                </ng-container>
                 <!-- Total amount -->
+                <ng-container matColumnDef="totalAmount">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.total-amount') }}</th>
+                    <td *matCellDef="let invoice" mat-cell>{{ invoice.totalAmount | currency: 'CLP': 'symbol-narrow' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="totalAmountFilter">
+                    <th *matHeaderCellDef mat-header-cell>
+                        <div [formGroup]="totalAmountFormControl" class="flex gap-2">
+                            <mat-form-field class="fuse-mat-dense flex-1" subscriptSizing="dynamic">
+                                <input
+                                    formControlName="from"
+                                    matInput
+                                    placeholder="$ {{ t('fields.from') }}"
+                                    type="number"
+                                />
+                            </mat-form-field>
+                            <mat-form-field class="fuse-mat-dense flex-1" subscriptSizing="dynamic">
+                                <input
+                                    formControlName="to"
+                                    matInput
+                                    placeholder="$ {{ t('fields.to') }}"
+                                    type="number"
+                                />
+                            </mat-form-field>
+                        </div>
+                    </th>
+                </ng-container>
 
                 <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
                 <tr *matHeaderRowDef="displayedColumnsFilters" mat-header-row></tr>

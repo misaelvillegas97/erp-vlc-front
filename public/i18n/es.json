@@ -107,7 +107,11 @@
                 "status" : "Estado",
                 "emission-date" : "Fecha de emisión",
                 "due-date" : "Fecha de vencimiento",
-                "net-amount" : "Monto neto"
+                "net-amount" : "Monto neto",
+                "tax-amount" : "Monto impuesto",
+                "total-amount" : "Monto total",
+                "from" : "Desde",
+                "to" : "Hasta"
             }
         }
     },
