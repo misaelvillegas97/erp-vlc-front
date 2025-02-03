@@ -33,6 +33,7 @@
                    mat-table
                    matSort
             >
+                <!-- Invoice number -->
                 <ng-container matColumnDef="invoiceNumber">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.invoice-number') }}</th>
                     <td *matCellDef="let row" mat-cell>{{ row.invoiceNumber }}</td>
@@ -51,9 +52,29 @@
                     </th>
                 </ng-container>
 
+                <!-- Order number -->
+                <ng-container matColumnDef="orderNumber">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.order-number') }}</th>
+                    <td *matCellDef="let row" mat-cell>{{ row.order?.orderNumber }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="orderNumberFilter">
+                    <th *matHeaderCellDef mat-header-cell>
+                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                            <input
+                                [formControl]="orderNumberFormControl"
+                                matInput
+                                placeholder="{{ t('fields.order-number') }}"
+                                type="number"
+                            />
+                        </mat-form-field>
+                    </th>
+                </ng-container>
+
+                <!-- Client -->
                 <ng-container matColumnDef="client">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.client') }}</th>
-                    <td *matCellDef="let row" mat-cell>{{ row.client.fantasyName }}</td>
+                    <td *matCellDef="let row" mat-cell>{{ row.client?.fantasyName }}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="clientFilter">

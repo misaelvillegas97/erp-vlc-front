@@ -59,8 +59,8 @@ export class InvoiceAddComponent {
         const parsed = {
             invoiceNumber: parseInt(data.invoiceNumber, 10),
             status       : data.status,
-            emissionDate: data.emissionDate.toFormat('yyyy-MM-dd'),
-            due         : data.dueDate.toFormat('yyyy-MM-dd')
+            emissionDate: data.emissionDate.toISODate(),
+            dueDate     : data.dueDate.toISODate()
         };
 
         this.form.disable();

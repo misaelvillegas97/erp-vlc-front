@@ -21,6 +21,7 @@ import { MatSelect }                                                            
 import { MatFormFieldModule }                                                                   from '@angular/material/form-field';
 import { CurrencyPipe, DatePipe }                                                               from '@angular/common';
 import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker, MatEndDate, MatStartDate } from '@angular/material/datepicker';
+import { DateTime }                                                                             from 'luxon';
 
 @Component({
     selector   : 'app-list',
@@ -60,20 +61,21 @@ export class ListComponent {
 
     isMobile = toSignal(this.isMobile$, {initialValue: false});
 
-    displayedColumns = [ 'invoiceNumber', 'client', 'status', 'emissionDate', 'dueDate', 'netAmount', 'taxAmount', 'totalAmount' ];
-    displayedColumnsFilters = [ 'invoiceNumberFilter', 'clientFilter', 'statusFilter', 'emissionDateFilter', 'dueDateFilter', 'netAmountFilter', 'taxAmountFilter', 'totalAmountFilter' ];
+    displayedColumns = [ 'invoiceNumber', 'orderNumber', 'client', 'status', 'emissionDate', 'dueDate', 'netAmount', 'taxAmount', 'totalAmount' ];
+    displayedColumnsFilters = [ 'invoiceNumberFilter', 'orderNumberFilter', 'clientFilter', 'statusFilter', 'emissionDateFilter', 'dueDateFilter', 'netAmountFilter', 'taxAmountFilter', 'totalAmountFilter' ];
 
     // formControls
     invoiceNumberFormControl = new FormControl();
+    orderNumberFormControl = new FormControl();
     clientFormControl = new FormControl();
     statusFormControl = new FormControl();
     emissionDateFormControl = new FormGroup({
-        from: new FormControl<Date>(undefined),
-        to  : new FormControl<Date>(undefined),
+        from: new FormControl<DateTime>(undefined),
+        to  : new FormControl<DateTime>(undefined),
     });
     dueDateFormControl = new FormGroup({
-        from: new FormControl<Date>(undefined),
-        to  : new FormControl<Date>(undefined),
+        from: new FormControl<DateTime>(undefined),
+        to  : new FormControl<DateTime>(undefined),
     });
     netAmountFormControl = new FormGroup({
         from: new FormControl<number>(undefined),
@@ -91,6 +93,7 @@ export class ListComponent {
 
     // signals from formControls
     invoiceNumberFilter = toSignal(this.invoiceNumberFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
+    orderNumberFilter = toSignal(this.orderNumberFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
     clientFilter = toSignal(this.clientFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
     statusFilter = toSignal(this.statusFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: []});
     emissionDateFilter = toSignal(this.emissionDateFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: {from: undefined, to: undefined}});
@@ -106,12 +109,20 @@ export class ListComponent {
         const filter = {};
 
         if (this.invoiceNumberFilter()) filter['invoiceNumber'] = this.invoiceNumberFilter();
+        if (this.orderNumberFilter()) filter['orderNumber'] = this.orderNumberFilter();
+        if (this.clientFilter()) filter['clientId'] = this.clientFilter().map((client) => client.id);
         if (this.statusFilter()) filter['status'] = this.statusFilter();
-        if (this.emissionDateFilter()) filter['emissionDate'] = this.emissionDateFilter();
-        if (this.dueDateFilter()) filter['dueDate'] = this.dueDateFilter();
-        if (this.netAmountFilter()) filter['netAmount'] = this.netAmountFilter();
-        if (this.taxAmountFilter()) filter['taxAmount'] = this.taxAmountFilter();
-        if (this.totalAmountFilter()) filter['totalAmount'] = this.totalAmountFilter();
+        if (this.emissionDateFilter()?.from || this.emissionDateFilter()?.to) filter['emissionDate'] = JSON.stringify({
+            from: this.emissionDateFilter()?.from && this.emissionDateFilter()?.from.toISODate(),
+            to  : this.emissionDateFilter()?.to && this.emissionDateFilter()?.to.toISODate()
+        });
+        if (this.dueDateFilter()?.from || this.dueDateFilter()?.to) filter['dueDate'] = JSON.stringify({
+            from: this.dueDateFilter()?.from && this.dueDateFilter()?.from.toISODate(),
+            to  : this.dueDateFilter()?.to && this.dueDateFilter()?.to.toISODate()
+        });
+        if (this.netAmountFilter()?.from || this.netAmountFilter()?.to) filter['netAmount'] = JSON.stringify(this.netAmountFilter());
+        if (this.taxAmountFilter()?.from || this.taxAmountFilter()?.to) filter['taxAmount'] = JSON.stringify(this.taxAmountFilter());
+        if (this.totalAmountFilter()?.from || this.totalAmountFilter()?.to) filter['totalAmount'] = JSON.stringify(this.totalAmountFilter());
         if (this.deliveryAssignmentFilter()) filter['deliveryAssignment'] = this.deliveryAssignmentFilter();
 
         return filter;
@@ -128,6 +139,7 @@ export class ListComponent {
     invoicesResource = resource({
         request: () => this.filters(),
         loader : async () => {
+            console.log('this.filters()', this.filters());
             return firstValueFrom(this.#invoicesService.findAll(this.filters()));
         }
     });
@@ -136,3 +148,4 @@ export class ListComponent {
     protected readonly invoiceStatuses = Object.values(InvoiceStatusEnum);
     protected readonly InvoiceStatusEnum = InvoiceStatusEnum;
 }
+

@@ -112,7 +112,8 @@
                 "tax-amount" : "Monto impuesto",
                 "total-amount" : "Monto total",
                 "from" : "Desde",
-                "to" : "Hasta"
+                "to" : "Hasta",
+                "order-number" : "Número de orden"
             }
         }
     },
