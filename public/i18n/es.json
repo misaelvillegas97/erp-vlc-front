@@ -108,12 +108,14 @@
                 "status" : "Estado",
                 "emission-date" : "Fecha de emisión",
                 "due-date" : "Fecha de vencimiento",
+                "payment-date" : "Fecha de pago",
                 "net-amount" : "Monto neto",
                 "tax-amount" : "Monto impuesto",
                 "total-amount" : "Monto total",
                 "from" : "Desde",
                 "to" : "Hasta",
-                "order-number" : "Número de orden"
+                "order-number" : "Número de orden",
+                "observations" : "Observaciones"
             },
             "update-status" : {
                 "title" : "Actualizar estado de factura",

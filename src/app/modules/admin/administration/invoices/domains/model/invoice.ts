@@ -1,6 +1,7 @@
 import { InvoiceStatusEnum } from '@modules/admin/administration/invoices/domains/enums/invoice-status.enum';
 
 export class Invoice {
+    id: string;
     invoiceNumber: number;
     status: InvoiceStatusEnum;
     observations?: string;

@@ -1,4 +1,55 @@
 <h2 class="text-lg border-b pb-4" mat-dialog-title>{{ 'operations.invoices.update-status.title' | transloco }}</h2>
-<mat-dialog-content class="py-4">>
+<mat-dialog-content class="py-4">
+    <form [formGroup]="form" class="grid grid-cols-1 gap-4">
+        <!-- Status -->
+        <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-label>{{ 'operations.invoices.fields.status' | transloco }}</mat-label>
+            <mat-select formControlName="status" required>
+                @for (status of invoiceStatuses; track status) {
+                    <mat-option [value]="status">
+                        {{ 'enums.invoice-status.' + status | transloco }}
+                    </mat-option>
+                }
+            </mat-select>
+            @if (form.controls.status.hasError('required')) {
+                <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+            }
+        </mat-form-field>
 
+        <!-- Observations -->
+        <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-label>{{ 'operations.invoices.fields.observations' | transloco }}</mat-label>
+            <textarea cdkTextareaAutosize formControlName="observations" matInput></textarea>
+
+            @if (form.controls.observations.hasError('minLength')) {
+                <mat-error>{{ 'errors.form.minLength' | transloco: { length: 5 } }}</mat-error>
+            }
+
+            @if (form.controls.observations.hasError('required')) {
+                <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+            }
+        </mat-form-field>
+
+        <!-- Payment date -->
+        <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-label>{{ 'operations.invoices.fields.payment-date' | transloco }}</mat-label>
+            <input [matDatepicker]="paymentDate" [min]="invoice().createdAt" formControlName="paymentDate" matInput>
+            <mat-datepicker-toggle [for]="paymentDate" matSuffix></mat-datepicker-toggle>
+            <mat-datepicker #paymentDate></mat-datepicker>
+
+            @if (form.controls.paymentDate.hasError('required')) {
+                <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+            }
+        </mat-form-field>
+    </form>
 </mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>{{ 'actions.cancel' | transloco }}</button>
+    <button (click)="submit()" [disabled]="form.invalid || form.disabled" color="primary" mat-button>
+        @if (form.disabled) {
+            <mat-progress-spinner [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
+        } @else {
+            {{ 'actions.save' | transloco }}
+        }
+    </button>
+</mat-dialog-actions>
