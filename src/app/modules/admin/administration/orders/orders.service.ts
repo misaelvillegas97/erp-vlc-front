@@ -1,9 +1,9 @@
-import { Injectable }                       from '@angular/core';
-import { HttpClient }                       from '@angular/common/http';
-import { TranslocoService }                 from '@ngneat/transloco';
-import { Notyf }                            from 'notyf';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { Order }                            from '@modules/admin/administration/orders/domain/model/order';
+import { Injectable }                                   from '@angular/core';
+import { HttpClient }                                   from '@angular/common/http';
+import { TranslocoService }                             from '@ngneat/transloco';
+import { Notyf }                                        from 'notyf';
+import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
+import { Order }                                        from '@modules/admin/administration/orders/domain/model/order';
 
 @Injectable({providedIn: 'root'})
 export class OrdersService {
@@ -20,16 +20,18 @@ export class OrdersService {
         return this._orders$.asObservable();
     }
 
-    public getAll(query?: any): void {
-        this._httpClient.get<Order[]>('/api/orders', {params: query})
-            .subscribe({
-                next : (orders) => this._orders$.next(orders),
-                error: () => this._notyf.error(this._translateService.translate('operations.orders.list.error'))
-            });
+    public findAll(query?: any) {
+        return this._httpClient.get<Order[]>('/api/orders', {params: query})
+            .pipe(
+                catchError(() => {
+                    this._notyf.error(this._translateService.translate('operations.orders.list.error'));
+                    return [];
+                })
+            );
     }
 
     public addInvoice(orderId: string, invoice: any) {
         return this._httpClient.post('/api/orders/' + orderId + '/invoice', invoice)
-            .pipe(tap(() => this.getAll()));
+            .pipe(tap(() => this.findAll()));
     }
 }

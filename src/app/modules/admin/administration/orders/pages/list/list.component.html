@@ -39,9 +39,7 @@
                         <input
                             matInput
                             type="number"
-                            [ngModel]="orderNumberFilter()"
-                            (ngModelChange)="orderNumberFilter.set($event)"
-                            (keyup.enter)="filterOrders()"
+                            [formControl]="orderNumberFormControl"
                             placeholder="Ej: 1234"
                         />
                     </mat-form-field>
@@ -51,18 +49,14 @@
                         <input
                             placeholder="Ej: Brinks"
                             matInput
-                            [ngModel]="businessNameFilter()"
-                            (ngModelChange)="businessNameFilter.set($event)"
-                            (keyup.enter)="filterOrders()"
+                            [formControl]="clientFormControl"
                         />
                     </mat-form-field>
 
                     <mat-form-field class="w-full" subscriptSizing="dynamic">
                         <mat-label>Tipo de orden</mat-label>
                         <mat-select
-                            [ngModel]="typeFilter()"
-                            (ngModelChange)="typeFilter.set($event)"
-                            (closed)="filterOrders()"
+                            [formControl]="typeFormControl"
                             multiple
                             placeholder="Tipo de orden"
                         >
@@ -74,9 +68,7 @@
                     <mat-form-field class="w-full" subscriptSizing="dynamic">
                         <mat-label>Estado</mat-label>
                         <mat-select
-                            [ngModel]="statusFilter()"
-                            (ngModelChange)="statusFilter.set($event)"
-                            (closed)="filterOrders()"
+                            [formControl]="statusFormControl"
                             multiple
                             placeholder="Estado"
                         >
@@ -94,9 +86,7 @@
                         <mat-label>Ubicación de entrega</mat-label>
                         <input
                             matInput
-                            [ngModel]="deliveryLocationFilter()"
-                            (ngModelChange)="deliveryLocationFilter.set($event)"
-                            (keyup.enter)="filterOrders()"
+                            [formControl]="deliveryLocationFormControl"
                         />
                     </mat-form-field>
 
@@ -105,9 +95,7 @@
                         <input
                             placeholder="yyyy-MM-dd"
                             matInput
-                            [ngModel]="emissionDateFilter()"
-                            (ngModelChange)="emissionDateFilter.set($event)"
-                            (keyup.enter)="filterOrders()"
+                            [formControl]="emissionDateFormControl"
                         />
                     </mat-form-field>
 
@@ -116,9 +104,7 @@
                         <input
                             placeholder="yyyy-MM-dd"
                             matInput
-                            [ngModel]="deliveryDateFilter()"
-                            (ngModelChange)="deliveryDateFilter.set($event)"
-                            (keyup.enter)="filterOrders()"
+                            [formControl]="deliveryDateFormControl"
                         />
                     </mat-form-field>
 
@@ -128,9 +114,7 @@
                             placeholder="Ej: 10000"
                             matInput
                             type="number"
-                            [ngModel]="amountFilter()"
-                            (ngModelChange)="amountFilter.set($event)"
-                            (keyup.enter)="filterOrders()"
+                            [formControl]="amountFormControl"
                         />
                     </mat-form-field>
 
@@ -139,17 +123,9 @@
                         <input
                             placeholder="Ej: 1234"
                             matInput
-                            [ngModel]="invoiceFilter()"
-                            (ngModelChange)="invoiceFilter.set($event)"
-                            (keyup.enter)="filterOrders()"
+                            [formControl]="invoiceFormControl"
                         />
                     </mat-form-field>
-
-                    <div class="text-right">
-                        <button class="btn-primary px-4 py-2 rounded" (click)="filterOrders(); showMobileFilters.set(false)">
-                            Aplicar filtros
-                        </button>
-                    </div>
                 </div>
             }
         }
@@ -159,7 +135,7 @@
             @defer (hydrate on viewport) {
                 <div class="block sm:hidden space-y-4 w-full">
                     <!-- Itera sobre la data filtrada para móvil -->
-                    @for (order of orders(); track order.id) {
+                    @for (order of ordersResource.value(); track order.id) {
                         <div class="border rounded shadow p-4">
                             <div class="font-semibold text-base">Número de orden: {{ order?.orderNumber }}</div>
 
@@ -266,7 +242,7 @@
             @defer (hydrate on viewport) {
                 <div class="hidden sm:block relative max-w-full overflow-auto w-full">
                     <table
-                        [dataSource]="orders()"
+                        [dataSource]="ordersResource.value()"
                         [trackBy]="trackByFn"
                         class="min-w-240 w-full overflow-y-visible bg-transparent"
                         mat-table
@@ -285,9 +261,7 @@
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
                                     <input
-                                        (keyup.enter)="filterOrders()"
-                                        (ngModelChange)="orderNumberFilter.set($event)"
-                                        [ngModel]="orderNumberFilter()"
+                                        [formControl]="orderNumberFormControl"
                                         matInput
                                         placeholder="Ej: 1234"
                                         type="number"
@@ -307,14 +281,17 @@
                         <!-- Client fantasy name filter -->
                         <ng-container matColumnDef="businessNameFilter">
                             <th *matHeaderCellDef mat-header-cell>
-                                <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                                    <input
-                                        (keyup.enter)="filterOrders()"
-                                        (ngModelChange)="businessNameFilter.set($event)"
-                                        [ngModel]="businessNameFilter()"
-                                        matInput
-                                        placeholder="Ej: Brinks"
+                                <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                                    <mat-select [formControl]="clientFormControl"
+                                                multiple
+                                                placeholder="{{ t('fields.client') }}"
                                     >
+                                        @if (!clientsResource.isLoading()) {
+                                            @for (client of clientsResource.value(); track client.id) {
+                                                <mat-option [value]="client">{{ client.fantasyName }}</mat-option>
+                                            }
+                                        }
+                                    </mat-select>
                                 </mat-form-field>
                             </th>
                         </ng-container>
@@ -342,9 +319,7 @@
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
                                     <mat-select
-                                        (closed)="filterOrders()"
-                                        (ngModelChange)="typeFilter.set($event)"
-                                        [ngModel]="typeFilter()"
+                                        [formControl]="typeFormControl"
                                         multiple
                                         placeholder="Sin filtro"
                                     >
@@ -392,9 +367,7 @@
                                     subscriptSizing="dynamic"
                                 >
                                     <mat-select
-                                        (closed)="filterOrders()"
-                                        (ngModelChange)="statusFilter.set($event)"
-                                        [ngModel]="statusFilter()"
+                                        [formControl]="statusFormControl"
                                         multiple
                                         placeholder="Sin filtro"
                                     >
@@ -420,7 +393,7 @@
                         <ng-container matColumnDef="deliveryLocationFilter">
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                                    <input (keyup.enter)="filterOrders()" (ngModelChange)="deliveryLocationFilter.set($event)" [ngModel]="deliveryLocationFilter()" matInput>
+                                    <input [formControl]="deliveryLocationFormControl" matInput>
                                 </mat-form-field>
                             </th>
                         </ng-container>
@@ -438,9 +411,7 @@
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
                                     <input
-                                        (keyup.enter)="filterOrders()"
-                                        (ngModelChange)="emissionDateFilter.set($event)"
-                                        [ngModel]="emissionDateFilter()"
+                                        [formControl]="emissionDateFormControl"
                                         matInput
                                         placeholder="yyyy-MM-dd"
                                     >
@@ -461,9 +432,7 @@
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
                                     <input
-                                        (keyup.enter)="filterOrders()"
-                                        (ngModelChange)="deliveryDateFilter.set($event)"
-                                        [ngModel]="deliveryDateFilter()"
+                                        [formControl]="deliveryDateFormControl"
                                         matInput
                                         placeholder="yyyy-MM-dd"
                                     >
@@ -484,9 +453,7 @@
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
                                     <input
-                                        (keyup.enter)="filterOrders()"
-                                        (ngModelChange)="amountFilter.set($event)"
-                                        [ngModel]="amountFilter()"
+                                        [formControl]="amountFormControl"
                                         matInput
                                         placeholder="Ej: 10000"
                                         type="number"
@@ -536,9 +503,7 @@
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
                                     <input
-                                        (keyup.enter)="filterOrders()"
-                                        (ngModelChange)="invoiceFilter.set($event)"
-                                        [ngModel]="invoiceFilter()"
+                                        [formControl]="invoiceFormControl"
                                         matInput
                                         placeholder="Ej: 1234"
                                     >

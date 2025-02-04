@@ -1,4 +1,4 @@
-import { Component, computed, inject, model, ModelSignal, signal, WritableSignal }                                                                      from '@angular/core';
+import { Component, computed, inject, resource, signal, WritableSignal }                                                                                from '@angular/core';
 import { PageHeaderComponent }                                                                                                                          from '@layout/components/page-header/page-header.component';
 import { TranslocoDirective, TranslocoService }                                                                                                         from '@ngneat/transloco';
 import { MatIcon }                                                                                                                                      from '@angular/material/icon';
@@ -8,16 +8,15 @@ import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, Mat
 import { Router, RouterLink }                                                                                                                           from '@angular/router';
 import { Order }                                                                                                                                        from '@modules/admin/administration/orders/domain/model/order';
 import { Notyf }                                                                                                                                        from 'notyf';
-import { FuseConfirmationService }                                                                                                                      from '../../../../../../../@fuse/services/confirmation';
 import { OrdersService }                                                                                                                                from '@modules/admin/administration/orders/orders.service';
 import { CurrencyPipe, DatePipe }                                                                                                                       from '@angular/common';
 import { MatSort, MatSortHeader }                                                                                                                       from '@angular/material/sort';
-import { takeUntilDestroyed, toSignal }                                                                                                                 from '@angular/core/rxjs-interop';
+import { toSignal }                                                                                                                                     from '@angular/core/rxjs-interop';
 import { MatDialog }                                                                                                                                    from '@angular/material/dialog';
 import { MatFormFieldModule }                                                                                                                           from '@angular/material/form-field';
 import { MatInputModule }                                                                                                                               from '@angular/material/input';
 import { MatSelectModule }                                                                                                                              from '@angular/material/select';
-import { FormsModule }                                                                                                                                  from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule }                                                                                                from '@angular/forms';
 import { OrderTypeEnum }                                                                                                                                from '@modules/admin/administration/orders/domain/enums/order-type.enum';
 import { OrderStatusEnum }                                                                                                                              from '@modules/admin/administration/orders/domain/enums/order-status.enum';
 import { InvoiceAddComponent }                                                                                                                          from '@modules/admin/administration/orders/dialogs/invoice-add/invoice-add.component';
@@ -26,11 +25,14 @@ import { OrderDetailDialog }                                                    
 import { trackByFn }                                                                                                                                    from '@libs/ui/utils/utils';
 import { round }                                                                                                                                        from 'lodash-es';
 import { BreakpointObserver, Breakpoints }                                                                                                              from '@angular/cdk/layout';
-import { map }                                                                                                                                          from 'rxjs';
+import { debounceTime, firstValueFrom, map }                                                                                                            from 'rxjs';
+import { Client }                                                                                                                                       from '@modules/admin/maintainers/clients/domain/model/client';
+import { ClientService }                                                                                                                                from '@modules/admin/maintainers/clients/client.service';
 
 @Component({
     selector   : 'app-list',
     imports: [
+        ReactiveFormsModule,
         PageHeaderComponent,
         TranslocoDirective,
         MatTooltip,
@@ -56,7 +58,8 @@ import { map }                                                                  
         MatInputModule,
         MatSelectModule,
         FormsModule,
-        DatePipe
+        DatePipe,
+
     ],
     templateUrl: './list.component.html',
     host       : {
@@ -65,49 +68,61 @@ import { map }                                                                  
     }
 })
 export class ListComponent {
-    readonly dialog = inject(MatDialog);
+    readonly #dialog = inject(MatDialog);
+    readonly #translationService = inject(TranslocoService);
+    readonly #ordersService = inject(OrdersService);
+    readonly #clientService = inject(ClientService);
+    readonly #breakpointObserver = inject(BreakpointObserver);
     readonly router = inject(Router);
-    readonly breakpointObserver = inject(BreakpointObserver);
-    readonly isMobile$ = this.breakpointObserver.observe(Breakpoints.Handset).pipe(map((result) => result.matches));
+    readonly isMobile$ = this.#breakpointObserver.observe(Breakpoints.Handset).pipe(map((result) => result.matches));
 
-    public isMobile = toSignal(this.isMobile$, {initialValue: false});
-    public orders = signal<Order[]>([]);
-    public readonly displayedColumns: string[] = [ 'orderNumber', 'businessName', 'type', 'status', 'invoice', 'deliveryLocation', 'deliveryDate', 'emissionDate', 'amount', 'actions' ];
-    public readonly displayedFilterColumns: string[] = this.displayedColumns.map((column) => column + 'Filter');
-    public orderNumberFilter: ModelSignal<number> = model<number>(undefined);
-    public businessNameFilter: ModelSignal<string> = model<string>(undefined);
-    public typeFilter: ModelSignal<OrderTypeEnum[]> = model<OrderTypeEnum[]>(undefined);
-    public statusFilter: ModelSignal<OrderStatusEnum[]> = model<OrderStatusEnum[]>(undefined);
-    public deliveryLocationFilter: ModelSignal<string> = model<string>(undefined);
-    public emissionDateFilter: ModelSignal<string> = model<string>(undefined);
-    public deliveryDateFilter: ModelSignal<string> = model<string>(undefined);
-    public amountFilter: ModelSignal<number> = model<number>(undefined);
-    public invoiceFilter: ModelSignal<number> = model<number>(undefined);
+    orderNumberFormControl = new FormControl<string>(undefined);
+    clientFormControl = new FormControl<Client[]>(undefined);
+    typeFormControl = new FormControl<OrderTypeEnum[]>(undefined);
+    statusFormControl = new FormControl<OrderStatusEnum[]>(undefined);
+    invoiceFormControl = new FormControl<number>(undefined);
+    deliveryLocationFormControl = new FormControl<string>(undefined);
+    emissionDateFormControl = new FormControl<string>(undefined);
+    deliveryDateFormControl = new FormControl<string>(undefined);
+    amountFormControl = new FormControl<number>(undefined);
 
-    public showMobileFilters: WritableSignal<boolean> = signal<boolean>(false);
+    isMobile = toSignal(this.isMobile$, {initialValue: false});
+    readonly displayedColumns: string[] = [ 'orderNumber', 'businessName', 'type', 'status', 'invoice', 'deliveryLocation', 'deliveryDate', 'emissionDate', 'amount', 'actions' ];
+    readonly displayedFilterColumns: string[] = this.displayedColumns.map((column) => column + 'Filter');
+    orderNumberFilter = toSignal(this.orderNumberFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
+    businessNameFilter = toSignal(this.clientFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: []});
+    typeFilter = toSignal(this.typeFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: []});
+    statusFilter = toSignal(this.statusFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: []});
+    deliveryLocationFilter = toSignal(this.deliveryLocationFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
+    emissionDateFilter = toSignal(this.emissionDateFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
+    deliveryDateFilter = toSignal(this.deliveryDateFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
+    amountFilter = toSignal(this.amountFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
+    invoiceFilter = toSignal(this.invoiceFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
 
-    public filters = computed(() => {
+    showMobileFilters: WritableSignal<boolean> = signal<boolean>(false);
+
+    filters = computed(() => {
         const filter = {};
 
-        if (this.orderNumberFilter() && this.orderNumberFilter() >= 0)
+        if (this.orderNumberFilter()?.length >= 0)
             filter['orderNumber'] = this.orderNumberFilter();
 
-        if (this.businessNameFilter() && this.businessNameFilter().length > 0)
-            filter['businessName'] = this.businessNameFilter();
+        if (this.businessNameFilter()?.length > 0)
+            filter['clientId'] = this.businessNameFilter().map((client: Client) => client.id);
 
-        if (this.typeFilter() && this.typeFilter().length > 0)
+        if (this.typeFilter()?.length > 0)
             filter['type'] = this.typeFilter();
 
-        if (this.statusFilter() && this.statusFilter().length > 0)
+        if (this.statusFilter()?.length > 0)
             filter['status'] = this.statusFilter();
 
-        if (this.deliveryLocationFilter() && this.deliveryLocationFilter().length > 0)
+        if (this.deliveryLocationFilter()?.length > 0)
             filter['deliveryLocation'] = this.deliveryLocationFilter();
 
-        if (this.emissionDateFilter() && this.emissionDateFilter().length > 0)
+        if (this.emissionDateFilter()?.length > 0)
             filter['emissionDate'] = this.emissionDateFilter();
 
-        if (this.deliveryDateFilter() && this.deliveryDateFilter().length > 0)
+        if (this.deliveryDateFilter()?.length > 0)
             filter['deliveryDate'] = this.deliveryDateFilter();
 
         if (this.amountFilter() && this.amountFilter() >= 0)
@@ -118,48 +133,45 @@ export class ListComponent {
 
         return filter;
     });
-    public translatedSelectedStatus = computed(() => {
-        const mapped = this.statusFilter() ? this.statusFilter().map((status) => this._translationService.translate('enums.order-status.' + status)) : [];
+
+    ordersResource = resource({
+        request: () => this.filters(),
+        loader : () => firstValueFrom(this.#ordersService.findAll(this.filters()))
+    });
+
+    translatedSelectedStatus = computed(() => {
+        const mapped = this.statusFilter() ? this.statusFilter().map((status) => this.#translationService.translate('enums.order-status.' + status)) : [];
         return mapped.join(',\n ');
+    });
+
+    clientsResource = resource({
+        loader: () => firstValueFrom(this.#clientService.findAll({}, 'COMPACT'))
     });
 
 
     private _notyf = new Notyf();
 
-    constructor(
-        private readonly _fuseConfirmationService: FuseConfirmationService,
-        private readonly _orderService: OrdersService,
-        private readonly _translationService: TranslocoService,
-    ) {
-        this._orderService.orders$
-            .pipe(takeUntilDestroyed())
-            .subscribe((orders) => this.orders.set(orders));
-    }
-
-    filterOrders(): void {
-        const filters = this.filters();
-
-        this._orderService.getAll(filters);
-    }
-
     view(order: Order) {
-        this.dialog.open(OrderDetailDialog, {data: {order}});
+        this.#dialog.open(OrderDetailDialog, {data: {order}});
     }
 
     openAddInvoiceDialog(order: Order): void {
-        const invoiceDialog = this.dialog.open(InvoiceAddComponent, {
+        const invoiceDialog = this.#dialog.open(InvoiceAddComponent, {
             data: {order},
             width: '500px'
         });
 
         invoiceDialog.afterClosed().subscribe((result) => {
-            if (result)
-                this._notyf.success(this._translationService.translate('operations.orders.invoice.added', {invoiceNumber: result.invoiceNumber}));
+            console.log(result);
+            if (result) {
+                this._notyf.success(this.#translationService.translate('operations.orders.invoice.added', {invoiceNumber: result.invoiceNumber}));
+                this.ordersResource.reload();
+            }
         });
     }
 
     openInvoiceDetail(order: Order) {
-        this.dialog.open(InvoiceDetailComponent, {
+        this.#dialog.open(InvoiceDetailComponent, {
             data: {order}
         });
     }

@@ -66,7 +66,7 @@ export class InvoiceAddComponent {
         this.form.disable();
 
         firstValueFrom(this.#service.addInvoice(this.order().id, parsed))
-            .then(() => this.#dialogRef.close())
+            .then(() => this.#dialogRef.close(true))
             .catch(() => {
                 this.form.enable();
                 this._notyf.error('Error al agregar la factura');

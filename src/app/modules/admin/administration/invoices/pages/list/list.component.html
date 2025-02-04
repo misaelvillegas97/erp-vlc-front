@@ -15,11 +15,17 @@
                     <mat-icon [svgIcon]="showMobileFilters() ? 'heroicons_solid:funnel' : 'heroicons_outline:funnel'"></mat-icon>
                 </button>
             </div>
+            <button
+                (click)="invoicesResource.reload()"
+                [matTooltip]="'actions.reload' | transloco"
+                mat-icon-button
+            >
+                <mat-icon [svgIcon]="'heroicons_outline:arrow-path'"></mat-icon>
+            </button>
             <a
                 [matTooltip]="t('new.title')"
                 [routerLink]="['new']"
                 class="flex-0 font-bold py-2 px-4 rounded"
-                color="primary"
                 mat-icon-button
             >
                 <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
@@ -292,6 +298,30 @@
                             </mat-form-field>
                         </div>
                     </th>
+                </ng-container>
+
+                <!-- Actions -->
+                <ng-container matColumnDef="actions">
+                    <th *matHeaderCellDef mat-header-cell></th>
+                    <td *matCellDef="let row" mat-cell>
+                        <button [matMenuTriggerFor]="menu" mat-icon-button>
+                            <mat-icon svgIcon="heroicons_outline:ellipsis-vertical"></mat-icon>
+                        </button>
+                        <mat-menu #menu="matMenu" [xPosition]="'before'">
+                            <button [routerLink]="['view', row.id]" mat-menu-item>
+                                <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:eye"></mat-icon>
+                                <span>{{ 'actions.view' | transloco }}</span>
+                            </button>
+                            <button (click)="updateStatusInvoice(row)" mat-menu-item>
+                                <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:pencil"></mat-icon>
+                                <span [innerText]="t('actions.update-status')"></span>
+                            </button>
+                        </mat-menu>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actionsFilter">
+                    <th *matHeaderCellDef mat-header-cell></th>
                 </ng-container>
 
                 <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>

@@ -22,6 +22,10 @@ import { MatFormFieldModule }                                                   
 import { CurrencyPipe, DatePipe }                                                               from '@angular/common';
 import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker, MatEndDate, MatStartDate } from '@angular/material/datepicker';
 import { DateTime }                                                                             from 'luxon';
+import { MatMenuModule }                                                                        from '@angular/material/menu';
+import { Invoice }                                                                              from '@modules/admin/administration/invoices/domains/model/invoice';
+import { MatDialog }                                                                            from '@angular/material/dialog';
+import { UpdateInvoiceStatusDialog }                                                            from '@modules/admin/administration/invoices/dialogs/update-invoice-status/update-invoice-status.dialog';
 
 @Component({
     selector   : 'app-list',
@@ -48,11 +52,13 @@ import { DateTime }                                                             
         MatEndDate,
         MatDateRangeInput,
         MatDatepickerToggle,
-        MatDateRangePicker
+        MatDateRangePicker,
+        MatMenuModule,
     ],
     templateUrl: './list.component.html'
 })
 export class ListComponent {
+    readonly #dialog = inject(MatDialog);
     readonly #translationService = inject(TranslocoService);
     readonly #clientService = inject(ClientService);
     readonly #invoicesService = inject(InvoicesService);
@@ -61,8 +67,8 @@ export class ListComponent {
 
     isMobile = toSignal(this.isMobile$, {initialValue: false});
 
-    displayedColumns = [ 'invoiceNumber', 'orderNumber', 'client', 'status', 'emissionDate', 'dueDate', 'netAmount', 'taxAmount', 'totalAmount' ];
-    displayedColumnsFilters = [ 'invoiceNumberFilter', 'orderNumberFilter', 'clientFilter', 'statusFilter', 'emissionDateFilter', 'dueDateFilter', 'netAmountFilter', 'taxAmountFilter', 'totalAmountFilter' ];
+    displayedColumns = [ 'invoiceNumber', 'orderNumber', 'client', 'status', 'emissionDate', 'dueDate', 'netAmount', 'taxAmount', 'totalAmount', 'actions' ];
+    displayedColumnsFilters = this.displayedColumns.map((column) => column + 'Filter');
 
     // formControls
     invoiceNumberFormControl = new FormControl();
@@ -143,6 +149,19 @@ export class ListComponent {
             return firstValueFrom(this.#invoicesService.findAll(this.filters()));
         }
     });
+
+    updateStatusInvoice = (invoice: Invoice) => {
+        const dialog = this.#dialog.open(UpdateInvoiceStatusDialog, {
+            data : {invoice},
+            width: '400px'
+        });
+
+        dialog.afterClosed().subscribe((result) => {
+            if (result) {
+                this.invoicesResource.reload();
+            }
+        });
+    };
 
     protected readonly trackByFn = trackByFn;
     protected readonly invoiceStatuses = Object.values(InvoiceStatusEnum);

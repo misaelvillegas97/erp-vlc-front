@@ -27,7 +27,7 @@ export class OrdersComponent {
                 description : this._translateService.translate('operations.orders.list.subtitle'),
                 icon        : 'heroicons_outline:document-text',
                 selectedIcon: 'heroicons_solid:document-text',
-                link        : '/orders'
+                link: '/operations/orders'
             },
             {
                 id          : 'orders.new',
@@ -35,7 +35,7 @@ export class OrdersComponent {
                 description : this._translateService.translate('operations.orders.new.subtitle'),
                 icon        : 'heroicons_outline:plus-circle',
                 selectedIcon: 'heroicons_solid:plus-circle',
-                link        : '/orders/new'
+                link: '/operations/orders/new'
             }
         ];
     }

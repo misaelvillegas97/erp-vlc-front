@@ -11,7 +11,7 @@ export default [
                 path         : '',
                 loadComponent: () => import('./pages/list/list.component').then((m) => m.ListComponent),
                 resolve      : {
-                    orders: () => inject(OrdersService).getAll()
+                    orders: () => inject(OrdersService).findAll()
                 }
             },
             {path: 'new', loadComponent: () => import('./pages/create/create.component').then((m) => m.CreateComponent)},

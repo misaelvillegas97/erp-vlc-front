@@ -114,6 +114,13 @@
                 "from" : "Desde",
                 "to" : "Hasta",
                 "order-number" : "Número de orden"
+            },
+            "update-status" : {
+                "title" : "Actualizar estado de factura",
+                "success" : "Estado de factura actualizado exitosamente"
+            },
+            "actions" : {
+                "update-status" : "Actualizar estado"
             }
         }
     },
@@ -193,7 +200,8 @@
         "upload" : "Subir",
         "next" : "Siguiente",
         "back" : "Volver",
-        "addUrl" : "Agregar URL"
+        "addUrl" : "Agregar URL",
+        "reload" : "Recargar"
     },
     "modal" : {
         "confirmation-default" : {
