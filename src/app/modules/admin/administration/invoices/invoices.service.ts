@@ -14,6 +14,10 @@ export class InvoicesService {
         return this.#httpClient.get<any[]>('/api/invoices', {params: query});
     }
 
+    getInvoicesOverview() {
+        return this.#httpClient.get('/api/invoices/overview');
+    }
+
     updateStatus(invoiceId: string, params: { status: InvoiceStatusEnum; observations?: string; paymentDate?: string }) {
         return this.#httpClient.put('/api/invoices/' + invoiceId + '/status', params);
     }

@@ -53,18 +53,21 @@ export class UpdateInvoiceStatusDialog {
     statusEffect = effect(() => {
         const input = this.statusInput();
 
-        console.log(input);
-
         this.form.get('paymentDate').setValidators([]);
+        this.form.get('paymentDate').reset(undefined);
+
         this.form.get('observations').setValidators([]);
 
-        if (input === InvoiceStatusEnum.RECEIVED_WITH_OBSERVATIONS) {
+        if (input === InvoiceStatusEnum.RECEIVED_WITH_OBSERVATIONS || input === InvoiceStatusEnum.REJECTED) {
             this.form.get('observations').setValidators([ Validators.required, Validators.minLength(5) ]);
+            this.form.get('observations').updateValueAndValidity();
         }
 
         if (input === InvoiceStatusEnum.PAID) {
             this.form.get('paymentDate').setValidators([ Validators.required ]);
+            this.form.get('paymentDate').updateValueAndValidity();
         }
+
     });
     protected readonly invoiceStatuses = Object.values(InvoiceStatusEnum);
     protected readonly InvoiceStatusEnum = InvoiceStatusEnum;
@@ -80,7 +83,7 @@ export class UpdateInvoiceStatusDialog {
         firstValueFrom(this.#invoicesService.updateStatus(this.invoice().id, {
             status      : this.form.get('status').value,
             observations: this.form.get('observations').value,
-            paymentDate : this.form.get('paymentDate').value.toISODate()
+            paymentDate: this.form.get('paymentDate').value?.toISODate()
         }))
             .then(() => this.#dialogRef.close(true));
     };

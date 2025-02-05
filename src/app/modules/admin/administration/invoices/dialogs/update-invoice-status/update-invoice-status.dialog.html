@@ -31,16 +31,18 @@
         </mat-form-field>
 
         <!-- Payment date -->
-        <mat-form-field class="w-full" subscriptSizing="dynamic">
-            <mat-label>{{ 'operations.invoices.fields.payment-date' | transloco }}</mat-label>
-            <input [matDatepicker]="paymentDate" [min]="invoice().createdAt" formControlName="paymentDate" matInput>
-            <mat-datepicker-toggle [for]="paymentDate" matSuffix></mat-datepicker-toggle>
-            <mat-datepicker #paymentDate></mat-datepicker>
+        @if (form.get('status').value === 'PAID') {
+            <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'operations.invoices.fields.payment-date' | transloco }}</mat-label>
+                <input [matDatepicker]="paymentDate" [min]="invoice().createdAt" formControlName="paymentDate" matInput>
+                <mat-datepicker-toggle [for]="paymentDate" matSuffix></mat-datepicker-toggle>
+                <mat-datepicker #paymentDate></mat-datepicker>
 
-            @if (form.controls.paymentDate.hasError('required')) {
-                <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
-            }
-        </mat-form-field>
+                @if (form.controls.paymentDate.hasError('required')) {
+                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                }
+            </mat-form-field>
+        }
     </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">

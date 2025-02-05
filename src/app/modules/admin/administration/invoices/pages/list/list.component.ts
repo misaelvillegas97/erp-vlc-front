@@ -5,7 +5,7 @@ import { TranslocoDirective, TranslocoPipe, TranslocoService }                  
 import { debounceTime, firstValueFrom, map }                                                    from 'rxjs';
 import { PageHeaderComponent }                                                                  from '@layout/components/page-header/page-header.component';
 import { MatIcon }                                                                              from '@angular/material/icon';
-import { MatIconAnchor, MatIconButton }                                                         from '@angular/material/button';
+import { MatIconButton }                                                                        from '@angular/material/button';
 import { MatTooltip }                                                                           from '@angular/material/tooltip';
 import { RouterLink }                                                                           from '@angular/router';
 import { BreakpointObserver, Breakpoints }                                                      from '@angular/cdk/layout';
@@ -33,7 +33,6 @@ import { UpdateInvoiceStatusDialog }                                            
         TranslocoDirective,
         PageHeaderComponent,
         MatIcon,
-        MatIconAnchor,
         MatIconButton,
         MatTooltip,
         RouterLink,
@@ -144,10 +143,7 @@ export class ListComponent {
 
     invoicesResource = resource({
         request: () => this.filters(),
-        loader : async () => {
-            console.log('this.filters()', this.filters());
-            return firstValueFrom(this.#invoicesService.findAll(this.filters()));
-        }
+        loader: async () => firstValueFrom(this.#invoicesService.findAll(this.filters()))
     });
 
     updateStatusInvoice = (invoice: Invoice) => {
