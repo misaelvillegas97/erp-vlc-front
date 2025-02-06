@@ -63,7 +63,7 @@ export class DrawerListingComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe(({matchingAliases}) => {
                 // Set the drawerMode and drawerOpened
-                if (matchingAliases.includes('lg')) {
+                if (matchingAliases.includes('xl')) {
                     this.drawerMode = 'side';
                     this.drawerOpened = true;
                 } else {
@@ -91,9 +91,5 @@ export class DrawerListingComponent implements OnInit, OnDestroy {
         }
 
         this.panelSelected.emit(panel);
-    }
-
-    getPanelInfo(id: string): any {
-        return this.panels.find((panel) => panel.id === id);
     }
 }

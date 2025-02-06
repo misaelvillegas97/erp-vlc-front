@@ -63,6 +63,26 @@ export class DashboardComponent {
                 zoom      : {enabled: false}
             },
             colors     : [ '#818CF8' ],
+            grid   : {
+                borderColor    : 'var(--fuse-border)',
+                strokeDashArray: 4,
+                yaxis          : {
+                    lines: {
+                        show: true,
+                    }
+                }
+            },
+            markers: {
+                size        : 4,
+                colors      : [ '#818CF8' ],
+                strokeColors: 'var(--fuse-background)',
+                strokeWidth : 2,
+                hover       : {
+                    size      : 7,
+                    sizeOffset: 3
+                }
+            },
+            noData : {text: 'No hay datos'},
             plotOptions: {
                 radar: {
                     polygons: {
@@ -135,11 +155,21 @@ export class DashboardComponent {
                 foreColor : 'var(--fuse-text-default)'
             },
             colors    : [ '#4ADE80' ],
-            labels    : clientLabels,
             dataLabels: {
                 enabled  : true,
                 formatter: (val: number) => Intl.NumberFormat('es-CL', {style: 'currency', currency: 'CLP'}).format(val)
             },
+            grid  : {
+                borderColor    : 'var(--fuse-border)',
+                strokeDashArray: 4,
+                yaxis          : {
+                    lines: {
+                        show: true
+                    }
+                }
+            },
+            labels: clientLabels,
+            noData: {text: 'No hay datos'},
             series    : clientSeries,
             tooltip   : {theme: 'dark'},
             yaxis     : {
@@ -205,9 +235,12 @@ export class DashboardComponent {
                 type      : 'radialBar',
                 height    : '100%',
                 width     : '100%',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)',
             },
-            series     : [ averagePaymentTime ],
+            colors     : [ '#60A5FA' ],
+            labels     : [ 'Promedio' ],
+            noData     : {text: 'No hay datos'},
             plotOptions: {
                 radialBar: {
                     dataLabels: {
@@ -221,8 +254,7 @@ export class DashboardComponent {
                     }
                 }
             },
-            colors     : [ '#60A5FA' ],
-            labels     : [ 'Promedio de pago' ],
+            series     : [ averagePaymentTime ],
             tooltip    : {theme: 'dark'}
         });
     }
@@ -242,6 +274,16 @@ export class DashboardComponent {
                 foreColor : 'var(--fuse-text-default)'
             },
             colors     : [ '#10B981', '#F59E0B' ],
+            noData: {text: 'No hay datos'},
+            grid  : {
+                borderColor    : 'var(--fuse-border)',
+                strokeDashArray: 4,
+                yaxis          : {
+                    lines: {
+                        show: true
+                    }
+                }
+            },
             plotOptions: {
                 bar: {horizontal: false}
             },
@@ -264,13 +306,15 @@ export class DashboardComponent {
         this.chartInvoicesByDeliveryAssignment.set({
             chart  : {
                 type      : 'pie',
-                height    : 350,
-                fontFamily: 'inherit'
+                height    : '100%',
+                width     : '100%',
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)'
             },
-            labels : deliveryLabels,
-            series : deliverySeries,
             colors : [ '#34D399', '#60A5FA', '#FBBF24', '#F472B6' ],
+            labels : deliveryLabels,
             legend : {position: 'bottom'},
+            series : deliverySeries,
             tooltip: {theme: 'dark'}
         });
     }
@@ -285,12 +329,37 @@ export class DashboardComponent {
         this.chartOutstandingAmountByDate.set({
             chart  : {
                 type      : 'line',
-                height    : 350,
+                height: '100%',
+                width : '100%',
                 zoom      : {enabled: false},
                 fontFamily: 'inherit',
                 foreColor : 'var(--fuse-text-default)'
             },
             colors : [ '#F87171' ],
+            dataLabels: {
+                enabled  : true,
+                formatter: (val: number) => Intl.NumberFormat('es-CL', {style: 'currency', currency: 'CLP'}).format(val)
+            },
+            grid: {
+                borderColor    : 'var(--fuse-border)',
+                strokeDashArray: 4,
+                yaxis          : {
+                    lines: {
+                        show: true
+                    }
+                }
+            },
+            markers: {
+                size        : 4,
+                colors      : [ '#F87171' ],
+                strokeColors: 'var(--fuse-background)',
+                strokeWidth : 2,
+                hover       : {
+                    size      : 7,
+                    sizeOffset: 3
+                }
+            },
+            noData: {text: 'No hay datos'},
             series : outstandingSeries,
             stroke : {
                 width: 2,

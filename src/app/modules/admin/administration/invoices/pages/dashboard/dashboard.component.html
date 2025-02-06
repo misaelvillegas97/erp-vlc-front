@@ -5,9 +5,10 @@
         [subtitle]="t('dashboard.title')">
     </page-header>
 
-    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-screen-xl mx-auto py-10 gap-y-4 sm:px-4">
-        <div class="grid w-full min-w-0 grid-cols-1 gap-6 sm:grid-cols-6">
-            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-3 lg:col-span-4">
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-full mx-auto py-10 gap-y-4 sm:px-4">
+        <div class="grid w-full min-w-0 grid-cols-1 gap-6 sm:grid-cols-12">
+            <!-- Chart type: line; Total invoices by date -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-7 md:col-span-8 lg:col-span-9">
                 <h3 class="truncate text-lg font-medium leading-6 tracking-light">Facturas por fecha</h3>
 
                 <!-- Total invoiced by date -->
@@ -17,6 +18,9 @@
                         <apx-chart
                             [chart]="totalInvoicedByDateApexOptions.chart"
                             [colors]="totalInvoicedByDateApexOptions.colors"
+                            [grid]="totalInvoicedByDateApexOptions.grid"
+                            [markers]="totalInvoicedByDateApexOptions.markers"
+                            [noData]="totalInvoicedByDateApexOptions.noData"
                             [plotOptions]="totalInvoicedByDateApexOptions.plotOptions"
                             [series]="totalInvoicedByDateApexOptions.series"
                             [stroke]="totalInvoicedByDateApexOptions.stroke"
@@ -29,7 +33,8 @@
                 </div>
             </div>
 
-            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-3 lg:col-span-2">
+            <!-- Chart type: donut; Invoices by status -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-5 md:col-span-4 lg:col-span-3">
                 <h3 class="truncate text-lg font-medium leading-6 tracking-light">Facturas por estado</h3>
 
                 <!-- Total invoiced by status -->
@@ -51,7 +56,7 @@
             </div>
 
             <!-- Chart type: donut; Overdue Percentage -->
-            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-3 lg:col-span-2">
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-5 md:col-span-4 lg:col-span-3">
                 <h3 class="truncate text-lg font-medium leading-6 tracking-light">Porcentaje de facturas vencidas</h3>
 
                 <div class="flex flex-auto flex-col">
@@ -72,7 +77,7 @@
             </div>
 
             <!-- Chart type: bar; Paid invoices by date -->
-            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-3 lg:col-span-4">
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-7 md:col-span-8 lg:col-span-9">
                 <h3 class="truncate text-lg font-medium leading-6 tracking-light">Facturas pagadas por fecha</h3>
 
                 <div class="flex flex-auto flex-col">
@@ -82,6 +87,8 @@
                         <apx-chart
                             [chart]="paidInvoicesByDate.chart"
                             [colors]="paidInvoicesByDate.colors"
+                            [noData]="paidInvoicesByDate.noData"
+                            [grid]="paidInvoicesByDate.grid"
                             [plotOptions]="paidInvoicesByDate.plotOptions"
                             [series]="paidInvoicesByDate.series"
                             [tooltip]="paidInvoicesByDate.tooltip"
@@ -93,7 +100,7 @@
             </div>
 
             <!-- Chart type: bar; Invoices by client -->
-            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-3 lg:col-span-4">
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-7 md:col-span-8 lg:col-span-9">
                 <h3 class="truncate text-lg font-medium leading-6 tracking-light">Facturas por cliente</h3>
 
                 <div class="flex flex-auto flex-col">
@@ -103,8 +110,10 @@
                         <apx-chart
                             [chart]="invoicesByClient.chart"
                             [colors]="invoicesByClient.colors"
-                            [labels]="invoicesByClient.labels"
                             [dataLabels]="invoicesByClient.dataLabels"
+                            [grid]="invoicesByClient.grid"
+                            [labels]="invoicesByClient.labels"
+                            [noData]="invoicesByClient.noData"
                             [series]="invoicesByClient.series"
                             [tooltip]="invoicesByClient.tooltip"
                             [yaxis]="invoicesByClient.yaxis"
@@ -115,7 +124,7 @@
             </div>
 
             <!-- Chart type: 'donut'; Invoices Aging Results -->
-            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-3 lg:col-span-2">
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-5 md:col-span-4 lg:col-span-3">
                 <h3 class="truncate text-lg font-medium leading-6 tracking-light">Resultados de envejecimiento de facturas</h3>
 
                 <div class="flex flex-auto flex-col">
@@ -137,7 +146,79 @@
                         </div>
                     }
                 </div>
-        </div>
+            </div>
 
+            <!-- Chart type: 'radialBar'; Average payment time -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-5 md:col-span-4 lg:col-span-3">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Tiempo promedio de pago</h3>
+
+                <div class="flex flex-auto flex-col">
+                    @let averagePaymentTime = chartAveragePaymentTime();
+
+                    @if (averagePaymentTime) {
+                        <apx-chart
+                            [chart]="averagePaymentTime.chart"
+                            [colors]="averagePaymentTime.colors"
+                            [labels]="averagePaymentTime.labels"
+                            [noData]="averagePaymentTime.noData"
+                            [plotOptions]="averagePaymentTime.plotOptions"
+                            [series]="averagePaymentTime.series"
+                            [tooltip]="averagePaymentTime.tooltip"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    } @else {
+                        <div class="flex flex-auto items-center justify-center h-48">
+                            <p class="text-default italic">No hay datos para mostrar</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Chart type: 'line'; Outstanding amount by date -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-7 md:col-span-8 lg:col-span-9">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Monto pendiente por fecha</h3>
+
+                <div class="flex flex-auto flex-col">
+                    @let outstandingAmountByType = chartOutstandingAmountByDate();
+
+                    @if (outstandingAmountByType) {
+                        <apx-chart
+                            [chart]="outstandingAmountByType.chart"
+                            [colors]="outstandingAmountByType.colors"
+                            [grid]="outstandingAmountByType.grid"
+                            [markers]="outstandingAmountByType.markers"
+                            [noData]="outstandingAmountByType.noData"
+                            [series]="outstandingAmountByType.series"
+                            [stroke]="outstandingAmountByType.stroke"
+                            [tooltip]="outstandingAmountByType.tooltip"
+                            [xaxis]="outstandingAmountByType.xaxis"
+                            [yaxis]="outstandingAmountByType.yaxis"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
+            <!-- Chart type: 'pie'; Invoices by delivery assignment -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-5 md:col-span-4 lg:col-span-3">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Facturas por asignación de entrega</h3>
+
+                <div class="flex flex-auto flex-col">
+                    @let invoicesByDeliveryAssignment = chartInvoicesByDeliveryAssignment();
+
+                    @if (invoicesByDeliveryAssignment) {
+                        <apx-chart
+                            [chart]="invoicesByDeliveryAssignment.chart"
+                            [colors]="invoicesByDeliveryAssignment.colors"
+                            [labels]="invoicesByDeliveryAssignment.labels"
+                            [legend]="invoicesByDeliveryAssignment.legend"
+                            [series]="invoicesByDeliveryAssignment.series"
+                            [tooltip]="invoicesByDeliveryAssignment.tooltip"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
         </div>
+    </div>
 </div>
