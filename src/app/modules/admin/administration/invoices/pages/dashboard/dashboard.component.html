@@ -1,8 +1,8 @@
 <div *transloco="let t; read: 'operations.invoices'" class="flex flex-col min-w-0 w-full">
     <!-- Encabezado de la página -->
     <page-header
-        [description]="t('list.subtitle')"
-        [subtitle]="t('list.title')">
+        [description]="t('dashboard.subtitle')"
+        [subtitle]="t('dashboard.title')">
     </page-header>
 
     <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-screen-xl mx-auto py-10 gap-y-4 sm:px-4">
@@ -17,17 +17,127 @@
                         <apx-chart
                             [chart]="totalInvoicedByDateApexOptions.chart"
                             [colors]="totalInvoicedByDateApexOptions.colors"
-                            [dataLabels]="totalInvoicedByDateApexOptions.dataLabels"
+                            [plotOptions]="totalInvoicedByDateApexOptions.plotOptions"
                             [series]="totalInvoicedByDateApexOptions.series"
                             [stroke]="totalInvoicedByDateApexOptions.stroke"
                             [tooltip]="totalInvoicedByDateApexOptions.tooltip"
                             [xaxis]="totalInvoicedByDateApexOptions.xaxis"
                             [yaxis]="totalInvoicedByDateApexOptions.yaxis"
-                            class="w-full flex-auto"
+                            class="w-full flex-auto h-64"
                         ></apx-chart>
                     }
                 </div>
             </div>
+
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-3 lg:col-span-2">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Facturas por estado</h3>
+
+                <!-- Total invoiced by status -->
+                <div class="flex flex-auto flex-col">
+                    @let invoicesByStatus = chartInvoicesByStatus();
+
+                    @if (invoicesByStatus) {
+                        <apx-chart
+                            [chart]="invoicesByStatus.chart"
+                            [colors]="invoicesByStatus.colors"
+                            [labels]="invoicesByStatus.labels"
+                            [legend]="invoicesByStatus.legend"
+                            [series]="invoicesByStatus.series"
+                            [tooltip]="invoicesByStatus.tooltip"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
+            <!-- Chart type: donut; Overdue Percentage -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-3 lg:col-span-2">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Porcentaje de facturas vencidas</h3>
+
+                <div class="flex flex-auto flex-col">
+                    @let overduePercentage = chartOverduePercentage();
+
+                    @if (overduePercentage) {
+                        <apx-chart
+                            [chart]="overduePercentage.chart"
+                            [colors]="overduePercentage.colors"
+                            [labels]="overduePercentage.labels"
+                            [plotOptions]="overduePercentage.plotOptions"
+                            [series]="overduePercentage.series"
+                            [tooltip]="overduePercentage.tooltip"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
+            <!-- Chart type: bar; Paid invoices by date -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-3 lg:col-span-4">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Facturas pagadas por fecha</h3>
+
+                <div class="flex flex-auto flex-col">
+                    @let paidInvoicesByDate = chartPaidInvoicesByDate();
+
+                    @if (paidInvoicesByDate) {
+                        <apx-chart
+                            [chart]="paidInvoicesByDate.chart"
+                            [colors]="paidInvoicesByDate.colors"
+                            [plotOptions]="paidInvoicesByDate.plotOptions"
+                            [series]="paidInvoicesByDate.series"
+                            [tooltip]="paidInvoicesByDate.tooltip"
+                            [xaxis]="paidInvoicesByDate.xaxis"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
+            <!-- Chart type: bar; Invoices by client -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-3 lg:col-span-4">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Facturas por cliente</h3>
+
+                <div class="flex flex-auto flex-col">
+                    @let invoicesByClient = chartInvoicesByClient();
+
+                    @if (invoicesByClient) {
+                        <apx-chart
+                            [chart]="invoicesByClient.chart"
+                            [colors]="invoicesByClient.colors"
+                            [labels]="invoicesByClient.labels"
+                            [dataLabels]="invoicesByClient.dataLabels"
+                            [series]="invoicesByClient.series"
+                            [tooltip]="invoicesByClient.tooltip"
+                            [yaxis]="invoicesByClient.yaxis"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
+            <!-- Chart type: 'donut'; Invoices Aging Results -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-3 lg:col-span-2">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Resultados de envejecimiento de facturas</h3>
+
+                <div class="flex flex-auto flex-col">
+                    @let invoicesAgingResults = chartAgingResults();
+
+                    @if (invoicesAgingResults) {
+                        <apx-chart
+                            [chart]="invoicesAgingResults.chart"
+                            [colors]="invoicesAgingResults.colors"
+                            [labels]="invoicesAgingResults.labels"
+                            [legend]="invoicesAgingResults.legend"
+                            [series]="invoicesAgingResults.series"
+                            [tooltip]="invoicesAgingResults.tooltip"
+                            class="w-full flex-auto h-48"
+                        ></apx-chart>
+                    } @else {
+                        <div class="flex flex-auto items-center justify-center h-48">
+                            <p class="text-default italic">No hay datos para mostrar</p>
+                        </div>
+                    }
+                </div>
         </div>
-    </div>
+
+        </div>
 </div>

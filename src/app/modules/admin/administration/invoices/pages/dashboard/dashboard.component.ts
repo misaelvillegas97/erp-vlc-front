@@ -1,9 +1,11 @@
-import { Component, inject, resource, signal } from '@angular/core';
-import { TranslocoDirective }                  from '@ngneat/transloco';
-import { PageHeaderComponent }                 from '@layout/components/page-header/page-header.component';
-import { ApexOptions, ChartComponent }         from 'ng-apexcharts';
-import { InvoicesService }                     from '@modules/admin/administration/invoices/invoices.service';
-import { firstValueFrom }                      from 'rxjs';
+import { Component, inject, resource, signal, WritableSignal } from '@angular/core';
+import { TranslocoDirective, TranslocoService }                from '@ngneat/transloco';
+import { PageHeaderComponent }                                 from '@layout/components/page-header/page-header.component';
+import { ApexOptions, ChartComponent }                         from 'ng-apexcharts';
+import { InvoicesService }                                     from '@modules/admin/administration/invoices/invoices.service';
+import { firstValueFrom }                                      from 'rxjs';
+import { isNull }                                              from 'lodash';
+import { isUndefined }                                         from 'lodash-es';
 
 @Component({
     selector   : 'app-dashboard',
@@ -15,67 +17,296 @@ import { firstValueFrom }                      from 'rxjs';
     templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent {
+    readonly #translationService = inject(TranslocoService);
     readonly #invoicesService = inject(InvoicesService);
-    chartTotalInvoicedByDate = signal<ApexOptions>(undefined);
+    chartInvoicesByStatus: WritableSignal<ApexOptions> = signal<ApexOptions>(undefined);
+    chartTotalInvoicedByDate: WritableSignal<ApexOptions> = signal<ApexOptions>(undefined);
+    chartInvoicesByClient: WritableSignal<ApexOptions> = signal<ApexOptions>(undefined);
+    chartOverduePercentage: WritableSignal<ApexOptions> = signal<ApexOptions>(undefined);
+    chartAgingResults: WritableSignal<ApexOptions> = signal<ApexOptions>(undefined);
+    chartAveragePaymentTime: WritableSignal<ApexOptions> = signal<ApexOptions>(undefined);
+    chartPaidInvoicesByDate: WritableSignal<ApexOptions> = signal<ApexOptions>(undefined);
+    chartInvoicesByDeliveryAssignment: WritableSignal<ApexOptions> = signal<ApexOptions>(undefined);
+    chartOutstandingAmountByDate: WritableSignal<ApexOptions> = signal<ApexOptions>(undefined);
 
     dashboardResource = resource({
         loader: () => firstValueFrom(this.#invoicesService.getInvoicesOverview())
             .then((response) => {
-                if (response['totalInvoicedByDate']) {
-                    const totalInvoicedByDate: { date: string, total: number }[] = response['totalInvoicedByDate'];
-                    const labels = totalInvoicedByDate.map((item) => item.date);
-                    // series { name = date, data = total }
-                    const series = [ {
-                        name: 'Total',
-                        data: totalInvoicedByDate
-                            .map((item) => item.total)
-                    } ];
 
-                    this.chartTotalInvoicedByDate.set({
-                        chart     : {
-                            height: 350,
-                            type  : 'line',
-                            zoom  : {
-                                enabled: false
-                            }
-                        },
-                        colors    : [ '#818CF8' ],
-                        dataLabels: {
-                            enabled   : true,
-                            formatter : (val: number): string | number => Intl.NumberFormat('es-CL', {style: 'currency', currency: 'CLP'}).format(val),
-                            textAnchor: 'start',
-                            style     : {
-                                fontSize  : '11px',
-                                fontWeight: 500,
-                            },
-                            background: {
-                                borderWidth: 0,
-                                padding    : 2,
-                            },
-                            offsetY   : -5,
-                        },
-                        series    : series,
-                        stroke    : {
-                            width: 2,
-                        },
-                        tooltip   : {
-                            theme: 'dark'
-                        },
-                        xaxis     : {
-                            type      : 'datetime',
-                            categories: labels,
-                        },
-                        yaxis     : {
-                            title : {text: 'Total invoiced'},
-                            labels: {
-                                formatter(val: number, opts?: any): string | string[] {
-                                    return Intl.NumberFormat('es-CL', {style: 'currency', currency: 'CLP'}).format(val);
-                                }
-                            }
-                        },
-                    });
-
-                }
+                if (response['invoicesByStatus']) this.setChartInvoicesByStatus(response['invoicesByStatus']);
+                if (response['totalInvoicedByDate']) this.setChartTotalInvoicedByDate(response['totalInvoicedByDate']);
+                if (response['invoicesByClient']) this.setChartInvoicesByClient(response['invoicesByClient']);
+                if (!isNull(response['overduePercentage']) || !isUndefined(response['overduePercentage'])) this.setChartOverduePercentage(response['overduePercentage']);
+                if (response['agingResults'] && response['agingResults'].length > 0) this.setChartAgingResults(response['agingResults']);
+                if (response['averagePaymentTime']) this.setChartAveragePaymentTime(response['averagePaymentTime']);
+                if (response['paidInvoicesByDate']) this.setChartPaidInvoicesByDate(response['paidInvoicesByDate']);
+                if (response['invoicesByDeliveryAssignment']) this.setChartInvoicesByDeliveryAssignment(response['invoicesByDeliveryAssignment']);
+                if (response['outstandingAmountByDate']) this.setChartOutstandingAmountByDate(response['outstandingAmountByDate']);
             })
     });
+
+    setChartTotalInvoicedByDate(totalInvoicedByDate: { date: string, total: number }[]) {
+        const labels = totalInvoicedByDate.map((item) => item.date);
+        const series = [ {
+            name: 'Total',
+            data: totalInvoicedByDate
+                .map((item) => item.total)
+        } ];
+
+        this.chartTotalInvoicedByDate.set({
+            chart      : {
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)',
+                height    : '100%',
+                width     : '100%',
+                type      : 'line',
+                zoom      : {enabled: false}
+            },
+            colors     : [ '#818CF8' ],
+            plotOptions: {
+                radar: {
+                    polygons: {
+                        strokeColors   : 'var(--fuse-border)',
+                        connectorColors: 'var(--fuse-border)',
+                    },
+                },
+            },
+            series     : series,
+            stroke     : {
+                width: 2,
+                curve: 'smooth'
+            },
+            tooltip    : {
+                theme: 'dark'
+            },
+            xaxis      : {
+                type      : 'datetime',
+                categories: labels,
+            },
+            yaxis      : {
+                title : {text: 'Total invoiced'},
+                labels: {
+                    formatter(val: number): string | string[] {
+                        return Intl.NumberFormat('es-CL', {style: 'currency', currency: 'CLP'}).format(val);
+                    }
+                }
+            },
+        });
+    }
+
+    setChartInvoicesByStatus(invoicesByStatus: { status: string, total: number }[]) {
+        const statusLabels = invoicesByStatus.map(item => item.status);
+        const statusSeries = invoicesByStatus.map(item => Number(item.total));
+
+        this.chartInvoicesByStatus.set({
+            chart: {
+                type      : 'donut',
+                height    : '100%',
+                width     : '100%',
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)'
+            },
+            // ISSUED bg-yellow-500, RECEIVED_WITHOUT_OBSERVATIONS bg-blue-500, RECEIVED_WITH_OBSERVATIONS bg-green-500, PAID bg-indigo-500, REJECTED bg-red-500
+            colors : [ '#FBBF24', '#60A5FA', '#34D399', '#6366F1', '#F87171' ],
+            labels : statusLabels.map(status => this.#translationService.translate('enums.invoice-status.' + status)),
+            legend : {
+                position: 'bottom'
+            }, // Puedes ajustar los colores según tus estados
+            series : statusSeries,
+            tooltip: {
+                theme: 'dark'
+            }
+        });
+    }
+
+    setChartInvoicesByClient(invoicesByClient: { clientId: string, clientFantasyName: string, totalAmount: string }[]) {
+        const clientLabels = invoicesByClient.map(item => item.clientFantasyName);
+        const clientSeries = [ {
+            name: 'Monto total',
+            data: invoicesByClient.map(item => Number(item.totalAmount))
+        } ];
+
+        this.chartInvoicesByClient.set({
+            chart     : {
+                type      : 'bar',
+                height    : '100%',
+                width     : '100%',
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)'
+            },
+            colors    : [ '#4ADE80' ],
+            labels    : clientLabels,
+            dataLabels: {
+                enabled  : true,
+                formatter: (val: number) => Intl.NumberFormat('es-CL', {style: 'currency', currency: 'CLP'}).format(val)
+            },
+            series    : clientSeries,
+            tooltip   : {theme: 'dark'},
+            yaxis     : {
+                labels: {
+                    formatter: (val: number) => Intl.NumberFormat('es-CL', {style: 'currency', currency: 'CLP'}).format(val)
+                }
+            }
+        });
+    }
+
+    setChartOverduePercentage(overduePercentage: number) {
+        this.chartOverduePercentage.set({
+            chart      : {
+                type      : 'radialBar',
+                height    : '100%',
+                width     : '100%',
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)',
+            },
+            colors     : [ '#F472B6' ],
+            labels     : [ 'Vencidas' ],
+            plotOptions: {
+                radialBar: {
+                    dataLabels: {
+                        name : {
+                            fontSize: '22px',
+                        },
+                        value: {
+                            fontSize : '16px',
+                            formatter: (val: number) => `${ val.toFixed(1) }%`
+                        }
+                    }
+                }
+            },
+            series     : [ overduePercentage ],
+            tooltip    : {theme: 'dark'}
+        });
+    }
+
+    setChartAgingResults(agingResults: { bucket: string, total: number }[]) {
+        const agingLabels = agingResults.map(item => item.bucket);
+        const agingSeries = agingResults.map(item => Number(item.total));
+
+        this.chartAgingResults.set({
+            chart  : {
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)',
+                height    : '100%',
+                type      : 'donut',
+                width     : '100%'
+            },
+            colors : [ '#6366F1', '#FBBF24', '#34D399', '#F87171' ],
+            labels : agingLabels,
+            legend : {position: 'bottom'},
+            series : agingSeries,
+            tooltip: {theme: 'dark'}
+        });
+    }
+
+    setChartAveragePaymentTime(averagePaymentTime: number) {
+        this.chartAveragePaymentTime.set({
+            chart      : {
+                type      : 'radialBar',
+                height    : '100%',
+                width     : '100%',
+                fontFamily: 'inherit'
+            },
+            series     : [ averagePaymentTime ],
+            plotOptions: {
+                radialBar: {
+                    dataLabels: {
+                        name : {
+                            fontSize: '22px',
+                        },
+                        value: {
+                            fontSize : '16px',
+                            formatter: (val: number) => `${ val.toFixed(1) } días`
+                        }
+                    }
+                }
+            },
+            colors     : [ '#60A5FA' ],
+            labels     : [ 'Promedio de pago' ],
+            tooltip    : {theme: 'dark'}
+        });
+    }
+
+    setChartPaidInvoicesByDate(paidInvoicesByDate: { date: string, paidCount: number, totalCount: number }[]) {
+        const paidDates = paidInvoicesByDate.map(item => item.date);
+        const paidSeries = paidInvoicesByDate.map(item => Number(item.paidCount));
+        const pendingSeries = paidInvoicesByDate.map(item => Number(item.totalCount) - Number(item.paidCount));
+
+        this.chartPaidInvoicesByDate.set({
+            chart      : {
+                type      : 'bar',
+                height    : '100%',
+                width     : '100%',
+                stacked   : true,
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)'
+            },
+            colors     : [ '#10B981', '#F59E0B' ],
+            plotOptions: {
+                bar: {horizontal: false}
+            },
+            series     : [
+                {name: 'Pagadas', data: paidSeries},
+                {name: 'Pendientes', data: pendingSeries}
+            ],
+            tooltip    : {theme: 'dark'},
+            xaxis      : {
+                type      : 'datetime',
+                categories: paidDates
+            }
+        });
+    }
+
+    setChartInvoicesByDeliveryAssignment(invoicesByDeliveryAssignment: { deliveryAssignmentId: string, deliveryAssignmentName: string, total: string }[]) {
+        const deliveryLabels = invoicesByDeliveryAssignment.map(item => item.deliveryAssignmentId || 'Sin asignar');
+        const deliverySeries = invoicesByDeliveryAssignment.map(item => Number(item.total));
+
+        this.chartInvoicesByDeliveryAssignment.set({
+            chart  : {
+                type      : 'pie',
+                height    : 350,
+                fontFamily: 'inherit'
+            },
+            labels : deliveryLabels,
+            series : deliverySeries,
+            colors : [ '#34D399', '#60A5FA', '#FBBF24', '#F472B6' ],
+            legend : {position: 'bottom'},
+            tooltip: {theme: 'dark'}
+        });
+    }
+
+    setChartOutstandingAmountByDate(outstandingAmountByDate: { date: string, outstandingTotal: number }[]) {
+        const outstandingLabels = outstandingAmountByDate.map(item => item.date);
+        const outstandingSeries = [ {
+            name: 'Monto pendiente',
+            data: outstandingAmountByDate.map(item => Number(item.outstandingTotal))
+        } ];
+
+        this.chartOutstandingAmountByDate.set({
+            chart  : {
+                type      : 'line',
+                height    : 350,
+                zoom      : {enabled: false},
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)'
+            },
+            colors : [ '#F87171' ],
+            series : outstandingSeries,
+            stroke : {
+                width: 2,
+                curve: 'smooth'
+            },
+            tooltip: {theme: 'dark'},
+            xaxis  : {
+                type      : 'datetime',
+                categories: outstandingLabels
+            },
+            yaxis  : {
+                title : {text: 'Monto pendiente'},
+                labels: {
+                    formatter: (val: number) => Intl.NumberFormat('es-CL', {style: 'currency', currency: 'CLP'}).format(val)
+                }
+            }
+        });
+    }
 }

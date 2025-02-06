@@ -82,6 +82,11 @@
         },
         "invoices" : {
             "title" : "Facturas",
+            "dashboard" : {
+                "title" : "Tablero de facturas",
+                "subtitle" : "Resumen de facturas",
+                "description" : "Resumen de facturas"
+            },
             "list" : {
                 "title" : "Listado de facturas",
                 "subtitle" : "Administra las facturas de compra",
