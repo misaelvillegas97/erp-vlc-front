@@ -4,6 +4,6 @@ export interface OrdersOverview {
     ordersWithoutInvoiceCount: number;
     overdueOrdersCount: number;
     averageDeliveryTime: number;
-    ordersByClient: { clientId: string, totalOrders: string }[];
+    ordersByClient: { clientId: string, clientFantasyName: string; totalOrders: string }[];
     ordersRevenueByDate: { date: string, revenue: string }[];
 }

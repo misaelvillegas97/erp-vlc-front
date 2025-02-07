@@ -37,7 +37,7 @@ export class DashboardComponent {
                 this.setChartOrdersWithoutInvoiceCount(ordersWithoutInvoiceCount);
                 this.setChartOverdueOrdersCount(overdueOrdersCount);
                 this.setChartAverageDeliveryTime(averageDeliveryTime);
-                this.setChartOrdersByClient(ordersByClient.map(item => ({clientId: item.clientId, totalOrders: +item.totalOrders})));
+                this.setChartOrdersByClient(ordersByClient.map(item => ({clientId: item.clientId, clientFantasyName: item.clientFantasyName, totalOrders: +item.totalOrders})));
                 this.setChartOrdersRevenueByDate(ordersRevenueByDate.map(item => ({date: item.date, revenue: +item.revenue})));
             })
     });
@@ -129,9 +129,12 @@ export class DashboardComponent {
                 type      : 'radialBar',
                 height    : '100%',
                 width     : '100%',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)'
             },
-            series     : [ count ],
+            colors     : [ '#FBBF24' ],
+            labels     : [ 'Sin Factura' ],
+            noData     : {text: 'No hay datos'},
             plotOptions: {
                 radialBar: {
                     dataLabels: {
@@ -140,10 +143,8 @@ export class DashboardComponent {
                     }
                 }
             },
-            colors     : [ '#FBBF24' ],
-            labels     : [ 'Sin Factura' ],
-            tooltip    : {theme: 'dark'},
-            noData     : {text: 'No hay datos'}
+            series     : [ count ],
+            tooltip    : {theme: 'dark'}
         });
     }
 
@@ -153,9 +154,12 @@ export class DashboardComponent {
                 type      : 'radialBar',
                 height    : '100%',
                 width     : '100%',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)'
             },
-            series     : [ count ],
+            colors     : [ '#F87171' ],
+            labels     : [ 'Órdenes Vencidas' ],
+            noData     : {text: 'No hay datos'},
             plotOptions: {
                 radialBar: {
                     dataLabels: {
@@ -164,10 +168,8 @@ export class DashboardComponent {
                     }
                 }
             },
-            colors     : [ '#F87171' ],
-            labels     : [ 'Órdenes Vencidas' ],
-            tooltip    : {theme: 'dark'},
-            noData     : {text: 'No hay datos'}
+            series     : [ count ],
+            tooltip    : {theme: 'dark'}
         });
     }
 
@@ -177,9 +179,12 @@ export class DashboardComponent {
                 type      : 'radialBar',
                 height    : '100%',
                 width     : '100%',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)'
             },
-            series     : [ avgTime ],
+            colors     : [ '#60A5FA' ],
+            labels     : [ 'Promedio\nEntrega' ],
+            noData     : {text: 'No hay datos'},
             plotOptions: {
                 radialBar: {
                     dataLabels: {
@@ -188,15 +193,13 @@ export class DashboardComponent {
                     }
                 }
             },
-            colors     : [ '#60A5FA' ],
-            labels     : [ 'Promedio Entrega' ],
-            tooltip    : {theme: 'dark'},
-            noData     : {text: 'No hay datos'}
+            series     : [ avgTime ],
+            tooltip    : {theme: 'dark'}
         });
     }
 
-    setChartOrdersByClient(ordersByClient: { clientId: string, totalOrders: number }[]) {
-        const labels = ordersByClient.map(item => item.clientId);
+    setChartOrdersByClient(ordersByClient: { clientId: string, clientFantasyName: string, totalOrders: number }[]) {
+        const labels = ordersByClient.map(item => item.clientFantasyName);
         const series = [ {
             name: 'Órdenes',
             data: ordersByClient.map(item => Number(item.totalOrders))
@@ -210,20 +213,24 @@ export class DashboardComponent {
                 fontFamily: 'inherit',
                 foreColor : 'var(--fuse-text-default)'
             },
-            plotOptions: {
-                bar: {horizontal: true}
-            },
+            colors     : [ '#4ADE80' ],
             dataLabels : {enabled: true},
-            series     : series,
-            xaxis      : {categories: labels},
-            yaxis      : {
-                labels: {
-                    formatter: (val: number) => Intl.NumberFormat('es-CL', {style: 'currency', currency: 'CLP'}).format(val)
+            grid       : {
+                borderColor    : 'var(--fuse-border)',
+                strokeDashArray: 4,
+                yaxis          : {
+                    lines: {
+                        show: true
+                    }
                 }
             },
-            colors     : [ '#4ADE80' ],
+            noData     : {text: 'No hay datos'},
+            plotOptions: {
+                bar: {horizontal: false}
+            },
+            series     : series,
             tooltip    : {theme: 'dark'},
-            noData     : {text: 'No hay datos'}
+            xaxis      : {categories: labels},
         });
     }
 

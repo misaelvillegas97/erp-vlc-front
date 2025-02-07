@@ -9,7 +9,7 @@
         <div class="grid w-full min-w-0 grid-cols-1 gap-6 sm:grid-cols-12">
 
             <!-- Chart type: 'line'; Chart orders count by date -->
-            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-7 md:col-span-8 lg:col-span-9">
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-7 md:col-span-8 lg:col-span-9">
                 <h3 class="truncate text-lg font-medium leading-6 tracking-light">Órdenes por fecha</h3>
 
                 <div class="flex flex-auto flex-col">
@@ -34,7 +34,7 @@
             </div>
 
             <!-- Chart type: 'donut'; Orders by status -->
-            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-5 md:col-span-4 lg:col-span-3">
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-5 md:col-span-4 lg:col-span-3">
                 <h3 class="truncate text-lg font-medium leading-6 tracking-light">Órdenes por estado</h3>
 
                 <div class="flex flex-auto flex-col">
@@ -53,6 +53,118 @@
                     }
                 </div>
             </div>
+
+            <!-- Chart type: 'radialBar'; Orders without invoice's count -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-5 md:col-span-4">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Órdenes sin factura</h3>
+
+                <div class="flex flex-auto flex-col">
+                    @let ordersWithoutInvoiceCount = chartOrdersWithoutInvoiceCount();
+                    @if (ordersWithoutInvoiceCount) {
+                        <apx-chart
+                            [chart]="ordersWithoutInvoiceCount.chart"
+                            [colors]="ordersWithoutInvoiceCount.colors"
+                            [labels]="ordersWithoutInvoiceCount.labels"
+                            [noData]="ordersWithoutInvoiceCount.noData"
+                            [plotOptions]="ordersWithoutInvoiceCount.plotOptions"
+                            [series]="ordersWithoutInvoiceCount.series"
+                            [tooltip]="ordersWithoutInvoiceCount.tooltip"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
+            <!-- Chart type: 'radialBar'; Overdue orders count -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-5 md:col-span-4">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Órdenes vencidas</h3>
+
+                <div class="flex flex-auto flex-col">
+                    @let overdueOrdersCount = chartOverdueOrdersCount();
+                    @if (overdueOrdersCount) {
+                        <apx-chart
+                            [chart]="overdueOrdersCount.chart"
+                            [colors]="overdueOrdersCount.colors"
+                            [labels]="overdueOrdersCount.labels"
+                            [noData]="overdueOrdersCount.noData"
+                            [plotOptions]="overdueOrdersCount.plotOptions"
+                            [series]="overdueOrdersCount.series"
+                            [tooltip]="overdueOrdersCount.tooltip"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
+            <!-- Chart type: 'radialBar'; Average delivery time -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-5 md:col-span-4">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Tiempo promedio de entrega</h3>
+
+                <div class="flex flex-auto flex-col">
+                    @let averageDeliveryTime = chartAverageDeliveryTime();
+                    @if (averageDeliveryTime) {
+                        <apx-chart
+                            [chart]="averageDeliveryTime.chart"
+                            [colors]="averageDeliveryTime.colors"
+                            [labels]="averageDeliveryTime.labels"
+                            [noData]="averageDeliveryTime.noData"
+                            [plotOptions]="averageDeliveryTime.plotOptions"
+                            [series]="averageDeliveryTime.series"
+                            [tooltip]="averageDeliveryTime.tooltip"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
+            <!-- Chart type: 'bar'; Orders by client; Full width -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-12">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Órdenes por cliente</h3>
+
+                <div class="flex flex-auto flex-col">
+                    @let ordersByClient = chartOrdersByClient();
+                    @if (ordersByClient) {
+                        <apx-chart
+                            [chart]="ordersByClient.chart"
+                            [colors]="ordersByClient.colors"
+                            [dataLabels]="ordersByClient.dataLabels"
+                            [grid]="ordersByClient.grid"
+                            [noData]="ordersByClient.noData"
+                            [plotOptions]="ordersByClient.plotOptions"
+                            [series]="ordersByClient.series"
+                            [tooltip]="ordersByClient.tooltip"
+                            [xaxis]="ordersByClient.xaxis"
+                            [yaxis]="ordersByClient.yaxis"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
+            <!-- Chart type: 'line'; Orders revenue by date; Full width -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-12">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Ingresos por fecha</h3>
+
+                <div class="flex flex-auto flex-col">
+                    @let ordersRevenueByDate = chartOrdersRevenueByDate();
+                    @if (ordersRevenueByDate) {
+                        <apx-chart
+                            [chart]="ordersRevenueByDate.chart"
+                            [colors]="ordersRevenueByDate.colors"
+                            [grid]="ordersRevenueByDate.grid"
+                            [markers]="ordersRevenueByDate.markers"
+                            [noData]="ordersRevenueByDate.noData"
+                            [series]="ordersRevenueByDate.series"
+                            [stroke]="ordersRevenueByDate.stroke"
+                            [tooltip]="ordersRevenueByDate.tooltip"
+                            [xaxis]="ordersRevenueByDate.xaxis"
+                            [yaxis]="ordersRevenueByDate.yaxis"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
