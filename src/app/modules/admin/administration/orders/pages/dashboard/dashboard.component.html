@@ -1,0 +1,58 @@
+<div *transloco="let t; read: 'operations.orders'" class="flex flex-col min-w-0 w-full">
+    <!-- Encabezado de la página -->
+    <page-header
+        [description]="t('dashboard.subtitle')"
+        [subtitle]="t('dashboard.title')">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-full mx-auto py-10 gap-y-4 sm:px-4">
+        <div class="grid w-full min-w-0 grid-cols-1 gap-6 sm:grid-cols-12">
+
+            <!-- Chart type: 'line'; Chart orders count by date -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-7 md:col-span-8 lg:col-span-9">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Órdenes por fecha</h3>
+
+                <div class="flex flex-auto flex-col">
+                    @let ordersCountByDate = chartOrdersCountByDate();
+                    @if (ordersCountByDate) {
+                        <apx-chart
+                            [chart]="ordersCountByDate.chart"
+                            [colors]="ordersCountByDate.colors"
+                            [grid]="ordersCountByDate.grid"
+                            [markers]="ordersCountByDate.markers"
+                            [noData]="ordersCountByDate.noData"
+                            [plotOptions]="ordersCountByDate.plotOptions"
+                            [series]="ordersCountByDate.series"
+                            [stroke]="ordersCountByDate.stroke"
+                            [tooltip]="ordersCountByDate.tooltip"
+                            [xaxis]="ordersCountByDate.xaxis"
+                            [yaxis]="ordersCountByDate.yaxis"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
+            <!-- Chart type: 'donut'; Orders by status -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow w-full sm:col-span-5 md:col-span-4 lg:col-span-3">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Órdenes por estado</h3>
+
+                <div class="flex flex-auto flex-col">
+                    @let ordersByStatus = chartOrdersByStatus();
+                    @if (ordersByStatus) {
+                        <apx-chart
+                            [chart]="ordersByStatus.chart"
+                            [colors]="ordersByStatus.colors"
+                            [labels]="ordersByStatus.labels"
+                            [legend]="ordersByStatus.legend"
+                            [noData]="ordersByStatus.noData"
+                            [series]="ordersByStatus.series"
+                            [tooltip]="ordersByStatus.tooltip"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -36,6 +36,11 @@
     "operations" : {
         "orders" : {
             "title" : "Órdenes",
+            "dashboard" : {
+                "title" : "Tablero de órdenes",
+                "subtitle" : "Resumen de órdenes",
+                "description" : "Resumen de órdenes"
+            },
             "list" : {
                 "title" : "Listado de órdenes",
                 "subtitle" : "Administra las órdenes de compra o devolución",

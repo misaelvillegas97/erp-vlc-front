@@ -55,14 +55,14 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 id   : 'operations.orders',
                 title: 'Orders',
                 type : 'basic',
-                link : '/operations/orders',
+                link: '/operations/orders/dashboard',
                 icon : 'heroicons_outline:document-text'
             },
             {
                 id   : 'operations.invoices',
                 title: 'Invoices',
                 type : 'basic',
-                link : '/operations/invoices',
+                link: '/operations/invoices/dashboard',
                 icon: 'mat_outline:receipt_long'
             }
         ]

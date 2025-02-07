@@ -1,9 +1,9 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
-import { Component, inject, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewEncapsulation, } from '@angular/core';
-import { MatProgressBarModule }                                                                      from '@angular/material/progress-bar';
-import { FuseLoadingService }                                                                        from '@fuse/services/loading';
-import { Subject, takeUntil }                                                                        from 'rxjs';
+import { Component, inject, Input, OnChanges, OnDestroy, OnInit, signal, SimpleChanges, ViewEncapsulation, WritableSignal, } from '@angular/core';
+import { MatProgressBarModule }                                                                                              from '@angular/material/progress-bar';
+import { FuseLoadingService }                                                                                                from '@fuse/services/loading';
+import { Subject, takeUntil }                                                                                                from 'rxjs';
 
 @Component({
   selector   : 'fuse-loading-bar',
@@ -20,7 +20,7 @@ export class FuseLoadingBarComponent implements OnChanges, OnInit, OnDestroy {
   @Input() autoMode: boolean = true;
   mode: 'determinate' | 'indeterminate';
   progress: number = 0;
-  show: boolean = false;
+    show: WritableSignal<boolean> = signal(false);
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
   // -----------------------------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ export class FuseLoadingBarComponent implements OnChanges, OnInit, OnDestroy {
     this._fuseLoadingService.show$
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((value) => {
-        this.show = value;
+          this.show.set(value);
       });
   }
 

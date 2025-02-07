@@ -22,6 +22,14 @@ export class OrdersComponent {
     constructor(private readonly _translateService: TranslocoService) {
         this.panels = [
             {
+                id          : 'orders.dashboard',
+                title       : this._translateService.translate('operations.orders.dashboard.title'),
+                description : this._translateService.translate('operations.orders.dashboard.subtitle'),
+                icon        : 'heroicons_outline:chart-pie',
+                selectedIcon: 'heroicons_solid:chart-pie',
+                link        : '/operations/orders/dashboard'
+            },
+            {
                 id          : 'orders.list',
                 title       : this._translateService.translate('operations.orders.list.title'),
                 description : this._translateService.translate('operations.orders.list.subtitle'),

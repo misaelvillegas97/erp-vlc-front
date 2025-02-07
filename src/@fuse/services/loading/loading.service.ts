@@ -3,14 +3,9 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({providedIn: 'root'})
 export class FuseLoadingService {
-  private _auto$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
-    true
-  );
-  private _mode$: BehaviorSubject<'determinate' | 'indeterminate'> =
-    new BehaviorSubject<'determinate' | 'indeterminate'>('indeterminate');
-  private _progress$: BehaviorSubject<number | null> = new BehaviorSubject<
-    number | null
-  >(0);
+    private _auto$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
+    private _mode$: BehaviorSubject<'determinate' | 'indeterminate'> = new BehaviorSubject<'determinate' | 'indeterminate'>('indeterminate');
+    private _progress$: BehaviorSubject<number | null> = new BehaviorSubject<number | null>(0);
   private _show$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
     false
   );

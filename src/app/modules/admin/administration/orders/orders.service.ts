@@ -4,6 +4,7 @@ import { TranslocoService }                             from '@ngneat/transloco'
 import { Notyf }                                        from 'notyf';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
 import { Order }                                        from '@modules/admin/administration/orders/domain/model/order';
+import { OrdersOverview }                               from '@modules/admin/administration/orders/domain/interfaces/orders-overview.interface';
 
 @Injectable({providedIn: 'root'})
 export class OrdersService {
@@ -28,6 +29,10 @@ export class OrdersService {
                     return [];
                 })
             );
+    }
+
+    public getOrdersOverview() {
+        return this._httpClient.get<OrdersOverview>('/api/orders/dashboard/overview');
     }
 
     public addInvoice(orderId: string, invoice: any) {

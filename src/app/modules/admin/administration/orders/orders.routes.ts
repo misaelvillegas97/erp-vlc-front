@@ -8,6 +8,10 @@ export default [
         loadComponent: () => import('./orders.component').then((m) => m.OrdersComponent),
         children: [
             {
+                path         : 'dashboard',
+                loadComponent: () => import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+            },
+            {
                 path         : '',
                 loadComponent: () => import('./pages/list/list.component').then((m) => m.ListComponent),
                 resolve      : {
