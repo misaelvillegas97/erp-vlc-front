@@ -1,6 +1,6 @@
 import { Component, computed, inject, resource, signal, WritableSignal }                                                                                from '@angular/core';
 import { PageHeaderComponent }                                                                                                                          from '@layout/components/page-header/page-header.component';
-import { TranslocoDirective, TranslocoService }                                                                                                         from '@ngneat/transloco';
+import { TranslocoDirective, TranslocoPipe, TranslocoService }                                                                                          from '@ngneat/transloco';
 import { MatIcon }                                                                                                                                      from '@angular/material/icon';
 import { MatButtonModule, MatIconAnchor }                                                                                                               from '@angular/material/button';
 import { MatTooltip }                                                                                                                                   from '@angular/material/tooltip';
@@ -59,6 +59,7 @@ import { ClientService }                                                        
         MatSelectModule,
         FormsModule,
         DatePipe,
+        TranslocoPipe,
 
     ],
     templateUrl: './list.component.html',
@@ -104,7 +105,7 @@ export class ListComponent {
     filters = computed(() => {
         const filter = {};
 
-        if (this.orderNumberFilter()?.length >= 0)
+        if (this.orderNumberFilter()?.toString().length > 0)
             filter['orderNumber'] = this.orderNumberFilter();
 
         if (this.businessNameFilter()?.length > 0)
@@ -162,7 +163,6 @@ export class ListComponent {
         });
 
         invoiceDialog.afterClosed().subscribe((result) => {
-            console.log(result);
             if (result) {
                 this._notyf.success(this.#translationService.translate('operations.orders.invoice.added', {invoiceNumber: result.invoiceNumber}));
                 this.ordersResource.reload();

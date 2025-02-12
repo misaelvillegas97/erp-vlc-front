@@ -1,6 +1,6 @@
 <h2 class="text-lg border-b pb-4" mat-dialog-title>Ingresar factura</h2>
 <mat-dialog-content class="py-4">
-    <form (ngSubmit)="submit()" [formGroup]="form" class="space-y-2">
+    <form (ngSubmit)="submit()" [formGroup]="form" autocomplete="off" class="space-y-2">
         <mat-form-field class="w-full">
             <mat-label>Número de factura</mat-label>
             <input formControlName="invoiceNumber" matInput type="number">
@@ -34,6 +34,35 @@
             <input [matDatepicker]="picker2" formControlName="dueDate" matInput>
             <mat-datepicker-toggle [for]="picker2" matSuffix></mat-datepicker-toggle>
             <mat-datepicker #picker2 disabled="false"></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field class="w-full">
+            <mat-label>Responsable de entrega</mat-label>
+            <input [matAutocomplete]="deliveryResponsibleAutocomplete" formControlName="deliveryAssignment" matInput>
+            <mat-autocomplete
+                #deliveryResponsibleAutocomplete="matAutocomplete"
+                [displayWith]="displayWithFn"
+                autoActiveFirstOption
+            >
+                @if (!usersResource.isLoading()) {
+                    @let users = usersResource.value();
+
+                    @for (user of users; track user.id) {
+                        <mat-option [value]="user">
+                            <!-- show user and role.nane to identify the user -->
+                            {{ user.name }} <span class="text-gray-500">({{ user.role.name }})</span>
+                        </mat-option>
+                    }
+                } @else {
+                    <mat-option disabled>
+                        <mat-progress-spinner class="mr-2" diameter="16" mode="indeterminate"></mat-progress-spinner>
+                        <span>Cargando usuarios...</span>
+                    </mat-option>
+                }
+            </mat-autocomplete>
+            @if (form.get('deliveryAssignment').hasError('required')) {
+                <mat-error [innerText]="'errors.form.required' | transloco"></mat-error>
+            }
         </mat-form-field>
     </form>
 

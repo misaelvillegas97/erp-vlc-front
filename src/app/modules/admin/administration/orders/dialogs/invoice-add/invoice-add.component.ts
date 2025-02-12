@@ -1,4 +1,4 @@
-import { Component, inject, model, ModelSignal }               from '@angular/core';
+import { Component, inject, model, ModelSignal, resource }     from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef }      from '@angular/material/dialog';
 import { MatButton }                                           from '@angular/material/button';
 import { MatFormFieldModule }                                  from '@angular/material/form-field';
@@ -11,8 +11,13 @@ import { Order }                                               from '@modules/ad
 import { TranslocoPipe }                                       from '@ngneat/transloco';
 import { InvoiceStatusEnum }                                   from '@modules/admin/administration/invoices/domains/enums/invoice-status.enum';
 import { OrdersService }                                       from '@modules/admin/administration/orders/orders.service';
-import { firstValueFrom }                                      from 'rxjs';
+import { firstValueFrom, map }                                 from 'rxjs';
 import { Notyf }                                               from 'notyf';
+import { UserService }                                         from '@core/user/user.service';
+import { MatProgressSpinner }                                  from '@angular/material/progress-spinner';
+import { MatAutocomplete, MatAutocompleteTrigger }             from '@angular/material/autocomplete';
+import { displayWithFn }                                       from '@core/utils';
+import { User }                                                from '@core/user/user.types';
 
 @Component({
     selector   : 'app-add-invoice',
@@ -25,7 +30,10 @@ import { Notyf }                                               from 'notyf';
         MatDatepickerModule,
         CurrencyPipe,
         ReactiveFormsModule,
-        TranslocoPipe
+        TranslocoPipe,
+        MatProgressSpinner,
+        MatAutocomplete,
+        MatAutocompleteTrigger
     ],
     templateUrl: './invoice-add.component.html'
 })
@@ -34,6 +42,7 @@ export class InvoiceAddComponent {
     readonly #dialogRef = inject(MatDialogRef);
     readonly #dialogData = inject(MAT_DIALOG_DATA);
     readonly #service = inject(OrdersService);
+    readonly #userService = inject(UserService);
     private readonly _notyf = new Notyf();
     readonly order: ModelSignal<Order> = model(this.#dialogData.order);
     readonly statuses = [
@@ -42,11 +51,13 @@ export class InvoiceAddComponent {
         {value: InvoiceStatusEnum.RECEIVED_WITH_OBSERVATIONS, label: 'Recibida con observaciones'}
     ];
     form = this.#fb.group({
-        invoiceNumber: [ this.order().invoice?.invoiceNumber, [ Validators.required ] ],
-        status       : [ this.order().invoice?.status || InvoiceStatusEnum.ISSUED, [ Validators.required ] ],
-        emissionDate : [ {value: this.order().invoice?.emissionDate, disabled: true}, [ Validators.required ] ],
-        dueDate: [ {value: this.order().invoice?.dueDate, disabled: true}, [ Validators.required ] ]
+        invoiceNumber     : [ this.order().invoice?.invoiceNumber, [ Validators.required ] ],
+        status            : [ this.order().invoice?.status || InvoiceStatusEnum.ISSUED, [ Validators.required ] ],
+        emissionDate      : [ {value: this.order().invoice?.emissionDate, disabled: true}, [ Validators.required ] ],
+        dueDate           : [ {value: this.order().invoice?.dueDate, disabled: true}, [ Validators.required ] ],
+        deliveryAssignment: [ undefined, [ Validators.required ] ],
     });
+    protected readonly displayWithFn = displayWithFn<User>('name');
 
     async submit() {
         if (this.form.invalid) {
@@ -59,8 +70,9 @@ export class InvoiceAddComponent {
         const parsed = {
             invoiceNumber: parseInt(data.invoiceNumber, 10),
             status       : data.status,
-            emissionDate: data.emissionDate.toISODate(),
-            dueDate     : data.dueDate.toISODate()
+            emissionDate        : data.emissionDate.toISODate(),
+            dueDate             : data.dueDate.toISODate(),
+            deliveryAssignmentId: data.deliveryAssignment.id
         };
 
         this.form.disable();
@@ -72,4 +84,10 @@ export class InvoiceAddComponent {
                 this._notyf.error('Error al agregar la factura');
             });
     }
+
+    private extractData = (data: any) => data.data;
+
+    readonly usersResource = resource({
+        loader: () => firstValueFrom(this.#userService.findAll().pipe(map(this.extractData)))
+    });
 }

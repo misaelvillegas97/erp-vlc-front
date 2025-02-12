@@ -51,7 +51,7 @@ export class AssociateClientComponent {
     });
 
     readonly clients = computed(() => {
-        const existingAssociations = this.product.providerCodes?.map(({client}) => client.id);
+        const existingAssociations = this.product.providerCodes?.map(({client}) => client?.id);
 
         return this.clientsResource.value().filter((client) => !existingAssociations.includes(client.id));
     });

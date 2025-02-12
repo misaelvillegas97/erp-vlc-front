@@ -25,7 +25,10 @@ export function filterByValue<T>(array: T[], value: string, field: keyof T, pred
  * @returns {(item: any) => string}
  */
 export function displayWithFn<T>(fieldName: keyof T): (item: any) => string {
-    return (item: any) => item ? item[fieldName] : '';
+    return (item: any) => {
+        console.log(item, item[fieldName]);
+        return item ? item[fieldName] : '';
+    };
 }
 
 export function formDataFromObject<T>(object: T): FormData {

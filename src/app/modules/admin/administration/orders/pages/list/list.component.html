@@ -20,6 +20,13 @@
                     <mat-icon [svgIcon]="showMobileFilters() ? 'heroicons_solid:funnel' : 'heroicons_outline:funnel'"></mat-icon>
                 </button>
             }
+            <button
+                (click)="ordersResource.reload()"
+                [matTooltip]="'actions.reload' | transloco"
+                mat-icon-button
+            >
+                <mat-icon [svgIcon]="'heroicons_outline:arrow-path'"></mat-icon>
+            </button>
             <a
                 [matTooltip]="t('new.title')"
                 [routerLink]="['new']"
