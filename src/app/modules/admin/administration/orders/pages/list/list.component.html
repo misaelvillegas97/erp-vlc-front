@@ -20,6 +20,14 @@
                     <mat-icon [svgIcon]="showMobileFilters() ? 'heroicons_solid:funnel' : 'heroicons_outline:funnel'"></mat-icon>
                 </button>
             }
+            <!-- Clean filters -->
+            <button
+                (click)="clearFilters()"
+                [matTooltip]="'actions.clearFilters' | transloco"
+                mat-icon-button
+            >
+                <mat-icon>filter_alt_off</mat-icon>
+            </button>
             <button
                 (click)="ordersResource.reload()"
                 [matTooltip]="'actions.reload' | transloco"

@@ -53,7 +53,6 @@
               ]
             },
             "styles" : [
-              "node_modules/angular-calendar/scss/angular-calendar.scss",
               "node_modules/leaflet/dist/leaflet.css",
               "src/@fuse/styles/tailwind.scss",
               "src/@fuse/styles/themes.scss",

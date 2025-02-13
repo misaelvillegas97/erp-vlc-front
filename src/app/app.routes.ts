@@ -48,21 +48,6 @@ export const appRoutes: Route[] = [
         ]
     },
 
-    // No company affiliation guard
-    // {
-    //   path: '',
-    //   canActivate: [ HasCompanyAffiliationGuard ],
-    //   canActivateChild: [ HasCompanyAffiliationGuard ],
-    //   component: LayoutComponent,
-    //   data: {
-    //     layout: 'empty'
-    //   },
-    //   children: [
-    //     {path: 'company-affiliation-required', loadChildren: () => import('app/modules/auth/company-affiliation-required/company-affiliation-required.routes')}
-    //   ]
-    // },
-
-
     // Landing routes
     {
         path     : '',

@@ -19,6 +19,7 @@ import { isUndefined }                                         from 'lodash-es';
 export class DashboardComponent {
     readonly #translationService = inject(TranslocoService);
     readonly #invoicesService = inject(InvoicesService);
+
     chartInvoicesByStatus: WritableSignal<ApexOptions> = signal<ApexOptions>(undefined);
     chartTotalInvoicedByDate: WritableSignal<ApexOptions> = signal<ApexOptions>(undefined);
     chartInvoicesByClient: WritableSignal<ApexOptions> = signal<ApexOptions>(undefined);
@@ -32,7 +33,6 @@ export class DashboardComponent {
     dashboardResource = resource({
         loader: () => firstValueFrom(this.#invoicesService.getInvoicesOverview())
             .then((response) => {
-
                 if (response['invoicesByStatus']) this.setChartInvoicesByStatus(response['invoicesByStatus']);
                 if (response['totalInvoicedByDate']) this.setChartTotalInvoicedByDate(response['totalInvoicedByDate']);
                 if (response['invoicesByClient']) this.setChartInvoicesByClient(response['invoicesByClient']);

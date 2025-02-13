@@ -93,7 +93,7 @@ export class CreateComponent {
 
             const filteredAddresses = addresses.filter((address) => address.street.toLowerCase().includes(request.address.toLowerCase()));
 
-            if (filteredAddresses && filteredAddresses.length > 0) return addresses;
+            if (filteredAddresses && filteredAddresses.length > 0) return filteredAddresses;
 
             const address = await firstValueFrom(this.#osmService.search(request.address));
 

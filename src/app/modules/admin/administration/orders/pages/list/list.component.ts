@@ -23,7 +23,6 @@ import { InvoiceAddComponent }                                                  
 import { InvoiceDetailComponent }                                                                                                                       from '@modules/admin/administration/orders/dialogs/invoice-detail/invoice-detail.component';
 import { OrderDetailDialog }                                                                                                                            from '@modules/admin/administration/orders/dialogs/order-detail/order-detail.dialog';
 import { trackByFn }                                                                                                                                    from '@libs/ui/utils/utils';
-import { round }                                                                                                                                        from 'lodash-es';
 import { BreakpointObserver, Breakpoints }                                                                                                              from '@angular/cdk/layout';
 import { debounceTime, firstValueFrom, map }                                                                                                            from 'rxjs';
 import { Client }                                                                                                                                       from '@modules/admin/maintainers/clients/domain/model/client';
@@ -105,32 +104,15 @@ export class ListComponent {
     filters = computed(() => {
         const filter = {};
 
-        if (this.orderNumberFilter()?.toString().length > 0)
-            filter['orderNumber'] = this.orderNumberFilter();
-
-        if (this.businessNameFilter()?.length > 0)
-            filter['clientId'] = this.businessNameFilter().map((client: Client) => client.id);
-
-        if (this.typeFilter()?.length > 0)
-            filter['type'] = this.typeFilter();
-
-        if (this.statusFilter()?.length > 0)
-            filter['status'] = this.statusFilter();
-
-        if (this.deliveryLocationFilter()?.length > 0)
-            filter['deliveryLocation'] = this.deliveryLocationFilter();
-
-        if (this.emissionDateFilter()?.length > 0)
-            filter['emissionDate'] = this.emissionDateFilter();
-
-        if (this.deliveryDateFilter()?.length > 0)
-            filter['deliveryDate'] = this.deliveryDateFilter();
-
-        if (this.amountFilter() && this.amountFilter() >= 0)
-            filter['amount'] = this.amountFilter();
-
-        if (this.invoiceFilter() && this.invoiceFilter() >= 0)
-            filter['invoice'] = this.invoiceFilter();
+        if (this.orderNumberFilter()?.toString().length > 0) filter['orderNumber'] = this.orderNumberFilter();
+        if (this.businessNameFilter()?.length > 0) filter['clientId'] = this.businessNameFilter().map((client: Client) => client.id);
+        if (this.typeFilter()?.length > 0) filter['type'] = this.typeFilter();
+        if (this.statusFilter()?.length > 0) filter['status'] = this.statusFilter();
+        if (this.deliveryLocationFilter()?.length > 0) filter['deliveryLocation'] = this.deliveryLocationFilter();
+        if (this.emissionDateFilter()?.length > 0) filter['emissionDate'] = this.emissionDateFilter();
+        if (this.deliveryDateFilter()?.length > 0) filter['deliveryDate'] = this.deliveryDateFilter();
+        if (this.amountFilter() && this.amountFilter() >= 0) filter['amount'] = this.amountFilter();
+        if (this.invoiceFilter() && this.invoiceFilter() >= 0) filter['invoice'] = this.invoiceFilter();
 
         return filter;
     });
@@ -151,6 +133,18 @@ export class ListComponent {
 
 
     private _notyf = new Notyf();
+
+    clearFilters() {
+        this.orderNumberFormControl.setValue(undefined);
+        this.clientFormControl.setValue(undefined);
+        this.typeFormControl.setValue(undefined);
+        this.statusFormControl.setValue(undefined);
+        this.invoiceFormControl.setValue(undefined);
+        this.deliveryLocationFormControl.setValue(undefined);
+        this.emissionDateFormControl.setValue(undefined);
+        this.deliveryDateFormControl.setValue(undefined);
+        this.amountFormControl.setValue(undefined);
+    }
 
     view(order: Order) {
         this.#dialog.open(OrderDetailDialog, {data: {order}});
@@ -177,5 +171,4 @@ export class ListComponent {
     }
 
     protected readonly trackByFn = trackByFn;
-    protected readonly round = round;
 }

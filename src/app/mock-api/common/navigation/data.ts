@@ -7,7 +7,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         title: 'Home',
         type : 'basic',
         icon : 'heroicons_outline:home',
-        link: '/dashboards/project'
+        link: '/home'
     },
     {
         id: 'dashboards.title',
