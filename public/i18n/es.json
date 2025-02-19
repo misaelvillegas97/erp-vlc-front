@@ -65,13 +65,22 @@
                 "success" : "Orden creada exitosamente"
             },
             "fields" : {
+                "info" : "Alertas",
+                "actions" : "Acciones",
+                "amount" : "Monto Neto",
+                "businessName" : "Cliente",
                 "client" : "Cliente",
                 "client-hint" : "Selecciona un cliente",
                 "client-empty" : "No hay clientes disponibles",
                 "client-loading" : "Cargando clientes...",
+                "emissionDate" : "Fecha de emisión",
                 "delivery-date" : "Fecha de entrega",
+                "deliveryDate" : "Fecha de entrega",
                 "delivery-date-hint" : "Fecha en la que se entregará la orden",
                 "delivery-location" : "Ubicación de entrega",
+                "deliveryLocation" : "Ubicación de entrega",
+                "invoice" : "Factura",
+                "orderNumber" : "Número de orden",
                 "products" : "Producto",
                 "products-hint" : "Selecciona un producto",
                 "products-empty" : "No hay productos disponibles",
@@ -80,6 +89,7 @@
                 "unitary-price" : "Precio unitario",
                 "total" : "Total",
                 "total-hint" : "Total de la orden",
+                "type" : "Tipo de orden",
                 "status" : "Estado",
                 "status-hint" : "Estado de la orden, por defecto es pendiente",
                 "status-empty" : "No hay estados disponibles",
@@ -249,7 +259,8 @@
         "next" : "Siguiente",
         "back" : "Volver",
         "addUrl" : "Agregar URL",
-        "reload" : "Recargar"
+        "reload" : "Recargar",
+        "clear-filters" : "Limpiar filtros"
     },
     "modal" : {
         "confirmation-default" : {

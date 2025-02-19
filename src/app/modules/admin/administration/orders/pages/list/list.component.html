@@ -5,9 +5,9 @@
         [subtitle]="t('list.title')">
     </page-header>
 
-    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-max mx-auto py-10 gap-y-4 sm:px-4">
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-full mx-auto py-10 gap-y-4 sm:px-4">
 
-        <div class="flex flex-row w-full">
+        <div class="flex flex-row w-full gap-x-2">
             <h2 class="flex-1 font-bold text-secondary text-xl self-center">
                 {{ t('title') }}
             </h2>
@@ -15,7 +15,6 @@
                 #columnsOverlayButton
                 (click)="openColumnsOverlay($event)"
                 [class.open]="showColumnsOverlay()"
-                class="mr-4"
                 mat-icon-button
             >
                 <mat-icon [svgIcon]="'mat_outline:checklist'"></mat-icon>
@@ -23,7 +22,7 @@
             @if (isMobile()) {
                 <button
                     (click)="showMobileFilters.set(!showMobileFilters())"
-                    class="btn-primary px-4 py-2 rounded"
+                    class="btn-primary"
                     mat-icon-button
                 >
                     <mat-icon [svgIcon]="showMobileFilters() ? 'heroicons_solid:funnel' : 'heroicons_outline:funnel'"></mat-icon>
@@ -32,7 +31,7 @@
             <!-- Clean filters -->
             <button
                 (click)="clearFilters()"
-                [matTooltip]="'actions.clearFilters' | transloco"
+                [matTooltip]="'actions.clear-filters' | transloco"
                 mat-icon-button
             >
                 <mat-icon>filter_alt_off</mat-icon>
@@ -278,17 +277,11 @@
                                 @let deliveryDate = order.deliveryDate;
                                 <div class="flex-center">
                                     @if (today > deliveryDate) {
-                                        @if (![ OrderStatusEnum.DELIVERED, OrderStatusEnum.INVOICED ].includes(order.status)) {
+                                        @if (![ OrderStatusEnum.DELIVERED ].includes(order.status)) {
                                             <mat-icon
-                                                matTooltip="La fecha de entrega ha vencido y la orden no ha sido entregada ni facturada"
+                                                matTooltip="Órden atrasada"
                                                 svgIcon="heroicons_solid:exclamation-circle"
                                                 class="text-red-500"
-                                            ></mat-icon>
-                                        } @else if (order.status === OrderStatusEnum.INVOICED) {
-                                            <mat-icon
-                                                matTooltip="La fecha de entrega ha vencido y la orden ha sido facturada"
-                                                svgIcon="heroicons_solid:exclamation-circle"
-                                                class="text-yellow-500"
                                             ></mat-icon>
                                         } @else if (order.status === OrderStatusEnum.DELIVERED && order.deliveredDate > deliveryDate) {
                                             <mat-icon

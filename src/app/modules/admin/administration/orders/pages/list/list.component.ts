@@ -141,13 +141,14 @@ export class ListComponent {
     });
 
     translatedSelectedStatus = computed(() => {
-        const mapped = this.statusFilter() ? this.statusFilter().map((status) => this.#translationService.translate('enums.order-status.' + status)) : [];
-        return mapped.join(',\n ');
+        return this.statusFilter() ?
+            this.statusFilter()
+                .map((status) => this.#translationService.translate('enums.order-status.' + status))
+                .join(',\n ')
+            : [];
     });
 
-    clientsResource = resource({
-        loader: () => firstValueFrom(this.#clientService.findAll({}, 'COMPACT'))
-    });
+    clientsResource = resource({loader: () => firstValueFrom(this.#clientService.findAll({}, 'COMPACT'))});
     protected readonly OrderStatusEnum = OrderStatusEnum;
 
     private _notyf = new Notyf();
