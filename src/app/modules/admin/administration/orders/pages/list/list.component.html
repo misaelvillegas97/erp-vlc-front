@@ -539,7 +539,13 @@
 
                         <tr *matHeaderRowDef="displayedColumns" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
                         <tr *matHeaderRowDef="displayedFilterColumns" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
-                        <tr (click)="view(row)" *matRowDef="let row; columns: displayedColumns" class="hover:bg-hover" mat-row></tr>
+                        <tr
+                            (click)="view(row)"
+                            *matRowDef="let row;columns: displayedColumns"
+                            class="hover:bg-hover"
+                            [class.bg-red-100]="!row.invoice"
+                            mat-row
+                        ></tr>
 
                         <!-- No data -->
                         <tr *matNoDataRow class="h-16">

@@ -30,7 +30,8 @@
         "maintainers" : {
             "title" : "Mantenedores",
             "clients" : "Clientes",
-            "products" : "Productos"
+            "products" : "Productos",
+            "users" : "Usuarios"
         }
     },
     "operations" : {
@@ -191,6 +192,32 @@
                 "upc-code-hint" : "Código de barras único para identificar el producto",
                 "unitary-price" : "Precio unitario"
             }
+        },
+        "users" : {
+            "title" : "Usuarios",
+            "list" : {
+                "title" : "Mantenedor de usuarios",
+                "subtitle" : "Administra los usuarios de la aplicación",
+                "description" : "Lista de usuarios"
+            },
+            "new" : {
+                "title" : "Nuevo usuario",
+                "subtitle" : "Crea un nuevo usuario",
+                "description" : "Crear un nuevo usuario",
+                "success" : "Usuario creado exitosamente"
+            },
+            "fields" : {
+                "name" : "Nombre",
+                "email" : "Correo",
+                "role" : "Rol",
+                "password" : "Contraseña",
+                "password-confirmation" : "Confirmar contraseña",
+                "role-hint" : "Selecciona un rol",
+                "role-empty" : "No hay roles disponibles",
+                "role-loading" : "Cargando roles...",
+                "actions" : "Acciones"
+            },
+            "no-data" : "No hay usuarios disponibles"
         }
     },
     "actions" : {

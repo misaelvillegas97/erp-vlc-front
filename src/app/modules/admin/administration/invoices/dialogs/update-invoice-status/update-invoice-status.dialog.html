@@ -16,20 +16,6 @@
             }
         </mat-form-field>
 
-        <!-- Observations -->
-        <mat-form-field class="w-full" subscriptSizing="dynamic">
-            <mat-label>{{ 'operations.invoices.fields.observations' | transloco }}</mat-label>
-            <textarea cdkTextareaAutosize formControlName="observations" matInput></textarea>
-
-            @if (form.controls.observations.hasError('minLength')) {
-                <mat-error>{{ 'errors.form.minLength' | transloco: { length: 5 } }}</mat-error>
-            }
-
-            @if (form.controls.observations.hasError('required')) {
-                <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
-            }
-        </mat-form-field>
-
         <!-- Payment date -->
         @if (form.get('status').value === 'PAID') {
             <mat-form-field class="w-full" subscriptSizing="dynamic">
@@ -43,6 +29,20 @@
                 }
             </mat-form-field>
         }
+
+        <!-- Observations -->
+        <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-label>{{ 'operations.invoices.fields.observations' | transloco }}</mat-label>
+            <textarea cdkTextareaAutosize formControlName="observations" matInput></textarea>
+
+            @if (form.controls.observations.hasError('minLength')) {
+                <mat-error>{{ 'errors.form.minLength' | transloco: { length: 5 } }}</mat-error>
+            }
+
+            @if (form.controls.observations.hasError('required')) {
+                <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+            }
+        </mat-form-field>
     </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">

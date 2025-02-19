@@ -1,0 +1,85 @@
+<div *transloco="let t; read: 'maintainers.users'" class="flex flex-col min-w-0 w-full">
+    <page-header
+        [description]="t('list.subtitle')"
+        [subtitle]="t('list.title')">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-10 gap-y-4 sm:px-4">
+        <div class="flex flex-row w-full">
+            <h2 class="flex-1 font-bold text-secondary text-xl self-center">{{ t('title') }}</h2>
+
+            <button
+                (click)="usersResource.reload()"
+                [matTooltip]="'actions.reload' | transloco"
+                mat-icon-button
+            >
+                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:arrow-path"></mat-icon>
+            </button>
+            <a
+                [matTooltip]="t('new.title')"
+                [routerLink]="['new']"
+                class="flex-0 font-bold py-2 px-4 rounded"
+                color="primary"
+                mat-icon-button
+            >
+                <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+            </a>
+        </div>
+
+        <div class="w-full">
+            <mat-form-field [subscriptSizing]="'dynamic'" class="fuse-mat-dense fuse-mat-rounded w-full">
+                <mat-icon
+                    [svgIcon]="'heroicons_solid:magnifying-glass'"
+                    class="icon-size-5"
+                    matPrefix
+                ></mat-icon>
+                <input #searchBar [formControl]="searchControl" [placeholder]="'Nombre de empresa'" matInput maxlength="100" type="search"/>
+                <mat-hint class="ml-4">{{ searchBar.value?.length || 0 }}/100</mat-hint>
+            </mat-form-field>
+        </div>
+
+        <div class="relative max-w-full overflow-auto w-full">
+            <table [dataSource]="usersResource.value()"
+                   [trackBy]="trackByFn"
+                   class="min-w-240 w-full overflow-y-visible bg-transparent"
+                   mat-table
+            >
+                <ng-container matColumnDef="name">
+                    <th *matHeaderCellDef mat-header-cell>{{ t('fields.name') }}</th>
+                    <td *matCellDef="let user" mat-cell>
+                        <a [routerLink]="['edit', user.id]">{{ user.name }}</a>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="email">
+                    <th *matHeaderCellDef mat-header-cell>{{ t('fields.email') }}</th>
+                    <td *matCellDef="let user" mat-cell>{{ user.email }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="role">
+                    <th *matHeaderCellDef mat-header-cell>{{ t('fields.role') }}</th>
+                    <td *matCellDef="let user" mat-cell>{{ user.role.name }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                    <th *matHeaderCellDef mat-header-cell>{{ t('fields.actions') }}</th>
+                    <td *matCellDef="let user" mat-cell>
+                        <a [routerLink]="['edit', user.id]">
+                            <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil"></mat-icon>
+                        </a>
+                        <a [routerLink]="['delete', user.id]">
+                            <mat-icon class="icon-size-5" svgIcon="heroicons_outline:trash"></mat-icon>
+                        </a>
+                    </td>
+                </ng-container>
+
+                <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+                <tr *matRowDef="let row; columns: displayedColumns" class="text-sm" mat-row></tr>
+
+                <tr *matNoDataRow class="text-center">
+                    <td [attr.colspan]="displayedColumns.length" class="mat-hint italic py-4 text-md">{{ t('no-data') }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

@@ -171,4 +171,5 @@ export class ListComponent {
     }
 
     protected readonly trackByFn = trackByFn;
+    protected readonly Date = Date;
 }

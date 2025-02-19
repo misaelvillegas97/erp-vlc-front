@@ -2,13 +2,11 @@ import { HttpClient }         from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
 import { map, Observable, ReplaySubject } from 'rxjs';
-import { environment }                    from 'environments/environment';
 import { User }                           from '@core/user/user.types';
 import { InfinityPagination }             from '@shared/domain/model/infinity-pagination';
 
 @Injectable({providedIn: 'root'})
 export class UserService {
-    private _backendUrl = environment.BACKEND_URL;
     private _httpClient = inject(HttpClient);
     private _user: ReplaySubject<User> = new ReplaySubject<User>(1);
 
@@ -22,7 +20,7 @@ export class UserService {
     }
 
     update(user: User): Observable<any> {
-        return this._httpClient.patch<User>(this._backendUrl + 'api/common/user', {user}).pipe(
+        return this._httpClient.patch<User>('api/common/user', {user}).pipe(
             map((response) => {
                 this._user.next(response);
             }),
@@ -31,5 +29,13 @@ export class UserService {
 
     findAll(query?: any): Observable<InfinityPagination<User>> {
         return this._httpClient.get<InfinityPagination<User>>('api/v1/users', {params: query});
+    }
+
+    findByQuery(query?: string) {
+        return this._httpClient.get<User[]>('api/v1/users/query', {params: {query}});
+    }
+
+    remove(id: string) {
+        return this._httpClient.delete('api/v1/users/' + id);
     }
 }

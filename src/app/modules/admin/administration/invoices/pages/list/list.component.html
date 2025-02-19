@@ -31,7 +31,6 @@
                    mat-table
                    matSort
             >
-                <!-- Invoice number -->
                 <ng-container matColumnDef="invoiceNumber">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.invoice-number') }}</th>
                     <td *matCellDef="let row" mat-cell>{{ row.invoiceNumber }}</td>
@@ -50,7 +49,6 @@
                     </th>
                 </ng-container>
 
-                <!-- Order number -->
                 <ng-container matColumnDef="orderNumber">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.order-number') }}</th>
                     <td *matCellDef="let row" mat-cell>{{ row.order?.orderNumber }}</td>
@@ -69,7 +67,6 @@
                     </th>
                 </ng-container>
 
-                <!-- Client -->
                 <ng-container matColumnDef="client">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.client') }}</th>
                     <td *matCellDef="let row" mat-cell>{{ row.client?.fantasyName }}</td>
@@ -92,7 +89,6 @@
                     </th>
                 </ng-container>
 
-                <!-- Status -->
                 <ng-container matColumnDef="status">
                     <th *matHeaderCellDef mat-header-cell>Estado</th>
                     <td *matCellDef="let invoice" mat-cell>
@@ -139,7 +135,6 @@
                     </th>
                 </ng-container>
 
-                <!-- Delivery assignment -->
                 <ng-container matColumnDef="deliveryAssignment">
                     <th *matHeaderCellDef mat-header-cell>Asignación de entrega</th>
                     <td *matCellDef="let invoice" mat-cell>
@@ -168,7 +163,6 @@
                     </th>
                 </ng-container>
 
-                <!-- Emission date -->
                 <ng-container matColumnDef="emissionDate">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.emission-date') }}</th>
                     <td *matCellDef="let invoice" mat-cell>{{ invoice.emissionDate | date: 'dd-MM-yyyy' }}</td>
@@ -187,7 +181,6 @@
                     </th>
                 </ng-container>
 
-                <!-- Due date -->
                 <ng-container matColumnDef="dueDate">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.due-date') }}</th>
                     <td *matCellDef="let invoice" mat-cell>{{ invoice.dueDate ? (invoice.dueDate | date: 'dd-MM-yyyy') : 'No asignada' }}</td>
@@ -206,7 +199,6 @@
                     </th>
                 </ng-container>
 
-                <!-- Net amount -->
                 <ng-container matColumnDef="netAmount">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.net-amount') }}</th>
                     <td *matCellDef="let invoice" mat-cell>{{ invoice.netAmount | currency: 'CLP': 'symbol-narrow' }}</td>
@@ -235,7 +227,6 @@
                     </th>
                 </ng-container>
 
-                <!-- Tax amount -->
                 <ng-container matColumnDef="taxAmount">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.tax-amount') }}</th>
                     <td *matCellDef="let invoice" mat-cell>{{ invoice.taxAmount | currency: 'CLP': 'symbol-narrow' }}</td>
@@ -263,7 +254,7 @@
                         </div>
                     </th>
                 </ng-container>
-                <!-- Total amount -->
+
                 <ng-container matColumnDef="totalAmount">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.total-amount') }}</th>
                     <td *matCellDef="let invoice" mat-cell>{{ invoice.totalAmount | currency: 'CLP': 'symbol-narrow' }}</td>
@@ -292,7 +283,6 @@
                     </th>
                 </ng-container>
 
-                <!-- Actions -->
                 <ng-container matColumnDef="actions">
                     <th *matHeaderCellDef mat-header-cell></th>
                     <td *matCellDef="let row" mat-cell>

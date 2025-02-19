@@ -84,6 +84,12 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 type: 'basic',
                 link: '/maintainers/products',
                 icon: 'heroicons_outline:shopping-bag'
+            },
+            {
+                id  : 'maintainers.users',
+                type: 'basic',
+                link: '/maintainers/users',
+                icon: 'heroicons_outline:user-group'
             }
         ]
     }

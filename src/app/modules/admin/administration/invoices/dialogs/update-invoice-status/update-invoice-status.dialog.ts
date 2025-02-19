@@ -55,8 +55,10 @@ export class UpdateInvoiceStatusDialog {
 
         this.form.get('paymentDate').setValidators([]);
         this.form.get('paymentDate').reset(undefined);
+        this.form.get('paymentDate').updateValueAndValidity();
 
         this.form.get('observations').setValidators([]);
+        this.form.get('observations').updateValueAndValidity();
 
         if (input === InvoiceStatusEnum.RECEIVED_WITH_OBSERVATIONS || input === InvoiceStatusEnum.REJECTED) {
             this.form.get('observations').setValidators([ Validators.required, Validators.minLength(5) ]);

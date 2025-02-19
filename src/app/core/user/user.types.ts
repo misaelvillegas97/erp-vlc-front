@@ -1,12 +1,12 @@
+import { Role } from '@core/user/role.type';
+
 export interface User {
-    id?: number;
+    id?: string;
     name?: string;
     firstName?: string;
     lastName?: string;
-    username?: string;
     avatar?: string;
     email?: string;
-    position?: string;
-    location?: string;
-    status?: string;
+
+    role?: Role;
 }

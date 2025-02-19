@@ -32,22 +32,16 @@ export const authInterceptor = (
                 !error.url.includes('/sign-out')
             ) {
                 console.log('HTTP 401 Unauthorized Error');
-                // Si tenemos un accessToken => intentar refrescar
-                if (authService.accessToken) {
-                    return authService.signInUsingToken().pipe(
-                        catchError(() => authService.signOut()),
-                        switchMap(() => {
-                            // Reintentar el request original con el nuevo token
-                            newReq = req.clone({
-                                headers: req.headers.set('Authorization', 'Bearer ' + authService.accessToken),
-                            });
-                            return next(newReq);
-                        })
-                    );
-                } else {
-                    // Si no hay token, forzar signOut
-                    return throwError(() => authService.signOut());
-                }
+                return authService.signInUsingToken().pipe(
+                    catchError(() => authService.signOut()),
+                    switchMap(() => {
+                        // Reintentar el request original con el nuevo token
+                        newReq = req.clone({
+                            headers: req.headers.set('Authorization', 'Bearer ' + authService.accessToken),
+                        });
+                        return next(newReq);
+                    })
+                );
             } else {
                 // Para otros errores, propagar el error
                 return throwError(() => error);
