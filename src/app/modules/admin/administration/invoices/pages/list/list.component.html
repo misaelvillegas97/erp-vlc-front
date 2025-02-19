@@ -5,7 +5,7 @@
         [subtitle]="t('list.title')">
     </page-header>
 
-    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-max mx-auto py-10 gap-y-4 sm:px-4">
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-full mx-auto py-10 gap-y-4 sm:px-4">
         <div class="flex flex-row w-full">
             <h2 class="flex-1 font-bold text-secondary text-xl self-center">
                 {{ t('title') }}
@@ -16,12 +16,23 @@
                 </button>
             </div>
             <button
+                #columnsOverlayButton
+                (click)="openColumnsOverlay($event)"
+                [class.open]="showColumnsOverlay()"
+                class="mr-4"
+                mat-icon-button
+            >
+                <mat-icon [svgIcon]="'mat_outline:checklist'"></mat-icon>
+            </button>
+            <button
                 (click)="invoicesResource.reload()"
                 [matTooltip]="'actions.reload' | transloco"
                 mat-icon-button
             >
                 <mat-icon [svgIcon]="'heroicons_outline:arrow-path'"></mat-icon>
             </button>
+
+
         </div>
 
         <div class="relative max-w-full overflow-auto w-full">
@@ -92,23 +103,25 @@
                 <ng-container matColumnDef="status">
                     <th *matHeaderCellDef mat-header-cell>Estado</th>
                     <td *matCellDef="let invoice" mat-cell>
-                        @switch (invoice?.status) {
-                            @case (InvoiceStatusEnum.ISSUED) {
-                                <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 text-xs font-medium text-yellow-800 ring-1 ring-yellow-600/20 ring-inset">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
+                        <span (click)="updateStatusInvoice(invoice)" class="cursor-pointer">
+                            @switch (invoice?.status) {
+                                @case (InvoiceStatusEnum.ISSUED) {
+                                    <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 text-xs font-medium text-yellow-800 ring-1 ring-yellow-600/20 ring-inset">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
+                                }
+                                @case (InvoiceStatusEnum.RECEIVED_WITHOUT_OBSERVATIONS) {
+                                    <span class="inline-flex items-center rounded-md bg-blue-50 px-2 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset truncate">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
+                                }
+                                @case (InvoiceStatusEnum.RECEIVED_WITH_OBSERVATIONS) {
+                                    <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 text-xs font-medium text-yellow-800 ring-1 ring-yellow-600/20 ring-inset truncate">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
+                                }
+                                @case (InvoiceStatusEnum.PAID) {
+                                    <span class="inline-flex items-center rounded-md bg-green-50 px-2 text-xs font-medium text-green-700 ring-1 ring-green-600/20 ring-inset">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
+                                }
+                                @case (InvoiceStatusEnum.REJECTED) {
+                                    <span class="inline-flex items-center rounded-md bg-red-50 px-2 text-xs font-medium text-red-700 ring-1 ring-red-600/10 ring-inset">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
+                                }
                             }
-                            @case (InvoiceStatusEnum.RECEIVED_WITHOUT_OBSERVATIONS) {
-                                <span class="inline-flex items-center rounded-md bg-blue-50 px-2 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset truncate">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
-                            }
-                            @case (InvoiceStatusEnum.RECEIVED_WITH_OBSERVATIONS) {
-                                <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 text-xs font-medium text-yellow-800 ring-1 ring-yellow-600/20 ring-inset truncate">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
-                            }
-                            @case (InvoiceStatusEnum.PAID) {
-                                <span class="inline-flex items-center rounded-md bg-green-50 px-2 text-xs font-medium text-green-700 ring-1 ring-green-600/20 ring-inset">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
-                            }
-                            @case (InvoiceStatusEnum.REJECTED) {
-                                <span class="inline-flex items-center rounded-md bg-red-50 px-2 text-xs font-medium text-red-700 ring-1 ring-red-600/10 ring-inset">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
-                            }
-                        }
+                        </span>
                     </td>
                 </ng-container>
 
@@ -183,7 +196,15 @@
 
                 <ng-container matColumnDef="dueDate">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.due-date') }}</th>
-                    <td *matCellDef="let invoice" mat-cell>{{ invoice.dueDate ? (invoice.dueDate | date: 'dd-MM-yyyy') : 'No asignada' }}</td>
+                    <td *matCellDef="let invoice" mat-cell>
+                        @if (!invoice.dueDate) {
+                            <span class="italic mat-hint font-normal">{{ t('fields.no-due-date') }}</span>
+                        } @else if ([ InvoiceStatusEnum.ISSUED ].includes(invoice.status) && today > invoice.dueDate) {
+                            <span class="text-red-500">{{ invoice.dueDate | date: 'dd-MM-yyyy' }}</span>
+                        } @else {
+                            <span>{{ invoice.dueDate | date: 'dd-MM-yyyy' }}</span>
+                        }
+                    </td>
                 </ng-container>
 
                 <ng-container matColumnDef="dueDateFilter">
@@ -286,19 +307,6 @@
                 <ng-container matColumnDef="actions">
                     <th *matHeaderCellDef mat-header-cell></th>
                     <td *matCellDef="let row" mat-cell>
-                        <button [matMenuTriggerFor]="menu" mat-icon-button>
-                            <mat-icon svgIcon="heroicons_outline:ellipsis-vertical"></mat-icon>
-                        </button>
-                        <mat-menu #menu="matMenu" [xPosition]="'before'">
-                            <button [routerLink]="['view', row.id]" mat-menu-item>
-                                <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:eye"></mat-icon>
-                                <span>{{ 'actions.view' | transloco }}</span>
-                            </button>
-                            <button (click)="updateStatusInvoice(row)" mat-menu-item>
-                                <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:pencil"></mat-icon>
-                                <span [innerText]="t('actions.update-status')"></span>
-                            </button>
-                        </mat-menu>
                     </td>
                 </ng-container>
 
@@ -306,10 +314,31 @@
                     <th *matHeaderCellDef mat-header-cell></th>
                 </ng-container>
 
-                <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
-                <tr *matHeaderRowDef="displayedColumnsFilters" mat-header-row></tr>
-                <tr *matRowDef="let row; columns: displayedColumns" class="text-sm" mat-row></tr>
+                <tr *matHeaderRowDef="columns()" mat-header-row></tr>
+                <tr *matHeaderRowDef="filterColumns()" mat-header-row></tr>
+                <tr *matRowDef="let row; columns: columns()" class="text-sm" mat-row></tr>
             </table>
         </div>
     </div>
+
+    <ng-template #columnsOverlay>
+        <div class="bg-card rounded-lg shadow-lg p-4">
+            <div class="flex flex-col gap-2">
+                <div class="flex flex-col justify-between gap-4">
+                    <h3 class="font-bold text-lg">{{ t('fields.invoice-number') }}</h3>
+
+                    @for (column of displayedColumns; track column) {
+                        <div class="flex items-center gap-2">
+                            <mat-slide-toggle
+                                [checked]="columns().includes(column)"
+                                (change)="toggleColumn(column)"
+                            ></mat-slide-toggle>
+                            <span>{{ t('fields.' + column) }}</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </ng-template>
 </div>
+

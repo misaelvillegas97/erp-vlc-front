@@ -11,6 +11,15 @@
             <h2 class="flex-1 font-bold text-secondary text-xl self-center">
                 {{ t('title') }}
             </h2>
+            <button
+                #columnsOverlayButton
+                (click)="openColumnsOverlay($event)"
+                [class.open]="showColumnsOverlay()"
+                class="mr-4"
+                mat-icon-button
+            >
+                <mat-icon [svgIcon]="'mat_outline:checklist'"></mat-icon>
+            </button>
             @if (isMobile()) {
                 <button
                     (click)="showMobileFilters.set(!showMobileFilters())"
@@ -263,11 +272,58 @@
                         mat-table
                         matSort
                     >
+                        <ng-container matColumnDef="info">
+                            <th *matHeaderCellDef mat-header-cell></th>
+                            <td *matCellDef="let order" mat-cell>
+                                @let deliveryDate = order.deliveryDate;
+                                <div class="flex-center">
+                                    @if (today > deliveryDate) {
+                                        @if (![ OrderStatusEnum.DELIVERED, OrderStatusEnum.INVOICED ].includes(order.status)) {
+                                            <mat-icon
+                                                matTooltip="La fecha de entrega ha vencido y la orden no ha sido entregada ni facturada"
+                                                svgIcon="heroicons_solid:exclamation-circle"
+                                                class="text-red-500"
+                                            ></mat-icon>
+                                        } @else if (order.status === OrderStatusEnum.INVOICED) {
+                                            <mat-icon
+                                                matTooltip="La fecha de entrega ha vencido y la orden ha sido facturada"
+                                                svgIcon="heroicons_solid:exclamation-circle"
+                                                class="text-yellow-500"
+                                            ></mat-icon>
+                                        } @else if (order.status === OrderStatusEnum.DELIVERED && order.deliveredDate > deliveryDate) {
+                                            <mat-icon
+                                                matTooltip="La orden ha sido entregada después de la fecha de entrega"
+                                                svgIcon="heroicons_solid:exclamation-circle"
+                                                class="text-yellow-500"
+                                            ></mat-icon>
+                                        } @else {
+                                            <mat-icon
+                                                matTooltip="La orden ha sido entregada al día"
+                                                svgIcon="heroicons_solid:check-circle"
+                                                class="text-green-500"
+                                            ></mat-icon>
+                                        }
+                                    }
+                                    @if (today == deliveryDate) {
+                                        <mat-icon
+                                            [matTooltip]="'La fecha de entrega es hoy' + (!order.invoice ? ' y no tiene factura asociada' : '')"
+                                            svgIcon="heroicons_solid:exclamation-circle"
+                                            class="text-yellow-500"
+                                        ></mat-icon>
+                                    }
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="infoFilter">
+                            <th *matHeaderCellDef mat-header-cell></th>
+                        </ng-container>
+
                         <!-- Order number -->
                         <ng-container matColumnDef="orderNumber">
                             <th *matHeaderCellDef mat-header-cell>Número de orden</th>
                             <td *matCellDef="let order" mat-cell>
-                                <span class="font-medium text-sm">{{ order?.orderNumber }}</span>
+                                <span (click)="view(order)" class="font-medium text-sm text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">{{ order?.orderNumber }}</span>
                             </td>
                         </ng-container>
 
@@ -407,7 +463,7 @@
                         <!-- Delivery location filter -->
                         <ng-container matColumnDef="deliveryLocationFilter">
                             <th *matHeaderCellDef mat-header-cell>
-                                <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
+                                <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
                                     <input [formControl]="deliveryLocationFormControl" matInput>
                                 </mat-form-field>
                             </th>
@@ -486,15 +542,7 @@
                                 } @else {
                                     @if (order?.invoice) {
                                         <div class="flex justify-between items-center">
-                                            <span class="text-sm cursor-pointer">{{ order?.invoice?.invoiceNumber }}</span>
-                                            <button
-                                                class="shadow-none"
-                                                mat-icon-button
-                                                [matTooltip]="'Ver factura'"
-                                                (click)="$event.stopPropagation(); openInvoiceDetail(order)"
-                                            >
-                                                <mat-icon class="icon-size-4">receipt_long</mat-icon>
-                                            </button>
+                                            <span (click)=" openInvoiceDetail(order)" class="text-sm cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">{{ order?.invoice?.invoiceNumber }}</span>
                                         </div>
                                     } @else {
                                         <button
@@ -537,15 +585,9 @@
                             <th *matHeaderCellDef mat-header-cell></th>
                         </ng-container>
 
-                        <tr *matHeaderRowDef="displayedColumns" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
-                        <tr *matHeaderRowDef="displayedFilterColumns" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
-                        <tr
-                            (click)="view(row)"
-                            *matRowDef="let row;columns: displayedColumns"
-                            class="hover:bg-hover"
-                            [class.bg-red-100]="!row.invoice"
-                            mat-row
-                        ></tr>
+                        <tr *matHeaderRowDef="columns()" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
+                        <tr *matHeaderRowDef="filterColumns()" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
+                        <tr *matRowDef="let row; columns: columns()" class="hover:bg-hover" mat-row></tr>
 
                         <!-- No data -->
                         <tr *matNoDataRow class="h-16">
@@ -558,4 +600,24 @@
             }
         }
     </div>
+
+    <ng-template #columnsOverlay>
+        <div class="bg-card rounded-lg shadow-lg p-4">
+            <div class="flex flex-col gap-2">
+                <div class="flex flex-col justify-between gap-4">
+                    <h3 class="font-bold text-lg">Columnas</h3>
+
+                    @for (column of displayedColumns; track column) {
+                        <div class="flex items-center gap-2">
+                            <mat-slide-toggle
+                                [checked]="columns().includes(column)"
+                                (change)="toggleColumn(column)"
+                            ></mat-slide-toggle>
+                            <span>{{ t('fields.' + column) }}</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </ng-template>
 </div>

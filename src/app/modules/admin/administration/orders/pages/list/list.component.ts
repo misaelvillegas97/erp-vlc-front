@@ -1,32 +1,39 @@
-import { Component, computed, inject, resource, signal, WritableSignal }                                                                                from '@angular/core';
-import { PageHeaderComponent }                                                                                                                          from '@layout/components/page-header/page-header.component';
-import { TranslocoDirective, TranslocoPipe, TranslocoService }                                                                                          from '@ngneat/transloco';
-import { MatIcon }                                                                                                                                      from '@angular/material/icon';
-import { MatButtonModule, MatIconAnchor }                                                                                                               from '@angular/material/button';
-import { MatTooltip }                                                                                                                                   from '@angular/material/tooltip';
-import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatNoDataRow, MatRow, MatRowDef, MatTable } from '@angular/material/table';
-import { Router, RouterLink }                                                                                                                           from '@angular/router';
-import { Order }                                                                                                                                        from '@modules/admin/administration/orders/domain/model/order';
-import { Notyf }                                                                                                                                        from 'notyf';
-import { OrdersService }                                                                                                                                from '@modules/admin/administration/orders/orders.service';
+import { Component, computed, inject, resource, Signal, signal, TemplateRef, viewChild, ViewContainerRef, WritableSignal }                              from '@angular/core';
+import { BreakpointObserver, Breakpoints }                                                                                                              from '@angular/cdk/layout';
+import { Overlay, OverlayRef }                                                                                                                          from '@angular/cdk/overlay';
+import { TemplatePortal }                                                                                                                               from '@angular/cdk/portal';
 import { CurrencyPipe, DatePipe }                                                                                                                       from '@angular/common';
-import { MatSort, MatSortHeader }                                                                                                                       from '@angular/material/sort';
 import { toSignal }                                                                                                                                     from '@angular/core/rxjs-interop';
+import { FormControl, FormsModule, ReactiveFormsModule }                                                                                                from '@angular/forms';
+import { MatSlideToggle }                                                                                                                               from '@angular/material/slide-toggle';
+import { MatSort, MatSortHeader }                                                                                                                       from '@angular/material/sort';
 import { MatDialog }                                                                                                                                    from '@angular/material/dialog';
 import { MatFormFieldModule }                                                                                                                           from '@angular/material/form-field';
 import { MatInputModule }                                                                                                                               from '@angular/material/input';
 import { MatSelectModule }                                                                                                                              from '@angular/material/select';
-import { FormControl, FormsModule, ReactiveFormsModule }                                                                                                from '@angular/forms';
-import { OrderTypeEnum }                                                                                                                                from '@modules/admin/administration/orders/domain/enums/order-type.enum';
-import { OrderStatusEnum }                                                                                                                              from '@modules/admin/administration/orders/domain/enums/order-status.enum';
-import { InvoiceAddComponent }                                                                                                                          from '@modules/admin/administration/orders/dialogs/invoice-add/invoice-add.component';
-import { InvoiceDetailComponent }                                                                                                                       from '@modules/admin/administration/orders/dialogs/invoice-detail/invoice-detail.component';
-import { OrderDetailDialog }                                                                                                                            from '@modules/admin/administration/orders/dialogs/order-detail/order-detail.dialog';
-import { trackByFn }                                                                                                                                    from '@libs/ui/utils/utils';
-import { BreakpointObserver, Breakpoints }                                                                                                              from '@angular/cdk/layout';
-import { debounceTime, firstValueFrom, map }                                                                                                            from 'rxjs';
-import { Client }                                                                                                                                       from '@modules/admin/maintainers/clients/domain/model/client';
-import { ClientService }                                                                                                                                from '@modules/admin/maintainers/clients/client.service';
+import { MatIcon }                                                                                                                                      from '@angular/material/icon';
+import { MatButton, MatButtonModule, MatIconAnchor }                                                                                                    from '@angular/material/button';
+import { MatTooltip }                                                                                                                                   from '@angular/material/tooltip';
+import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatNoDataRow, MatRow, MatRowDef, MatTable } from '@angular/material/table';
+import { Router, RouterLink }                                                                                                                           from '@angular/router';
+
+import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@ngneat/transloco';
+import { DateTime }                                            from 'luxon';
+import { Notyf }                                               from 'notyf';
+import { debounceTime, firstValueFrom, map }                   from 'rxjs';
+
+import { trackByFn }           from '@libs/ui/utils/utils';
+import { PageHeaderComponent } from '@layout/components/page-header/page-header.component';
+import { OrdersService }       from '@modules/admin/administration/orders/orders.service';
+
+import { Order }                  from '@modules/admin/administration/orders/domain/model/order';
+import { OrderTypeEnum }          from '@modules/admin/administration/orders/domain/enums/order-type.enum';
+import { OrderStatusEnum }        from '@modules/admin/administration/orders/domain/enums/order-status.enum';
+import { InvoiceAddComponent }    from '@modules/admin/administration/orders/dialogs/invoice-add/invoice-add.component';
+import { InvoiceDetailComponent } from '@modules/admin/administration/orders/dialogs/invoice-detail/invoice-detail.component';
+import { OrderDetailDialog }      from '@modules/admin/administration/orders/dialogs/order-detail/order-detail.dialog';
+import { Client }                 from '@modules/admin/maintainers/clients/domain/model/client';
+import { ClientService }          from '@modules/admin/maintainers/clients/client.service';
 
 @Component({
     selector   : 'app-list',
@@ -59,6 +66,7 @@ import { ClientService }                                                        
         FormsModule,
         DatePipe,
         TranslocoPipe,
+        MatSlideToggle,
 
     ],
     templateUrl: './list.component.html',
@@ -73,8 +81,12 @@ export class ListComponent {
     readonly #ordersService = inject(OrdersService);
     readonly #clientService = inject(ClientService);
     readonly #breakpointObserver = inject(BreakpointObserver);
+    readonly #overlay = inject(Overlay);
+    readonly #vcr = inject(ViewContainerRef);
     readonly router = inject(Router);
     readonly isMobile$ = this.#breakpointObserver.observe(Breakpoints.Handset).pipe(map((result) => result.matches));
+    #overlayRef: OverlayRef;
+    readonly today = DateTime.now().toISODate();
 
     orderNumberFormControl = new FormControl<string>(undefined);
     clientFormControl = new FormControl<Client[]>(undefined);
@@ -87,7 +99,7 @@ export class ListComponent {
     amountFormControl = new FormControl<number>(undefined);
 
     isMobile = toSignal(this.isMobile$, {initialValue: false});
-    readonly displayedColumns: string[] = [ 'orderNumber', 'businessName', 'type', 'status', 'invoice', 'deliveryLocation', 'deliveryDate', 'emissionDate', 'amount', 'actions' ];
+    readonly displayedColumns: string[] = [ 'info', 'orderNumber', 'businessName', 'type', 'status', 'invoice', 'deliveryLocation', 'deliveryDate', 'emissionDate', 'amount', 'actions' ];
     readonly displayedFilterColumns: string[] = this.displayedColumns.map((column) => column + 'Filter');
     orderNumberFilter = toSignal(this.orderNumberFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
     businessNameFilter = toSignal(this.clientFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: []});
@@ -99,7 +111,13 @@ export class ListComponent {
     amountFilter = toSignal(this.amountFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
     invoiceFilter = toSignal(this.invoiceFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
 
+    // Additional signals
     showMobileFilters: WritableSignal<boolean> = signal<boolean>(false);
+    showColumnsOverlay = signal(false);
+    columns = signal([ ...this.displayedColumns ]);
+    filterColumns = signal([ ...this.displayedFilterColumns ]);
+    columnsOverlay: Signal<TemplateRef<any>> = viewChild('columnsOverlay');
+    columnsOverlayButton: Signal<MatButton> = viewChild('columnsOverlayButton');
 
     filters = computed(() => {
         const filter = {};
@@ -130,11 +148,15 @@ export class ListComponent {
     clientsResource = resource({
         loader: () => firstValueFrom(this.#clientService.findAll({}, 'COMPACT'))
     });
-
+    protected readonly OrderStatusEnum = OrderStatusEnum;
 
     private _notyf = new Notyf();
 
-    clearFilters() {
+    ngOnDestroy() {
+        if (this.#overlayRef) this.#overlayRef.detach();
+    }
+
+    clearFilters = () => {
         this.orderNumberFormControl.setValue(undefined);
         this.clientFormControl.setValue(undefined);
         this.typeFormControl.setValue(undefined);
@@ -146,11 +168,32 @@ export class ListComponent {
         this.amountFormControl.setValue(undefined);
     }
 
-    view(order: Order) {
+    toggleColumn = (column: string) => {
+        const originalOrder = [ ...this.displayedColumns ];
+        const columns = this.columns();
+        const filterColumns = this.filterColumns();
+        const index = columns.indexOf(column);
+
+        if (index > -1) {
+            columns.splice(index, 1);
+            filterColumns.splice(index, 1);
+        } else {
+            columns.push(column);
+            filterColumns.push(column + 'Filter');
+            columns.sort((a, b) => originalOrder.indexOf(a) - originalOrder.indexOf(b));
+            filterColumns.sort((a, b) =>
+                originalOrder.indexOf(a.replace('Filter', '')) - originalOrder.indexOf(b.replace('Filter', '')));
+        }
+
+        this.columns.set(columns);
+        this.filterColumns.set(filterColumns);
+    };
+
+    view = (order: Order) => {
         this.#dialog.open(OrderDetailDialog, {data: {order}});
     }
 
-    openAddInvoiceDialog(order: Order): void {
+    openAddInvoiceDialog = (order: Order): void => {
         const invoiceDialog = this.#dialog.open(InvoiceAddComponent, {
             data: {order},
             width: '500px'
@@ -164,7 +207,7 @@ export class ListComponent {
         });
     }
 
-    openInvoiceDetail(order: Order) {
+    openInvoiceDetail = (order: Order) => {
         this.#dialog.open(InvoiceDetailComponent, {
             data: {order}
         });
@@ -172,4 +215,60 @@ export class ListComponent {
 
     protected readonly trackByFn = trackByFn;
     protected readonly Date = Date;
+
+    openColumnsOverlay = (event: MouseEvent) => {
+        this.#overlayRef = this.#overlay.create({
+            backdropClass   : '',
+            hasBackdrop     : true,
+            scrollStrategy  : this.#overlay.scrollStrategies.block(),
+            positionStrategy: this.#overlay
+                .position()
+                .flexibleConnectedTo(
+                    this.columnsOverlayButton()._elementRef.nativeElement
+                )
+                .withFlexibleDimensions(true)
+                .withViewportMargin(16)
+                .withLockedPosition(true)
+                .withPositions([
+                    {
+                        originX : 'start',
+                        originY : 'bottom',
+                        overlayX: 'start',
+                        overlayY: 'top',
+                    },
+                    {
+                        originX : 'start',
+                        originY : 'top',
+                        overlayX: 'start',
+                        overlayY: 'bottom',
+                    },
+                    {
+                        originX : 'end',
+                        originY : 'bottom',
+                        overlayX: 'end',
+                        overlayY: 'top',
+                    },
+                    {
+                        originX : 'end',
+                        originY : 'top',
+                        overlayX: 'end',
+                        overlayY: 'bottom',
+                    },
+                ]),
+        });
+
+        // Create a portal from the template
+        const templatePortal = new TemplatePortal(this.columnsOverlay(), this.#vcr);
+
+        this.#overlayRef.attach(templatePortal);
+
+        this.#overlayRef.backdropClick().subscribe(() => {
+            this.#overlayRef.detach();
+        });
+
+        if (templatePortal && templatePortal.isAttached) {
+            // Detach it
+            templatePortal.detach();
+        }
+    };
 }

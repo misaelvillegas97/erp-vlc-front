@@ -12,6 +12,7 @@ export interface Order {
     status: OrderStatusEnum;
     deliveryLocation: string;
     deliveryDate: string;
+    deliveredDate: string;
     emissionDate: string;
     observations?: string;
     invoiceNumber?: string;
