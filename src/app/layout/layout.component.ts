@@ -6,7 +6,6 @@ import { FuseMediaWatcherService }                                             f
 import { FusePlatformService }                                                 from '@fuse/services/platform';
 import { FUSE_VERSION }                                                        from '@fuse/version';
 import { combineLatest, filter, map, Subject, takeUntil }                      from 'rxjs';
-import { SettingsComponent }                                                   from './components/settings/settings.component';
 import { EmptyLayoutComponent }                                                from './layouts/empty/empty.component';
 import { CenteredLayoutComponent }                                             from './layouts/horizontal/centered/centered.component';
 import { EnterpriseLayoutComponent }                                           from './layouts/horizontal/enterprise/enterprise.component';
@@ -25,7 +24,7 @@ import { ThinLayoutComponent }                                                 f
     styleUrls    : [ './layout.component.scss' ],
     encapsulation: ViewEncapsulation.None,
     standalone   : true,
-    imports      : [
+    imports: [
         EmptyLayoutComponent,
         CenteredLayoutComponent,
         EnterpriseLayoutComponent,
@@ -37,7 +36,7 @@ import { ThinLayoutComponent }                                                 f
         DenseLayoutComponent,
         FuturisticLayoutComponent,
         ThinLayoutComponent,
-        SettingsComponent,
+
     ],
 })
 export class LayoutComponent implements OnInit, OnDestroy {
@@ -79,9 +78,10 @@ export class LayoutComponent implements OnInit, OnDestroy {
             .pipe(
                 takeUntil(this._unsubscribeAll),
                 map(([ config, mql ]) => {
-                    const localStorageScheme = localStorage.getItem('wwt-scheme');
+                    // const localStorageScheme = localStorage.getItem('wwt-scheme');
                     const options = {
-                        scheme: localStorageScheme ? localStorageScheme : config.scheme,
+                        scheme: config.scheme,
+                        // scheme: localStorageScheme ? localStorageScheme : config.scheme,
                         theme : config.theme,
                     };
 
@@ -95,7 +95,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
                             : 'light';
 
                         // Save the scheme to the local storage
-                        localStorage.setItem('wwt-scheme', options.scheme);
+                        // localStorage.setItem('wwt-scheme', options.scheme);
                     }
 
                     return options;

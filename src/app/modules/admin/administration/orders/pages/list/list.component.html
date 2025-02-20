@@ -487,7 +487,14 @@
                         <ng-container matColumnDef="deliveryDate">
                             <th *matHeaderCellDef mat-header-cell mat-sort-header>Fecha de entrega</th>
                             <td *matCellDef="let order" mat-cell>
-                                <span class="text-sm">{{ order?.deliveryDate | date:'dd-MM-yyyy' }}</span>
+                                @if (order.status !== OrderStatusEnum.DELIVERED && today > order.deliveryDate) {
+                                    <span class="text-sm text-red-400">{{ order?.deliveryDate | date:'dd-MM-yyyy' }}</span>
+                                } @else if (order.status === OrderStatusEnum.DELIVERED && order.deliveredDate > order.deliveryDate) {
+                                    <span class="text-sm text-yellow-500">{{ order?.deliveryDate | date:'dd-MM-yyyy' }}</span>
+                                } @else {
+                                    <span class="text-sm text-green-500">{{ order?.deliveryDate | date:'dd-MM-yyyy' }}</span>
+
+                                }
                             </td>
                         </ng-container>
 
