@@ -276,32 +276,12 @@
                             <td *matCellDef="let order" mat-cell>
                                 @let deliveryDate = order.deliveryDate;
                                 <div class="flex-center">
-                                    @if (today > deliveryDate) {
-                                        @if (![ OrderStatusEnum.DELIVERED ].includes(order.status)) {
-                                            <mat-icon
-                                                matTooltip="Órden atrasada"
-                                                svgIcon="heroicons_solid:exclamation-circle"
-                                                class="text-red-500"
-                                            ></mat-icon>
-                                        } @else if (order.status === OrderStatusEnum.DELIVERED && order.deliveredDate > deliveryDate) {
-                                            <mat-icon
-                                                matTooltip="La orden ha sido entregada después de la fecha de entrega"
-                                                svgIcon="heroicons_solid:exclamation-circle"
-                                                class="text-yellow-500"
-                                            ></mat-icon>
-                                        } @else {
-                                            <mat-icon
-                                                matTooltip="La orden ha sido entregada al día"
-                                                svgIcon="heroicons_solid:check-circle"
-                                                class="text-green-500"
-                                            ></mat-icon>
-                                        }
-                                    }
                                     @if (today == deliveryDate) {
                                         <mat-icon
-                                            [matTooltip]="'La fecha de entrega es hoy' + (!order.invoice ? ' y no tiene factura asociada' : '')"
+                                            [matTooltip]="'La fecha de entrega es hoy.' + (!order.invoice ? '\n• No tiene factura asociada' : '') + (order.status === OrderStatusEnum.CREATED ? '\n• Aún no está en progreso ni pendiente de entrega': '')"
+                                            matTooltipClass="whitespace-pre-wrap"
                                             svgIcon="heroicons_solid:exclamation-circle"
-                                            class="text-yellow-500"
+                                            class="text-yellow-700"
                                         ></mat-icon>
                                     }
                                 </div>
@@ -398,26 +378,42 @@
                         <ng-container matColumnDef="status">
                             <th *matHeaderCellDef mat-header-cell>Estado</th>
                             <td *matCellDef="let order" mat-cell>
-                                @switch (order?.status) {
-                                    @case ('PENDING') {
-                                        <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 text-xs font-medium text-yellow-800 ring-1 ring-yellow-600/20 ring-inset">Pendiente</span>
+                                <div class="flex items-center gap-2">
+                                    @switch (order?.status) {
+                                        @case (OrderStatusEnum.CREATED) {
+                                            <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 text-xs font-medium text-yellow-800 dark:text-yellow-500 ring-1 ring-yellow-600/20 ring-inset bg-yellow-600/20">Creada</span>
+                                        }
+                                        @case (OrderStatusEnum.IN_PROGRESS) {
+                                            <span class="inline-flex items-center rounded-md bg-blue-50 px-2 text-xs font-medium text-blue-700 dark:text-blue-500 ring-1 ring-blue-700/10 ring-inset bg-blue-600/20">En progreso</span>
+                                        }
+                                        @case (OrderStatusEnum.PENDING_DELIVERY) {
+                                            <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 text-xs font-medium text-yellow-800 dark:text-yellow-500 ring-1 ring-yellow-600/20 ring-inset bg-yellow-600/20">Pendiente de entrega</span>
+                                        }
+                                        @case (OrderStatusEnum.DELIVERED) {
+                                            <span class="inline-flex items-center rounded-md bg-green-50 px-2 text-xs font-medium text-green-700 dark:text-green-500 ring-1 ring-green-600/20 ring-inset bg-green-600/20">Entregado</span>
+                                        }
+                                        @case (OrderStatusEnum.CANCELED) {
+                                            <span class="inline-flex items-center rounded-md bg-red-50 px-2 text-xs font-medium text-red-700 dark:text-red-500 ring-1 ring-red-600/10 ring-inset bg-red-600/20">Cancelado</span>
+                                        }
                                     }
-                                    @case ('IN_PROGRESS') {
-                                        <span class="inline-flex items-center rounded-md bg-blue-50 px-2 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset">En progreso</span>
+
+                                    @if (![ OrderStatusEnum.DELIVERED, OrderStatusEnum.CANCELED ].includes(order.status)) {
+                                        @if (today > order.deliveryDate) {
+                                            <mat-icon matTooltip="Órden atrasada"
+                                                      svgIcon="heroicons_solid:exclamation-circle"
+                                                      class="text-red-500 icon-size-4"
+                                            ></mat-icon>
+                                        }
                                     }
-                                    @case ('READY_FOR_SHIPPING') {
-                                        <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 text-xs font-medium text-yellow-800 ring-1 ring-yellow-600/20 ring-inset">Listo para envío</span>
+
+                                    @if (order.status === OrderStatusEnum.DELIVERED && order.deliveredDate > order.deliveryDate) {
+                                        <mat-icon
+                                            matTooltip="La orden ha sido entregada atrasada"
+                                            svgIcon="heroicons_solid:exclamation-circle"
+                                            class="text-yellow-500 icon-size-4"
+                                        ></mat-icon>
                                     }
-                                    @case ('INVOICED') {
-                                        <span class="inline-flex items-center rounded-md bg-blue-50 px-2 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset">Facturado</span>
-                                    }
-                                    @case ('DELIVERED') {
-                                        <span class="inline-flex items-center rounded-md bg-green-50 px-2 text-xs font-medium text-green-700 ring-1 ring-green-600/20 ring-inset">Entregado</span>
-                                    }
-                                    @case ('CANCELED') {
-                                        <span class="inline-flex items-center rounded-md bg-red-50 px-2 text-xs font-medium text-red-700 ring-1 ring-red-600/10 ring-inset">Cancelado</span>
-                                    }
-                                }
+                                </div>
                             </td>
                         </ng-container>
 
@@ -491,9 +487,10 @@
                                     <span class="text-sm text-red-400">{{ order?.deliveryDate | date:'dd-MM-yyyy' }}</span>
                                 } @else if (order.status === OrderStatusEnum.DELIVERED && order.deliveredDate > order.deliveryDate) {
                                     <span class="text-sm text-yellow-500">{{ order?.deliveryDate | date:'dd-MM-yyyy' }}</span>
-                                } @else {
+                                } @else if (order.status === OrderStatusEnum.DELIVERED && order.deliveredDate <= order.deliveryDate) {
                                     <span class="text-sm text-green-500">{{ order?.deliveryDate | date:'dd-MM-yyyy' }}</span>
-
+                                } @else {
+                                    <span class="text-sm">{{ order?.deliveryDate | date:'dd-MM-yyyy' }}</span>
                                 }
                             </td>
                         </ng-container>

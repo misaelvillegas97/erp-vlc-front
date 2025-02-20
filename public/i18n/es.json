@@ -330,8 +330,9 @@
     },
     "enums" : {
         "order-status" : {
-            "PENDING" : "Pendiente",
+            "CREATED" : "Creada",
             "IN_PROGRESS" : "En progreso",
+            "PENDING_DELIVERY" : "Pendiente de entrega",
             "INVOICED" : "Facturado",
             "SHIPPED" : "Enviado",
             "DELIVERED" : "Entregado",

@@ -1,23 +1,25 @@
-import { Component, inject, model, ModelSignal, resource }     from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef }      from '@angular/material/dialog';
-import { MatButton }                                           from '@angular/material/button';
-import { MatFormFieldModule }                                  from '@angular/material/form-field';
-import { MatInput }                                            from '@angular/material/input';
-import { MatSelectModule }                                     from '@angular/material/select';
-import { MatDatepickerModule }                                 from '@angular/material/datepicker';
-import { CurrencyPipe }                                        from '@angular/common';
-import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { Order }                                               from '@modules/admin/administration/orders/domain/model/order';
-import { TranslocoPipe }                                       from '@ngneat/transloco';
-import { InvoiceStatusEnum }                                   from '@modules/admin/administration/invoices/domains/enums/invoice-status.enum';
-import { OrdersService }                                       from '@modules/admin/administration/orders/orders.service';
-import { firstValueFrom, map }                                 from 'rxjs';
-import { Notyf }                                               from 'notyf';
-import { UserService }                                         from '@core/user/user.service';
-import { MatProgressSpinner }                                  from '@angular/material/progress-spinner';
-import { MatAutocomplete, MatAutocompleteTrigger }             from '@angular/material/autocomplete';
-import { displayWithFn }                                       from '@core/utils';
-import { User }                                                from '@core/user/user.types';
+import { Component, computed, inject, model, ModelSignal, resource } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef }            from '@angular/material/dialog';
+import { MatButton }                                                 from '@angular/material/button';
+import { MatFormFieldModule }                                        from '@angular/material/form-field';
+import { MatInput }                                                  from '@angular/material/input';
+import { MatSelectModule }                                           from '@angular/material/select';
+import { MatDatepickerModule }                                       from '@angular/material/datepicker';
+import { CurrencyPipe }                                              from '@angular/common';
+import { ReactiveFormsModule, UntypedFormBuilder, Validators }       from '@angular/forms';
+import { Order }                                                     from '@modules/admin/administration/orders/domain/model/order';
+import { TranslocoPipe }                                             from '@ngneat/transloco';
+import { InvoiceStatusEnum }                                         from '@modules/admin/administration/invoices/domains/enums/invoice-status.enum';
+import { OrdersService }                                             from '@modules/admin/administration/orders/orders.service';
+import { firstValueFrom, map }                                       from 'rxjs';
+import { Notyf }                                                     from 'notyf';
+import { UserService }                                               from '@core/user/user.service';
+import { MatProgressSpinner }                                        from '@angular/material/progress-spinner';
+import { MatAutocomplete, MatAutocompleteTrigger }                   from '@angular/material/autocomplete';
+import { displayWithFn }                                             from '@core/utils';
+import { User }                                                      from '@core/user/user.types';
+import { OrderStatusEnum }                                           from '@modules/admin/administration/orders/domain/enums/order-status.enum';
+import { MatCheckbox }                                               from '@angular/material/checkbox';
 
 @Component({
     selector   : 'app-add-invoice',
@@ -33,7 +35,8 @@ import { User }                                                from '@core/user/
         TranslocoPipe,
         MatProgressSpinner,
         MatAutocomplete,
-        MatAutocompleteTrigger
+        MatAutocompleteTrigger,
+        MatCheckbox
     ],
     templateUrl: './invoice-add.component.html'
 })
@@ -45,17 +48,19 @@ export class InvoiceAddComponent {
     readonly #userService = inject(UserService);
     private readonly _notyf = new Notyf();
     readonly order: ModelSignal<Order> = model(this.#dialogData.order);
+    readonly isDeliveredOrCanceled = computed(() => this.order().status === OrderStatusEnum.DELIVERED || this.order().status === OrderStatusEnum.CANCELED);
     readonly statuses = [
         {value: InvoiceStatusEnum.ISSUED, label: 'Emitida'},
         {value: InvoiceStatusEnum.RECEIVED_WITHOUT_OBSERVATIONS, label: 'Recibida sin observaciones'},
         {value: InvoiceStatusEnum.RECEIVED_WITH_OBSERVATIONS, label: 'Recibida con observaciones'}
     ];
     form = this.#fb.group({
-        invoiceNumber     : [ this.order().invoice?.invoiceNumber, [ Validators.required ] ],
-        status            : [ this.order().invoice?.status || InvoiceStatusEnum.ISSUED, [ Validators.required ] ],
-        emissionDate      : [ {value: this.order().invoice?.emissionDate, disabled: true}, [ Validators.required ] ],
-        dueDate           : [ {value: this.order().invoice?.dueDate, disabled: true}, [ Validators.required ] ],
-        deliveryAssignment: [ undefined, [ Validators.required ] ],
+        invoiceNumber        : [ this.order().invoice?.invoiceNumber, [ Validators.required ] ],
+        status               : [ this.order().invoice?.status || InvoiceStatusEnum.ISSUED, [ Validators.required ] ],
+        emissionDate         : [ {value: this.order().invoice?.emissionDate, disabled: true}, [ Validators.required ] ],
+        dueDate              : [ {value: this.order().invoice?.dueDate, disabled: true}, [ Validators.required ] ],
+        deliveryAssignment   : [ undefined, [ Validators.required ] ],
+        markAsPendingDelivery: [ {value: !this.isDeliveredOrCanceled(), disabled: this.isDeliveredOrCanceled()} ]
     });
     protected readonly displayWithFn = displayWithFn<User>('name');
 
@@ -68,11 +73,12 @@ export class InvoiceAddComponent {
         const data: any = this.form.getRawValue();
 
         const parsed = {
-            invoiceNumber: parseInt(data.invoiceNumber, 10),
-            status       : data.status,
-            emissionDate        : data.emissionDate.toISODate(),
-            dueDate             : data.dueDate.toISODate(),
-            deliveryAssignmentId: data.deliveryAssignment.id
+            invoiceNumber        : parseInt(data.invoiceNumber, 10),
+            status               : data.status,
+            emissionDate         : data.emissionDate.toISODate(),
+            dueDate              : data.dueDate.toISODate(),
+            deliveryAssignmentId : data.deliveryAssignment.id,
+            markAsPendingDelivery: data.markAsPendingDelivery
         };
 
         this.form.disable();

@@ -68,6 +68,7 @@ import { ClientService }          from '@modules/admin/maintainers/clients/clien
         TranslocoPipe,
         MatSlideToggle,
 
+
     ],
     templateUrl: './list.component.html',
     host       : {

@@ -57,11 +57,13 @@ export class CreateComponent {
     readonly #productsService = inject(ProductsService);
     readonly #osmService = inject(OpenStreetMapService);
 
+    readonly allowedOrderStatuses = [ OrderStatusEnumValues[0], OrderStatusEnumValues[1], OrderStatusEnumValues[2] ];
+
     form: UntypedFormGroup = this.#fb.group({
         client          : [ '', [ Validators.required ] ],
         status          : [ OrderStatusEnumValues[0], [ Validators.required ] ],
         type            : [ OrderTypeEnum.PURCHASE_ORDER, [ Validators.required ] ],
-        deliveryDate    : [ undefined, [ Validators.required ] ],
+        deliveryDate: [ {value: undefined, disabled: true}, [ Validators.required ] ],
         deliveryLocation: [ '', [ Validators.required ] ],
         productInput    : [ '' ],
         products        : this.#fb.array([], [ Validators.required ])
@@ -108,8 +110,8 @@ export class CreateComponent {
     readonly statusResource = resource({
         request: () => this.statusInput() || '',
         loader : async ({request}) => {
-            if (!request) return OrderStatusEnumValues;
-            return OrderStatusEnumValues.filter((status) => status.label.toLowerCase().includes(request.toLowerCase()));
+            if (!request) return this.allowedOrderStatuses;
+            return this.allowedOrderStatuses.filter((status) => status.label.toLowerCase().includes(request.toLowerCase()));
         },
     });
 

@@ -1,17 +1,17 @@
 import { Selector } from '@shared/selectors/model/selector';
 
 export enum OrderStatusEnum {
-    PENDING = 'PENDING',
+    CREATED = 'CREATED',
     IN_PROGRESS = 'IN_PROGRESS',
-    INVOICED = 'INVOICED',
+    PENDING_DELIVERY = 'PENDING_DELIVERY',
     DELIVERED = 'DELIVERED',
     CANCELED = 'CANCELED',
 }
 
 export const OrderStatusEnumValues: Selector[] = [
-    {value: OrderStatusEnum.PENDING, label: 'Pendiente',},
-    {value: OrderStatusEnum.IN_PROGRESS, label: 'En progreso',},
-    {value: OrderStatusEnum.INVOICED, label: 'Facturado',},
-    {value: OrderStatusEnum.DELIVERED, label: 'Entregado',},
-    {value: OrderStatusEnum.CANCELED, label: 'Cancelado',}
+    {value: OrderStatusEnum.CREATED, label: 'Creada'},
+    {value: OrderStatusEnum.IN_PROGRESS, label: 'En progreso'},
+    {value: OrderStatusEnum.PENDING_DELIVERY, label: 'Pendiente de entrega'},
+    {value: OrderStatusEnum.DELIVERED, label: 'Entregado'},
+    {value: OrderStatusEnum.CANCELED, label: 'Cancelado'}
 ];

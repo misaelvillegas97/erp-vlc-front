@@ -73,7 +73,7 @@
                        placeholder="DD/MM/YYYY"
                 />
                 <mat-datepicker-toggle [for]="deliveryDate" matSuffix></mat-datepicker-toggle>
-                <mat-datepicker #deliveryDate></mat-datepicker>
+                <mat-datepicker #deliveryDate disabled="false"></mat-datepicker>
 
                 @if (form.controls.deliveryDate.hasError('required')) {
                     <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>

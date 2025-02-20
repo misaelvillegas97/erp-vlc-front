@@ -64,6 +64,9 @@
                 <mat-error [innerText]="'errors.form.required' | transloco"></mat-error>
             }
         </mat-form-field>
+
+        <!-- Mark as pendingdelivery -->
+        <mat-checkbox class="mb-4" formControlName="pendingDelivery">Marcar órden como pendiente de entrega</mat-checkbox>
     </form>
 
     <table style="float: right">
