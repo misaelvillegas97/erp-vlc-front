@@ -118,8 +118,11 @@ export class ListComponent implements OnDestroy {
     // Additional signals
     showMobileFilters = signal<boolean>(false);
     showColumnsOverlay = signal(false);
-    columns = signal([ ...this.displayedColumns ]);
-    filterColumns = signal([ ...this.displayedColumnsFilters ]);
+
+    localStorageColumns = signal<string[] | undefined>(localStorage.getItem('invoiceListColumnsConfig') ? JSON.parse(localStorage.getItem('invoiceListColumnsConfig')) : undefined);
+    localStorageFilterColumns = signal<string[] | undefined>(localStorage.getItem('invoiceListColumnsFilterConfig') ? JSON.parse(localStorage.getItem('invoiceListColumnsFilterConfig')) : undefined);
+    columns = signal(this.localStorageColumns() ?? [ ...this.displayedColumns ]);
+    filterColumns = signal(this.localStorageFilterColumns() ?? [ ...this.displayedColumnsFilters ]);
 
     filters = computed(() => {
         const filter = {};
@@ -158,6 +161,7 @@ export class ListComponent implements OnDestroy {
     protected readonly trackByFn = trackByFn;
     protected readonly invoiceStatuses = Object.values(InvoiceStatusEnum);
     protected readonly InvoiceStatusEnum = InvoiceStatusEnum;
+    protected readonly InvoiceStatusConfig = InvoiceStatusConfig;
 
     ngOnDestroy() {
         if (this.#overlayRef) this.#overlayRef.detach();
@@ -196,9 +200,10 @@ export class ListComponent implements OnDestroy {
 
         this.columns.set(columns);
         this.filterColumns.set(filterColumns);
+        this.persistColumnsConfiguration();
     };
 
-    openColumnsOverlay = (event: MouseEvent) => {
+    openColumnsOverlay = () => {
         this.#overlayRef = this.#overlay.create({
             backdropClass   : '',
             hasBackdrop     : true,
@@ -253,6 +258,11 @@ export class ListComponent implements OnDestroy {
             templatePortal.detach();
         }
     };
-    protected readonly InvoiceStatusConfig = InvoiceStatusConfig;
+
+    persistColumnsConfiguration = (): void => {
+        localStorage.setItem('invoiceListColumnsConfig', JSON.stringify(this.columns()));
+        localStorage.setItem('invoiceListColumnsFilterConfig', JSON.stringify(this.filterColumns()));
+    };
+
 }
 

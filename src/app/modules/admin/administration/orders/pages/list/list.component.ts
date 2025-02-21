@@ -1,4 +1,4 @@
-import { Component, computed, inject, resource, Signal, signal, TemplateRef, viewChild, ViewContainerRef, WritableSignal }                              from '@angular/core';
+import { Component, computed, inject, OnDestroy, resource, Signal, signal, TemplateRef, viewChild, ViewContainerRef, WritableSignal }                   from '@angular/core';
 import { BreakpointObserver, Breakpoints }                                                                                                              from '@angular/cdk/layout';
 import { Overlay, OverlayRef }                                                                                                                          from '@angular/cdk/overlay';
 import { TemplatePortal }                                                                                                                               from '@angular/cdk/portal';
@@ -78,19 +78,21 @@ import { BadgeComponent }                     from '@shared/components/badge/bad
         '(document:keydown.Alt.n)': 'router.navigate(["/orders", "new"])'
     }
 })
-export class ListComponent {
+export class ListComponent implements OnDestroy {
     readonly #dialog = inject(MatDialog);
-    readonly #translationService = inject(TranslocoService);
+    readonly #ts = inject(TranslocoService);
     readonly #ordersService = inject(OrdersService);
     readonly #clientService = inject(ClientService);
     readonly #breakpointObserver = inject(BreakpointObserver);
     readonly #overlay = inject(Overlay);
     readonly #vcr = inject(ViewContainerRef);
     #overlayRef: OverlayRef;
+
     private _notyf = new Notyf();
     readonly router = inject(Router);
     readonly isMobile$ = this.#breakpointObserver.observe(Breakpoints.Handset).pipe(map((result) => result.matches));
     readonly today = DateTime.now().toISODate();
+
     orderNumberFormControl = new FormControl<string>(undefined);
     clientFormControl = new FormControl<Client[]>(undefined);
     typeFormControl = new FormControl<OrderTypeEnum[]>(undefined);
@@ -101,8 +103,10 @@ export class ListComponent {
     deliveryDateFormControl = new FormControl<string>(undefined);
     amountFormControl = new FormControl<number>(undefined);
     isMobile = toSignal(this.isMobile$, {initialValue: false});
+
     readonly displayedColumns: string[] = [ 'info', 'orderNumber', 'businessName', 'type', 'status', 'invoice', 'deliveryLocation', 'deliveryDate', 'emissionDate', 'amount', 'actions' ];
     readonly displayedFilterColumns: string[] = this.displayedColumns.map((column) => column + 'Filter');
+
     orderNumberFilter = toSignal(this.orderNumberFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
     businessNameFilter = toSignal(this.clientFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: []});
     typeFilter = toSignal(this.typeFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: []});
@@ -112,13 +116,20 @@ export class ListComponent {
     deliveryDateFilter = toSignal(this.deliveryDateFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
     amountFilter = toSignal(this.amountFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
     invoiceFilter = toSignal(this.invoiceFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
+
     // Additional signals
-    showMobileFilters: WritableSignal<boolean> = signal<boolean>(false);
-    showColumnsOverlay = signal(false);
-    columns = signal([ ...this.displayedColumns ]);
-    filterColumns = signal([ ...this.displayedFilterColumns ]);
     columnsOverlay: Signal<TemplateRef<any>> = viewChild('columnsOverlay');
     columnsOverlayButton: Signal<MatButton> = viewChild('columnsOverlayButton');
+    showMobileFilters: WritableSignal<boolean> = signal<boolean>(false);
+    showColumnsOverlay = signal(false);
+    localStorageColumns = signal<string[] | undefined>(localStorage.getItem('ordersListColumnsConfig') ? JSON.parse(localStorage.getItem('ordersListColumnsConfig')) : undefined);
+    localStorageFilterColumns = signal<string[] | undefined>(localStorage.getItem('ordersListColumnsFilterConfig') ? JSON.parse(localStorage.getItem('ordersListColumnsFilterConfig')) : undefined);
+    columns = signal(this.localStorageColumns() ?? [ ...this.displayedColumns ]);
+    filterColumns = signal(this.localStorageFilterColumns() ?? [ ...this.displayedFilterColumns ]);
+
+    translatedSelectedStatus = computed(() => {
+        return this.statusFilter() ? this.statusFilter().map((status) => this.#ts.translate('enums.order-status.' + status)).join(',\n ') : [];
+    });
     filters = computed(() => {
         const filter = {};
 
@@ -134,27 +145,25 @@ export class ListComponent {
 
         return filter;
     });
+
     ordersResource = resource({
         request: () => this.filters(),
         loader : () => firstValueFrom(this.#ordersService.findAll(this.filters()))
     });
-    translatedSelectedStatus = computed(() => {
-        return this.statusFilter() ?
-            this.statusFilter()
-                .map((status) => this.#translationService.translate('enums.order-status.' + status))
-                .join(',\n ')
-            : [];
+
+    clientsResource = resource({
+        loader: () => firstValueFrom(this.#clientService.findAll({}, 'COMPACT'))
     });
-    clientsResource = resource({loader: () => firstValueFrom(this.#clientService.findAll({}, 'COMPACT'))});
+
     protected readonly OrderStatusEnum = OrderStatusEnum;
     protected readonly OrderStatusEnumValues = Object.values(OrderStatusEnum);
     protected readonly trackByFn = trackByFn;
     protected readonly Date = Date;
+    protected readonly OrderStatusConfig = OrderStatusConfig;
 
     ngOnDestroy() {
         if (this.#overlayRef) this.#overlayRef.detach();
     }
-    protected readonly OrderStatusConfig = OrderStatusConfig;
 
     toggleColumn = (column: string) => {
         const originalOrder = [ ...this.displayedColumns ];
@@ -175,6 +184,7 @@ export class ListComponent {
 
         this.columns.set(columns);
         this.filterColumns.set(filterColumns);
+        this.persistColumnsConfiguration();
     };
 
     clearFilters = () => {
@@ -201,7 +211,7 @@ export class ListComponent {
 
         invoiceDialog.afterClosed().subscribe((result) => {
             if (result) {
-                this._notyf.success(this.#translationService.translate('operations.orders.invoice.added', {invoiceNumber: result.invoiceNumber}));
+                this._notyf.success(this.#ts.translate('operations.orders.invoice.added', {invoiceNumber: result.invoiceNumber}));
                 this.ordersResource.reload();
             }
         });
@@ -269,7 +279,8 @@ export class ListComponent {
         });
     };
 
-    getStatusColor = (status: OrderStatusEnum) => {
-        return;
+    persistColumnsConfiguration = (): void => {
+        localStorage.setItem('ordersListColumnsConfig', JSON.stringify(this.columns()));
+        localStorage.setItem('ordersListColumnsFilterConfig', JSON.stringify(this.filterColumns()));
     };
 }
