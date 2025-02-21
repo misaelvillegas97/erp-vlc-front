@@ -300,7 +300,6 @@
                             </td>
                         </ng-container>
 
-                        <!-- Order number filter -->
                         <ng-container matColumnDef="orderNumberFilter">
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
@@ -322,7 +321,6 @@
                             </td>
                         </ng-container>
 
-                        <!-- Client fantasy name filter -->
                         <ng-container matColumnDef="businessNameFilter">
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
@@ -358,7 +356,6 @@
                             </td>
                         </ng-container>
 
-                        <!-- Order type filter -->
                         <ng-container matColumnDef="typeFilter">
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
@@ -404,7 +401,6 @@
                             </td>
                         </ng-container>
 
-                        <!-- Status filter -->
                         <ng-container matColumnDef="statusFilter">
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field
@@ -413,11 +409,7 @@
                                     class="fuse-mat-dense w-full"
                                     subscriptSizing="dynamic"
                                 >
-                                    <mat-select
-                                        [formControl]="statusFormControl"
-                                        multiple
-                                        placeholder="Sin filtro"
-                                    >
+                                    <mat-select [formControl]="statusFormControl" multiple placeholder="Sin filtro">
                                         @for (status of OrderStatusEnumValues; track status) {
                                             <mat-option class="text-sm" [value]="status">{{ 'enums.order-status.' + status | transloco }}</mat-option>
                                         }
@@ -434,7 +426,6 @@
                             </td>
                         </ng-container>
 
-                        <!-- Delivery location filter -->
                         <ng-container matColumnDef="deliveryLocationFilter">
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
@@ -451,7 +442,6 @@
                             </td>
                         </ng-container>
 
-                        <!-- Emission date filter -->
                         <ng-container matColumnDef="emissionDateFilter">
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
@@ -480,7 +470,6 @@
                             </td>
                         </ng-container>
 
-                        <!-- DeliveryDate filter -->
                         <ng-container matColumnDef="deliveryDateFilter">
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
@@ -501,7 +490,6 @@
                             </td>
                         </ng-container>
 
-                        <!-- Amount filter -->
                         <ng-container matColumnDef="amountFilter">
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
@@ -543,7 +531,6 @@
                             </td>
                         </ng-container>
 
-                        <!-- Invoice filter -->
                         <ng-container matColumnDef="invoiceFilter">
                             <th *matHeaderCellDef mat-header-cell>
                                 <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
@@ -562,7 +549,6 @@
                             <td *matCellDef="let order" mat-cell></td>
                         </ng-container>
 
-                        <!-- Actions filter -->
                         <ng-container matColumnDef="actionsFilter">
                             <th *matHeaderCellDef mat-header-cell></th>
                         </ng-container>
