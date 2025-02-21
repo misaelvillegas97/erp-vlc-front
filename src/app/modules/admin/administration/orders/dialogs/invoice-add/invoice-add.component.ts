@@ -20,10 +20,11 @@ import { displayWithFn }                                             from '@core
 import { User }                                                      from '@core/user/user.types';
 import { OrderStatusEnum }                                           from '@modules/admin/administration/orders/domain/enums/order-status.enum';
 import { MatCheckbox }                                               from '@angular/material/checkbox';
+import { BadgeComponent }                                            from '@shared/components/badge/badge.component';
 
 @Component({
     selector   : 'app-add-invoice',
-    imports    : [
+    imports: [
         MatDialogModule,
         MatButton,
         MatFormFieldModule,
@@ -36,7 +37,8 @@ import { MatCheckbox }                                               from '@angu
         MatProgressSpinner,
         MatAutocomplete,
         MatAutocompleteTrigger,
-        MatCheckbox
+        MatCheckbox,
+        BadgeComponent
     ],
     templateUrl: './invoice-add.component.html'
 })
@@ -96,4 +98,5 @@ export class InvoiceAddComponent {
     readonly usersResource = resource({
         loader: () => firstValueFrom(this.#userService.findAll().pipe(map(this.extractData)))
     });
+    protected readonly OrderStatusEnum = OrderStatusEnum;
 }

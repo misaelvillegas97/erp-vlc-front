@@ -66,7 +66,9 @@
         </mat-form-field>
 
         <!-- Mark as pendingdelivery -->
-        <mat-checkbox class="mb-4" formControlName="pendingDelivery">Marcar órden como pendiente de entrega</mat-checkbox>
+        <mat-checkbox class="mb-4" formControlName="pendingDelivery">Actualizar estado a
+            <badge [label]="'enums.order-status.' + OrderStatusEnum.PENDING_DELIVERY | transloco" class="ml-2" color="yellow"></badge>
+        </mat-checkbox>
     </form>
 
     <table style="float: right">
