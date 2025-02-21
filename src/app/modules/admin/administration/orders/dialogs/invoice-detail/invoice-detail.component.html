@@ -44,27 +44,27 @@
     <!-- VERSIÓN MÓVIL -->
     <div class="block sm:hidden">
         <div class="rounded space-y-2 text-default">
-            <div>
+            <div class="text-sm font-normal">
                 <span class="font-medium mr-1">Número de factura:</span>
                 {{ order().invoice.invoiceNumber }}
             </div>
-            <div>
+            <div class="text-sm font-normal">
                 <span class="font-medium mr-1">Estado:</span>
                 {{ 'enums.invoice-status.' + order().invoice.status | transloco }}
             </div>
-            <div>
+            <div class="text-sm font-normal">
                 <span class="font-medium mr-1">Fecha de emisión:</span>
                 {{ order().invoice.emissionDate | date:'dd/MM/yyyy' }}
             </div>
-            <div>
+            <div class="text-sm font-normal">
                 <span class="font-medium mr-1">Valor neto:</span>
                 {{ subtotal | currency:'CLP':'symbol-narrow' }}
             </div>
-            <div>
+            <div class="text-sm font-normal">
                 <span class="font-medium mr-1">IVA:</span>
                 {{ iva | currency:'CLP':'symbol-narrow' }}
             </div>
-            <div>
+            <div class="text-sm font-normal">
                 <span class="font-medium mr-1">Valor bruto:</span>
                 {{ total | currency:'CLP':'symbol-narrow' }}
             </div>
@@ -145,18 +145,18 @@
     <!-- Versión Móvil -->
     <div class="block md:hidden space-y-4">
         @for (product of order().products; track product.id) {
-            <div class="bg-white shadow rounded p-4">
-                <div class="font-medium text-gray-700 mb-1">
+            <div class="bg-hover shadow rounded p-4 text-default">
+                <h4 class="font-medium mb-1">
                     {{ product.description }}
-                </div>
-                <div class="text-sm">
+                </h4>
+                <div class="text-sm text-secondary">
                     <span class="font-semibold">Cantidad:</span> {{ product.quantity }}
                 </div>
-                <div class="text-sm">
+                <div class="text-sm text-secondary">
                     <span class="font-semibold">Precio unitario:</span>
                     {{ product.unitaryPrice | currency:'CLP':'symbol-narrow' }}
                 </div>
-                <div class="text-sm">
+                <div class="text-sm text-secondary">
                     <span class="font-semibold">Total:</span>
                     {{ product.totalPrice | currency:'CLP':'symbol-narrow' }}
                 </div>
@@ -164,7 +164,7 @@
         }
 
         <!-- Totales (Net, IVA, Total) en móvil -->
-        <div class="bg-white shadow rounded p-4">
+        <div class="">
             <div class="flex justify-between text-sm mb-2">
                 <span class="font-semibold">Valor neto:</span>
                 <span>{{ productsTotal() | currency:'CLP':'symbol-narrow' }}</span>
