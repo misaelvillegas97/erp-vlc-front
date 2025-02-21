@@ -1,8 +1,8 @@
-import { provideHttpClient }                                                                                                       from '@angular/common/http';
-import { ApplicationConfig, importProvidersFrom, inject, provideAppInitializer, provideExperimentalZonelessChangeDetection }       from '@angular/core';
-import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE }                                                                          from '@angular/material/core';
-import { LuxonDateAdapter }                                                                                                        from '@angular/material-luxon-adapter';
-import { PreloadAllModules, provideRouter, withComponentInputBinding, withInMemoryScrolling, withPreloading, withViewTransitions } from '@angular/router';
+import { provideHttpClient }                                                                                                            from '@angular/common/http';
+import { ApplicationConfig, importProvidersFrom, inject, LOCALE_ID, provideAppInitializer, provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE }                                                                               from '@angular/material/core';
+import { LuxonDateAdapter }                                                                                                             from '@angular/material-luxon-adapter';
+import { PreloadAllModules, provideRouter, withComponentInputBinding, withInMemoryScrolling, withPreloading, withViewTransitions }      from '@angular/router';
 
 import { IonicStorageModule }                                 from '@ionic/storage-angular';
 import { provideTransloco, TranslocoService }                 from '@ngneat/transloco';
@@ -53,6 +53,11 @@ export const appConfig: ApplicationConfig = {
             }),
             LightgalleryModule
         ),
+
+        {
+            provide : LOCALE_ID,
+            useValue: 'es-CL'
+        },
 
         // Material Date Adapter
         {
