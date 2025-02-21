@@ -100,25 +100,11 @@
                 <ng-container matColumnDef="status">
                     <th *matHeaderCellDef mat-header-cell>Estado</th>
                     <td *matCellDef="let invoice" mat-cell>
-                        <span (click)="updateStatusInvoice(invoice)" class="cursor-pointer">
-                            @switch (invoice?.status) {
-                                @case (InvoiceStatusEnum.ISSUED) {
-                                    <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 text-xs font-medium text-yellow-800 ring-1 ring-yellow-600/20 ring-inset">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
-                                }
-                                @case (InvoiceStatusEnum.RECEIVED_WITHOUT_OBSERVATIONS) {
-                                    <span class="inline-flex items-center rounded-md bg-blue-50 px-2 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset truncate">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
-                                }
-                                @case (InvoiceStatusEnum.RECEIVED_WITH_OBSERVATIONS) {
-                                    <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 text-xs font-medium text-yellow-800 ring-1 ring-yellow-600/20 ring-inset truncate">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
-                                }
-                                @case (InvoiceStatusEnum.PAID) {
-                                    <span class="inline-flex items-center rounded-md bg-green-50 px-2 text-xs font-medium text-green-700 ring-1 ring-green-600/20 ring-inset">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
-                                }
-                                @case (InvoiceStatusEnum.REJECTED) {
-                                    <span class="inline-flex items-center rounded-md bg-red-50 px-2 text-xs font-medium text-red-700 ring-1 ring-red-600/10 ring-inset">{{ 'enums.invoice-status.' + invoice.status | transloco }}</span>
-                                }
-                            }
-                        </span>
+                        <badge (click)="updateStatusInvoice(invoice)"
+                               [color]="InvoiceStatusConfig[invoice.status].color"
+                               [label]="'enums.invoice-status.' + invoice.status | transloco"
+                               class="cursor-pointer"
+                        ></badge>
                     </td>
                 </ng-container>
 

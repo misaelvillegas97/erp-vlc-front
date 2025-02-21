@@ -77,6 +77,7 @@
     <div class="hidden sm:block overflow-x-auto">
         <table
             [dataSource]="order().products"
+            [trackBy]="trackByFn"
             class=" w-full overflow-y-visible"
             mat-table
         >
@@ -143,7 +144,7 @@
 
     <!-- Versión Móvil -->
     <div class="block md:hidden space-y-4">
-        @for (product of order().products; track order().id) {
+        @for (product of order().products; track product.id) {
             <div class="bg-white shadow rounded p-4">
                 <div class="font-medium text-gray-700 mb-1">
                     {{ product.description }}

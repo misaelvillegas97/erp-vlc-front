@@ -1,0 +1,11 @@
+<span
+    [ngClass]="[
+        colorMapping().bgLight,
+        colorMapping().text,
+        colorMapping().darkText,
+        colorMapping().ring,
+        colorMapping().ringBg
+      ]"
+    class="inline-flex items-center rounded-md px-2 text-xs font-medium ring-1 ring-inset">
+  {{ label() }}
+</span>

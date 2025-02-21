@@ -260,7 +260,8 @@
         "back" : "Volver",
         "addUrl" : "Agregar URL",
         "reload" : "Recargar",
-        "clear-filters" : "Limpiar filtros"
+        "clear-filters" : "Limpiar filtros",
+        "deletable" : "Eliminable"
     },
     "modal" : {
         "confirmation-default" : {

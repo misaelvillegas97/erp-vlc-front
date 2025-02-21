@@ -6,6 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, Ma
 import { Order }                                                                                             from '@modules/admin/administration/orders/domain/model/order';
 import { MatTableModule }                                                                                    from '@angular/material/table';
 import { TranslocoPipe }                                                                                     from '@ngneat/transloco';
+import { trackByFn }                                                                                         from '@libs/ui/utils/utils';
 
 @Component({
     selector   : 'app-invoice-detail',
@@ -29,4 +30,5 @@ export class InvoiceDetailComponent {
     readonly data = inject(MAT_DIALOG_DATA);
     readonly order: ModelSignal<Order> = model(this.data.order);
     readonly productsTotal = computed(() => this.order().products.reduce((acc, product) => acc + product.quantity * product.unitaryPrice, 0));
+    protected readonly trackByFn = trackByFn;
 }

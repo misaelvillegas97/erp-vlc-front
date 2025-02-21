@@ -1,5 +1,3 @@
-import { Selector } from '@shared/selectors/model/selector';
-
 export enum OrderStatusEnum {
     CREATED = 'CREATED',
     IN_PROGRESS = 'IN_PROGRESS',
@@ -8,10 +6,10 @@ export enum OrderStatusEnum {
     CANCELED = 'CANCELED',
 }
 
-export const OrderStatusEnumValues: Selector[] = [
-    {value: OrderStatusEnum.CREATED, label: 'Creada'},
-    {value: OrderStatusEnum.IN_PROGRESS, label: 'En progreso'},
-    {value: OrderStatusEnum.PENDING_DELIVERY, label: 'Pendiente de entrega'},
-    {value: OrderStatusEnum.DELIVERED, label: 'Entregado'},
-    {value: OrderStatusEnum.CANCELED, label: 'Cancelado'}
-];
+export const OrderStatusConfig: Record<OrderStatusEnum, Record<string, any>> = {
+    [OrderStatusEnum.CREATED]         : {color: 'yellow'},
+    [OrderStatusEnum.IN_PROGRESS]     : {color: 'blue'},
+    [OrderStatusEnum.PENDING_DELIVERY]: {color: 'yellow'},
+    [OrderStatusEnum.DELIVERED]       : {color: 'green'},
+    [OrderStatusEnum.CANCELED]        : {color: 'red'},
+};

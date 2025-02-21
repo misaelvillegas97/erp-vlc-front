@@ -78,7 +78,13 @@
                         <button mat-menu-item matTooltip="Próximamente">Asociar producto/s</button>
                         <button mat-menu-item>Ver órdenes</button>
                         <button mat-menu-item>Editar</button>
-                        <button (click)="openDeleteDialog(client)" mat-menu-item>Eliminar</button>
+                        <button (click)="openDeleteDialog(client)"
+                                [disabled]="!client.deletable"
+                                [matTooltip]="!client.deletable ? 'No se puede eliminar': ''"
+                                mat-menu-item
+                        >
+                            Eliminar
+                        </button>
                     </mat-menu>
 
                 </td>

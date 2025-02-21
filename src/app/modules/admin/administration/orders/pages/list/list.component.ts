@@ -26,14 +26,15 @@ import { trackByFn }           from '@libs/ui/utils/utils';
 import { PageHeaderComponent } from '@layout/components/page-header/page-header.component';
 import { OrdersService }       from '@modules/admin/administration/orders/orders.service';
 
-import { Order }                  from '@modules/admin/administration/orders/domain/model/order';
-import { OrderTypeEnum }          from '@modules/admin/administration/orders/domain/enums/order-type.enum';
-import { OrderStatusEnum }        from '@modules/admin/administration/orders/domain/enums/order-status.enum';
-import { InvoiceAddComponent }    from '@modules/admin/administration/orders/dialogs/invoice-add/invoice-add.component';
-import { InvoiceDetailComponent } from '@modules/admin/administration/orders/dialogs/invoice-detail/invoice-detail.component';
-import { OrderDetailDialog }      from '@modules/admin/administration/orders/dialogs/order-detail/order-detail.dialog';
-import { Client }                 from '@modules/admin/maintainers/clients/domain/model/client';
-import { ClientService }          from '@modules/admin/maintainers/clients/client.service';
+import { Order }                              from '@modules/admin/administration/orders/domain/model/order';
+import { OrderTypeEnum }                      from '@modules/admin/administration/orders/domain/enums/order-type.enum';
+import { OrderStatusConfig, OrderStatusEnum } from '@modules/admin/administration/orders/domain/enums/order-status.enum';
+import { InvoiceAddComponent }                from '@modules/admin/administration/orders/dialogs/invoice-add/invoice-add.component';
+import { InvoiceDetailComponent }             from '@modules/admin/administration/orders/dialogs/invoice-detail/invoice-detail.component';
+import { OrderDetailDialog }                  from '@modules/admin/administration/orders/dialogs/order-detail/order-detail.dialog';
+import { Client }                             from '@modules/admin/maintainers/clients/domain/model/client';
+import { ClientService }                      from '@modules/admin/maintainers/clients/client.service';
+import { BadgeComponent }                     from '@shared/components/badge/badge.component';
 
 @Component({
     selector   : 'app-list',
@@ -67,6 +68,7 @@ import { ClientService }          from '@modules/admin/maintainers/clients/clien
         DatePipe,
         TranslocoPipe,
         MatSlideToggle,
+        BadgeComponent,
 
 
     ],
@@ -84,11 +86,11 @@ export class ListComponent {
     readonly #breakpointObserver = inject(BreakpointObserver);
     readonly #overlay = inject(Overlay);
     readonly #vcr = inject(ViewContainerRef);
+    #overlayRef: OverlayRef;
+    private _notyf = new Notyf();
     readonly router = inject(Router);
     readonly isMobile$ = this.#breakpointObserver.observe(Breakpoints.Handset).pipe(map((result) => result.matches));
-    #overlayRef: OverlayRef;
     readonly today = DateTime.now().toISODate();
-
     orderNumberFormControl = new FormControl<string>(undefined);
     clientFormControl = new FormControl<Client[]>(undefined);
     typeFormControl = new FormControl<OrderTypeEnum[]>(undefined);
@@ -98,7 +100,6 @@ export class ListComponent {
     emissionDateFormControl = new FormControl<string>(undefined);
     deliveryDateFormControl = new FormControl<string>(undefined);
     amountFormControl = new FormControl<number>(undefined);
-
     isMobile = toSignal(this.isMobile$, {initialValue: false});
     readonly displayedColumns: string[] = [ 'info', 'orderNumber', 'businessName', 'type', 'status', 'invoice', 'deliveryLocation', 'deliveryDate', 'emissionDate', 'amount', 'actions' ];
     readonly displayedFilterColumns: string[] = this.displayedColumns.map((column) => column + 'Filter');
@@ -111,7 +112,6 @@ export class ListComponent {
     deliveryDateFilter = toSignal(this.deliveryDateFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
     amountFilter = toSignal(this.amountFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
     invoiceFilter = toSignal(this.invoiceFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
-
     // Additional signals
     showMobileFilters: WritableSignal<boolean> = signal<boolean>(false);
     showColumnsOverlay = signal(false);
@@ -119,7 +119,6 @@ export class ListComponent {
     filterColumns = signal([ ...this.displayedFilterColumns ]);
     columnsOverlay: Signal<TemplateRef<any>> = viewChild('columnsOverlay');
     columnsOverlayButton: Signal<MatButton> = viewChild('columnsOverlayButton');
-
     filters = computed(() => {
         const filter = {};
 
@@ -135,12 +134,10 @@ export class ListComponent {
 
         return filter;
     });
-
     ordersResource = resource({
         request: () => this.filters(),
         loader : () => firstValueFrom(this.#ordersService.findAll(this.filters()))
     });
-
     translatedSelectedStatus = computed(() => {
         return this.statusFilter() ?
             this.statusFilter()
@@ -148,27 +145,16 @@ export class ListComponent {
                 .join(',\n ')
             : [];
     });
-
     clientsResource = resource({loader: () => firstValueFrom(this.#clientService.findAll({}, 'COMPACT'))});
     protected readonly OrderStatusEnum = OrderStatusEnum;
-
-    private _notyf = new Notyf();
+    protected readonly OrderStatusEnumValues = Object.values(OrderStatusEnum);
+    protected readonly trackByFn = trackByFn;
+    protected readonly Date = Date;
 
     ngOnDestroy() {
         if (this.#overlayRef) this.#overlayRef.detach();
     }
-
-    clearFilters = () => {
-        this.orderNumberFormControl.setValue(undefined);
-        this.clientFormControl.setValue(undefined);
-        this.typeFormControl.setValue(undefined);
-        this.statusFormControl.setValue(undefined);
-        this.invoiceFormControl.setValue(undefined);
-        this.deliveryLocationFormControl.setValue(undefined);
-        this.emissionDateFormControl.setValue(undefined);
-        this.deliveryDateFormControl.setValue(undefined);
-        this.amountFormControl.setValue(undefined);
-    }
+    protected readonly OrderStatusConfig = OrderStatusConfig;
 
     toggleColumn = (column: string) => {
         const originalOrder = [ ...this.displayedColumns ];
@@ -191,9 +177,21 @@ export class ListComponent {
         this.filterColumns.set(filterColumns);
     };
 
+    clearFilters = () => {
+        this.orderNumberFormControl.setValue(undefined);
+        this.clientFormControl.setValue(undefined);
+        this.typeFormControl.setValue(undefined);
+        this.statusFormControl.setValue(undefined);
+        this.invoiceFormControl.setValue(undefined);
+        this.deliveryLocationFormControl.setValue(undefined);
+        this.emissionDateFormControl.setValue(undefined);
+        this.deliveryDateFormControl.setValue(undefined);
+        this.amountFormControl.setValue(undefined);
+    };
+
     view = (order: Order) => {
         this.#dialog.open(OrderDetailDialog, {data: {order}});
-    }
+    };
 
     openAddInvoiceDialog = (order: Order): void => {
         const invoiceDialog = this.#dialog.open(InvoiceAddComponent, {
@@ -207,16 +205,7 @@ export class ListComponent {
                 this.ordersResource.reload();
             }
         });
-    }
-
-    openInvoiceDetail = (order: Order) => {
-        this.#dialog.open(InvoiceDetailComponent, {
-            data: {order}
-        });
-    }
-
-    protected readonly trackByFn = trackByFn;
-    protected readonly Date = Date;
+    };
 
     openColumnsOverlay = (event: MouseEvent) => {
         this.#overlayRef = this.#overlay.create({
@@ -272,5 +261,15 @@ export class ListComponent {
             // Detach it
             templatePortal.detach();
         }
+    };
+
+    openInvoiceDetail = (order: Order) => {
+        this.#dialog.open(InvoiceDetailComponent, {
+            data: {order}
+        });
+    };
+
+    getStatusColor = (status: OrderStatusEnum) => {
+        return;
     };
 }

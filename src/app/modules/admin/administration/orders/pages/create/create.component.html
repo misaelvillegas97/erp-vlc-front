@@ -48,11 +48,11 @@
                        type="text"
                 />
                 <mat-autocomplete #statusAutocomplete="matAutocomplete"
-                                  [displayWith]="displayWithSelectorFn"
+                                  [displayWith]="displayWithTranslationFn"
                                   autoActiveFirstOption
                 >
                     @for (status of statusResource.value(); track status.value) {
-                        <mat-option [value]="status">{{ status.label }}</mat-option>
+                        <mat-option [value]="status">{{ 'enums.order-status.' + status | transloco }}</mat-option>
                     } @empty {
                         <mat-option disabled="disabled">{{ 'operations.orders.fields.status-empty' | transloco }}</mat-option>
                     }

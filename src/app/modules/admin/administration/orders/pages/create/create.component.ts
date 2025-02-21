@@ -6,7 +6,7 @@ import { FormsModule, ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder,
 import { MatInputModule }                                                                                       from '@angular/material/input';
 import { OrdersService }                                                                                        from '@modules/admin/administration/orders/orders.service';
 import { Router }                                                                                               from '@angular/router';
-import { OrderStatusEnumValues }                                                                                from '@modules/admin/administration/orders/domain/enums/order-status.enum';
+import { OrderStatusEnum }                                                                                      from '@modules/admin/administration/orders/domain/enums/order-status.enum';
 import { OrderTypeEnum }                                                                                        from '@modules/admin/administration/orders/domain/enums/order-type.enum';
 import { MatAutocompleteModule }                                                                                from '@angular/material/autocomplete';
 import { ClientService }                                                                                        from '@modules/admin/maintainers/clients/client.service';
@@ -15,7 +15,7 @@ import { debounceTime, firstValueFrom }                                         
 import { MatButton, MatIconButton }                                                                             from '@angular/material/button';
 import { MatProgressSpinner }                                                                                   from '@angular/material/progress-spinner';
 import { Selector }                                                                                             from '@shared/selectors/model/selector';
-import { displayWithFn }                                                                                        from '@core/utils';
+import { displayWithFn, displayWithTranslationFn }                                                              from '@core/utils';
 import { Client }                                                                                               from '@modules/admin/maintainers/clients/domain/model/client';
 import { MatDatepickerModule }                                                                                  from '@angular/material/datepicker';
 import { ProductsService }                                                                                      from '@modules/admin/maintainers/products/products.service';
@@ -57,11 +57,11 @@ export class CreateComponent {
     readonly #productsService = inject(ProductsService);
     readonly #osmService = inject(OpenStreetMapService);
 
-    readonly allowedOrderStatuses = [ OrderStatusEnumValues[0], OrderStatusEnumValues[1], OrderStatusEnumValues[2] ];
+    readonly allowedOrderStatuses = [ OrderStatusEnum.CREATED, OrderStatusEnum.IN_PROGRESS, OrderStatusEnum.PENDING_DELIVERY ];
 
     form: UntypedFormGroup = this.#fb.group({
         client          : [ '', [ Validators.required ] ],
-        status          : [ OrderStatusEnumValues[0], [ Validators.required ] ],
+        status      : [ OrderStatusEnum.CREATED, [ Validators.required ] ],
         type            : [ OrderTypeEnum.PURCHASE_ORDER, [ Validators.required ] ],
         deliveryDate: [ {value: undefined, disabled: true}, [ Validators.required ] ],
         deliveryLocation: [ '', [ Validators.required ] ],
@@ -111,7 +111,11 @@ export class CreateComponent {
         request: () => this.statusInput() || '',
         loader : async ({request}) => {
             if (!request) return this.allowedOrderStatuses;
-            return this.allowedOrderStatuses.filter((status) => status.label.toLowerCase().includes(request.toLowerCase()));
+            return this.allowedOrderStatuses.filter((status) =>
+                this.#translationService.translate(`enums.order-status.${ status }`)
+                    .toLowerCase()
+                    .includes(request.toLowerCase())
+            );
         },
     });
 
@@ -148,6 +152,8 @@ export class CreateComponent {
     protected readonly displayClientWithFn = displayWithFn<Client>('fantasyName');
     protected readonly displayProductWithFn = displayWithFn<Product>('name');
     protected readonly trackByFn = trackByFn;
+    protected readonly displayWithFn = displayWithFn<ClientAddress>('street');
+    protected readonly displayWithTranslationFn = displayWithTranslationFn<string>(this.#translationService, 'enums.order-status.');
 
     addProduct(product: Product) {
         const productFormArray = this.form.get('products') as UntypedFormArray;
@@ -179,6 +185,4 @@ export class CreateComponent {
             this.form.enable();
         }, 5000);
     }
-
-    protected readonly displayWithFn = displayWithFn<ClientAddress>('street');
 }

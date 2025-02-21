@@ -121,6 +121,11 @@
                 </mat-autocomplete>
             </mat-form-field>
 
+            <!-- Deletable -->
+            <mat-checkbox formControlName="deletable">
+                {{ 'actions.deletable' | transloco }}
+            </mat-checkbox>
+
             <!-- List of selected addresses -->
             @for (address of form.get('address').value; track address) {
                 <div class="flex items-center w-full max-w-full">

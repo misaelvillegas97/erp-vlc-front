@@ -1,6 +1,6 @@
 import { Component, computed, inject, OnDestroy, resource, Signal, signal, TemplateRef, viewChild, ViewContainerRef } from '@angular/core';
 import { InvoicesService }                                                                                            from '@modules/admin/administration/invoices/invoices.service';
-import { InvoiceStatusEnum }                                                                                          from '@modules/admin/administration/invoices/domains/enums/invoice-status.enum';
+import { InvoiceStatusConfig, InvoiceStatusEnum }                                                                     from '@modules/admin/administration/invoices/domains/enums/invoice-status.enum';
 import { TranslocoDirective, TranslocoPipe, TranslocoService }                                                        from '@ngneat/transloco';
 import { debounceTime, firstValueFrom, map }                                                                          from 'rxjs';
 import { PageHeaderComponent }                                                                                        from '@layout/components/page-header/page-header.component';
@@ -28,6 +28,7 @@ import { UpdateInvoiceStatusDialog }                                            
 import { Overlay, OverlayRef }                                                                                        from '@angular/cdk/overlay';
 import { MatSlideToggle }                                                                                             from '@angular/material/slide-toggle';
 import { TemplatePortal }                                                                                             from '@angular/cdk/portal';
+import { BadgeComponent }                                                                                             from '@shared/components/badge/badge.component';
 
 @Component({
     selector   : 'app-list',
@@ -55,6 +56,7 @@ import { TemplatePortal }                                                       
         MatDateRangePicker,
         MatMenuModule,
         MatSlideToggle,
+        BadgeComponent,
     ],
     templateUrl: './list.component.html'
 })
@@ -70,6 +72,8 @@ export class ListComponent implements OnDestroy {
     readonly isMobile$ = this.breakpointObserver.observe(Breakpoints.Handset).pipe(map((result) => result.matches));
     readonly today = DateTime.now().toISODate();
     isMobile = toSignal(this.isMobile$, {initialValue: false});
+
+    // Table
     displayedColumns = [ 'invoiceNumber', 'orderNumber', 'client', 'status', 'emissionDate', 'dueDate', 'netAmount', 'taxAmount', 'totalAmount', 'actions' ];
     displayedColumnsFilters = this.displayedColumns.map((column) => column + 'Filter');
     // formControls
@@ -98,6 +102,7 @@ export class ListComponent implements OnDestroy {
         to  : new FormControl<number>(undefined),
     });
     deliveryAssignmentFormControl = new FormControl();
+
     // signals from formControls
     invoiceNumberFilter = toSignal(this.invoiceNumberFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
     orderNumberFilter = toSignal(this.orderNumberFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
@@ -109,11 +114,13 @@ export class ListComponent implements OnDestroy {
     taxAmountFilter = toSignal(this.taxAmountFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: {from: undefined, to: undefined}});
     totalAmountFilter = toSignal(this.totalAmountFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: {from: undefined, to: undefined}});
     deliveryAssignmentFilter = toSignal(this.deliveryAssignmentFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
+
     // Additional signals
     showMobileFilters = signal<boolean>(false);
     showColumnsOverlay = signal(false);
     columns = signal([ ...this.displayedColumns ]);
     filterColumns = signal([ ...this.displayedColumnsFilters ]);
+
     filters = computed(() => {
         const filter = {};
 
@@ -246,5 +253,6 @@ export class ListComponent implements OnDestroy {
             templatePortal.detach();
         }
     };
+    protected readonly InvoiceStatusConfig = InvoiceStatusConfig;
 }
 

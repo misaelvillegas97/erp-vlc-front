@@ -21,6 +21,7 @@ import { MatLine }                                             from '@angular/ma
 import { MatIcon }                                             from '@angular/material/icon';
 import { MatTooltip }                                          from '@angular/material/tooltip';
 import { ClientAddress }                                       from '@modules/admin/maintainers/clients/domain/model/client-address';
+import { MatCheckbox }                                         from '@angular/material/checkbox';
 
 @Component({
     selector   : 'app-create',
@@ -44,7 +45,8 @@ import { ClientAddress }                                       from '@modules/ad
         MatLine,
         MatIconButton,
         MatIcon,
-        MatTooltip
+        MatTooltip,
+        MatCheckbox
     ],
     templateUrl: './create.component.html',
     styles     : `
@@ -71,7 +73,8 @@ export class CreateComponent {
         email        : [ '', [ Validators.required, Validators.email ] ],
         phoneNumber  : [ '', [ Validators.required ] ],
         addressSearch: [ '', [] ],
-        address      : this.#fb.array([])
+        address  : this.#fb.array([]),
+        deletable: [ true, [] ]
     });
 
     // Address
