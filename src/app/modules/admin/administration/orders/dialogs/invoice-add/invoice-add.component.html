@@ -67,7 +67,7 @@
 
         <!-- Mark as pendingdelivery -->
         <mat-checkbox class="mb-4" formControlName="pendingDelivery">Actualizar estado a
-            <badge [label]="'enums.order-status.' + OrderStatusEnum.PENDING_DELIVERY | transloco" class="ml-2" color="yellow"></badge>
+            <badge [color]="OrderStatusConfig[OrderStatusEnum.PENDING_DELIVERY].color" [label]="'enums.order-status.' + OrderStatusEnum.PENDING_DELIVERY | transloco" class="ml-2"></badge>
         </mat-checkbox>
     </form>
 

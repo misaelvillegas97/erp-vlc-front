@@ -55,7 +55,7 @@
         </div>
 
         @if (showMobileFilters() && isMobile()) {
-            @defer (hydrate on viewport) {
+            @defer (on idle) {
                 <div class="block sm:hidden border rounded p-4 w-full space-y-4">
                     <mat-form-field class="w-full" subscriptSizing="dynamic">
                         <mat-label>Número de orden</mat-label>
@@ -155,7 +155,7 @@
 
         <!-- LISTADO DE TARJETAS (SOLO MOBILE) -->
         @if (isMobile()) {
-            @defer (hydrate on viewport) {
+            @defer (on idle) {
                 <div class="block sm:hidden space-y-4 w-full">
                     <!-- Itera sobre la data filtrada para móvil -->
                     @for (order of ordersResource.value(); track order.id) {
@@ -262,7 +262,7 @@
 
         <!-- TABLA (SOLO DESKTOP/TABLET) -->
         @if (!isMobile()) {
-            @defer (hydrate on viewport) {
+            @defer (on idle) {
                 <div class="hidden sm:block relative max-w-full overflow-auto w-full">
                     <table
                         [dataSource]="ordersResource.value()"
@@ -390,7 +390,7 @@
                                         }
                                     }
 
-                                    @if (order.status === OrderStatusEnum.DELIVERED && order.deliveredDate > order.deliveryDate) {
+                                    @if (order.status === OrderStatusEnum.DELIVERED && order.deliveredDate < order.deliveryDate) {
                                         <mat-icon
                                             matTooltip="La orden ha sido entregada atrasada"
                                             svgIcon="heroicons_solid:exclamation-circle"

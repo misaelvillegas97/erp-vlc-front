@@ -18,7 +18,7 @@ import { MatProgressSpinner }                                        from '@angu
 import { MatAutocomplete, MatAutocompleteTrigger }                   from '@angular/material/autocomplete';
 import { displayWithFn }                                             from '@core/utils';
 import { User }                                                      from '@core/user/user.types';
-import { OrderStatusEnum }                                           from '@modules/admin/administration/orders/domain/enums/order-status.enum';
+import { OrderStatusConfig, OrderStatusEnum }                        from '@modules/admin/administration/orders/domain/enums/order-status.enum';
 import { MatCheckbox }                                               from '@angular/material/checkbox';
 import { BadgeComponent }                                            from '@shared/components/badge/badge.component';
 
@@ -99,4 +99,5 @@ export class InvoiceAddComponent {
         loader: () => firstValueFrom(this.#userService.findAll().pipe(map(this.extractData)))
     });
     protected readonly OrderStatusEnum = OrderStatusEnum;
+    protected readonly OrderStatusConfig = OrderStatusConfig;
 }
