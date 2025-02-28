@@ -102,7 +102,8 @@
                 "status" : "Estado",
                 "status-hint" : "Estado de la orden, por defecto es pendiente",
                 "status-empty" : "No hay estados disponibles",
-                "upc-code" : "Código UPC"
+                "upc-code" : "Código UPC",
+                "observations" : "Observaciones"
             }
         },
         "invoices" : {

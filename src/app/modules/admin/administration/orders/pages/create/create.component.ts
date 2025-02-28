@@ -14,7 +14,6 @@ import { rxResource, toSignal }                                                 
 import { debounceTime, firstValueFrom }                                                                         from 'rxjs';
 import { MatButton, MatIconButton }                                                                             from '@angular/material/button';
 import { MatProgressSpinner }                                                                                   from '@angular/material/progress-spinner';
-import { Selector }                                                                                             from '@shared/selectors/model/selector';
 import { displayWithFn, displayWithTranslationFn }                                                              from '@core/utils';
 import { Client }                                                                                               from '@modules/admin/maintainers/clients/domain/model/client';
 import { MatDatepickerModule }                                                                                  from '@angular/material/datepicker';
@@ -66,7 +65,8 @@ export class CreateComponent {
         deliveryDate: [ {value: undefined, disabled: true}, [ Validators.required ] ],
         deliveryLocation: [ '', [ Validators.required ] ],
         productInput    : [ '' ],
-        products        : this.#fb.array([], [ Validators.required ])
+        products    : this.#fb.array([], [ Validators.required ]),
+        observations: [ undefined ],
     });
 
     // Clients
@@ -86,7 +86,6 @@ export class CreateComponent {
     readonly deliveryLocationResource = resource<ClientAddress[], any>({
         request: () => ({client: this.clientInput(), address: this.deliveryLocationInput()}),
         loader : async ({request}) => {
-            console.log('request', request);
             if (!request.client || typeof request.client !== 'object' || !request.client?.address) return [];
 
             const addresses = request.client.address;
@@ -136,8 +135,6 @@ export class CreateComponent {
             iva: number = 0,
             total: number = 0;
 
-        console.log('selectedProducts', selectedProducts);
-
         if (!selectedProducts?.length) return {subtotal, iva, total};
 
         subtotal = selectedProducts.reduce((acc, product) => acc + (product.quantity * product.unitaryPrice), 0);
@@ -148,11 +145,9 @@ export class CreateComponent {
     });
 
     // Display functions
-    protected readonly displayWithSelectorFn = displayWithFn<Selector>('label');
     protected readonly displayClientWithFn = displayWithFn<Client>('fantasyName');
     protected readonly displayProductWithFn = displayWithFn<Product>('name');
     protected readonly trackByFn = trackByFn;
-    protected readonly displayWithFn = displayWithFn<ClientAddress>('street');
     protected readonly displayWithTranslationFn = displayWithTranslationFn<string>(this.#translationService, 'enums.order-status.');
 
     addProduct(product: Product) {
@@ -180,6 +175,32 @@ export class CreateComponent {
         }
 
         this.form.disable();
+
+        const order = this.form.getRawValue();
+
+        const parsedData = {
+            clientId        : order.client.id,
+            type            : order.type,
+            status          : order.status,
+            deliveryLocation: order.deliveryLocation,
+            deliveryDate    : order.deliveryDate.toISODate(),
+            products        : order.products.map((product) => ({
+                id          : product.id,
+                upcCode     : product.upcCode,
+                description : product.name,
+                quantity    : product.quantity,
+                unitaryPrice: product.unitaryPrice,
+                totalPrice  : product.quantity * product.unitaryPrice
+            })),
+            observations    : order.observations,
+        };
+
+        firstValueFrom(this.#ordersService.create(parsedData))
+            .then(() => this.#router.navigate([ '/operations/orders/list' ]))
+            .catch((error) => {
+                console.error('Error creating order', error);
+                this.form.enable();
+            });
 
         setTimeout(() => {
             this.form.enable();

@@ -51,7 +51,7 @@
                                   [displayWith]="displayWithTranslationFn"
                                   autoActiveFirstOption
                 >
-                    @for (status of statusResource.value(); track status.value) {
+                    @for (status of statusResource.value(); track status) {
                         <mat-option [value]="status">{{ 'enums.order-status.' + status | transloco }}</mat-option>
                     } @empty {
                         <mat-option disabled="disabled">{{ 'operations.orders.fields.status-empty' | transloco }}</mat-option>
@@ -111,6 +111,12 @@
                         <mat-option disabled="disabled">{{ 'operations.orders.fields.delivery-location-loading' | transloco }}</mat-option>
                     }
                 </mat-autocomplete>
+            </mat-form-field>
+
+            <!-- Observations -->
+            <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'operations.orders.fields.observations' | transloco }}</mat-label>
+                <textarea cdkTextareaAutosize formControlName="observations" matInput></textarea>
             </mat-form-field>
 
             <!-- Products list -->

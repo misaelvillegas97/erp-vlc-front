@@ -21,6 +21,8 @@ import { User }                                                      from '@core
 import { OrderStatusConfig, OrderStatusEnum }                        from '@modules/admin/administration/orders/domain/enums/order-status.enum';
 import { MatCheckbox }                                               from '@angular/material/checkbox';
 import { BadgeComponent }                                            from '@shared/components/badge/badge.component';
+import { DateTime }                                                  from 'luxon';
+import { toSignal }                                                  from '@angular/core/rxjs-interop';
 
 @Component({
     selector   : 'app-add-invoice',
@@ -56,6 +58,7 @@ export class InvoiceAddComponent {
         {value: InvoiceStatusEnum.RECEIVED_WITHOUT_OBSERVATIONS, label: 'Recibida sin observaciones'},
         {value: InvoiceStatusEnum.RECEIVED_WITH_OBSERVATIONS, label: 'Recibida con observaciones'}
     ];
+
     form = this.#fb.group({
         invoiceNumber        : [ this.order().invoice?.invoiceNumber, [ Validators.required ] ],
         status               : [ this.order().invoice?.status || InvoiceStatusEnum.ISSUED, [ Validators.required ] ],
@@ -64,6 +67,11 @@ export class InvoiceAddComponent {
         deliveryAssignment   : [ undefined, [ Validators.required ] ],
         markAsPendingDelivery: [ {value: !this.isDeliveredOrCanceled(), disabled: this.isDeliveredOrCanceled()} ]
     });
+
+    readonly emissionMinDate = DateTime.now().minus({weeks: 1});
+    readonly emissionMaxDate = DateTime.now().plus({days: 1});
+    readonly emissionDateInput = toSignal(this.form.get('emissionDate').valueChanges, {initialValue: this.emissionMinDate});
+    readonly dueMinDate = computed(() => this.emissionDateInput().plus({days: 1}));
     protected readonly displayWithFn = displayWithFn<User>('name');
 
     async submit() {

@@ -200,7 +200,7 @@ export class ListComponent implements OnDestroy {
     };
 
     view = (order: Order) => {
-        this.#dialog.open(OrderDetailDialog, {data: {order}});
+        this.#dialog.open(OrderDetailDialog, {data: {id: order.id}});
     };
 
     openAddInvoiceDialog = (order: Order): void => {

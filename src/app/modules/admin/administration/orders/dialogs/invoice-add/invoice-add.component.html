@@ -21,7 +21,11 @@
         </mat-form-field>
         <mat-form-field class="w-full">
             <mat-label>Fecha de emisión</mat-label>
-            <input [matDatepicker]="picker" formControlName="emissionDate" matInput>
+            <input [matDatepicker]="picker"
+                   [max]="emissionMaxDate"
+                   [min]="emissionMinDate"
+                   formControlName="emissionDate"
+                   matInput>
             <mat-datepicker-toggle [for]="picker" matSuffix></mat-datepicker-toggle>
             <mat-datepicker #picker disabled="false"></mat-datepicker>
             @if (form.get('emissionDate').hasError('required')) {
@@ -31,9 +35,12 @@
 
         <mat-form-field class="w-full">
             <mat-label>Fecha de vencimiento</mat-label>
-            <input [matDatepicker]="picker2" formControlName="dueDate" matInput>
+            <input [matDatepicker]="picker2"
+                   [min]="dueMinDate()"
+                   formControlName="dueDate"
+                   matInput>
             <mat-datepicker-toggle [for]="picker2" matSuffix></mat-datepicker-toggle>
-            <mat-datepicker #picker2 disabled="false"></mat-datepicker>
+            <mat-datepicker #picker2 [disabled]="form.get('emissionDate').invalid"></mat-datepicker>
         </mat-form-field>
 
         <mat-form-field class="w-full">
@@ -66,7 +73,7 @@
         </mat-form-field>
 
         <!-- Mark as pendingdelivery -->
-        <mat-checkbox class="mb-4" formControlName="pendingDelivery">Actualizar estado a
+        <mat-checkbox class="mb-4" formControlName="markAsPendingDelivery">Actualizar estado a
             <badge [color]="OrderStatusConfig[OrderStatusEnum.PENDING_DELIVERY].color" [label]="'enums.order-status.' + OrderStatusEnum.PENDING_DELIVERY | transloco" class="ml-2"></badge>
         </mat-checkbox>
     </form>

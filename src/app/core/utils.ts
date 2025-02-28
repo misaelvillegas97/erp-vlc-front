@@ -27,14 +27,12 @@ export function filterByValue<T>(array: T[], value: string, field: keyof T, pred
  */
 export function displayWithFn<T>(fieldName: keyof T): (item: any) => string {
     return (item: any) => {
-        console.log(item, item[fieldName]);
-        return item ? item[fieldName] : '';
+        return item ? item[fieldName] || '' : '';
     };
 }
 
 export function displayWithTranslationFn<T>(ts: TranslocoService, prefix: string = ''): (item: any) => string {
     return (item: any) => {
-        console.log(item, ts.translate(prefix + item));
         return item ? ts.translate(prefix + item) : '';
     };
 }

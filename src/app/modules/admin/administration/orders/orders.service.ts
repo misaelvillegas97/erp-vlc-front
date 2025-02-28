@@ -36,4 +36,8 @@ export class OrdersService {
     public findById(id: any) {
         return this._httpClient.get<Order>('/api/orders/' + id);
     }
+
+    create(parsedData: { clientId: any; type: any; status: any; deliveryLocation: any; deliveryDate: any; products: any; observations: any }) {
+        return this._httpClient.post('/api/orders', parsedData);
+    }
 }

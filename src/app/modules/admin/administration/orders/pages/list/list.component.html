@@ -373,7 +373,7 @@
 
                         <!-- Status -->
                         <ng-container matColumnDef="status">
-                            <th *matHeaderCellDef mat-header-cell>Estado</th>
+                            <th *matHeaderCellDef mat-header-cell class="min-w-48">Estado</th>
                             <td *matCellDef="let order" mat-cell>
                                 <div class="flex items-center gap-2">
                                     <badge
@@ -390,7 +390,7 @@
                                         }
                                     }
 
-                                    @if (order.status === OrderStatusEnum.DELIVERED && order.deliveredDate < order.deliveryDate) {
+                                    @if (order.status === OrderStatusEnum.DELIVERED && order.deliveredDate > order.deliveryDate) {
                                         <mat-icon
                                             matTooltip="La orden ha sido entregada atrasada"
                                             svgIcon="heroicons_solid:exclamation-circle"
