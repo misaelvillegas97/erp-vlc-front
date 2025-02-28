@@ -52,18 +52,46 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon    : 'heroicons_outline:briefcase',
         children: [
             {
-                id   : 'operations.orders',
-                title: 'Orders',
-                type : 'basic',
-                link: '/operations/orders/dashboard',
-                icon : 'heroicons_outline:document-text'
+                id      : 'operations.orders.title',
+                type    : 'group',
+                children: [
+                    {
+                        id  : 'operations.orders.dashboard',
+                        type: 'basic',
+                        link: '/operations/orders/dashboard',
+                        icon: 'heroicons_outline:chart-pie'
+                    },
+                    {
+                        id  : 'operations.orders.list',
+                        type: 'basic',
+                        link: '/operations/orders/list',
+                        icon: 'heroicons_outline:document-text'
+                    },
+                    {
+                        id  : 'operations.orders.create',
+                        type: 'basic',
+                        link: '/operations/orders/new',
+                        icon: 'heroicons_outline:plus-circle'
+                    },
+                ]
             },
             {
-                id   : 'operations.invoices',
-                title: 'Invoices',
-                type : 'basic',
-                link: '/operations/invoices/dashboard',
-                icon: 'mat_outline:receipt_long'
+                id      : 'operations.invoices.title',
+                type    : 'group',
+                children: [
+                    {
+                        id  : 'operations.invoices.dashboard',
+                        type: 'basic',
+                        link: '/operations/invoices/dashboard',
+                        icon: 'heroicons_outline:chart-pie'
+                    },
+                    {
+                        id  : 'operations.invoices.list',
+                        type: 'basic',
+                        link: '/operations/invoices/list',
+                        icon: 'heroicons_outline:document-text'
+                    },
+                ]
             }
         ]
     },

@@ -12,5 +12,6 @@ export class Invoice {
     taxAmount?: number;
     totalAmount?: number;
     deliveryAssignment?: any;
+    order: { id: string, orderNumber: string };
     createdAt: Date;
 }

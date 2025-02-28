@@ -59,7 +59,9 @@
 
                 <ng-container matColumnDef="orderNumber">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.order-number') }}</th>
-                    <td *matCellDef="let row" mat-cell>{{ row.order?.orderNumber }}</td>
+                    <td *matCellDef="let row" mat-cell>
+                        <span (click)="viewOrderDetail(row)" class="font-medium text-sm text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">{{ row.order?.orderNumber }}</span>
+                    </td>
                 </ng-container>
 
                 <ng-container matColumnDef="orderNumberFilter">
@@ -98,8 +100,8 @@
                 </ng-container>
 
                 <ng-container matColumnDef="status">
-                    <th *matHeaderCellDef mat-header-cell>Estado</th>
-                    <td *matCellDef="let invoice" mat-cell>
+                    <th *matHeaderCellDef class="min-w-48" mat-header-cell>Estado</th>
+                    <td *matCellDef="let invoice" class="mat-col-w-3" mat-cell>
                         <badge (click)="updateStatusInvoice(invoice)"
                                [color]="InvoiceStatusConfig[invoice.status].color"
                                [label]="'enums.invoice-status.' + invoice.status | transloco"

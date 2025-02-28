@@ -6,7 +6,7 @@ export default [
         path     : '',
         component: InvoicesComponent,
         children : [
-            {path: '', loadComponent: () => import('@modules/admin/administration/invoices/pages/list/list.component').then(m => m.ListComponent)},
+            {path: 'list', loadComponent: () => import('@modules/admin/administration/invoices/pages/list/list.component').then(m => m.ListComponent)},
             {path: 'dashboard', loadComponent: () => import('@modules/admin/administration/invoices/pages/dashboard/dashboard.component').then(m => m.DashboardComponent)},
             {path: '**', redirectTo: 'dashboard'}
         ]

@@ -33,7 +33,7 @@ export class InvoicesComponent {
                 description : this._translateService.translate('operations.invoices.list.subtitle'),
                 icon        : 'mat_outline:receipt_long',
                 selectedIcon: 'mat_solid:receipt_long',
-                link: '/operations/invoices'
+                link: '/operations/invoices/list'
             },
             {
                 id          : 'invoices.new',

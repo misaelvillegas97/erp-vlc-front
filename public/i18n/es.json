@@ -24,8 +24,17 @@
         },
         "operations" : {
             "title" : "Operaciones",
-            "orders" : "Órdenes",
-            "invoices" : "Facturas"
+            "orders" : {
+                "title" : "Órdenes",
+                "dashboard" : "Gráficas",
+                "list" : "Listado de órdenes",
+                "create" : "Crear una órden"
+            },
+            "invoices" : {
+                "title" : "Facturas",
+                "dashboard" : "Gráficas",
+                "list" : "Listado de facturas"
+            }
         },
         "maintainers" : {
             "title" : "Mantenedores",

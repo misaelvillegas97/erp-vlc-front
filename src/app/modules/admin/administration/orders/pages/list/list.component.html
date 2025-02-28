@@ -513,6 +513,9 @@
                                     @if (order?.invoice) {
                                         <div class="flex justify-between items-center">
                                             <span (click)=" openInvoiceDetail(order)" class="text-sm cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">{{ order?.invoice?.invoiceNumber }}</span>
+                                            <a mat-icon-button [routerLink]="['/operations', 'invoices']" [queryParams]="{ invoiceNumber: order.invoice.invoiceNumber}">
+                                                <mat-icon class="icon-size-4" svgIcon="heroicons_outline:arrow-top-right-on-square"></mat-icon>
+                                            </a>
                                         </div>
                                     } @else {
                                         <button

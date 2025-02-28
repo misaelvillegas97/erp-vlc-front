@@ -1,6 +1,4 @@
-import { Routes }        from '@angular/router';
-import { inject }        from '@angular/core';
-import { OrdersService } from '@modules/admin/administration/orders/orders.service';
+import { Routes } from '@angular/router';
 
 export default [
     {
@@ -12,11 +10,8 @@ export default [
                 loadComponent: () => import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
             },
             {
-                path         : '',
+                path: 'list',
                 loadComponent: () => import('./pages/list/list.component').then((m) => m.ListComponent),
-                resolve      : {
-                    orders: () => inject(OrdersService).findAll()
-                }
             },
             {path: 'new', loadComponent: () => import('./pages/create/create.component').then((m) => m.CreateComponent)},
         ]

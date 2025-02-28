@@ -35,7 +35,7 @@ export class OrdersComponent {
                 description : this._translateService.translate('operations.orders.list.subtitle'),
                 icon        : 'heroicons_outline:document-text',
                 selectedIcon: 'heroicons_solid:document-text',
-                link: '/operations/orders'
+                link: '/operations/orders/list'
             },
             {
                 id          : 'orders.new',

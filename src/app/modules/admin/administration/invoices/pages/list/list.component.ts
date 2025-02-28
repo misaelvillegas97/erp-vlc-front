@@ -1,34 +1,37 @@
-import { Component, computed, inject, OnDestroy, resource, Signal, signal, TemplateRef, viewChild, ViewContainerRef } from '@angular/core';
-import { InvoicesService }                                                                                            from '@modules/admin/administration/invoices/invoices.service';
-import { InvoiceStatusConfig, InvoiceStatusEnum }                                                                     from '@modules/admin/administration/invoices/domains/enums/invoice-status.enum';
-import { TranslocoDirective, TranslocoPipe, TranslocoService }                                                        from '@ngneat/transloco';
-import { debounceTime, firstValueFrom, map }                                                                          from 'rxjs';
-import { PageHeaderComponent }                                                                                        from '@layout/components/page-header/page-header.component';
-import { MatIcon }                                                                                                    from '@angular/material/icon';
-import { MatButton, MatIconButton }                                                                                   from '@angular/material/button';
-import { MatTooltip }                                                                                                 from '@angular/material/tooltip';
-import { BreakpointObserver, Breakpoints }                                                                            from '@angular/cdk/layout';
-import { toSignal }                                                                                                   from '@angular/core/rxjs-interop';
-import { MatTableModule }                                                                                             from '@angular/material/table';
-import { MatSortModule }                                                                                              from '@angular/material/sort';
-import { trackByFn }                                                                                                  from '@libs/ui/utils/utils';
-import { MatInput }                                                                                                   from '@angular/material/input';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule }                                                   from '@angular/forms';
-import { MatAutocompleteModule }                                                                                      from '@angular/material/autocomplete';
-import { ClientService }                                                                                              from '@modules/admin/maintainers/clients/client.service';
-import { MatSelect }                                                                                                  from '@angular/material/select';
-import { MatFormFieldModule }                                                                                         from '@angular/material/form-field';
-import { CurrencyPipe, DatePipe }                                                                                     from '@angular/common';
-import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker, MatEndDate, MatStartDate }                       from '@angular/material/datepicker';
-import { DateTime }                                                                                                   from 'luxon';
-import { MatMenuModule }                                                                                              from '@angular/material/menu';
-import { Invoice }                                                                                                    from '@modules/admin/administration/invoices/domains/model/invoice';
-import { MatDialog }                                                                                                  from '@angular/material/dialog';
-import { UpdateInvoiceStatusDialog }                                                                                  from '@modules/admin/administration/invoices/dialogs/update-invoice-status/update-invoice-status.dialog';
-import { Overlay, OverlayRef }                                                                                        from '@angular/cdk/overlay';
-import { MatSlideToggle }                                                                                             from '@angular/material/slide-toggle';
-import { TemplatePortal }                                                                                             from '@angular/cdk/portal';
-import { BadgeComponent }                                                                                             from '@shared/components/badge/badge.component';
+import { Component, computed, inject, model, OnDestroy, resource, Signal, signal, TemplateRef, viewChild, ViewContainerRef } from '@angular/core';
+import { InvoicesService }                                                                                                   from '@modules/admin/administration/invoices/invoices.service';
+import { InvoiceStatusConfig, InvoiceStatusEnum }                                                                            from '@modules/admin/administration/invoices/domains/enums/invoice-status.enum';
+import { TranslocoDirective, TranslocoPipe, TranslocoService }                                                               from '@ngneat/transloco';
+import { debounceTime, firstValueFrom, map }                                                                                 from 'rxjs';
+import { PageHeaderComponent }                                                                                               from '@layout/components/page-header/page-header.component';
+import { MatIcon }                                                                                                           from '@angular/material/icon';
+import { MatButton, MatIconButton }                                                                                          from '@angular/material/button';
+import { MatTooltip }                                                                                                        from '@angular/material/tooltip';
+import { BreakpointObserver, Breakpoints }                                                                                   from '@angular/cdk/layout';
+import { toSignal }                                                                                                          from '@angular/core/rxjs-interop';
+import { MatTableModule }                                                                                                    from '@angular/material/table';
+import { MatSortModule }                                                                                                     from '@angular/material/sort';
+import { trackByFn }                                                                                                         from '@libs/ui/utils/utils';
+import { MatInput }                                                                                                          from '@angular/material/input';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule }                                                          from '@angular/forms';
+import { MatAutocompleteModule }                                                                                             from '@angular/material/autocomplete';
+import { ClientService }                                                                                                     from '@modules/admin/maintainers/clients/client.service';
+import { MatSelect }                                                                                                         from '@angular/material/select';
+import { MatFormFieldModule }                                                                                                from '@angular/material/form-field';
+import { CurrencyPipe, DatePipe }                                                                                            from '@angular/common';
+import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker, MatEndDate, MatStartDate }                              from '@angular/material/datepicker';
+import { DateTime }                                                                                                          from 'luxon';
+import { MatMenuModule }                                                                                                     from '@angular/material/menu';
+import { Invoice }                                                                                                           from '@modules/admin/administration/invoices/domains/model/invoice';
+import { MatDialog }                                                                                                         from '@angular/material/dialog';
+import { UpdateInvoiceStatusDialog }                                                                                         from '@modules/admin/administration/invoices/dialogs/update-invoice-status/update-invoice-status.dialog';
+import { Overlay, OverlayRef }                                                                                               from '@angular/cdk/overlay';
+import { MatSlideToggle }                                                                                                    from '@angular/material/slide-toggle';
+import { TemplatePortal }                                                                                                    from '@angular/cdk/portal';
+import { BadgeComponent }                                                                                                    from '@shared/components/badge/badge.component';
+import { OrderDetailDialog }                                                                                                 from '@modules/admin/administration/orders/dialogs/order-detail/order-detail.dialog';
+import { Router }                                                                                                            from '@angular/router';
+import { NotyfService }                                                                                                      from '@shared/services/notyf.service';
 
 @Component({
     selector   : 'app-list',
@@ -57,6 +60,7 @@ import { BadgeComponent }                                                       
         MatMenuModule,
         MatSlideToggle,
         BadgeComponent,
+
     ],
     templateUrl: './list.component.html'
 })
@@ -67,17 +71,23 @@ export class ListComponent implements OnDestroy {
     readonly #overlay = inject(Overlay);
     readonly #vcr = inject(ViewContainerRef);
     readonly #invoicesService = inject(InvoicesService);
+    readonly #router = inject(Router);
+    readonly #notyf = inject(NotyfService);
     #overlayRef: OverlayRef;
     readonly breakpointObserver = inject(BreakpointObserver);
     readonly isMobile$ = this.breakpointObserver.observe(Breakpoints.Handset).pipe(map((result) => result.matches));
     readonly today = DateTime.now().toISODate();
+
     isMobile = toSignal(this.isMobile$, {initialValue: false});
+
+    // Fields from query params
+    readonly invoiceNumberQP = model(undefined, {alias: 'invoiceNumber'});
 
     // Table
     displayedColumns = [ 'invoiceNumber', 'orderNumber', 'client', 'status', 'emissionDate', 'dueDate', 'netAmount', 'taxAmount', 'totalAmount', 'actions' ];
     displayedColumnsFilters = this.displayedColumns.map((column) => column + 'Filter');
     // formControls
-    invoiceNumberFormControl = new FormControl();
+    invoiceNumberFormControl = new FormControl<number>(undefined);
     orderNumberFormControl = new FormControl();
     clientFormControl = new FormControl();
     statusFormControl = new FormControl();
@@ -104,7 +114,7 @@ export class ListComponent implements OnDestroy {
     deliveryAssignmentFormControl = new FormControl();
 
     // signals from formControls
-    invoiceNumberFilter = toSignal(this.invoiceNumberFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
+    invoiceNumberFilter = toSignal(this.invoiceNumberFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: undefined});
     orderNumberFilter = toSignal(this.orderNumberFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
     clientFilter = toSignal(this.clientFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
     statusFilter = toSignal(this.statusFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: []});
@@ -158,16 +168,30 @@ export class ListComponent implements OnDestroy {
     });
     columnsOverlay: Signal<TemplateRef<any>> = viewChild('columnsOverlay');
     columnsOverlayButton: Signal<MatButton> = viewChild('columnsOverlayButton');
+
     protected readonly trackByFn = trackByFn;
     protected readonly invoiceStatuses = Object.values(InvoiceStatusEnum);
     protected readonly InvoiceStatusEnum = InvoiceStatusEnum;
     protected readonly InvoiceStatusConfig = InvoiceStatusConfig;
+
+    ngOnInit() {
+        if (this.invoiceNumberQP()) this.invoiceNumberFormControl.setValue(this.invoiceNumberQP());
+
+        // remove invoiceNumber from query params
+        this.#router.navigate([], {queryParams: {invoiceNumber: null}, queryParamsHandling: 'merge'});
+    }
 
     ngOnDestroy() {
         if (this.#overlayRef) this.#overlayRef.detach();
     }
 
     updateStatusInvoice = (invoice: Invoice) => {
+        if ([ InvoiceStatusEnum.PAID ].includes(invoice.status)) {
+            this.#notyf.warning('Factura en estado final, no se puede modificar.');
+            return;
+        }
+
+
         const dialog = this.#dialog.open(UpdateInvoiceStatusDialog, {
             data : {invoice},
             width: '400px'
@@ -257,6 +281,10 @@ export class ListComponent implements OnDestroy {
             // Detach it
             templatePortal.detach();
         }
+    };
+
+    viewOrderDetail = (invoice: Invoice) => {
+        this.#dialog.open(OrderDetailDialog, {data: {id: invoice.order.id}});
     };
 
     persistColumnsConfiguration = (): void => {

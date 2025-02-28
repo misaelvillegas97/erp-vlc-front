@@ -1,190 +1,194 @@
-<h2 class="text-lg border-b pb-4" mat-dialog-title>Detalle de la orden {{ order().invoice?.invoiceNumber }}</h2>
+<h2 class="text-lg border-b pb-4" mat-dialog-title>Detalle de la orden</h2>
 <mat-dialog-content class="py-4">
-    <div class="hidden sm:block">
-        <table class="w-full text-default sm:table-fixed">
-            <tbody>
-            <tr class="border-b">
-                <td class="px-4 py-2 font-medium">Número de orden:</td>
-                <td class="border-r px-4 py-2">{{ order().orderNumber }}</td>
+    @if (!orderResource.isLoading() && orderResource.hasValue()) {
+        <div class="hidden sm:block">
+            <table class="w-full text-default sm:table-fixed">
+                <tbody>
+                <tr class="border-b">
+                    <td class="px-4 py-2 font-medium">Número de orden:</td>
+                    <td class="border-r px-4 py-2">{{ orderResource.value().orderNumber }}</td>
 
-                <td class="px-4 py-2 font-medium">Cliente:</td>
-                <td class="px-4 py-2">{{ order().client?.fantasyName || 'Cliente eliminado' }}</td>
-            </tr>
-            <tr class="border-b">
-                <td class="px-4 py-2 font-medium">Estado:</td>
-                <td class="border-r px-4 py-2">{{ 'enums.order-status.' + order().status | transloco }}</td>
+                    <td class="px-4 py-2 font-medium">Cliente:</td>
+                    <td class="px-4 py-2">{{ orderResource.value().client?.fantasyName || 'Cliente eliminado' }}</td>
+                </tr>
+                <tr class="border-b">
+                    <td class="px-4 py-2 font-medium">Estado:</td>
+                    <td class="border-r px-4 py-2">{{ 'enums.order-status.' + orderResource.value().status | transloco }}</td>
 
-                <td class="px-4 py-2 font-medium">Dirección de entrega:</td>
-                <td class="px-4 py-2 ">{{ order().deliveryLocation }}</td>
-            </tr>
-            <tr class="border-b">
-                <td class="px-4 py-2 font-medium">Fecha de emisión:</td>
-                <td class="border-r px-4 py-2">{{ order().emissionDate | date:'dd/MM/yyyy' }}</td>
+                    <td class="px-4 py-2 font-medium">Dirección de entrega:</td>
+                    <td class="px-4 py-2 ">{{ orderResource.value().deliveryLocation }}</td>
+                </tr>
+                <tr class="border-b">
+                    <td class="px-4 py-2 font-medium">Fecha de emisión:</td>
+                    <td class="border-r px-4 py-2">{{ orderResource.value().emissionDate | date:'dd/MM/yyyy' }}</td>
 
-                <td class="px-4 py-2 font-medium">Factura:</td>
-                <td class="px-4 py-2">{{ order().invoice ? order().invoice.invoiceNumber : 'Sin factura' }}</td>
-            </tr>
-            <tr>
-                <td class="px-4 py-2 font-medium">Fecha de entrega:</td>
-                <td class="border-r px-4 py-2">{{ order().deliveryDate | date:'dd/MM/yyyy' }}</td>
+                    <td class="px-4 py-2 font-medium">Factura:</td>
+                    <td class="px-4 py-2">{{ orderResource.value().invoice ? orderResource.value().invoice.invoiceNumber : 'Sin factura' }}</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2 font-medium">Fecha de entrega:</td>
+                    <td class="border-r px-4 py-2">{{ orderResource.value().deliveryDate | date:'dd/MM/yyyy' }}</td>
 
-                <td class="px-4 py-2 font-medium">Estado de factura:</td>
-                <td class="px-4 py-2">{{ order().invoice ? ('enums.invoice-status.' + order().invoice.status | transloco) : 'Sin factura' }}</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+                    <td class="px-4 py-2 font-medium">Estado de factura:</td>
+                    <td class="px-4 py-2">{{ orderResource.value().invoice ? ('enums.invoice-status.' + orderResource.value().invoice.status | transloco) : 'Sin factura' }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-    <!-- VERSIÓN MÓVIL -->
-    <div class="block sm:hidden">
-        <div class="rounded space-y-2 text-default">
-            <div class="font-normal text-sm">
-                <span class="font-medium mr-1">Número de orden:</span>
-                {{ order().orderNumber }}
-            </div>
-            <div class="font-normal text-sm">
-                <span class="font-medium mr-1">Estado:</span>
-                {{ 'enums.order-status.' + order().status | transloco }}
-            </div>
-            <div class="font-normal text-sm">
-                <span class="font-medium mr-1">Cliente:</span>
-                {{ order().client?.fantasyName || 'Cliente eliminado' }}
-            </div>
-            <div class="font-normal text-sm">
-                <span class="font-medium mr-1">Fecha de emisión:</span>
-                <!-- Format: 25 de enero, 2021 -->
-                {{ order().emissionDate | date:'longDate' }}
-            </div>
-            <div class="font-normal text-sm">
-                <span class="font-medium mr-1">Fecha de entrega:</span>
-                {{ order().deliveryDate | date:'longDate' }}
-            </div>
-            <div class="font-normal text-sm">
-                <span class="font-medium mr-1">Dirección de entrega:</span>
-                {{ order().deliveryLocation }}
-            </div>
-            <div class="font-normal text-sm">
-                <span class="font-medium mr-1">Factura:</span>
-                {{ order().invoice ? order().invoice.invoiceNumber : 'Sin factura' }}
-            </div>
-            <div class="font-normal text-sm">
-                <span class="font-medium mr-1">Estado de factura:</span>
-                {{ order().invoice ? ('enums.invoice-status.' + order().invoice.status | transloco) : 'Sin factura' }}
+        <!-- VERSIÓN MÓVIL -->
+        <div class="block sm:hidden">
+            <div class="rounded space-y-2 text-default">
+                <div class="font-normal text-sm">
+                    <span class="font-medium mr-1">Número de orden:</span>
+                    {{ orderResource.value().orderNumber }}
+                </div>
+                <div class="font-normal text-sm">
+                    <span class="font-medium mr-1">Estado:</span>
+                    {{ 'enums.order-status.' + orderResource.value().status | transloco }}
+                </div>
+                <div class="font-normal text-sm">
+                    <span class="font-medium mr-1">Cliente:</span>
+                    {{ orderResource.value().client?.fantasyName || 'Cliente eliminado' }}
+                </div>
+                <div class="font-normal text-sm">
+                    <span class="font-medium mr-1">Fecha de emisión:</span>
+                    <!-- Format: 25 de enero, 2021 -->
+                    {{ orderResource.value().emissionDate | date:'longDate' }}
+                </div>
+                <div class="font-normal text-sm">
+                    <span class="font-medium mr-1">Fecha de entrega:</span>
+                    {{ orderResource.value().deliveryDate | date:'longDate' }}
+                </div>
+                <div class="font-normal text-sm">
+                    <span class="font-medium mr-1">Dirección de entrega:</span>
+                    {{ orderResource.value().deliveryLocation }}
+                </div>
+                <div class="font-normal text-sm">
+                    <span class="font-medium mr-1">Factura:</span>
+                    {{ orderResource.value().invoice ? orderResource.value().invoice.invoiceNumber : 'Sin factura' }}
+                </div>
+                <div class="font-normal text-sm">
+                    <span class="font-medium mr-1">Estado de factura:</span>
+                    {{ orderResource.value().invoice ? ('enums.invoice-status.' + orderResource.value().invoice.status | transloco) : 'Sin factura' }}
+                </div>
             </div>
         </div>
-    </div>
 
-    <h3 class="text-lg text-default mt-4">Productos en la orden</h3>
-    <hr class="my-2">
+        <h3 class="text-lg text-default mt-4">Productos en la orden</h3>
+        <hr class="my-2">
 
-    <div class="hidden sm:block overflow-x-auto">
-        <table
-            [dataSource]="order().products"
-            class="w-full overflow-y-visible"
-            mat-table
-        >
-            <ng-container matColumnDef="product">
-                <th *matHeaderCellDef class="bg-hover" mat-header-cell>Producto</th>
-                <td *matCellDef="let product" mat-cell>{{ product.description }}</td>
-            </ng-container>
+        <div class="hidden sm:block overflow-x-auto">
+            <table
+                [dataSource]="orderResource.value().products"
+                class="w-full overflow-y-visible"
+                mat-table
+            >
+                <ng-container matColumnDef="product">
+                    <th *matHeaderCellDef class="bg-hover" mat-header-cell>Producto</th>
+                    <td *matCellDef="let product" mat-cell>{{ product.description }}</td>
+                </ng-container>
 
-            <ng-container matColumnDef="quantity">
-                <th *matHeaderCellDef class="bg-hover" mat-header-cell>Cantidad</th>
-                <td *matCellDef="let product" mat-cell>{{ product.quantity }}</td>
-            </ng-container>
+                <ng-container matColumnDef="quantity">
+                    <th *matHeaderCellDef class="bg-hover" mat-header-cell>Cantidad</th>
+                    <td *matCellDef="let product" mat-cell>{{ product.quantity }}</td>
+                </ng-container>
 
-            <ng-container matColumnDef="price">
-                <th *matHeaderCellDef class="bg-hover" mat-header-cell>Precio unitario</th>
-                <td *matCellDef="let product" mat-cell>{{ product.unitaryPrice | currency:'CLP':'symbol-narrow' }}</td>
-            </ng-container>
+                <ng-container matColumnDef="price">
+                    <th *matHeaderCellDef class="bg-hover" mat-header-cell>Precio unitario</th>
+                    <td *matCellDef="let product" mat-cell>{{ product.unitaryPrice | currency:'CLP':'symbol-narrow' }}</td>
+                </ng-container>
 
-            <ng-container matColumnDef="total">
-                <th *matHeaderCellDef class="bg-hover" mat-header-cell>Total</th>
-                <td *matCellDef="let product" mat-cell>{{ product.totalPrice | currency:'CLP':'symbol-narrow' }}</td>
-            </ng-container>
+                <ng-container matColumnDef="total">
+                    <th *matHeaderCellDef class="bg-hover" mat-header-cell>Total</th>
+                    <td *matCellDef="let product" mat-cell>{{ product.totalPrice | currency:'CLP':'symbol-narrow' }}</td>
+                </ng-container>
 
-            <!-- Footer columns: subtotal, iva and total amount -->
-            <ng-container matColumnDef="col1">
-                <td *matFooterCellDef mat-footer-cell></td>
-            </ng-container>
+                <!-- Footer columns: subtotal, iva and total amount -->
+                <ng-container matColumnDef="col1">
+                    <td *matFooterCellDef mat-footer-cell></td>
+                </ng-container>
 
-            <ng-container matColumnDef="col2">
-                <td *matFooterCellDef mat-footer-cell></td>
-            </ng-container>
+                <ng-container matColumnDef="col2">
+                    <td *matFooterCellDef mat-footer-cell></td>
+                </ng-container>
 
-            <ng-container matColumnDef="footerNetAmount">
-                <td *matFooterCellDef class="text-right font-medium bg-hover" mat-footer-cell>Valor neto:</td>
-            </ng-container>
+                <ng-container matColumnDef="footerNetAmount">
+                    <td *matFooterCellDef class="text-right font-medium bg-hover" mat-footer-cell>Valor neto:</td>
+                </ng-container>
 
-            <ng-container matColumnDef="footerNetAmountValue">
-                <td *matFooterCellDef class="bg-hover" mat-footer-cell>{{ productsTotal() | currency:'CLP':'symbol-narrow' }}</td>
-            </ng-container>
+                <ng-container matColumnDef="footerNetAmountValue">
+                    <td *matFooterCellDef class="bg-hover" mat-footer-cell>{{ productsTotal() | currency:'CLP':'symbol-narrow' }}</td>
+                </ng-container>
 
-            <ng-container matColumnDef="footerTaxAmount">
-                <td *matFooterCellDef class="text-right font-medium bg-hover" mat-footer-cell>IVA:</td>
-            </ng-container>
+                <ng-container matColumnDef="footerTaxAmount">
+                    <td *matFooterCellDef class="text-right font-medium bg-hover" mat-footer-cell>IVA:</td>
+                </ng-container>
 
-            <ng-container matColumnDef="footerTaxAmountValue">
-                <td *matFooterCellDef class="bg-hover" mat-footer-cell>{{ productsTotal() * 0.19 | currency:'CLP':'symbol-narrow' }}</td>
-            </ng-container>
+                <ng-container matColumnDef="footerTaxAmountValue">
+                    <td *matFooterCellDef class="bg-hover" mat-footer-cell>{{ productsTotal() * 0.19 | currency:'CLP':'symbol-narrow' }}</td>
+                </ng-container>
 
-            <ng-container matColumnDef="footerTotalAmount">
-                <td *matFooterCellDef class="text-right font-medium bg-hover" mat-footer-cell>Valor bruto:</td>
-            </ng-container>
+                <ng-container matColumnDef="footerTotalAmount">
+                    <td *matFooterCellDef class="text-right font-medium bg-hover" mat-footer-cell>Valor bruto:</td>
+                </ng-container>
 
-            <ng-container matColumnDef="footerTotalAmountValue">
-                <td *matFooterCellDef class="bg-hover" mat-footer-cell>{{ productsTotal() * 1.19 | currency:'CLP':'symbol-narrow' }}</td>
-            </ng-container>
+                <ng-container matColumnDef="footerTotalAmountValue">
+                    <td *matFooterCellDef class="bg-hover" mat-footer-cell>{{ productsTotal() * 1.19 | currency:'CLP':'symbol-narrow' }}</td>
+                </ng-container>
 
-            <tr *matHeaderRowDef="['product', 'price', 'quantity', 'total']" mat-header-row></tr>
-            <tr *matRowDef="let row; columns: ['product', 'price', 'quantity', 'total']" class="bg-transparent" mat-row></tr>
-            <tr *matFooterRowDef="['col1', 'col2', 'footerNetAmount', 'footerNetAmountValue']" class="bg-transparent h-8" mat-footer-row></tr>
-            <tr *matFooterRowDef="['col1', 'col2', 'footerTaxAmount', 'footerTaxAmountValue']" class="bg-transparent h-8" mat-footer-row></tr>
-            <tr *matFooterRowDef="['col1', 'col2', 'footerTotalAmount', 'footerTotalAmountValue']" class="bg-transparent h-8" mat-footer-row></tr>
-        </table>
-    </div>
+                <tr *matHeaderRowDef="['product', 'price', 'quantity', 'total']" mat-header-row></tr>
+                <tr *matRowDef="let row; columns: ['product', 'price', 'quantity', 'total']" class="bg-transparent" mat-row></tr>
+                <tr *matFooterRowDef="['col1', 'col2', 'footerNetAmount', 'footerNetAmountValue']" class="bg-transparent h-8" mat-footer-row></tr>
+                <tr *matFooterRowDef="['col1', 'col2', 'footerTaxAmount', 'footerTaxAmountValue']" class="bg-transparent h-8" mat-footer-row></tr>
+                <tr *matFooterRowDef="['col1', 'col2', 'footerTotalAmount', 'footerTotalAmountValue']" class="bg-transparent h-8" mat-footer-row></tr>
+            </table>
+        </div>
 
-    <!-- Versión Móvil -->
-    <div class="block md:hidden space-y-4">
-        @for (product of order().products; track product.id) {
-            <div class="bg-hover shadow rounded p-4 text-default">
-                <h4 class="font-medium mb-1">
-                    {{ product.description }}
-                </h4>
-                <div class="text-sm text-secondary">
-                    <span class="font-semibold">Cantidad:</span> {{ product.quantity }}
+        <!-- Versión Móvil -->
+        <div class="block sm:hidden space-y-4">
+            @for (product of orderResource.value().products; track product.id) {
+                <div class="bg-hover shadow rounded p-4 text-default">
+                    <h4 class="font-medium mb-1">
+                        {{ product.description }}
+                    </h4>
+                    <div class="text-sm text-secondary">
+                        <span class="font-semibold">Cantidad:</span> {{ product.quantity }}
+                    </div>
+                    <div class="text-sm text-secondary">
+                        <span class="font-semibold">Precio unitario:</span>
+                        {{ product.unitaryPrice | currency:'CLP':'symbol-narrow' }}
+                    </div>
+                    <div class="text-sm text-secondary">
+                        <span class="font-semibold">Total:</span>
+                        {{ product.totalPrice | currency:'CLP':'symbol-narrow' }}
+                    </div>
                 </div>
-                <div class="text-sm text-secondary">
-                    <span class="font-semibold">Precio unitario:</span>
-                    {{ product.unitaryPrice | currency:'CLP':'symbol-narrow' }}
-                </div>
-                <div class="text-sm text-secondary">
-                    <span class="font-semibold">Total:</span>
-                    {{ product.totalPrice | currency:'CLP':'symbol-narrow' }}
-                </div>
-            </div>
-        }
+            }
 
-        <!-- Totales (Net, IVA, Total) en móvil -->
-        <div class="">
-            <div class="flex justify-between text-sm mb-2 border-b">
-                <span class="font-semibold">Valor neto:</span>
-                <span>{{ productsTotal() | currency:'CLP':'symbol-narrow' }}</span>
-            </div>
-            <div class="flex justify-between text-sm mb-2 border-b">
-                <span class="font-semibold">IVA:</span>
-                <span>{{ productsTotal() * 0.19 | currency:'CLP':'symbol-narrow' }}</span>
-            </div>
-            <div class="flex justify-between text-sm">
-                <span class="font-semibold">Valor bruto:</span>
-                <span>{{ productsTotal() * 1.19 | currency:'CLP':'symbol-narrow' }}</span>
+            <!-- Totales (Net, IVA, Total) en móvil -->
+            <div class="">
+                <div class="flex justify-between text-sm mb-2 border-b">
+                    <span class="font-semibold">Valor neto:</span>
+                    <span>{{ productsTotal() | currency:'CLP':'symbol-narrow' }}</span>
+                </div>
+                <div class="flex justify-between text-sm mb-2 border-b">
+                    <span class="font-semibold">IVA:</span>
+                    <span>{{ productsTotal() * 0.19 | currency:'CLP':'symbol-narrow' }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="font-semibold">Valor bruto:</span>
+                    <span>{{ productsTotal() * 1.19 | currency:'CLP':'symbol-narrow' }}</span>
+                </div>
             </div>
         </div>
-    </div>
 
-    <h3 class="text-lg text-default mt-4">Observaciones</h3>
-    <hr class="my-2">
-    <p class="whitespace-pre-wrap">{{ order().observations || 'Sin observaciones' }}</p>
+        <h3 class="text-lg text-default mt-4">Observaciones</h3>
+        <hr class="my-2">
+        <p class="whitespace-pre-wrap">{{ orderResource.value().observations || 'Sin observaciones' }}</p>
+    } @else {
+        <mat-spinner class="m-auto" mode="indeterminate"></mat-spinner>
+    }
 </mat-dialog-content>
 <mat-dialog-actions align="end" class="">
     <button color="default" mat-button mat-dialog-close>Cerrar</button>

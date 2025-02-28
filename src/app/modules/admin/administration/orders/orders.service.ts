@@ -32,4 +32,8 @@ export class OrdersService {
     public addInvoice(orderId: string, invoice: any) {
         return this._httpClient.post('/api/orders/' + orderId + '/invoice', invoice);
     }
+
+    public findById(id: any) {
+        return this._httpClient.get<Order>('/api/orders/' + id);
+    }
 }
