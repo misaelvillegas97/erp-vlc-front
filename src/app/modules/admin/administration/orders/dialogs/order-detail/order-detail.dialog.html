@@ -186,71 +186,42 @@
 
         <h3 class="text-lg text-default mt-4">Observaciones</h3>
         <hr class="my-2">
-        @for (observation of orderResource.value().observations; track observation.id) {
-            <fuse-alert type="basic" appearance="border" showIcon="false" class="max-w-2xl">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="font-medium">Observación</span>
-                    <span class="text-xs text-secondary">
+        <div class="flex flex-col gap-4">
+            @for (observation of orderResource.value().observations; track observation.id) {
+                <fuse-alert type="basic" appearance="border" showIcon="false" class="w-full">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-medium">Observación</span>
+                        <span class="text-xs text-secondary">
                         {{ observation.createdAt | date:'dd/MM/yyyy HH:mm' }}
                     </span>
-                </div>
-                <!-- Texto de la observación -->
-                <p class="whitespace-pre-wrap mb-2 prose">{{ observation.observation }}</p>
-                <!-- Información adicional -->
-                @if (observation.metadata) {
-                    <div class="text-sm text-secondary">
-                        <span class="font-medium">Origen:</span>
-                        {{ observation.metadata.origin | titlecase }}
-                        @if (observation.metadata.origin === 'invoice' && observation.metadata.invoice) {
-                            <span class="mx-2">|</span>
-                            <span class="font-medium">Factura:</span>
-                            {{ observation.metadata.invoice.invoiceNumber }}
-                            <span class="mx-2">|</span>
-                            <span class="font-medium">Estado:</span>
-                            {{ 'enums.invoice-status.' + observation.metadata.invoice.status | transloco }}
-                            @if (observation.metadata.invoice.paymentDate) {
-                                <span class="mx-2">|</span>
-                                <span class="font-medium">Pago:</span>
-                                {{ observation.metadata.invoice.paymentDate | date:'dd/MM/yyyy' }}
-                            }
-                        }
                     </div>
-                }
-            </fuse-alert>
-            <div class="bg-hover shadow rounded p-4 text-default mb-4">
-                <!-- Cabecera: Título y fecha -->
-                <div class="flex justify-between items-center mb-2">
-                    <span class="font-medium">Observación</span>
-                    <span class="text-xs text-secondary">
-                        {{ observation.createdAt | date:'dd/MM/yyyy HH:mm' }}
-                    </span>
-                </div>
-                <!-- Texto de la observación -->
-                <p class="whitespace-pre-wrap mb-2 prose">{{ observation.observation }}</p>
-                <!-- Información adicional -->
-                @if (observation.metadata) {
-                    <div class="text-sm text-secondary">
-                        <span class="font-medium">Origen:</span>
-                        {{ observation.metadata.origin | titlecase }}
-                        @if (observation.metadata.origin === 'invoice' && observation.metadata.invoice) {
-                            <span class="mx-2">|</span>
-                            <span class="font-medium">Factura:</span>
-                            {{ observation.metadata.invoice.invoiceNumber }}
-                            <span class="mx-2">|</span>
-                            <span class="font-medium">Estado:</span>
-                            {{ 'enums.invoice-status.' + observation.metadata.invoice.status | transloco }}
-                            @if (observation.metadata.invoice.paymentDate) {
+                    <!-- Texto de la observación -->
+                    <p class="whitespace-pre-wrap mb-2 prose">{{ observation.observation }}</p>
+                    <!-- Información adicional -->
+                    @if (observation.metadata) {
+                        <div class="text-sm text-secondary">
+                            <span class="font-medium">Origen:</span>
+                            {{ observation.metadata.origin | titlecase }}
+                            @if (observation.metadata.origin === 'invoice' && observation.metadata.invoice) {
                                 <span class="mx-2">|</span>
-                                <span class="font-medium">Pago:</span>
-                                {{ observation.metadata.invoice.paymentDate | date:'dd/MM/yyyy' }}
+                                <span class="font-medium">Factura:</span>
+                                {{ observation.metadata.invoice.invoiceNumber }}
+                                <span class="mx-2">|</span>
+                                <span class="font-medium">Estado:</span>
+                                {{ 'enums.invoice-status.' + observation.metadata.invoice.status | transloco }}
+                                @if (observation.metadata.invoice.paymentDate) {
+                                    <span class="mx-2">|</span>
+                                    <span class="font-medium">Pago:</span>
+                                    {{ observation.metadata.invoice.paymentDate | date:'dd/MM/yyyy' }}
+                                }
                             }
-                        }
-                    </div>
-                }
-            </div>
-        } @empty {
-            <p class="mat-hint italic">No hay observaciones</p>
-        }
+                        </div>
+                    }
+                </fuse-alert>
+            } @empty {
+                <p class="mat-hint italic">No hay observaciones</p>
+            }
+        </div>
     }
 </mat-dialog-content>
 <mat-dialog-actions align="end" class="">
