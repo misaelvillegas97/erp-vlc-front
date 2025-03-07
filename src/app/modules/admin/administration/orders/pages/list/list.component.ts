@@ -35,6 +35,7 @@ import { OrderDetailDialog }                  from '@modules/admin/administratio
 import { Client }                             from '@modules/admin/maintainers/clients/domain/model/client';
 import { ClientService }                      from '@modules/admin/maintainers/clients/client.service';
 import { BadgeComponent }                     from '@shared/components/badge/badge.component';
+import { Invoice }                            from '@modules/admin/administration/invoices/domains/model/invoice';
 
 @Component({
     selector   : 'app-list',
@@ -273,9 +274,9 @@ export class ListComponent implements OnDestroy {
         }
     };
 
-    openInvoiceDetail = (order: Order) => {
+    openInvoiceDetail = (order: Order, invoice: Invoice) => {
         this.#dialog.open(InvoiceDetailComponent, {
-            data: {order}
+            data: {order, invoice}
         });
     };
 
@@ -283,4 +284,6 @@ export class ListComponent implements OnDestroy {
         localStorage.setItem('ordersListColumnsConfig', JSON.stringify(this.columns()));
         localStorage.setItem('ordersListColumnsFilterConfig', JSON.stringify(this.filterColumns()));
     };
+
+    findActiveInvoice = (invoices: Invoice[]) => invoices.find((invoice) => invoice.isActive);
 }

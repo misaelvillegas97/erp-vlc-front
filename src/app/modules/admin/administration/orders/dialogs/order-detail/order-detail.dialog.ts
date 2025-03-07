@@ -8,6 +8,7 @@ import { TranslocoPipe }                                                        
 import { OrdersService }                                                                       from '@modules/admin/administration/orders/orders.service';
 import { firstValueFrom }                                                                      from 'rxjs';
 import { MatProgressSpinner }                                                                  from '@angular/material/progress-spinner';
+import { Invoice }                                                                             from '@modules/admin/administration/invoices/domains/model/invoice';
 
 @Component({
     selector   : 'app-order-detail',
@@ -38,4 +39,6 @@ export class OrderDetailDialog {
     });
 
     readonly productsTotal = computed(() => this.orderResource.value().products.reduce((acc, product) => acc + product.quantity * product.unitaryPrice, 0));
+
+    findActiveInvoice = (invoices: Invoice[]) => invoices.find((invoice) => invoice.isActive);
 }

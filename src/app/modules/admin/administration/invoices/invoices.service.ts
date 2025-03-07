@@ -18,7 +18,11 @@ export class InvoicesService {
         return this.#httpClient.get('/api/invoices/overview');
     }
 
-    updateStatus(invoiceId: string, params: { status: InvoiceStatusEnum; observations?: string; paymentDate?: string }) {
+    reInvoice(invoiceId: string, data: any) {
+        return this.#httpClient.post('/api/invoices/' + invoiceId + '/re-invoice', data);
+    }
+
+    updateStatus(invoiceId: string, params: { status: InvoiceStatusEnum; observations?: string; paymentDate?: string, isPaid: boolean }) {
         return this.#httpClient.put('/api/invoices/' + invoiceId + '/status', params);
     }
 }

@@ -60,10 +60,10 @@ export class InvoiceAddComponent {
     ];
 
     form = this.#fb.group({
-        invoiceNumber        : [ this.order().invoice?.invoiceNumber, [ Validators.required ] ],
-        status               : [ this.order().invoice?.status || InvoiceStatusEnum.ISSUED, [ Validators.required ] ],
-        emissionDate         : [ {value: this.order().invoice?.emissionDate, disabled: true}, [ Validators.required ] ],
-        dueDate              : [ {value: this.order().invoice?.dueDate, disabled: true}, [ Validators.required ] ],
+        invoiceNumber: [ undefined, [ Validators.required ] ],
+        status       : [ InvoiceStatusEnum.ISSUED, [ Validators.required ] ],
+        emissionDate : [ {value: undefined, disabled: true}, [ Validators.required ] ],
+        dueDate      : [ {value: undefined, disabled: true}, [ Validators.required ] ],
         deliveryAssignment   : [ undefined, [ Validators.required ] ],
         markAsPendingDelivery: [ {value: !this.isDeliveredOrCanceled(), disabled: this.isDeliveredOrCanceled()} ]
     });

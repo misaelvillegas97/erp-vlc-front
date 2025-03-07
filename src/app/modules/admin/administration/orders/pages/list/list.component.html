@@ -225,8 +225,9 @@
 
                             <div class="text-sm">
                                 <strong class="mr-1">Factura:</strong>
-                                @if (order?.invoice) {
-                                    <span class="cursor-pointer" (click)="openInvoiceDetail(order)">{{ order?.invoice?.invoiceNumber }}</span>
+                                @if (order?.invoices) {
+                                    @let lastInvoice = findActiveInvoice(order.invoices);
+                                    <span class="cursor-pointer" (click)="openInvoiceDetail(order, lastInvoice)">{{ lastInvoice?.invoiceNumber }}</span>
                                 } @else {
                                     <span>Sin factura asociada</span>
                                 }
@@ -237,7 +238,7 @@
                                     class="shadow-none"
                                     mat-mini-fab
                                     [matTooltip]="order.invoice ? 'Ver factura' : 'Agregar factura'"
-                                    (click)="order.invoice ? openInvoiceDetail(order) : openAddInvoiceDialog(order)"
+                                    (click)="order.invoices ? openInvoiceDetail(order, order.invoices[order.invoices.length - 1]) : openAddInvoiceDialog(order)"
                                 >
                                     <mat-icon class="icon-size-4">receipt_long</mat-icon>
                                     @if (!order.invoice) {
@@ -306,8 +307,7 @@
                                     <input
                                         [formControl]="orderNumberFormControl"
                                         matInput
-                                        placeholder="Ej: 1234"
-                                        type="number"
+                                        placeholder="Ej: R-20250228-000011"
                                     >
                                 </mat-form-field>
                             </th>
@@ -510,10 +510,11 @@
                                 @if (order?.type === 'RETURN_ORDER') {
                                     <span class="text-sm">No aplica</span>
                                 } @else {
-                                    @if (order?.invoice) {
+                                    @if (order?.invoices?.length > 0) {
+                                        @let lastInvoice = findActiveInvoice(order.invoices);
                                         <div class="flex justify-between items-center">
-                                            <span (click)=" openInvoiceDetail(order)" class="text-sm cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">{{ order?.invoice?.invoiceNumber }}</span>
-                                            <a mat-icon-button [routerLink]="['/operations', 'invoices']" [queryParams]="{ invoiceNumber: order.invoice.invoiceNumber}">
+                                            <span (click)=" openInvoiceDetail(order, lastInvoice)" class="text-sm cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">{{ lastInvoice?.invoiceNumber }}</span>
+                                            <a mat-icon-button [routerLink]="['/operations', 'invoices', 'list']" [queryParams]="{ invoiceNumber: lastInvoice.invoiceNumber}">
                                                 <mat-icon class="icon-size-4" svgIcon="heroicons_outline:arrow-top-right-on-square"></mat-icon>
                                             </a>
                                         </div>

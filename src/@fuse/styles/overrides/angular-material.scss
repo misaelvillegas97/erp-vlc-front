@@ -1246,9 +1246,9 @@
 /*  @ Table
 /* -------------------------------------------------------------------------- */
 .mat-mdc-table {
-//  .mdc-data-table__row:not(.mdc-data-table__row--selected):hover {
-//    background: none !important;
-//  }
+    //  .mdc-data-table__row:not(.mdc-data-table__row--selected):hover {
+    //    background: none !important;
+    //  }
 
 
 }
@@ -1388,6 +1388,15 @@ textarea.mat-mdc-input-element {
     .dark & {
         background-color: var(--fuse-text-secondary) !important;
         color: var(--fuse-bg-default) !important;
+    }
+}
+
+.mat-mdc-tooltip.mat-tooltip-warn .mdc-tooltip__surface {
+    background-color: var(--fuse-warn) !important;
+    color: white !important;
+
+    .dark & {
+        background-color: var(--fuse-warn-700) !important;
     }
 }
 

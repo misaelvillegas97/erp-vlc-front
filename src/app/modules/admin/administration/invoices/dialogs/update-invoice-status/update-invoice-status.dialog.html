@@ -5,7 +5,7 @@
         <mat-form-field class="w-full" subscriptSizing="dynamic">
             <mat-label>{{ 'operations.invoices.fields.status' | transloco }}</mat-label>
             <mat-select formControlName="status" required>
-                @for (status of invoiceStatuses; track status) {
+                @for (status of allowedStatuses; track status) {
                     <mat-option [value]="status">
                         {{ 'enums.invoice-status.' + status | transloco }}
                     </mat-option>
@@ -16,13 +16,21 @@
             }
         </mat-form-field>
 
+        <!-- Is paid checkbox -->
+        @if (allowSetPaid()) {
+            <mat-checkbox formControlName="isPaid" class="w-full">
+                {{ 'operations.invoices.update-status.mark-as-paid' | transloco }}
+            </mat-checkbox>
+        }
+
         <!-- Payment date -->
-        @if (form.get('status').value === 'PAID') {
+        @if (form.get('isPaid').value === true) {
             <mat-form-field class="w-full" subscriptSizing="dynamic">
                 <mat-label>{{ 'operations.invoices.fields.payment-date' | transloco }}</mat-label>
                 <input [matDatepicker]="paymentDate" [min]="invoice().createdAt" formControlName="paymentDate" matInput>
                 <mat-datepicker-toggle [for]="paymentDate" matSuffix></mat-datepicker-toggle>
-                <mat-datepicker #paymentDate></mat-datepicker>
+                <mat-datepicker #paymentDate disabled="false"></mat-datepicker>
+                <mat-hint>La fecha mínima de pago, será la fecha de emisión de la órden</mat-hint>
 
                 @if (form.controls.paymentDate.hasError('required')) {
                     <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>

@@ -1,8 +1,8 @@
-<h2 class="text-lg border-b pb-4" mat-dialog-title>Detalle de factura {{ order().invoice?.invoiceNumber }}</h2>
+<h2 class="text-lg border-b pb-4" mat-dialog-title>Detalle de factura {{ invoice()?.invoiceNumber }}</h2>
 <mat-dialog-content class="py-4">
-    @let subtotal = order().invoice.netAmount;
-    @let iva = order().invoice.taxAmount;
-    @let total = order().invoice.totalAmount;
+    @let subtotal = invoice().netAmount;
+    @let iva = invoice().taxAmount;
+    @let total = invoice().totalAmount;
 
     <div class="hidden sm:block">
         <table class="w-full text-default sm:table-fixed">
@@ -10,31 +10,31 @@
             <tr class="border-b">
                 <td class="px-4 py-2 font-medium">Número de factura:</td>
                 <td class="border-r px-4 py-2">
-                    {{ order().invoice.invoiceNumber }}
+                    {{ invoice().invoiceNumber }}
                 </td>
                 <td class="px-4 py-2 font-medium">Valor neto:</td>
                 <td class="px-4 py-2">
-                    {{ order().invoice.netAmount | currency:'CLP':'symbol-narrow' }}
+                    {{ invoice().netAmount | currency:'CLP':'symbol-narrow' }}
                 </td>
             </tr>
             <tr class="border-b">
                 <td class="px-4 py-2 font-medium">Estado:</td>
                 <td class="border-r px-4 py-2">
-                    {{ 'enums.invoice-status.' + order().invoice.status | transloco }}
+                    {{ 'enums.invoice-status.' + invoice().status | transloco }}
                 </td>
                 <td class="px-4 py-2 font-medium">IVA:</td>
                 <td class="px-4 py-2">
-                    {{ order().invoice.taxAmount | currency:'CLP':'symbol-narrow' }}
+                    {{ invoice().taxAmount | currency:'CLP':'symbol-narrow' }}
                 </td>
             </tr>
             <tr>
                 <td class="px-4 py-2 font-medium">Fecha de emisión:</td>
                 <td class="border-r px-4 py-2">
-                    {{ order().invoice.emissionDate | date:'dd/MM/yyyy' }}
+                    {{ invoice().emissionDate | date:'dd/MM/yyyy' }}
                 </td>
                 <td class="px-4 py-2 font-medium">Valor bruto:</td>
                 <td class="px-4 py-2">
-                    {{ order().invoice.totalAmount | currency:'CLP':'symbol-narrow' }}
+                    {{ invoice().totalAmount | currency:'CLP':'symbol-narrow' }}
                 </td>
             </tr>
             </tbody>
@@ -46,15 +46,15 @@
         <div class="rounded space-y-2 text-default">
             <div class="text-sm font-normal">
                 <span class="font-medium mr-1">Número de factura:</span>
-                {{ order().invoice.invoiceNumber }}
+                {{ invoice().invoiceNumber }}
             </div>
             <div class="text-sm font-normal">
                 <span class="font-medium mr-1">Estado:</span>
-                {{ 'enums.invoice-status.' + order().invoice.status | transloco }}
+                {{ 'enums.invoice-status.' + invoice().status | transloco }}
             </div>
             <div class="text-sm font-normal">
                 <span class="font-medium mr-1">Fecha de emisión:</span>
-                {{ order().invoice.emissionDate | date:'dd/MM/yyyy' }}
+                {{ invoice().emissionDate | date:'dd/MM/yyyy' }}
             </div>
             <div class="text-sm font-normal">
                 <span class="font-medium mr-1">Valor neto:</span>
@@ -182,7 +182,7 @@
 
     <h3 class="text-lg text-default mt-4">Observaciones</h3>
     <hr class="my-2">
-    <p class="whitespace-pre-wrap">{{ order().invoice.observations || 'Sin observaciones' }}</p>
+    <p class="whitespace-pre-wrap">{{ invoice().observations || 'Sin observaciones' }}</p>
 </mat-dialog-content>
 <mat-dialog-actions align="end" class="">
     <button color="default" mat-button mat-dialog-close>Cerrar</button>

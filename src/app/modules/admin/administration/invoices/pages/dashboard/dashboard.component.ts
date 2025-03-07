@@ -300,7 +300,7 @@ export class DashboardComponent {
     }
 
     setChartInvoicesByDeliveryAssignment(invoicesByDeliveryAssignment: { deliveryAssignmentId: string, deliveryAssignmentName: string, total: string }[]) {
-        const deliveryLabels = invoicesByDeliveryAssignment.map(item => item.deliveryAssignmentId || 'Sin asignar');
+        const deliveryLabels = invoicesByDeliveryAssignment.map(item => item.deliveryAssignmentId ? item.deliveryAssignmentName : 'Sin asignar');
         const deliverySeries = invoicesByDeliveryAssignment.map(item => Number(item.total));
 
         this.chartInvoicesByDeliveryAssignment.set({

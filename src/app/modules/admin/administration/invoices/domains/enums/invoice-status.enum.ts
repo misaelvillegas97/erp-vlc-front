@@ -3,13 +3,13 @@ export enum InvoiceStatusEnum {
     RECEIVED_WITHOUT_OBSERVATIONS = 'RECEIVED_WITHOUT_OBSERVATIONS',
     RECEIVED_WITH_OBSERVATIONS = 'RECEIVED_WITH_OBSERVATIONS',
     REJECTED = 'REJECTED',
-    PAID = 'PAID',
+    RE_INVOICED = 'RE_INVOICED',
 }
 
 export const InvoiceStatusConfig: Record<InvoiceStatusEnum, Record<string, any>> = {
-    [InvoiceStatusEnum.ISSUED]                       : {color: 'yellow'},
-    [InvoiceStatusEnum.RECEIVED_WITHOUT_OBSERVATIONS]: {color: 'blue'},
+    [InvoiceStatusEnum.ISSUED]                       : {color: 'blue'},
+    [InvoiceStatusEnum.RECEIVED_WITHOUT_OBSERVATIONS]: {color: 'green'},
     [InvoiceStatusEnum.RECEIVED_WITH_OBSERVATIONS]   : {color: 'yellow'},
     [InvoiceStatusEnum.REJECTED]                     : {color: 'red'},
-    [InvoiceStatusEnum.PAID]                         : {color: 'green'},
+    [InvoiceStatusEnum.RE_INVOICED]                  : {color: 'gray'},
 };

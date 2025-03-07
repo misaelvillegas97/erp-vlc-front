@@ -32,6 +32,7 @@ import { BadgeComponent }                                                       
 import { OrderDetailDialog }                                                                                                 from '@modules/admin/administration/orders/dialogs/order-detail/order-detail.dialog';
 import { Router }                                                                                                            from '@angular/router';
 import { NotyfService }                                                                                                      from '@shared/services/notyf.service';
+import { ReInvoiceDialog }                                                                                                   from '@modules/admin/administration/invoices/dialogs/re-invoice/re-invoice.dialog';
 
 @Component({
     selector   : 'app-list',
@@ -59,8 +60,7 @@ import { NotyfService }                                                         
         MatDateRangePicker,
         MatMenuModule,
         MatSlideToggle,
-        BadgeComponent,
-
+        BadgeComponent
     ],
     templateUrl: './list.component.html'
 })
@@ -84,13 +84,14 @@ export class ListComponent implements OnDestroy {
     readonly invoiceNumberQP = model(undefined, {alias: 'invoiceNumber'});
 
     // Table
-    displayedColumns = [ 'invoiceNumber', 'orderNumber', 'client', 'status', 'emissionDate', 'dueDate', 'netAmount', 'taxAmount', 'totalAmount', 'actions' ];
+    displayedColumns = [ 'invoiceNumber', 'orderNumber', 'client', 'status', 'isPaid', 'emissionDate', 'dueDate', 'netAmount', 'taxAmount', 'totalAmount', 'actions' ];
     displayedColumnsFilters = this.displayedColumns.map((column) => column + 'Filter');
     // formControls
     invoiceNumberFormControl = new FormControl<number>(undefined);
     orderNumberFormControl = new FormControl();
     clientFormControl = new FormControl();
     statusFormControl = new FormControl();
+    isPaidFormControl = new FormControl();
     emissionDateFormControl = new FormGroup({
         from: new FormControl<DateTime>(undefined),
         to  : new FormControl<DateTime>(undefined),
@@ -118,6 +119,7 @@ export class ListComponent implements OnDestroy {
     orderNumberFilter = toSignal(this.orderNumberFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
     clientFilter = toSignal(this.clientFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
     statusFilter = toSignal(this.statusFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: []});
+    isPaidFilter = toSignal(this.isPaidFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: false});
     emissionDateFilter = toSignal(this.emissionDateFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: {from: undefined, to: undefined}});
     dueDateFilter = toSignal(this.dueDateFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: {from: undefined, to: undefined}});
     netAmountFilter = toSignal(this.netAmountFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: {from: undefined, to: undefined}});
@@ -141,6 +143,7 @@ export class ListComponent implements OnDestroy {
         if (this.orderNumberFilter()) filter['orderNumber'] = this.orderNumberFilter();
         if (this.clientFilter()) filter['clientId'] = this.clientFilter().map((client) => client.id);
         if (this.statusFilter()) filter['status'] = this.statusFilter();
+        if (this.isPaidFilter()) filter['isPaid'] = this.isPaidFilter();
         if (this.emissionDateFilter()?.from || this.emissionDateFilter()?.to) filter['emissionDate'] = JSON.stringify({
             from: this.emissionDateFilter()?.from && this.emissionDateFilter()?.from.toISODate(),
             to  : this.emissionDateFilter()?.to && this.emissionDateFilter()?.to.toISODate()
@@ -184,25 +187,7 @@ export class ListComponent implements OnDestroy {
     ngOnDestroy() {
         if (this.#overlayRef) this.#overlayRef.detach();
     }
-
-    updateStatusInvoice = (invoice: Invoice) => {
-        if ([ InvoiceStatusEnum.PAID ].includes(invoice.status)) {
-            this.#notyf.warning('Factura en estado final, no se puede modificar.');
-            return;
-        }
-
-
-        const dialog = this.#dialog.open(UpdateInvoiceStatusDialog, {
-            data : {invoice},
-            width: '400px'
-        });
-
-        dialog.afterClosed().subscribe((result) => {
-            if (result) {
-                this.invoicesResource.reload();
-            }
-        });
-    };
+    protected readonly DateTime = DateTime;
 
     // Toggle column visibility, keeping the order from the original displayedColumns array
     toggleColumn = (column: string) => {
@@ -287,10 +272,43 @@ export class ListComponent implements OnDestroy {
         this.#dialog.open(OrderDetailDialog, {data: {id: invoice.order.id}});
     };
 
+    updateStatusInvoice = (invoice: Invoice) => {
+        if (invoice.isPaid) {
+            this.#notyf.warning('Factura en estado final, no se puede modificar.');
+            return;
+        }
+
+        if (invoice.status === InvoiceStatusEnum.RE_INVOICED) {
+            this.#notyf.warning('Factura re-invoicada, no se puede modificar.');
+            return;
+        }
+
+
+        const dialog = this.#dialog.open(UpdateInvoiceStatusDialog, {
+            data : {invoice},
+            width: '400px'
+        });
+
+        dialog.afterClosed().subscribe((result) => {
+            if (result) {
+                this.invoicesResource.reload();
+            }
+        });
+    };
+
     persistColumnsConfiguration = (): void => {
         localStorage.setItem('invoiceListColumnsConfig', JSON.stringify(this.columns()));
         localStorage.setItem('invoiceListColumnsFilterConfig', JSON.stringify(this.filterColumns()));
     };
 
+    reInvoice = (invoice: Invoice) => {
+        const dialog = this.#dialog.open(ReInvoiceDialog, {data: {invoice, width: '500px'}});
+
+        dialog.afterClosed().subscribe((result) => result && this.invoicesResource.reload());
+    };
+
+    isLessThan6Months = (emissionDate: any) => {
+        return DateTime.fromISO(emissionDate).diffNow('months').months < 6;
+    };
 }
 

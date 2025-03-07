@@ -4,6 +4,8 @@ export class Invoice {
     id: string;
     invoiceNumber: number;
     status: InvoiceStatusEnum;
+    isPaid: boolean;
+    isActive: boolean;
     observations?: string;
     emissionDate: string;
     dueDate?: string;

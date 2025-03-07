@@ -142,6 +142,7 @@
                 "emission-date" : "Fecha de emisión",
                 "dueDate" : "Fecha de vencimiento",
                 "due-date" : "Fecha de vencimiento",
+                "is-paid" : "Pagada",
                 "no-due-date" : "No posee",
                 "payment-date" : "Fecha de pago",
                 "netAmount" : "Monto neto",
@@ -159,7 +160,8 @@
             },
             "update-status" : {
                 "title" : "Actualizar estado de factura",
-                "success" : "Estado de factura actualizado exitosamente"
+                "success" : "Estado de factura actualizado exitosamente",
+                "mark-as-paid" : "Marcar como pagada"
             },
             "actions" : {
                 "update-status" : "Actualizar estado"
@@ -271,7 +273,8 @@
         "addUrl" : "Agregar URL",
         "reload" : "Recargar",
         "clear-filters" : "Limpiar filtros",
-        "deletable" : "Eliminable"
+        "deletable" : "Eliminable",
+        "re-invoice" : "Re-facturar"
     },
     "modal" : {
         "confirmation-default" : {
@@ -354,7 +357,8 @@
             "RECEIVED_WITHOUT_OBSERVATIONS" : "Recibida sin observaciones",
             "RECEIVED_WITH_OBSERVATIONS" : "Recibida con observaciones",
             "REJECTED" : "Rechazada",
-            "PAID" : "Pagada"
+            "PAID" : "Pagada",
+            "RE_INVOICED" : "Re-facturada"
         }
     }
 }

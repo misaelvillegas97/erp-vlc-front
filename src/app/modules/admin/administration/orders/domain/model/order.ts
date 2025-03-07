@@ -14,10 +14,10 @@ export interface Order {
     deliveryDate: string;
     deliveredDate: string;
     emissionDate: string;
-    observations?: string;
+    observations?: { id: string, observation: string }[];
     invoiceNumber?: string;
     totalAmount?: number;
     products: OrderProduct[];
-    invoice?: Invoice;
+    invoices?: Invoice[];
     client: Client;
 }

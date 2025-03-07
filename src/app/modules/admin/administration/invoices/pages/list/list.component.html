@@ -133,6 +133,33 @@
                     </th>
                 </ng-container>
 
+                <ng-container matColumnDef="isPaid">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.is-paid') }}</th>
+                    <td *matCellDef="let invoice" mat-cell>
+                        <div class="flex align-center">
+                            @if (invoice.isPaid) {
+                                <mat-icon class="text-green-500">task_alt</mat-icon>
+                            } @else if (DateTime.now().toISODate() <= invoice.dueDate) {
+                                <mat-icon class="text-accent-500">pending</mat-icon>
+                            } @else {
+                                <mat-icon class="text-red-500">cancel</mat-icon>
+                            }
+                        </div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="isPaidFilter">
+                    <th *matHeaderCellDef mat-header-cell>
+                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                            <mat-select [formControl]="isPaidFormControl" placeholder="Pagado">
+                                <mat-option [value]="null">Sin filtro</mat-option>
+                                <mat-option [value]="true">Pagado</mat-option>
+                                <mat-option [value]="false">No pagado</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </th>
+                </ng-container>
+
                 <ng-container matColumnDef="deliveryAssignment">
                     <th *matHeaderCellDef mat-header-cell>Asignación de entrega</th>
                     <td *matCellDef="let invoice" mat-cell>
@@ -291,7 +318,26 @@
 
                 <ng-container matColumnDef="actions">
                     <th *matHeaderCellDef mat-header-cell></th>
-                    <td *matCellDef="let row" mat-cell>
+                    <td *matCellDef="let invoice" mat-cell>
+                        <button
+                            [matMenuTriggerFor]="menu"
+                            class="shadow-none"
+                            mat-icon-button
+                        >
+                            <mat-icon class="icon-size-4" svgIcon="heroicons_outline:ellipsis-vertical"></mat-icon>
+                        </button>
+
+                        <mat-menu #menu="matMenu">
+                            @let isTooOld = !isLessThan6Months(invoice.emissionDate);
+                            @let invalidStatus = [ InvoiceStatusEnum.RE_INVOICED ].includes(invoice.status);
+
+                            @if (!isTooOld && !invalidStatus && !invoice.isPaid) {
+                                <button (click)="reInvoice(invoice)" mat-menu-item>
+                                    <mat-icon class="icon-size-4" svgIcon="heroicons_outline:arrow-uturn-left"></mat-icon>
+                                    <span>{{ 'actions.re-invoice' | transloco }}</span>
+                                </button>
+                            }
+                        </mat-menu>
                     </td>
                 </ng-container>
 
