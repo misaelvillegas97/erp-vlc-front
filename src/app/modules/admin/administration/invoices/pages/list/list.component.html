@@ -336,6 +336,12 @@
                                     <mat-icon class="icon-size-4" svgIcon="heroicons_outline:arrow-uturn-left"></mat-icon>
                                     <span>{{ 'actions.re-invoice' | transloco }}</span>
                                 </button>
+
+                                <!-- Add observations -->
+                                <button (click)="addObservations(invoice)" mat-menu-item>
+                                    <mat-icon class="icon-size-4" svgIcon="heroicons_outline:annotation"></mat-icon>
+                                    <span>{{ 'actions.add-observations' | transloco }}</span>
+                                </button>
                             }
                         </mat-menu>
                     </td>

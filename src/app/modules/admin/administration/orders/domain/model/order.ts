@@ -14,7 +14,7 @@ export interface Order {
     deliveryDate: string;
     deliveredDate: string;
     emissionDate: string;
-    observations?: { id: string, observation: string }[];
+    observations?: { id: string, observation: string, createdAt: Date, metadata: Record<any, any> }[];
     invoiceNumber?: string;
     totalAmount?: number;
     products: OrderProduct[];

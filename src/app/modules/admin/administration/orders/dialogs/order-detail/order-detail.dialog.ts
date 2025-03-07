@@ -1,5 +1,5 @@
 import { Component, computed, inject, resource, signal }                                       from '@angular/core';
-import { CurrencyPipe, DatePipe }                                                              from '@angular/common';
+import { CurrencyPipe, DatePipe, TitleCasePipe }                                               from '@angular/common';
 import { MatButton }                                                                           from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { Order }                                                                               from '@modules/admin/administration/orders/domain/model/order';
@@ -9,6 +9,7 @@ import { OrdersService }                                                        
 import { firstValueFrom }                                                                      from 'rxjs';
 import { MatProgressSpinner }                                                                  from '@angular/material/progress-spinner';
 import { Invoice }                                                                             from '@modules/admin/administration/invoices/domains/model/invoice';
+import { FuseAlertComponent }                                                                  from '../../../../../../../@fuse/components/alert';
 
 @Component({
     selector   : 'app-order-detail',
@@ -23,6 +24,8 @@ import { Invoice }                                                              
         TranslocoPipe,
         MatDialogClose,
         MatProgressSpinner,
+        TitleCasePipe,
+        FuseAlertComponent,
     ],
     templateUrl: './order-detail.dialog.html'
 })
@@ -34,7 +37,12 @@ export class OrderDetailDialog {
         loader : async ({request}) => {
             if (!request.id) return;
 
-            return firstValueFrom(this.#service.findById(request.id));
+            const order = await firstValueFrom(this.#service.findById(request.id));
+
+            return {
+                ...order,
+                observations: order.observations.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+            };
         }
     });
 

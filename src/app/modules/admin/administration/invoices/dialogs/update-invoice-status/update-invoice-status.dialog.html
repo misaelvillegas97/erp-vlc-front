@@ -30,7 +30,7 @@
                 <input [matDatepicker]="paymentDate" [min]="invoice().createdAt" formControlName="paymentDate" matInput>
                 <mat-datepicker-toggle [for]="paymentDate" matSuffix></mat-datepicker-toggle>
                 <mat-datepicker #paymentDate disabled="false"></mat-datepicker>
-                <mat-hint>La fecha mínima de pago, será la fecha de emisión de la órden</mat-hint>
+                <mat-hint>La fecha mínima de pago, será la fecha de emisión</mat-hint>
 
                 @if (form.controls.paymentDate.hasError('required')) {
                     <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
