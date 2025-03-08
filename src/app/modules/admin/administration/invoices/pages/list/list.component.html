@@ -114,7 +114,7 @@
                     <th *matHeaderCellDef mat-header-cell>
                         <mat-form-field
                             [matTooltipClass]="'whitespace-pre-wrap'"
-                            [matTooltip]="translatedSelectedStatus().toString()"
+                            [matTooltip]="translatedSelectedStatus()"
                             class="fuse-mat-dense w-full"
                             subscriptSizing="dynamic"
                         >
@@ -139,7 +139,7 @@
                         <div class="flex align-center">
                             @let outStatus = [ InvoiceStatusEnum.RE_INVOICED, InvoiceStatusEnum.REJECTED ];
                             @if (invoice.isPaid) {
-                                <mat-icon class="text-green-500">task_alt</mat-icon>
+                                <mat-icon [matTooltip]="'Pagado el ' + (invoice.paymentDate | date: 'dd-MM-yyyy')" class="text-green-500">task_alt</mat-icon>
                             } @else if (DateTime.now().toISODate() <= invoice.dueDate || outStatus.includes(invoice.status)) {
                                 <mat-icon class="text-accent-500">pending</mat-icon>
                             } @else {

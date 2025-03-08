@@ -160,7 +160,7 @@ export class ListComponent implements OnDestroy {
         return filter;
     });
     translatedSelectedStatus = computed(() => {
-        return this.statusFilter()?.map((status) => this.#translationService.translate(`operations.invoices.status.${ status }`));
+        return this.statusFilter()?.map((status) => this.#translationService.translate(`enums.invoice-status.${ status }`)).join(',\n ');
     });
     clientsResource = resource({
         loader: () => firstValueFrom(this.#clientService.findAll({}, 'COMPACT'))
@@ -279,7 +279,7 @@ export class ListComponent implements OnDestroy {
         }
 
         if (invoice.status === InvoiceStatusEnum.RE_INVOICED) {
-            this.#notyf.warning('Factura re-invoicada, no se puede modificar.');
+            this.#notyf.warning('Estado de factura no permitido para modificación.');
             return;
         }
 
