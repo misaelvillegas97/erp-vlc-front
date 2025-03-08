@@ -9,4 +9,6 @@ export interface User {
     email?: string;
 
     role?: Role;
+    roles?: { id: string, role: Role }[];
+    createdAt?: Date;
 }

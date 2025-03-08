@@ -383,7 +383,7 @@
 
                                     @if (![ OrderStatusEnum.DELIVERED, OrderStatusEnum.CANCELED ].includes(order.status)) {
                                         @if (today > order.deliveryDate) {
-                                            <mat-icon matTooltip="Órden atrasada"
+                                            <mat-icon matTooltip="Orden atrasada"
                                                       svgIcon="heroicons_solid:exclamation-circle"
                                                       class="text-red-500 icon-size-4"
                                             ></mat-icon>
@@ -564,7 +564,7 @@
                         <!-- No data -->
                         <tr *matNoDataRow class="h-16">
                             <td [attr.colspan]="displayedColumns.length" class="text-center italic mat-hint">
-                                No hay órdenes disponibles para mostrar
+                                No hay ordenes disponibles para mostrar
                             </td>
                         </tr>
                     </table>

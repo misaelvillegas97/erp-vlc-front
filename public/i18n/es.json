@@ -25,10 +25,10 @@
         "operations" : {
             "title" : "Operaciones",
             "orders" : {
-                "title" : "Órdenes",
+                "title" : "Ordenes",
                 "dashboard" : "Gráficas",
-                "list" : "Listado de órdenes",
-                "create" : "Crear una órden"
+                "list" : "Listado de ordenes",
+                "create" : "Crear una orden"
             },
             "invoices" : {
                 "title" : "Facturas",
@@ -45,16 +45,16 @@
     },
     "operations" : {
         "orders" : {
-            "title" : "Órdenes",
+            "title" : "Ordenes",
             "dashboard" : {
-                "title" : "Tablero de órdenes",
-                "subtitle" : "Resumen de órdenes",
-                "description" : "Resumen de órdenes"
+                "title" : "Tablero de ordenes",
+                "subtitle" : "Resumen de ordenes",
+                "description" : "Resumen de ordenes"
             },
             "list" : {
-                "title" : "Listado de órdenes",
-                "subtitle" : "Administra las órdenes de compra o devolución",
-                "description" : "Lista de órdenes",
+                "title" : "Listado de ordenes",
+                "subtitle" : "Administra las ordenes de compra o devolución",
+                "description" : "Lista de ordenes",
                 "product-list" : "Lista de productos",
                 "table" : {
                     "order-number" : "Número de orden",
@@ -168,6 +168,10 @@
             }
         }
     },
+    "origins" : {
+        "invoice" : "Factura",
+        "order" : "Orden"
+    },
     "maintainers" : {
         "client" : {
             "title" : "Clientes",
@@ -246,6 +250,7 @@
                 "role-hint" : "Selecciona un rol",
                 "role-empty" : "No hay roles disponibles",
                 "role-loading" : "Cargando roles...",
+                "created-at" : "Creado",
                 "actions" : "Acciones"
             },
             "no-data" : "No hay usuarios disponibles"

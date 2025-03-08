@@ -269,7 +269,7 @@ export class ListComponent implements OnDestroy {
     };
 
     viewOrderDetail = (invoice: Invoice) => {
-        this.#dialog.open(OrderDetailDialog, {data: {id: invoice.order.id}});
+        this.#dialog.open(OrderDetailDialog, {data: {id: invoice.order.id}, maxWidth: '900px'});
     };
 
     updateStatusInvoice = (invoice: Invoice) => {

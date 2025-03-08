@@ -58,18 +58,25 @@
 
                 <ng-container matColumnDef="role">
                     <th *matHeaderCellDef mat-header-cell>{{ t('fields.role') }}</th>
-                    <td *matCellDef="let user" mat-cell>{{ user.role.name }}</td>
+                    <td *matCellDef="let user" mat-cell>{{ user.roles | displayRoles }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="createdAt">
+                    <th *matHeaderCellDef mat-header-cell>{{ t('fields.created-at') }}</th>
+                    <td *matCellDef="let user" mat-cell>{{ user.createdAt | date: 'dd-MM-yyyy HH:mm' }}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="actions">
                     <th *matHeaderCellDef mat-header-cell>{{ t('fields.actions') }}</th>
                     <td *matCellDef="let user" mat-cell>
-                        <a [routerLink]="['edit', user.id]">
-                            <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil"></mat-icon>
-                        </a>
-                        <a [routerLink]="['delete', user.id]">
-                            <mat-icon class="icon-size-5" svgIcon="heroicons_outline:trash"></mat-icon>
-                        </a>
+                        <div class="flex gap-2">
+                            <button mat-icon-button>
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil"></mat-icon>
+                            </button>
+                            <button (click)="remove(user)" mat-icon-button>
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:trash"></mat-icon>
+                            </button>
+                        </div>
                     </td>
                 </ng-container>
 

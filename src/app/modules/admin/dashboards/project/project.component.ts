@@ -194,7 +194,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
                 },
             },
             series     : [ {
-                name: 'Total de órdenes',
+                name: 'Total de ordenes',
                 data: Object.values(this.orders.countsByClient).map((client) => client.totalOrders),
                 type: 'line'
             } ],
@@ -253,7 +253,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
                     enabled: false,
                 },
             },
-            labels     : [ 'Órdenes de compra', 'Órdenes de devolución' ],
+            labels: [ 'Ordenes de compra', 'Ordenes de devolución' ],
             legend     : {
                 position: 'bottom',
             },

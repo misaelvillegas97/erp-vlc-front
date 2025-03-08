@@ -15,10 +15,12 @@ import { toSignal }                                            from '@angular/co
 import { debounceTime, firstValueFrom }                        from 'rxjs';
 import { MatTableModule }                                      from '@angular/material/table';
 import { trackByFn }                                           from '@libs/ui/utils/utils';
+import { DisplayRolesPipe }                                    from '@shared/directives/display-roles.directive';
+import { DatePipe }                                            from '@angular/common';
 
 @Component({
     selector   : 'app-list',
-    imports    : [
+    imports: [
         PageHeaderComponent,
         TranslocoDirective,
         MatTooltip,
@@ -30,7 +32,9 @@ import { trackByFn }                                           from '@libs/ui/ut
         ReactiveFormsModule,
         MatTableModule,
         MatIconButton,
-        TranslocoPipe
+        TranslocoPipe,
+        DisplayRolesPipe,
+        DatePipe
     ],
     templateUrl: './list.component.html'
 })
@@ -39,14 +43,21 @@ export class ListComponent {
     readonly #userService = inject(UserService);
     readonly #ts = inject(TranslocoService);
 
-    readonly displayedColumns: (keyof User | 'actions')[] = [ 'name', 'email', 'role', 'actions' ];
+    readonly displayedColumns: (keyof User | 'actions')[] = [ 'name', 'email', 'role', 'createdAt', 'actions' ];
 
     searchControl = new FormControl<string>(undefined);
     searchControlSignal = toSignal(this.searchControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
 
     usersResource = resource({
         request: () => this.searchControlSignal(),
-        loader : () => firstValueFrom(this.#userService.findByQuery(this.searchControlSignal())),
+        loader: () => {
+            let query = {};
+
+            if (this.searchControlSignal().trim().length > 0)
+                query = {query: this.searchControlSignal().trim()};
+
+            return firstValueFrom(this.#userService.findByQuery(query));
+        },
     });
     protected readonly trackByFn = trackByFn;
 
@@ -60,9 +71,8 @@ export class ListComponent {
             },
         });
 
-        dialog.afterClosed().subscribe((result) => {
-            if (result === 'confirm')
-                this.#userService.remove(user.id).subscribe(() => this.usersResource.reload());
-        });
+        dialog
+            .afterClosed()
+            .subscribe((result) => result === 'confirmed' && this.#userService.remove(user.id).subscribe(() => this.usersResource.reload()));
     };
 }

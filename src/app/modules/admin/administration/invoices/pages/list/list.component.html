@@ -137,9 +137,10 @@
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.is-paid') }}</th>
                     <td *matCellDef="let invoice" mat-cell>
                         <div class="flex align-center">
+                            @let outStatus = [ InvoiceStatusEnum.RE_INVOICED, InvoiceStatusEnum.REJECTED ];
                             @if (invoice.isPaid) {
                                 <mat-icon class="text-green-500">task_alt</mat-icon>
-                            } @else if (DateTime.now().toISODate() <= invoice.dueDate) {
+                            } @else if (DateTime.now().toISODate() <= invoice.dueDate || outStatus.includes(invoice.status)) {
                                 <mat-icon class="text-accent-500">pending</mat-icon>
                             } @else {
                                 <mat-icon class="text-red-500">cancel</mat-icon>

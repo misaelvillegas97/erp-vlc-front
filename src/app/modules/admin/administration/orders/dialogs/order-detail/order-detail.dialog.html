@@ -201,7 +201,7 @@
                     @if (observation.metadata) {
                         <div class="text-sm text-secondary">
                             <span class="font-medium">Origen:</span>
-                            {{ observation.metadata.origin | titlecase }}
+                            {{ 'origins.' + observation.metadata.origin | transloco | titlecase }}
                             @if (observation.metadata.origin === 'invoice' && observation.metadata.invoice) {
                                 <span class="mx-2">|</span>
                                 <span class="font-medium">Factura:</span>

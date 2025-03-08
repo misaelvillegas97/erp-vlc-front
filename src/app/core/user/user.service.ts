@@ -31,8 +31,8 @@ export class UserService {
         return this._httpClient.get<InfinityPagination<User>>('api/v1/users', {params: query});
     }
 
-    findByQuery(query?: string) {
-        return this._httpClient.get<User[]>('api/v1/users/query', {params: {query}});
+    findByQuery(query?: any) {
+        return this._httpClient.get<User[]>('api/v1/users/query', {params: query});
     }
 
     remove(id: string) {

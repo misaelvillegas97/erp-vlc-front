@@ -61,7 +61,7 @@
             <!-- Tabs -->
             <mat-tab-group [animationDuration]="'0'" class="sm:px-2" mat-stretch-tabs="false">
                 <!-- Home -->
-                <mat-tab label="Órdenes de compra">
+                <mat-tab label="Ordenes de compra">
                     <ng-template matTabContent>
                         <div class="grid w-full min-w-0 grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
                             <!-- Pending -->
@@ -71,7 +71,7 @@
                                 </div>
                                 <div class="mt-2 flex-1 flex flex-col items-center justify-center">
                                     <div class="text-7xl font-bold leading-none tracking-tight text-blue-500 sm:text-8xl">{{ orders.countOverview['pending'] || 0 }}</div>
-                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Órdenes</div>
+                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Ordenes</div>
                                 </div>
                             </div>
                             <!-- IN_PROGRESS -->
@@ -81,7 +81,7 @@
                                 </div>
                                 <div class="mt-2 flex-1 flex flex-col items-center justify-center">
                                     <div class="text-7xl font-bold leading-none tracking-tight text-orange-500 sm:text-8xl">{{ orders.countOverview['middle'] || 0 }}</div>
-                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Órdenes</div>
+                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Ordenes</div>
                                 </div>
                             </div>
 
@@ -92,7 +92,7 @@
                                 </div>
                                 <div class="mt-2 flex-1 flex flex-col items-center justify-center">
                                     <div class="text-7xl font-bold leading-none tracking-tight text-green-500 sm:text-8xl">{{ orders.countOverview['completed'] || 0 }}</div>
-                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Órdenes</div>
+                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Ordenes</div>
                                 </div>
                             </div>
 
@@ -103,7 +103,7 @@
                                 </div>
                                 <div class="mt-2 flex-1 flex flex-col items-center justify-center">
                                     <div class="text-7xl font-bold leading-none tracking-tight text-red-500 sm:text-8xl">{{ orders.countOverview['canceled'] || 0 }}</div>
-                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Órdenes</div>
+                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Ordenes</div>
                                 </div>
                             </div>
 
@@ -144,14 +144,14 @@
                                                 <div class="text-5xl font-semibold leading-none tracking-tight sm:text-7xl">
                                                     {{ orders.orders?.length }}
                                                 </div>
-                                                <div class="mt-1 text-sm font-medium sm:text-lg">Órdenes totales</div>
+                                                <div class="mt-1 text-sm font-medium sm:text-lg">Ordenes totales</div>
                                             </div>
                                             <!-- Closed -->
                                             <div class="col-span-2 flex flex-col items-center justify-center rounded-2xl bg-green-50 px-1 py-8 text-green-800 dark:bg-white dark:bg-opacity-5 dark:text-green-500">
                                                 <div class="text-5xl font-semibold leading-none tracking-tight sm:text-7xl">
                                                     {{ orders.countsByStatus['COMPLETED'] || 0 }}
                                                 </div>
-                                                <div class="mt-1 text-sm font-medium sm:text-lg">Órdenes finalizadas</div>
+                                                <div class="mt-1 text-sm font-medium sm:text-lg">Ordenes finalizadas</div>
                                             </div>
                                             <!-- PENDING -->
                                             <div class="text-secondary col-span-2 flex flex-col items-center justify-center rounded-2xl bg-gray-100 px-1 py-8 dark:bg-white dark:bg-opacity-5 sm:col-span-1">
@@ -188,7 +188,7 @@
                             <!-- Task distribution -->
                             <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-2 md:col-span-4 lg:col-span-2">
                                 <div class="flex flex-col items-start justify-between sm:flex-row">
-                                    <div class="truncate text-lg font-medium leading-6 tracking-tight">Proporción por tipo de órden</div>
+                                    <div class="truncate text-lg font-medium leading-6 tracking-tight">Proporción por tipo de orden</div>
                                 </div>
                                 <div class="mt-6 flex flex-auto flex-col">
                                     <apx-chart
@@ -371,7 +371,7 @@
                             <!-- Budget details -->
                             <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
                                 <div class="truncate text-lg font-medium leading-6 tracking-tight">
-                                    Últimas órdenes
+                                    Últimas ordenes
                                 </div>
 
                                 <div class="mt-2 flex flex-auto flex-col overflow-x-auto">
@@ -485,7 +485,7 @@
                                         <!-- No data -->
                                         <tr *matNoDataRow class="h-64">
                                             <td [attr.colspan]="orderColumns.length" class="text-center">
-                                                No hay órdenes disponibles para mostrar
+                                                No hay ordenes disponibles para mostrar
                                             </td>
                                     </table>
                                 </div>

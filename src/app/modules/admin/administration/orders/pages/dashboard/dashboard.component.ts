@@ -45,7 +45,7 @@ export class DashboardComponent {
     setChartOrdersCountByDate(ordersCountByDate: { date: string, total: number }[]) {
         const labels = ordersCountByDate.map(item => item.date);
         const series = [ {
-            name: 'Órdenes',
+            name: 'Ordenes',
             data: ordersCountByDate.map(item => Number(item.total))
         } ];
 
@@ -83,7 +83,7 @@ export class DashboardComponent {
                 categories: labels
             },
             yaxis  : {
-                title : {text: 'Cantidad de órdenes'},
+                title: {text: 'Cantidad de ordenes'},
                 labels: {
                     formatter(val: number): string {
                         return val.toString();
@@ -158,7 +158,7 @@ export class DashboardComponent {
                 foreColor : 'var(--fuse-text-default)'
             },
             colors     : [ '#F87171' ],
-            labels     : [ 'Órdenes Vencidas' ],
+            labels: [ 'Ordenes Vencidas' ],
             noData     : {text: 'No hay datos'},
             plotOptions: {
                 radialBar: {
@@ -201,7 +201,7 @@ export class DashboardComponent {
     setChartOrdersByClient(ordersByClient: { clientId: string, clientFantasyName: string, totalOrders: number }[]) {
         const labels = ordersByClient.map(item => item.clientFantasyName);
         const series = [ {
-            name: 'Órdenes',
+            name: 'Ordenes',
             data: ordersByClient.map(item => Number(item.totalOrders))
         } ];
 
