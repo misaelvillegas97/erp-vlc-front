@@ -13,9 +13,6 @@ import { FuseConfigService }                                       from '@fuse/s
 import { FuseMediaWatcherService }                                 from '@fuse/services/media-watcher';
 import { NavigationService }                                       from 'app/core/navigation/navigation.service';
 import { Navigation }                                              from 'app/core/navigation/navigation.types';
-import { LanguagesComponent }                                      from 'app/layout/components/languages/languages.component';
-import { SearchComponent }                                         from 'app/layout/components/search/search.component';
-import { ShortcutsComponent }                                      from 'app/layout/components/shortcuts/shortcuts.component';
 import { UserComponent }                                           from 'app/layout/components/user/user.component';
 
 @Component({
@@ -29,10 +26,7 @@ import { UserComponent }                                           from 'app/lay
         FuseVerticalNavigationComponent,
         MatButtonModule,
         MatIconModule,
-        LanguagesComponent,
         FuseFullscreenComponent,
-        SearchComponent,
-        ShortcutsComponent,
         UserComponent,
         RouterOutlet,
         AsyncPipe,

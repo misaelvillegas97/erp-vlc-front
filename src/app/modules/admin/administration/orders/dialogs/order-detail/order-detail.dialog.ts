@@ -7,7 +7,6 @@ import { MatTableModule }                                                       
 import { TranslocoPipe }                                                                       from '@ngneat/transloco';
 import { OrdersService }                                                                       from '@modules/admin/administration/orders/orders.service';
 import { firstValueFrom }                                                                      from 'rxjs';
-import { MatProgressSpinner }                                                                  from '@angular/material/progress-spinner';
 import { Invoice }                                                                             from '@modules/admin/administration/invoices/domains/model/invoice';
 import { FuseAlertComponent }                                                                  from '../../../../../../../@fuse/components/alert';
 
@@ -23,7 +22,6 @@ import { FuseAlertComponent }                                                   
         MatButton,
         TranslocoPipe,
         MatDialogClose,
-        MatProgressSpinner,
         TitleCasePipe,
         FuseAlertComponent,
     ],
