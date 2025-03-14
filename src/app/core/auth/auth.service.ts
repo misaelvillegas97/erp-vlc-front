@@ -1,6 +1,5 @@
 import { HttpClient }                                                  from '@angular/common/http';
 import { inject, Injectable }                                          from '@angular/core';
-import { AuthUtils }                                                   from 'app/core/auth/auth.utils';
 import { UserService }                                                 from 'app/core/user/user.service';
 import { catchError, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { CreateUserDto }                                               from '@core/auth/domain/create-user.dto';
@@ -95,7 +94,7 @@ export class AuthService {
                     localStorage.removeItem('accessToken');
                     this._authenticated = false;
                     location.reload();
-                    return err;
+                    return of(false);
                 }),
                 switchMap((response: any) => {
                     // Replace the access token with the new one if it's available on
@@ -179,12 +178,6 @@ export class AuthService {
         // Check the access token availability
         if (!this.accessToken) {
             console.log('No access token');
-            return of(false);
-        }
-
-        // Check the access token expire date
-        if (AuthUtils.isTokenExpired(this.accessToken)) {
-            console.log('Access token expired');
             return of(false);
         }
 
