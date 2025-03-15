@@ -262,7 +262,7 @@
         }
 
         <!-- TABLA (SOLO DESKTOP/TABLET) -->
-        @if (!isMobile()) {
+        @if (isMobile()) {
             @defer (on idle) {
                 <div class="hidden sm:block relative max-w-full overflow-auto w-full">
                     <table
@@ -573,6 +573,10 @@
         }
     </div>
 
+    <div class="hidden sm:block relative max-w-full overflow-auto w-full">
+        <table-builder [columns]="columnsConfig()" [data]="ordersResource.value()"></table-builder>
+    </div>
+
     <ng-template #columnsOverlay>
         <div class="bg-card rounded-lg shadow-lg p-4">
             <div class="flex flex-col gap-2">
@@ -593,3 +597,18 @@
         </div>
     </ng-template>
 </div>
+
+
+<ng-template #deliveryDateCell let-order="row">
+    @let deliveryDate = order.deliveryDate;
+    <div class="flex-center">
+        @if (today == deliveryDate) {
+            <mat-icon
+                [matTooltip]="'La fecha de entrega es hoy.' + (!order.invoice ? '\n• No tiene factura asociada' : '') + (order.status === OrderStatusEnum.CREATED ? '\n• Aún no está en progreso ni pendiente de entrega': '')"
+                matTooltipClass="whitespace-pre-wrap"
+                svgIcon="heroicons_solid:exclamation-circle"
+                class="text-yellow-700"
+            ></mat-icon>
+        }
+    </div>
+</ng-template>

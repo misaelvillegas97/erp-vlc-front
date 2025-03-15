@@ -59,6 +59,11 @@
                 "table" : {
                     "order-number" : "Número de orden",
                     "client" : "Cliente",
+                    "type" : "Tipo",
+                    "delivery-location" : "Ubicación de entrega",
+                    "delivery-date" : "Fecha de entrega",
+                    "emission-date" : "Fecha de emisión",
+                    "amount" : "Monto Neto",
                     "total" : "Total",
                     "status" : "Estado",
                     "actions" : "Acciones"
@@ -348,6 +353,11 @@
         "more" : "más"
     },
     "enums" : {
+        "order-type" : {
+            "PURCHASE_ORDER" : "Orden de compra",
+            "RETURN_ORDER" : "Orden de devolución",
+            "UNKNOWN" : "Estado Desconocido"
+        },
         "order-status" : {
             "CREATED" : "Creada",
             "IN_PROGRESS" : "En progreso",

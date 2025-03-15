@@ -1,0 +1,89 @@
+<table
+    [dataSource]="data()"
+    class="min-w-240 w-full overflow-y-visible bg-transparent"
+    mat-table
+    matSort
+>
+    @for (column of columns(); track column.key) {
+        <ng-container [matColumnDef]="column.key">
+            <th mat-header-cell *matHeaderCellDef>
+                {{ column.header }}
+            </th>
+            <td mat-cell *matCellDef="let row">
+                @if (column.customTemplate) {
+                    <ng-container *ngTemplateOutlet="column.customTemplate; context: { $implicit: row[column.key], row: row }"></ng-container>
+                } @else {
+                    @switch (column.type) {
+                        @case ('date') {
+                            <span [class]="column.classes">{{ row[column.key] | date:(column.pipeOptions?.format || 'shortDate') }}</span>
+                        }
+                        @case ('currency') {
+                            <span [class]="column.classes">{{ row[column.key] | currency:(column.pipeOptions?.currencyCode || 'USD'):column.pipeOptions?.symbolDisplay }}</span>
+                        }
+                        @case ('number') {
+                            <span [class]="column.classes">{{ row[column.key] | number:(column.pipeOptions?.digitsInfo || '1.0-0') }}</span>
+                        }
+                        @case ('badge') {
+                            <badge [class]="column.classes" [color]="column.pipeOptions?.color(row[column.key], row)" [label]="column.formatter(row[column.key], row)"></badge>
+                        }
+                        @case ('clickable-text') {
+                            <span class="text-blue-500 cursor-pointer {{column.classes}}" (click)="column.onClick(row)">{{ column.formatter ? column.formatter(row[column.key], row) : row[column.key] }}</span>
+                        }
+                        @default {
+                            <span [class]="column.classes">{{ column.formatter ? column.formatter(row[column.key], row) : row[column.key] }}</span>
+                        }
+                    }
+                }
+            </td>
+        </ng-container>
+    }
+
+    @for (column of columns(); track column.key) {
+        <ng-container [matColumnDef]="column.key + 'Filter'">
+            <th *matHeaderCellDef mat-header-cell>
+                @if (column.filterControl) {
+                    @switch (column.filterType) {
+                        @case ('autocomplete') {
+                            <autocomplete-filter-field
+                                [header]="column.header"
+                                [filterControl]="column.filterControl"
+                                [filterOptions]="column.filterOptions.options"
+                                [filterDisplayWith]="column.filterDisplayWith"
+                            ></autocomplete-filter-field>
+                        }
+                        @case ('select') {
+                            <select-filter-field
+                                [header]="column.header"
+                                [filterControl]="column.filterControl"
+                                [filterOptions]="column.filterOptions.options"
+                                [multiple]="column.filterOptions.multiple"
+                            ></select-filter-field>
+                        }
+                        @default {
+                            <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
+                                <input
+                                    [formControl]="column.filterControl"
+                                    matInput
+                                    placeholder="Filtrar {{ column.header }}"
+                                >
+                            </mat-form-field>
+                        }
+                    }
+                }
+            </th>
+        </ng-container>
+    }
+
+    <!-- Fila de encabezados de datos -->
+    <tr *matHeaderRowDef="displayedColumns" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
+    <!-- Fila de filtros -->
+    <tr *matHeaderRowDef="displayedFilterColumns" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
+    <!-- Fila de datos -->
+    <tr *matRowDef="let row; columns: displayedColumns;" class="hover:bg-hover transition-all duration-300" mat-row></tr>
+    <!-- Fila sin datos -->
+    <tr *matNoDataRow>
+        <td [attr.colspan]="displayedColumns.length" class="text-center italic mat-hint py-4">
+            No hay datos disponibles
+        </td>
+    </tr>
+</table>

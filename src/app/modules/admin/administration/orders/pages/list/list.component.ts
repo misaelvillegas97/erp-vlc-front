@@ -36,6 +36,8 @@ import { Client }                             from '@modules/admin/maintainers/c
 import { ClientService }                      from '@modules/admin/maintainers/clients/client.service';
 import { BadgeComponent }                     from '@shared/components/badge/badge.component';
 import { Invoice }                            from '@modules/admin/administration/invoices/domains/model/invoice';
+import { TableBuilderComponent }              from '@shared/components/table-builder/table-builder.component';
+import { ColumnConfig }                       from '@shared/components/table-builder/column.type';
 
 @Component({
     selector   : 'app-list',
@@ -70,6 +72,7 @@ import { Invoice }                            from '@modules/admin/administratio
         TranslocoPipe,
         MatSlideToggle,
         BadgeComponent,
+        TableBuilderComponent,
 
 
     ],
@@ -286,4 +289,101 @@ export class ListComponent implements OnDestroy {
     };
 
     findActiveInvoice = (invoices: Invoice[]) => invoices.find((invoice) => invoice.isActive);
+
+    customInfoColumn = viewChild<TemplateRef<any>>('deliveryDateCell');
+
+    columnsConfig: Signal<ColumnConfig[]> = computed(() => ([
+        {
+            key           : 'info',
+            header        : '',
+            customTemplate: this.customInfoColumn()
+        },
+        {
+            key          : 'orderNumber',
+            header       : this.#ts.translate('operations.orders.list.table.order-number'),
+            classes      : 'text-sm',
+            type         : 'clickable-text',
+            onClick      : (row) => this.view(row),
+            filterControl: this.orderNumberFormControl
+        },
+        {
+            key          : 'client',
+            header       : this.#ts.translate('operations.orders.list.table.client'),
+            classes      : 'text-sm',
+            type         : 'text',
+            formatter    : (client: Client, row) => client.fantasyName,
+            filterControl: this.clientFormControl,
+            filterType   : 'select',
+            filterOptions: {
+                options : this.clientsResource.value()?.map((client) => ({value: client, viewValue: client.fantasyName})),
+                multiple: true,
+            },
+        },
+        {
+            key          : 'type',
+            header       : this.#ts.translate('operations.orders.list.table.type'),
+            classes      : 'text-sm',
+            type         : 'text',
+            formatter    : (value: string) => this.#ts.translate('enums.order-type.' + value),
+            filterControl: this.typeFormControl,
+            filterType   : 'select',
+            filterOptions: {
+                options : Object.values(OrderTypeEnum).map((type) => ({value: type, viewValue: this.#ts.translate('enums.order-type.' + type)})),
+                multiple: true,
+            }
+        },
+        {
+            key          : 'status',
+            header       : this.#ts.translate('operations.orders.list.table.status'),
+            classes      : 'text-sm',
+            type         : 'badge',
+            pipeOptions  : {color: (status: OrderStatusEnum) => OrderStatusConfig[status].color},
+            formatter    : (status: OrderStatusEnum) => this.#ts.translate('enums.order-status.' + status),
+            filterControl: this.statusFormControl
+        },
+        // {
+        //     key: 'invoice',
+        //     header: this.#ts.translate('operations.orders.list.table.invoice'),
+        //     type: 'text',
+        //     formatter: (value: Order) => value.invoices.length > 0 ? value.invoices[0].invoiceNumber : '-',
+        //     filterControl: this.invoiceFormControl
+        // },
+        {
+            key          : 'deliveryLocation',
+            header       : this.#ts.translate('operations.orders.list.table.delivery-location'),
+            classes      : 'text-sm line-clamp-1',
+            type         : 'text',
+            filterControl: this.deliveryLocationFormControl
+        },
+        {
+            key          : 'deliveryDate',
+            header       : this.#ts.translate('operations.orders.list.table.delivery-date'),
+            classes      : 'text-sm',
+            type         : 'date',
+            pipeOptions  : {format: 'dd-MM-yyyy'},
+            filterControl: this.deliveryDateFormControl
+        },
+        {
+            key          : 'emissionDate',
+            header       : this.#ts.translate('operations.orders.list.table.emission-date'),
+            classes      : 'text-sm',
+            type         : 'date',
+            pipeOptions  : {format: 'dd-MM-yyyy'},
+            filterControl: this.emissionDateFormControl
+        },
+        {
+            key          : 'totalAmount',
+            header       : this.#ts.translate('operations.orders.list.table.amount'),
+            classes      : 'text-sm',
+            type         : 'currency',
+            pipeOptions  : {currency: 'CLP', symbolDisplay: 'symbol-narrow'},
+            filterControl: this.amountFormControl
+        },
+        // {
+        //     key: 'actions',
+        //     header: this.#ts.translate('operations.orders.list.table.actions'),
+        //     type: 'custom',
+        //     customTemplate: this.
+        // }
+    ]));
 }
