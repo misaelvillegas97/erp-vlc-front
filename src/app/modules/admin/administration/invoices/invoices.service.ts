@@ -14,6 +14,10 @@ export class InvoicesService {
         return this.#httpClient.get<any[]>('/api/invoices', {params: query});
     }
 
+    findOne(invoiceId: string) {
+        return this.#httpClient.get<any>('/api/invoices/' + invoiceId);
+    }
+
     getInvoicesOverview() {
         return this.#httpClient.get('/api/invoices/overview');
     }

@@ -30,7 +30,7 @@ import { Order }                              from '@modules/admin/administratio
 import { OrderTypeEnum }                      from '@modules/admin/administration/orders/domain/enums/order-type.enum';
 import { OrderStatusConfig, OrderStatusEnum } from '@modules/admin/administration/orders/domain/enums/order-status.enum';
 import { InvoiceAddComponent }                from '@modules/admin/administration/orders/dialogs/invoice-add/invoice-add.component';
-import { InvoiceDetailComponent }             from '@modules/admin/administration/orders/dialogs/invoice-detail/invoice-detail.component';
+import { InvoiceDetailComponent }             from '@modules/admin/administration/invoices/dialogs/invoice-detail/invoice-detail.component';
 import { OrderDetailDialog }                  from '@modules/admin/administration/orders/dialogs/order-detail/order-detail.dialog';
 import { Client }                             from '@modules/admin/maintainers/clients/domain/model/client';
 import { ClientService }                      from '@modules/admin/maintainers/clients/client.service';

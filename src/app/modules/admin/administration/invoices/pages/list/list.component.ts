@@ -33,6 +33,7 @@ import { OrderDetailDialog }                                                    
 import { Router }                                                                                                            from '@angular/router';
 import { NotyfService }                                                                                                      from '@shared/services/notyf.service';
 import { ReInvoiceDialog }                                                                                                   from '@modules/admin/administration/invoices/dialogs/re-invoice/re-invoice.dialog';
+import { InvoiceDetailComponent }                                                                                            from '@modules/admin/administration/invoices/dialogs/invoice-detail/invoice-detail.component';
 
 @Component({
     selector   : 'app-list',
@@ -310,5 +311,19 @@ export class ListComponent implements OnDestroy {
     isLessThan6Months = (emissionDate: any) => {
         return DateTime.fromISO(emissionDate).diffNow('months').months < 6;
     };
+
+    getPayments = (invoice) => {
+        const totalPayments = invoice.payments.reduce((acc, payment) => acc + payment.amount, 0);
+        const percentagePaid = Math.round((totalPayments / invoice.totalAmount) * 100 * 100) / 100;
+
+        return {totalPayments, percentagePaid};
+    };
+
+    openDetail(invoice: Invoice) {
+        this.#dialog.open(InvoiceDetailComponent, {
+            data : {invoiceId: invoice.id},
+            width: '900px'
+        });
+    }
 }
 

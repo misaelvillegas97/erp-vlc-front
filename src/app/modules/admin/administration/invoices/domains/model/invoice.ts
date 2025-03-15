@@ -1,4 +1,6 @@
 import { InvoiceStatusEnum } from '@modules/admin/administration/invoices/domains/enums/invoice-status.enum';
+import { Payment }           from '@modules/admin/administration/invoices/domains/model/payment';
+import { OrderProduct }      from '@modules/admin/administration/orders/domain/model/order-product';
 
 export class Invoice {
     id: string;
@@ -14,6 +16,7 @@ export class Invoice {
     taxAmount?: number;
     totalAmount?: number;
     deliveryAssignment?: any;
-    order: { id: string, orderNumber: string };
+    order: { id: string, orderNumber: string, products: OrderProduct[] };
     createdAt: Date;
+    payments?: Payment[];
 }

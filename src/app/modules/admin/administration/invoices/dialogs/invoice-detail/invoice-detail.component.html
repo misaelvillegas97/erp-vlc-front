@@ -1,0 +1,224 @@
+<h2 class="text-lg border-b pb-4" mat-dialog-title>Detalle de factura {{ invoiceResource.value()?.invoiceNumber }}</h2>
+<mat-dialog-content class="py-4">
+    @if (!invoiceResource.isLoading() && invoiceResource.hasValue()) {
+        @let invoice = invoiceResource.value();
+        @let order = invoiceResource.value().order;
+
+        @let subtotal = invoice.netAmount;
+        @let iva = invoice.taxAmount;
+        @let total = invoice.totalAmount;
+
+        <div class="hidden sm:block">
+            <table class="w-full text-default sm:table-fixed">
+                <tbody>
+                <tr class="border-b">
+                    <td class="px-4 py-2 font-medium">Número de factura:</td>
+                    <td class="border-r px-4 py-2">
+                        {{ invoice.invoiceNumber }}
+                    </td>
+                    <td class="px-4 py-2 font-medium">Valor neto:</td>
+                    <td class="px-4 py-2">
+                        {{ invoice.netAmount | currency:'CLP':'symbol-narrow' }}
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="px-4 py-2 font-medium">Estado:</td>
+                    <td class="border-r px-4 py-2">
+                        {{ 'enums.invoice-status.' + invoice.status | transloco }}
+                    </td>
+                    <td class="px-4 py-2 font-medium">IVA:</td>
+                    <td class="px-4 py-2">
+                        {{ invoice.taxAmount | currency:'CLP':'symbol-narrow' }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2 font-medium">Fecha de emisión:</td>
+                    <td class="border-r px-4 py-2">
+                        {{ invoice.emissionDate | date:'dd/MM/yyyy' }}
+                    </td>
+                    <td class="px-4 py-2 font-medium">Valor bruto:</td>
+                    <td class="px-4 py-2">
+                        {{ invoice.totalAmount | currency:'CLP':'symbol-narrow' }}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- VERSIÓN MÓVIL -->
+        <div class="block sm:hidden">
+            <div class="rounded space-y-2 text-default">
+                <div class="text-sm font-normal">
+                    <span class="font-medium mr-1">Número de factura:</span>
+                    {{ invoice.invoiceNumber }}
+                </div>
+                <div class="text-sm font-normal">
+                    <span class="font-medium mr-1">Estado:</span>
+                    {{ 'enums.invoice-status.' + invoice.status | transloco }}
+                </div>
+                <div class="text-sm font-normal">
+                    <span class="font-medium mr-1">Fecha de emisión:</span>
+                    {{ invoice.emissionDate | date:'dd/MM/yyyy' }}
+                </div>
+                <div class="text-sm font-normal">
+                    <span class="font-medium mr-1">Valor neto:</span>
+                    {{ subtotal | currency:'CLP':'symbol-narrow' }}
+                </div>
+                <div class="text-sm font-normal">
+                    <span class="font-medium mr-1">IVA:</span>
+                    {{ iva | currency:'CLP':'symbol-narrow' }}
+                </div>
+                <div class="text-sm font-normal">
+                    <span class="font-medium mr-1">Valor bruto:</span>
+                    {{ total | currency:'CLP':'symbol-narrow' }}
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-lg text-default mt-4">Productos en la orden</h3>
+        <hr class="my-2">
+
+        <div class="hidden sm:block overflow-x-auto">
+            <table
+                [dataSource]="order.products"
+                [trackBy]="trackByFn"
+                class=" w-full overflow-y-visible"
+                mat-table
+            >
+                <ng-container matColumnDef="product">
+                    <th *matHeaderCellDef class="bg-hover" mat-header-cell>Producto</th>
+                    <td *matCellDef="let product" mat-cell>{{ product.description }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="quantity">
+                    <th *matHeaderCellDef class="bg-hover" mat-header-cell>Cantidad</th>
+                    <td *matCellDef="let product" mat-cell>{{ product.quantity }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="price">
+                    <th *matHeaderCellDef class="bg-hover" mat-header-cell>Precio unitario</th>
+                    <td *matCellDef="let product" mat-cell>{{ product.unitaryPrice | currency:'CLP':'symbol-narrow' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="total">
+                    <th *matHeaderCellDef class="bg-hover" mat-header-cell>Total</th>
+                    <td *matCellDef="let product" mat-cell>{{ product.totalPrice | currency:'CLP':'symbol-narrow' }}</td>
+                </ng-container>
+
+                <!-- Footer columns: subtotal, iva and total amount -->
+                <ng-container matColumnDef="col1">
+                    <td *matFooterCellDef mat-footer-cell></td>
+                </ng-container>
+
+                <ng-container matColumnDef="col2">
+                    <td *matFooterCellDef mat-footer-cell></td>
+                </ng-container>
+
+                <ng-container matColumnDef="footerNetAmount">
+                    <td *matFooterCellDef class="text-right font-medium bg-hover" mat-footer-cell>Valor neto:</td>
+                </ng-container>
+
+                <ng-container matColumnDef="footerNetAmountValue">
+                    <td *matFooterCellDef class="bg-hover" mat-footer-cell>{{ productsTotal() | currency:'CLP':'symbol-narrow' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="footerTaxAmount">
+                    <td *matFooterCellDef class="text-right font-medium bg-hover" mat-footer-cell>IVA:</td>
+                </ng-container>
+
+                <ng-container matColumnDef="footerTaxAmountValue">
+                    <td *matFooterCellDef class="bg-hover" mat-footer-cell>{{ productsTotal() * 0.19 | currency:'CLP':'symbol-narrow' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="footerTotalAmount">
+                    <td *matFooterCellDef class="text-right font-medium bg-hover" mat-footer-cell>Valor bruto:</td>
+                </ng-container>
+
+                <ng-container matColumnDef="footerTotalAmountValue">
+                    <td *matFooterCellDef class="bg-hover" mat-footer-cell>{{ productsTotal() * 1.19 | currency:'CLP':'symbol-narrow' }}</td>
+                </ng-container>
+
+                <tr *matHeaderRowDef="['product', 'price', 'quantity', 'total']" mat-header-row></tr>
+                <tr *matRowDef="let row; columns: ['product', 'price', 'quantity', 'total']" class="bg-transparent" mat-row></tr>
+                <tr *matFooterRowDef="['col1', 'col2', 'footerNetAmount', 'footerNetAmountValue']" class="bg-transparent h-8" mat-footer-row></tr>
+                <tr *matFooterRowDef="['col1', 'col2', 'footerTaxAmount', 'footerTaxAmountValue']" class="bg-transparent h-8" mat-footer-row></tr>
+                <tr *matFooterRowDef="['col1', 'col2', 'footerTotalAmount', 'footerTotalAmountValue']" class="bg-transparent h-8" mat-footer-row></tr>
+            </table>
+        </div>
+
+        <!-- Versión Móvil -->
+        <div class="block md:hidden space-y-4">
+            @for (product of order.products; track product.id) {
+                <div class="bg-hover shadow rounded p-4 text-default">
+                    <h4 class="font-medium mb-1">
+                        {{ product.description }}
+                    </h4>
+                    <div class="text-sm text-secondary">
+                        <span class="font-semibold">Cantidad:</span> {{ product.quantity }}
+                    </div>
+                    <div class="text-sm text-secondary">
+                        <span class="font-semibold">Precio unitario:</span>
+                        {{ product.unitaryPrice | currency:'CLP':'symbol-narrow' }}
+                    </div>
+                    <div class="text-sm text-secondary">
+                        <span class="font-semibold">Total:</span>
+                        {{ product.totalPrice | currency:'CLP':'symbol-narrow' }}
+                    </div>
+                </div>
+            }
+
+            <!-- Totales (Net, IVA, Total) en móvil -->
+            <div class="">
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="font-semibold">Valor neto:</span>
+                    <span>{{ productsTotal() | currency:'CLP':'symbol-narrow' }}</span>
+                </div>
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="font-semibold">IVA:</span>
+                    <span>{{ productsTotal() * 0.19 | currency:'CLP':'symbol-narrow' }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="font-semibold">Valor bruto:</span>
+                    <span>{{ productsTotal() * 1.19 | currency:'CLP':'symbol-narrow' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-lg text-default mt-4">Pagos registrados</h3>
+        <hr class="my-2">
+        <table
+            [dataSource]="invoiceResource.value().payments"
+            [trackBy]="trackByFn"
+            class="w-full text-default"
+            mat-table
+        >
+            <ng-container matColumnDef="paymentDate">
+                <th *matHeaderCellDef class="bg-hover" mat-header-cell>Fecha de pago</th>
+                <td *matCellDef="let payment" mat-cell>{{ payment.paymentDate | date:'dd/MM/yyyy' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="amount">
+                <th *matHeaderCellDef class="bg-hover" mat-header-cell>Monto</th>
+                <td *matCellDef="let payment" mat-cell>{{ payment.amount | currency:'CLP':'symbol-narrow' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="paymentMethod">
+                <th *matHeaderCellDef class="bg-hover" mat-header-cell>Método de pago</th>
+                <td *matCellDef="let payment" mat-cell>{{ 'enums.payment-method.' + payment.method | transloco }}</td>
+            </ng-container>
+
+            <tr *matNoDataRow class="text-default">
+                <td colspan="3" class="mat-hint italic text-center text-lg py-4">No se han registrado pagos para esta factura</td>
+            </tr>
+            <tr *matHeaderRowDef="['paymentDate', 'amount', 'paymentMethod']" mat-header-row></tr>
+            <tr *matRowDef="let row; columns: ['paymentDate', 'amount', 'paymentMethod']" class="bg-transparent" mat-row></tr>
+        </table>
+
+        <h3 class="text-lg text-default mt-4">Observaciones</h3>
+        <hr class="my-2">
+        <p class="whitespace-pre-wrap">{{ invoice.observations || 'Sin observaciones' }}</p>
+    }
+</mat-dialog-content>
+<mat-dialog-actions align="end" class="">
+    <button color="default" mat-button mat-dialog-close>Cerrar</button>
+</mat-dialog-actions>
