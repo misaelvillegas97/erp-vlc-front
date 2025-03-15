@@ -301,8 +301,8 @@ export class ListComponent implements OnDestroy {
         {
             key          : 'orderNumber',
             header       : this.#ts.translate('operations.orders.list.table.order-number'),
-            classes      : 'text-sm',
-            type         : 'clickable-text',
+            classes: 'text-sm text-blue-500 cursor-pointer hover:underline',
+            type   : 'text',
             onClick      : (row) => this.view(row),
             filterControl: this.orderNumberFormControl
         },
@@ -361,7 +361,8 @@ export class ListComponent implements OnDestroy {
             classes      : 'text-sm',
             type         : 'date',
             pipeOptions  : {format: 'dd-MM-yyyy'},
-            filterControl: this.deliveryDateFormControl
+            filterControl: this.deliveryDateFormControl,
+            filterType   : 'date' // TODO: Implement date filter
         },
         {
             key          : 'emissionDate',

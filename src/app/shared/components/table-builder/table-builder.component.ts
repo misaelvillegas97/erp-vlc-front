@@ -8,12 +8,13 @@ import { ReactiveFormsModule }                                                  
 import { ColumnConfig }                                                                                                                                 from '@shared/components/table-builder/column.type';
 import { BadgeComponent }                                                                                                                               from '@shared/components/badge/badge.component';
 import { MatAutocomplete, MatAutocompleteTrigger }                                                                                                      from '@angular/material/autocomplete';
-import { AutocompleteFilterFieldComponent }                                                                                                             from '@shared/components/autocomplete-filter-field/autocomplete-filter-field.component';
+import { AutocompleteFilterFieldComponent }                                                                                                             from '@shared/components/table-builder/components/autocomplete-filter-field/autocomplete-filter-field.component';
 import { SelectFilterFieldComponent }                                                                                                                   from '@shared/components/table-builder/components/select-filter-field/select-filter-field.component';
+import { DateRangeFilterFieldComponent }                                                                                                                from '@shared/components/table-builder/components/date-range-filter-field/date-range-filter-field.component';
 
 @Component({
     selector   : 'table-builder',
-    imports    : [
+    imports: [
         MatTable,
         MatSort,
         MatColumnDef,
@@ -39,6 +40,7 @@ import { SelectFilterFieldComponent }                                           
         AutocompleteFilterFieldComponent,
         SelectFilterFieldComponent,
         JsonPipe,
+        DateRangeFilterFieldComponent,
     ],
     templateUrl: './table-builder.component.html'
 })

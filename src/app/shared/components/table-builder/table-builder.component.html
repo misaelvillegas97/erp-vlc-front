@@ -15,22 +15,19 @@
                 } @else {
                     @switch (column.type) {
                         @case ('date') {
-                            <span [class]="column.classes">{{ row[column.key] | date:(column.pipeOptions?.format || 'shortDate') }}</span>
+                            <span (click)="column.onClick(row)" [class]="column.classes">{{ row[column.key] | date:(column.pipeOptions?.format || 'shortDate') }}</span>
                         }
                         @case ('currency') {
-                            <span [class]="column.classes">{{ row[column.key] | currency:(column.pipeOptions?.currencyCode || 'USD'):column.pipeOptions?.symbolDisplay }}</span>
+                            <span (click)="column.onClick(row)" [class]="column.classes">{{ row[column.key] | currency:(column.pipeOptions?.currencyCode || 'USD'):column.pipeOptions?.symbolDisplay }}</span>
                         }
                         @case ('number') {
-                            <span [class]="column.classes">{{ row[column.key] | number:(column.pipeOptions?.digitsInfo || '1.0-0') }}</span>
+                            <span (click)="column.onClick(row)" [class]="column.classes">{{ row[column.key] | number:(column.pipeOptions?.digitsInfo || '1.0-0') }}</span>
                         }
                         @case ('badge') {
-                            <badge [class]="column.classes" [color]="column.pipeOptions?.color(row[column.key], row)" [label]="column.formatter(row[column.key], row)"></badge>
-                        }
-                        @case ('clickable-text') {
-                            <span class="text-blue-500 cursor-pointer {{column.classes}}" (click)="column.onClick(row)">{{ column.formatter ? column.formatter(row[column.key], row) : row[column.key] }}</span>
+                            <badge (click)="column.onClick(row)" [class]="column.classes" [color]="column.pipeOptions?.color(row[column.key], row)" [label]="column.formatter(row[column.key], row)"></badge>
                         }
                         @default {
-                            <span [class]="column.classes">{{ column.formatter ? column.formatter(row[column.key], row) : row[column.key] }}</span>
+                            <span (click)="column.onClick(row)" [class]="column.classes">{{ column.formatter ? column.formatter(row[column.key], row) : row[column.key] }}</span>
                         }
                     }
                 }
@@ -58,6 +55,28 @@
                                 [filterOptions]="column.filterOptions.options"
                                 [multiple]="column.filterOptions.multiple"
                             ></select-filter-field>
+                        }
+                        @case ('number') {
+                            <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
+                                <input
+                                    [formControl]="column.filterControl"
+                                    matInput
+                                    type="number"
+                                    placeholder="Filtrar {{ column.header }}"
+                                >
+                            </mat-form-field>
+                        }
+                        @case ('date') {
+                            <date-filter-field
+                                [header]="column.header"
+                                [filterControl]="column.filterControl"
+                            ></date-filter-field>
+                        }
+                        @case ('date-range') {
+                            <date-range-filter-field
+                                [header]="column.header"
+                                [filterGroup]="column.filterGroup"
+                            ></date-range-filter-field>
                         }
                         @default {
                             <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">

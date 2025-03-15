@@ -1,9 +1,9 @@
 // column-config.model.ts
-import { TemplateRef } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { TemplateRef }            from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 
 export type ColumnType = 'text' | 'date' | 'currency' | 'clickable-text' | 'badge' | 'custom';
-export type FilterType = 'text' | 'select' | 'autocomplete' | 'date' | 'number';
+export type FilterType = 'text' | 'select' | 'autocomplete' | 'date' | 'date-range' | 'number';
 
 export interface ColumnConfig {
     key: string;
@@ -15,6 +15,7 @@ export interface ColumnConfig {
     pipeOptions?: any;
     onClick?: (row: any) => void;
     filterControl?: FormControl;
+    filterGroup?: FormGroup;
     filterType?: FilterType;
     filterOptions?: {
         options?: {
@@ -22,6 +23,9 @@ export interface ColumnConfig {
             viewValue: string;
         }[],
         multiple?: boolean;
+        placeholder?: string;
+        placeholderFn?: (value: any, row?: any) => string;
+
     };
     filterDisplayWith?: (value: any) => string;
 }
