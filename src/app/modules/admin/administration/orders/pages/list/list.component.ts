@@ -150,6 +150,11 @@ export class ListComponent implements OnDestroy {
         return filter;
     });
 
+    // View childs
+    customInfoColumn = viewChild<TemplateRef<any>>('deliveryDateCell');
+    customInvoiceColumn = viewChild<TemplateRef<any>>('invoiceCell');
+    customActionsColumn = viewChild<TemplateRef<any>>('actionsCell');
+
     ordersResource = resource({
         request: () => this.filters(),
         loader : () => firstValueFrom(this.#ordersService.findAll(this.filters()))
@@ -158,7 +163,7 @@ export class ListComponent implements OnDestroy {
     clientsResource = resource({
         loader: () => firstValueFrom(this.#clientService.findAll({}, 'COMPACT'))
     });
-    customInfoColumn = viewChild<TemplateRef<any>>('deliveryDateCell');
+
     protected readonly OrderStatusEnum = OrderStatusEnum;
     protected readonly OrderStatusEnumValues = Object.values(OrderStatusEnum);
     protected readonly trackByFn = trackByFn;
@@ -256,13 +261,14 @@ export class ListComponent implements OnDestroy {
             formatter    : (status: OrderStatusEnum) => this.#ts.translate('enums.order-status.' + status),
             filterControl: this.statusFormControl
         },
-        // {
-        //     key: 'invoice',
-        //     header: this.#ts.translate('operations.orders.list.table.invoice'),
-        //     type: 'text',
-        //     formatter: (value: Order) => value.invoices.length > 0 ? value.invoices[0].invoiceNumber : '-',
-        //     filterControl: this.invoiceFormControl
-        // },
+        {
+            key           : 'invoice',
+            header        : this.#ts.translate('operations.orders.list.table.invoice'),
+            type          : 'custom',
+            customTemplate: this.customInvoiceColumn(),
+            filterControl : this.invoiceFormControl,
+            filterType    : 'number'
+        },
         {
             key          : 'deliveryLocation',
             header       : this.#ts.translate('operations.orders.list.table.delivery-location'),

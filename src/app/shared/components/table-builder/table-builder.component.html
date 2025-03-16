@@ -3,6 +3,7 @@
     class="min-w-240 w-full overflow-y-visible bg-transparent"
     mat-table
     matSort
+    [fixedLayout]="true"
 >
     @for (column of columns(); track column.key) {
         <ng-container [matColumnDef]="column.key">
@@ -57,7 +58,7 @@
                             ></select-filter-field>
                         }
                         @case ('number') {
-                            <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
+                            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
                                 <input
                                     [formControl]="column.filterControl"
                                     matInput

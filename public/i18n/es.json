@@ -60,6 +60,7 @@
                     "order-number" : "Número de orden",
                     "client" : "Cliente",
                     "type" : "Tipo",
+                    "invoice" : "Factura",
                     "delivery-location" : "Ubicación de entrega",
                     "delivery-date" : "Fecha de entrega",
                     "emission-date" : "Fecha de emisión",
