@@ -13,7 +13,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
         ReactiveFormsModule
     ],
     template: `
-        <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
+        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
             <input
                 matInput
                 [formControl]="filterControl()"

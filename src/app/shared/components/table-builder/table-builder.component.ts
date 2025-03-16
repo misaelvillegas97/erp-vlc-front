@@ -1,16 +1,16 @@
 import { Component, input, OnInit }                                                                                                                     from '@angular/core';
 import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatNoDataRow, MatRow, MatRowDef, MatTable } from '@angular/material/table';
 import { MatSort }                                                                                                                                      from '@angular/material/sort';
-import { CurrencyPipe, DatePipe, DecimalPipe, JsonPipe, NgTemplateOutlet }                                                                              from '@angular/common';
+import { CurrencyPipe, DatePipe, DecimalPipe, NgTemplateOutlet }                                                                                        from '@angular/common';
 import { MatInputModule }                                                                                                                               from '@angular/material/input';
 import { MatFormFieldModule }                                                                                                                           from '@angular/material/form-field';
 import { ReactiveFormsModule }                                                                                                                          from '@angular/forms';
 import { ColumnConfig }                                                                                                                                 from '@shared/components/table-builder/column.type';
 import { BadgeComponent }                                                                                                                               from '@shared/components/badge/badge.component';
-import { MatAutocomplete, MatAutocompleteTrigger }                                                                                                      from '@angular/material/autocomplete';
 import { AutocompleteFilterFieldComponent }                                                                                                             from '@shared/components/table-builder/components/autocomplete-filter-field/autocomplete-filter-field.component';
 import { SelectFilterFieldComponent }                                                                                                                   from '@shared/components/table-builder/components/select-filter-field/select-filter-field.component';
 import { DateRangeFilterFieldComponent }                                                                                                                from '@shared/components/table-builder/components/date-range-filter-field/date-range-filter-field.component';
+import { DateFilterFieldComponent }                                                                                                                     from '@shared/components/table-builder/components/date-filter-field/date-filter-field.component';
 
 @Component({
     selector   : 'table-builder',
@@ -35,12 +35,10 @@ import { DateRangeFilterFieldComponent }                                        
         CurrencyPipe,
         DecimalPipe,
         BadgeComponent,
-        MatAutocomplete,
-        MatAutocompleteTrigger,
         AutocompleteFilterFieldComponent,
         SelectFilterFieldComponent,
-        JsonPipe,
         DateRangeFilterFieldComponent,
+        DateFilterFieldComponent,
     ],
     templateUrl: './table-builder.component.html'
 })

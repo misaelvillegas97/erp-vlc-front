@@ -11,7 +11,7 @@ import { MatSelectModule }                  from '@angular/material/select';
         ReactiveFormsModule
     ],
     template: `
-        <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
+        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
             <mat-select
                 [formControl]="filterControl()" placeholder="Filtrar {{ header() }}"
                 [multiple]="multiple"

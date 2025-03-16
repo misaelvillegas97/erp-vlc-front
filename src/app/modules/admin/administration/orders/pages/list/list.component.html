@@ -262,319 +262,11 @@
         }
 
         <!-- TABLA (SOLO DESKTOP/TABLET) -->
-        @if (isMobile()) {
-            @defer (on idle) {
-                <div class="hidden sm:block relative max-w-full overflow-auto w-full">
-                    <table
-                        [dataSource]="ordersResource.value()"
-                        [trackBy]="trackByFn"
-                        class="min-w-240 w-full overflow-y-visible bg-transparent"
-                        mat-table
-                        matSort
-                    >
-                        <ng-container matColumnDef="info">
-                            <th *matHeaderCellDef mat-header-cell></th>
-                            <td *matCellDef="let order" mat-cell>
-                                @let deliveryDate = order.deliveryDate;
-                                <div class="flex-center">
-                                    @if (today == deliveryDate) {
-                                        <mat-icon
-                                            [matTooltip]="'La fecha de entrega es hoy.' + (!order.invoice ? '\n• No tiene factura asociada' : '') + (order.status === OrderStatusEnum.CREATED ? '\n• Aún no está en progreso ni pendiente de entrega': '')"
-                                            matTooltipClass="whitespace-pre-wrap"
-                                            svgIcon="heroicons_solid:exclamation-circle"
-                                            class="text-yellow-700"
-                                        ></mat-icon>
-                                    }
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="infoFilter">
-                            <th *matHeaderCellDef mat-header-cell></th>
-                        </ng-container>
-
-                        <!-- Order number -->
-                        <ng-container matColumnDef="orderNumber">
-                            <th *matHeaderCellDef mat-header-cell>Número de orden</th>
-                            <td *matCellDef="let order" mat-cell>
-                                <span (click)="view(order)" class="font-medium text-sm text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">{{ order?.orderNumber }}</span>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="orderNumberFilter">
-                            <th *matHeaderCellDef mat-header-cell>
-                                <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                                    <input
-                                        [formControl]="orderNumberFormControl"
-                                        matInput
-                                        placeholder="Ej: R-20250228-000011"
-                                    >
-                                </mat-form-field>
-                            </th>
-                        </ng-container>
-
-                        <!-- Client fantasy name -->
-                        <ng-container matColumnDef="businessName">
-                            <th *matHeaderCellDef mat-header-cell>Cliente</th>
-                            <td *matCellDef="let order" mat-cell>
-                                <span class="font-medium text-sm">{{ order?.client?.fantasyName || 'Cliente eliminado' }}</span>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="businessNameFilter">
-                            <th *matHeaderCellDef mat-header-cell>
-                                <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
-                                    <mat-select [formControl]="clientFormControl"
-                                                multiple
-                                                placeholder="{{ t('fields.client') }}"
-                                    >
-                                        @if (!clientsResource.isLoading()) {
-                                            @for (client of clientsResource.value(); track client.id) {
-                                                <mat-option [value]="client">{{ client.fantasyName }}</mat-option>
-                                            }
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                            </th>
-                        </ng-container>
-
-                        <!-- Order type -->
-                        <ng-container matColumnDef="type">
-                            <th *matHeaderCellDef mat-header-cell>Tipo de orden</th>
-                            <td *matCellDef="let order" mat-cell>
-                                @switch (order?.type) {
-                                    @case ('PURCHASE_ORDER') {
-                                        <span class="text-green text-sm">Orden de compra</span>
-                                    }
-                                    @case ('RETURN_ORDER') {
-                                        <span class="text-red text-sm">Orden de devolución</span>
-                                    }
-                                    @default {
-                                        <span class="text-blue text-sm">Estado desconocido</span>
-                                    }
-                                }
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="typeFilter">
-                            <th *matHeaderCellDef mat-header-cell>
-                                <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                                    <mat-select
-                                        [formControl]="typeFormControl"
-                                        multiple
-                                        placeholder="Sin filtro"
-                                    >
-                                        <mat-option class="text-sm" value="PURCHASE_ORDER">Orden de compra</mat-option>
-                                        <mat-option class="text-sm" value="RETURN_ORDER">Orden de devolución</mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </th>
-                        </ng-container>
-
-                        <!-- Status -->
-                        <ng-container matColumnDef="status">
-                            <th *matHeaderCellDef mat-header-cell class="min-w-48">Estado</th>
-                            <td *matCellDef="let order" mat-cell>
-                                <div class="flex items-center gap-2">
-                                    <badge
-                                        [color]="OrderStatusConfig[order.status].color"
-                                        [label]="'enums.order-status.' + order.status | transloco"
-                                    ></badge>
-
-                                    @if (![ OrderStatusEnum.DELIVERED, OrderStatusEnum.CANCELED ].includes(order.status)) {
-                                        @if (today > order.deliveryDate) {
-                                            <mat-icon matTooltip="Orden atrasada"
-                                                      svgIcon="heroicons_solid:exclamation-circle"
-                                                      class="text-red-500 icon-size-4"
-                                            ></mat-icon>
-                                        }
-                                    }
-
-                                    @if (order.status === OrderStatusEnum.DELIVERED && order.deliveredDate > order.deliveryDate) {
-                                        <mat-icon
-                                            matTooltip="La orden ha sido entregada atrasada"
-                                            svgIcon="heroicons_solid:exclamation-circle"
-                                            class="text-yellow-500 icon-size-4"
-                                        ></mat-icon>
-                                    }
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="statusFilter">
-                            <th *matHeaderCellDef mat-header-cell>
-                                <mat-form-field
-                                    [matTooltipClass]="'whitespace-pre-wrap'"
-                                    [matTooltip]="translatedSelectedStatus().toString()"
-                                    class="fuse-mat-dense w-full"
-                                    subscriptSizing="dynamic"
-                                >
-                                    <mat-select [formControl]="statusFormControl" multiple placeholder="Sin filtro">
-                                        @for (status of OrderStatusEnumValues; track status) {
-                                            <mat-option class="text-sm" [value]="status">{{ 'enums.order-status.' + status | transloco }}</mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                            </th>
-                        </ng-container>
-
-                        <!-- Delivery location -->
-                        <ng-container matColumnDef="deliveryLocation">
-                            <th *matHeaderCellDef mat-header-cell>Ubicación de entrega</th>
-                            <td *matCellDef="let order" mat-cell>
-                                <span [title]="order?.deliveryLocation" class="text-sm line-clamp-1">{{ order?.deliveryLocation }}</span>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="deliveryLocationFilter">
-                            <th *matHeaderCellDef mat-header-cell>
-                                <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
-                                    <input [formControl]="deliveryLocationFormControl" matInput>
-                                </mat-form-field>
-                            </th>
-                        </ng-container>
-
-                        <!-- Emission date -->
-                        <ng-container matColumnDef="emissionDate">
-                            <th *matHeaderCellDef mat-header-cell mat-sort-header>Fecha de emisión</th>
-                            <td *matCellDef="let order" mat-cell>
-                                <span class="text-sm">{{ order?.emissionDate | date:'dd-MM-yyyy' }}</span>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="emissionDateFilter">
-                            <th *matHeaderCellDef mat-header-cell>
-                                <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                                    <input
-                                        [formControl]="emissionDateFormControl"
-                                        matInput
-                                        placeholder="yyyy-MM-dd"
-                                    >
-                                </mat-form-field>
-                            </th>
-                        </ng-container>
-
-                        <!-- DeliveryDate -->
-                        <ng-container matColumnDef="deliveryDate">
-                            <th *matHeaderCellDef mat-header-cell mat-sort-header>Fecha de entrega</th>
-                            <td *matCellDef="let order" mat-cell>
-                                @if (order.status !== OrderStatusEnum.DELIVERED && today > order.deliveryDate) {
-                                    <span class="text-sm text-red-400">{{ order?.deliveryDate | date:'dd-MM-yyyy' }}</span>
-                                } @else if (order.status === OrderStatusEnum.DELIVERED && order.deliveredDate > order.deliveryDate) {
-                                    <span class="text-sm text-yellow-500">{{ order?.deliveryDate | date:'dd-MM-yyyy' }}</span>
-                                } @else if (order.status === OrderStatusEnum.DELIVERED && order.deliveredDate <= order.deliveryDate) {
-                                    <span class="text-sm text-green-500">{{ order?.deliveryDate | date:'dd-MM-yyyy' }}</span>
-                                } @else {
-                                    <span class="text-sm">{{ order?.deliveryDate | date:'dd-MM-yyyy' }}</span>
-                                }
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="deliveryDateFilter">
-                            <th *matHeaderCellDef mat-header-cell>
-                                <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                                    <input
-                                        [formControl]="deliveryDateFormControl"
-                                        matInput
-                                        placeholder="yyyy-MM-dd"
-                                    >
-                                </mat-form-field>
-                            </th>
-                        </ng-container>
-
-                        <!-- Amount -->
-                        <ng-container matColumnDef="amount">
-                            <th *matHeaderCellDef mat-header-cell>Monto</th>
-                            <td *matCellDef="let order" mat-cell>
-                                <span class="text-sm">{{ order?.totalAmount | currency: 'CLP':'symbol-narrow' }}</span>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="amountFilter">
-                            <th *matHeaderCellDef mat-header-cell>
-                                <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                                    <input
-                                        [formControl]="amountFormControl"
-                                        matInput
-                                        placeholder="Ej: 10000"
-                                        type="number"
-                                    >
-                                </mat-form-field>
-                            </th>
-                        </ng-container>
-
-                        <!-- Invoice -->
-                        <ng-container matColumnDef="invoice">
-                            <th *matHeaderCellDef mat-header-cell>Factura</th>
-                            <td *matCellDef="let order" mat-cell>
-                                @if (order?.type === 'RETURN_ORDER') {
-                                    <span class="text-sm">No aplica</span>
-                                } @else {
-                                    @if (order?.invoices?.length > 0) {
-                                        @let lastInvoice = findActiveInvoice(order.invoices);
-                                        <div class="flex justify-between items-center">
-                                            <span (click)=" openInvoiceDetail(order, lastInvoice)" class="text-sm cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">{{ lastInvoice?.invoiceNumber }}</span>
-                                            <a mat-icon-button [routerLink]="['/operations', 'invoices', 'list']" [queryParams]="{ invoiceNumber: lastInvoice.invoiceNumber}">
-                                                <mat-icon class="icon-size-4" svgIcon="heroicons_outline:arrow-top-right-on-square"></mat-icon>
-                                            </a>
-                                        </div>
-                                    } @else {
-                                        <button
-                                            class="shadow-none"
-                                            mat-icon-button
-                                            [matTooltip]="'Agregar factura'"
-                                            (click)="$event.stopPropagation(); openAddInvoiceDialog(order)"
-                                        >
-                                            <mat-icon class="icon-size-4">receipt_long</mat-icon>
-                                            @if (!order.invoice) {
-                                                <mat-icon class="icon-size-4">add</mat-icon>
-                                            }
-                                        </button>
-                                    }
-                                }
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="invoiceFilter">
-                            <th *matHeaderCellDef mat-header-cell>
-                                <mat-form-field class="fuse-mat-dense" subscriptSizing="dynamic">
-                                    <input
-                                        [formControl]="invoiceFormControl"
-                                        matInput
-                                        placeholder="Ej: 1234"
-                                    >
-                                </mat-form-field>
-                            </th>
-                        </ng-container>
-
-                        <!-- Actions -->
-                        <ng-container matColumnDef="actions">
-                            <th *matHeaderCellDef mat-header-cell></th>
-                            <td *matCellDef="let order" mat-cell></td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="actionsFilter">
-                            <th *matHeaderCellDef mat-header-cell></th>
-                        </ng-container>
-
-                        <tr *matHeaderRowDef="columns()" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
-                        <tr *matHeaderRowDef="filterColumns()" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
-                        <tr *matRowDef="let row; columns: columns()" class="hover:bg-hover" mat-row></tr>
-
-                        <!-- No data -->
-                        <tr *matNoDataRow class="h-16">
-                            <td [attr.colspan]="displayedColumns.length" class="text-center italic mat-hint">
-                                No hay ordenes disponibles para mostrar
-                            </td>
-                        </tr>
-                    </table>
-                </div>
+        @if (!isMobile()) {
+            @defer (on immediate) {
+                <table-builder class="w-full" [columns]="columnsConfig()" [data]="ordersResource.value()"></table-builder>
             }
         }
-    </div>
-
-    <div class="hidden sm:block relative max-w-full overflow-auto w-full">
-        <table-builder [columns]="columnsConfig()" [data]="ordersResource.value()"></table-builder>
     </div>
 
     <ng-template #columnsOverlay>
@@ -610,5 +302,30 @@
                 class="text-yellow-700"
             ></mat-icon>
         }
+    </div>
+</ng-template>
+
+<ng-template #actions let-order="row">
+    <div class="mt-2 flex justify-end gap-2">
+        <button
+            (click)="order.invoices ? openInvoiceDetail(order, order.invoices[order.invoices.length - 1]) : openAddInvoiceDialog(order)"
+            [matTooltip]="order.invoice ? 'Ver factura' : 'Agregar factura'"
+            class="shadow-none"
+            mat-mini-fab
+        >
+            <mat-icon class="icon-size-4">receipt_long</mat-icon>
+            @if (!order.invoice) {
+                <mat-icon class="icon-size-4">add</mat-icon>
+            }
+        </button>
+
+        <button
+            (click)="view(order)"
+            class="shadow-none"
+            mat-mini-fab
+            matTooltip="Ver orden"
+        >
+            <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:eye"></mat-icon>
+        </button>
     </div>
 </ng-template>
