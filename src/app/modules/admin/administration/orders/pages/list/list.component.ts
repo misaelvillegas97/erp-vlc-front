@@ -139,6 +139,8 @@ export class ListComponent implements OnDestroy {
         if (this.amountFilter() && this.amountFilter() >= 0) filter['amount'] = this.amountFilter();
         if (this.invoiceFilter() && this.invoiceFilter() >= 0) filter['invoice'] = this.invoiceFilter();
 
+        // TODO: check if this computed it is called even on reload method of resource.
+
         return filter;
     });
 
