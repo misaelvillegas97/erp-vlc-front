@@ -191,13 +191,11 @@ export class ListComponent implements OnDestroy {
             filter : {
                 control: this.clientFormControl,
                 type   : 'select',
-                options: {
-                    options : this.clientsResource.value()?.map((client) => ({
-                        value    : client,
-                        viewValue: client.fantasyName
-                    })),
-                    multiple: true
-                }
+                options : this.clientsResource.value()?.map((client) => ({
+                    value    : client,
+                    viewValue: client.fantasyName
+                })),
+                multiple: true
             },
             visible: true
         },
@@ -212,13 +210,11 @@ export class ListComponent implements OnDestroy {
             filter : {
                 control: this.typeFormControl,
                 type   : 'select',
-                options: {
-                    options : Object.values(OrderTypeEnum).map((type) => ({
-                        value    : type,
-                        viewValue: this.#ts.translate('enums.order-type.' + type)
-                    })),
-                    multiple: true
-                }
+                options : Object.values(OrderTypeEnum).map((type) => ({
+                    value    : type,
+                    viewValue: this.#ts.translate('enums.order-type.' + type)
+                })),
+                multiple: true
             },
             visible: true
         },

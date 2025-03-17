@@ -5,6 +5,58 @@ import { FormControl, FormGroup } from '@angular/forms';
 export type ColumnType = 'text' | 'date' | 'currency' | 'badge' | 'custom';
 export type FilterType = 'text' | 'select' | 'autocomplete' | 'date' | 'date-range' | 'number';
 
+interface BaseFilterConfig {
+    control?: FormControl;
+    group?: FormGroup;
+    placeholder?: string;
+}
+
+export interface TextFilterConfig extends BaseFilterConfig {
+    type: 'text';
+    pattern?: string;
+}
+
+export interface DateFilterConfig extends BaseFilterConfig {
+    type: 'date';
+    minDate?: Date;
+    maxDate?: Date;
+    dateFormat?: string;
+}
+
+export interface DateRangeFilterConfig extends BaseFilterConfig {
+    type: 'date-range';
+    minDate?: Date;
+    maxDate?: Date;
+    dateFormat?: string;
+}
+
+export interface NumberFilterConfig extends BaseFilterConfig {
+    type: 'number';
+    min?: number;
+    max?: number;
+    step?: number;
+}
+
+export interface AutocompleteFilterConfig extends BaseFilterConfig {
+    type: 'autocomplete';
+    options: { value: any; viewValue: string }[];
+    displayWith?: (value: any) => string;
+}
+
+export interface SelectFilterConfig extends BaseFilterConfig {
+    type: 'select';
+    options: { value: any; viewValue: string }[];
+    multiple: boolean;
+}
+
+export type ColumnFilterConfig =
+    | TextFilterConfig
+    | DateFilterConfig
+    | DateRangeFilterConfig
+    | NumberFilterConfig
+    | AutocompleteFilterConfig
+    | SelectFilterConfig;
+
 export interface ColumnDisplayConfig {
     type?: ColumnType;
     classes?: string | ((row: any) => string);
@@ -23,14 +75,6 @@ export interface ColumnFilterOptions {
     multiple?: boolean;
     placeholder?: string;
     placeholderFn?: (value: any, row?: any) => string;
-}
-
-export interface ColumnFilterConfig {
-    control?: FormControl;
-    group?: FormGroup;
-    type?: FilterType;
-    options?: ColumnFilterOptions;
-    displayWith?: (value: any) => string;
 }
 
 export interface ColumnConfig {
