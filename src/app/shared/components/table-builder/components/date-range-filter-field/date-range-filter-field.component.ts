@@ -1,4 +1,4 @@
-import { Component, input }                                                                     from '@angular/core';
+import { ChangeDetectionStrategy, Component, input }                                            from '@angular/core';
 import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker, MatEndDate, MatStartDate } from '@angular/material/datepicker';
 import { MatFormField, MatSuffix }                                                              from '@angular/material/form-field';
 import { FormControl, FormGroup, ReactiveFormsModule }                                          from '@angular/forms';
@@ -16,6 +16,7 @@ import { DateTime }                                                             
         MatSuffix,
         ReactiveFormsModule
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
             <mat-date-range-input [formGroup]="filterGroup()" [rangePicker]="pickerDueDate">

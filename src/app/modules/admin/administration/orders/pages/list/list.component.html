@@ -54,218 +54,9 @@
             </a>
         </div>
 
-        @if (showMobileFilters() && isMobile()) {
-            @defer (on idle) {
-                <div class="block sm:hidden border rounded p-4 w-full space-y-4">
-                    <mat-form-field class="w-full" subscriptSizing="dynamic">
-                        <mat-label>Número de orden</mat-label>
-                        <input
-                            matInput
-                            type="number"
-                            [formControl]="orderNumberFormControl"
-                            placeholder="Ej: 1234"
-                        />
-                    </mat-form-field>
-
-                    <mat-form-field class="w-full" subscriptSizing="dynamic">
-                        <mat-label>Cliente</mat-label>
-                        <input
-                            placeholder="Ej: Brinks"
-                            matInput
-                            [formControl]="clientFormControl"
-                        />
-                    </mat-form-field>
-
-                    <mat-form-field class="w-full" subscriptSizing="dynamic">
-                        <mat-label>Tipo de orden</mat-label>
-                        <mat-select
-                            [formControl]="typeFormControl"
-                            multiple
-                            placeholder="Tipo de orden"
-                        >
-                            <mat-option value="PURCHASE_ORDER">Orden de compra</mat-option>
-                            <mat-option value="RETURN_ORDER">Orden de devolución</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-
-                    <mat-form-field class="w-full" subscriptSizing="dynamic">
-                        <mat-label>Estado</mat-label>
-                        <mat-select
-                            [formControl]="statusFormControl"
-                            multiple
-                            placeholder="Estado"
-                        >
-                            <mat-option value="PENDING">Pendiente</mat-option>
-                            <mat-option value="IN_PROGRESS">En progreso</mat-option>
-                            <mat-option value="READY_FOR_SHIPPING">Listo para envío</mat-option>
-                            <mat-option value="INVOICED">Facturado</mat-option>
-                            <mat-option value="IN_TRANSIT">En tránsito</mat-option>
-                            <mat-option value="DELIVERED">Entregado</mat-option>
-                            <mat-option value="CANCELED">Cancelado</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-
-                    <mat-form-field class="w-full" subscriptSizing="dynamic">
-                        <mat-label>Ubicación de entrega</mat-label>
-                        <input
-                            matInput
-                            [formControl]="deliveryLocationFormControl"
-                        />
-                    </mat-form-field>
-
-                    <mat-form-field class="w-full" subscriptSizing="dynamic">
-                        <mat-label>Fecha de emisión</mat-label>
-                        <input
-                            placeholder="yyyy-MM-dd"
-                            matInput
-                            [formControl]="emissionDateFormControl"
-                        />
-                    </mat-form-field>
-
-                    <mat-form-field class="w-full" subscriptSizing="dynamic">
-                        <mat-label>Fecha de entrega</mat-label>
-                        <input
-                            placeholder="yyyy-MM-dd"
-                            matInput
-                            [formControl]="deliveryDateFormControl"
-                        />
-                    </mat-form-field>
-
-                    <mat-form-field class="w-full" subscriptSizing="dynamic">
-                        <mat-label>Monto</mat-label>
-                        <input
-                            placeholder="Ej: 10000"
-                            matInput
-                            type="number"
-                            [formControl]="amountFormControl"
-                        />
-                    </mat-form-field>
-
-                    <mat-form-field class="w-full" subscriptSizing="dynamic">
-                        <mat-label>Factura</mat-label>
-                        <input
-                            placeholder="Ej: 1234"
-                            matInput
-                            [formControl]="invoiceFormControl"
-                        />
-                    </mat-form-field>
-                </div>
-            }
-        }
-
-        <!-- LISTADO DE TARJETAS (SOLO MOBILE) -->
-        @if (isMobile()) {
-            @defer (on idle) {
-                <div class="block sm:hidden space-y-4 w-full">
-                    <!-- Itera sobre la data filtrada para móvil -->
-                    @for (order of ordersResource.value(); track order.id) {
-                        <div class="border rounded shadow p-4">
-                            <div class="font-semibold text-base">Número de orden: {{ order?.orderNumber }}</div>
-
-                            <div class="text-sm mt-1"><strong>Cliente:</strong> {{ order.businessName }}</div>
-
-                            <div class="text-sm">
-                                <strong>Tipo:</strong>
-                                @switch (order.type) {
-                                    @case ('PURCHASE_ORDER') {
-                                        <span class="text-green text-sm">Orden de compra</span>
-                                    }
-                                    @case ('RETURN_ORDER') {
-                                        <span class="text-red text-sm">Orden de devolución</span>
-                                    }
-                                    @default {
-                                        <span class="text-blue text-sm">Desconocido</span>
-                                    }
-                                }
-                            </div>
-
-                            <div class="text-sm">
-                                <strong class="mr-1">Estado:</strong>
-                                @switch (order.status) {
-                                    @case ('PENDING') {
-                                        <span class="text-yellow-500 text-sm">Pendiente</span>
-                                    }
-                                    @case ('IN_PROGRESS') {
-                                        <span class="text-blue-500 text-sm">En progreso</span>
-                                    }
-                                    @case ('READY_FOR_SHIPPING') {
-                                        <span class="text-yellow-500 text-sm">Listo para envío</span>
-                                    }
-                                    @case ('INVOICED') {
-                                        <span class="text-blue-500 text-sm">Facturado</span>
-                                    }
-                                    @case ('IN_TRANSIT') {
-                                        <span class="text-blue-500 text-sm">En tránsito</span>
-                                    }
-                                    @case ('DELIVERED') {
-                                        <span class="text-green text-sm">Entregado</span>
-                                    }
-                                    @case ('CANCELED') {
-                                        <span class="text-red-600 text-sm">Cancelado</span>
-                                    }
-                                }
-                            </div>
-
-                            <div class="text-sm">
-                                <strong>Ubicación de entrega:</strong> {{ order?.deliveryLocation }}
-                            </div>
-
-                            <div class="text-sm">
-                                <strong>Fecha de emisión:</strong> {{ order?.emissionDate | date:'dd-MM-yyyy' }}
-                            </div>
-
-                            <div class="text-sm">
-                                <strong>Fecha de entrega:</strong> {{ order?.deliveryDate | date:'dd-MM-yyyy' }}
-                            </div>
-
-                            <div class="text-sm">
-                                <strong>Monto:</strong>
-                                {{ order?.totalAmount | currency:'CLP':'symbol-narrow' }}
-                            </div>
-
-                            <div class="text-sm">
-                                <strong class="mr-1">Factura:</strong>
-                                @if (order?.invoices) {
-                                    @let lastInvoice = findActiveInvoice(order.invoices);
-                                    <span class="cursor-pointer" (click)="openInvoiceDetail(order, lastInvoice)">{{ lastInvoice?.invoiceNumber }}</span>
-                                } @else {
-                                    <span>Sin factura asociada</span>
-                                }
-                            </div>
-
-                            <div class="mt-2 flex justify-end gap-2">
-                                <button
-                                    class="shadow-none"
-                                    mat-mini-fab
-                                    [matTooltip]="order.invoice ? 'Ver factura' : 'Agregar factura'"
-                                    (click)="order.invoices ? openInvoiceDetail(order, order.invoices[order.invoices.length - 1]) : openAddInvoiceDialog(order)"
-                                >
-                                    <mat-icon class="icon-size-4">receipt_long</mat-icon>
-                                    @if (!order.invoice) {
-                                        <mat-icon class="icon-size-4">add</mat-icon>
-                                    }
-                                </button>
-
-                                <button
-                                    class="shadow-none"
-                                    mat-mini-fab
-                                    matTooltip="Ver orden"
-                                    (click)="view(order)"
-                                >
-                                    <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:eye"></mat-icon>
-                                </button>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-        }
-
         <!-- TABLA (SOLO DESKTOP/TABLET) -->
-        @if (!isMobile()) {
-            @defer (on immediate) {
-                <table-builder class="w-full" [columns]="columnsConfig()" [data]="ordersResource.value()"></table-builder>
-            }
+        @defer (on immediate) {
+            <table-builder class="w-full" [columns]="columnsConfig()" [data]="ordersResource.value()"></table-builder>
         }
     </div>
 
@@ -275,7 +66,7 @@
                 <div class="flex flex-col justify-between gap-4">
                     <h3 class="font-bold text-lg">Columnas</h3>
 
-                    @for (column of displayedColumns; track column) {
+                    @for (column of columns(); track column) {
                         <div class="flex items-center gap-2">
                             <mat-slide-toggle
                                 [checked]="columns().includes(column)"
@@ -291,7 +82,7 @@
 </div>
 
 
-<ng-template #deliveryDateCell let-order="row">
+<ng-template #infoCell let-order="row">
     @let deliveryDate = order.deliveryDate;
     <div class="flex-center">
         @if (today == deliveryDate) {

@@ -11,27 +11,12 @@
                 {{ column.header }}
             </th>
             <td mat-cell *matCellDef="let row">
-                @if (column.customTemplate) {
-                    <ng-container *ngTemplateOutlet="column.customTemplate; context: { $implicit: row[column.key], row: row }"></ng-container>
-                } @else {
-                    @switch (column.type) {
-                        @case ('date') {
-                            <span (click)="column.onClick(row)" [class]="column.classes">{{ row[column.key] | date:(column.pipeOptions?.format || 'shortDate') }}</span>
-                        }
-                        @case ('currency') {
-                            <span (click)="column.onClick(row)" [class]="column.classes">{{ row[column.key] | currency:(column.pipeOptions?.currencyCode || 'USD'):column.pipeOptions?.symbolDisplay }}</span>
-                        }
-                        @case ('number') {
-                            <span (click)="column.onClick(row)" [class]="column.classes">{{ row[column.key] | number:(column.pipeOptions?.digitsInfo || '1.0-0') }}</span>
-                        }
-                        @case ('badge') {
-                            <badge (click)="column.onClick(row)" [class]="column.classes" [color]="column.pipeOptions?.color(row[column.key], row)" [label]="column.formatter(row[column.key], row)"></badge>
-                        }
-                        @default {
-                            <span (click)="column.onClick(row)" [class]="column.classes">{{ column.formatter ? column.formatter(row[column.key], row) : row[column.key] }}</span>
-                        }
-                    }
-                }
+                <cell-renderer
+                    [ngStyle]="{'text-align': column.display?.alignment, 'width': column.display?.width}"
+                    [class]="computedContainerClasses(column, row)"
+                    [column]="column"
+                    [row]="row"
+                ></cell-renderer>
             </td>
         </ng-container>
     }
@@ -39,28 +24,28 @@
     @for (column of columns(); track column.key) {
         <ng-container [matColumnDef]="column.key + 'Filter'">
             <th *matHeaderCellDef mat-header-cell>
-                @if (column.filterControl) {
-                    @switch (column.filterType) {
+                @if (column.filter?.control) {
+                    @switch (column.filter.type) {
                         @case ('autocomplete') {
                             <autocomplete-filter-field
                                 [header]="column.header"
-                                [filterControl]="column.filterControl"
-                                [filterOptions]="column.filterOptions.options"
-                                [filterDisplayWith]="column.filterDisplayWith"
+                                [filterControl]="column.filter.control"
+                                [filterOptions]="column.filter.options.options"
+                                [filterDisplayWith]="column.filter.displayWith"
                             ></autocomplete-filter-field>
                         }
                         @case ('select') {
                             <select-filter-field
                                 [header]="column.header"
-                                [filterControl]="column.filterControl"
-                                [filterOptions]="column.filterOptions.options"
-                                [multiple]="column.filterOptions.multiple"
+                                [filterControl]="column.filter.control"
+                                [filterOptions]="column.filter.options.options"
+                                [multiple]="column.filter.options.multiple"
                             ></select-filter-field>
                         }
                         @case ('number') {
                             <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
                                 <input
-                                    [formControl]="column.filterControl"
+                                    [formControl]="column.filter.control"
                                     matInput
                                     type="number"
                                     placeholder="Filtrar {{ column.header }}"
@@ -70,19 +55,19 @@
                         @case ('date') {
                             <date-filter-field
                                 [header]="column.header"
-                                [filterControl]="column.filterControl"
+                                [filterControl]="column.filter.control"
                             ></date-filter-field>
                         }
                         @case ('date-range') {
                             <date-range-filter-field
                                 [header]="column.header"
-                                [filterGroup]="column.filterGroup"
+                                [filterGroup]="column.filter.group"
                             ></date-range-filter-field>
                         }
                         @default {
                             <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
                                 <input
-                                    [formControl]="column.filterControl"
+                                    [formControl]="column.filter.control"
                                     matInput
                                     placeholder="Filtrar {{ column.header }}"
                                 >
@@ -95,14 +80,14 @@
     }
 
     <!-- Fila de encabezados de datos -->
-    <tr *matHeaderRowDef="displayedColumns" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
+    <tr *matHeaderRowDef="displayedColumns()" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
     <!-- Fila de filtros -->
-    <tr *matHeaderRowDef="displayedFilterColumns" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
+    <tr *matHeaderRowDef="displayedFilterColumns()" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
     <!-- Fila de datos -->
-    <tr *matRowDef="let row; columns: displayedColumns;" class="hover:bg-hover transition-all duration-300" mat-row></tr>
+    <tr *matRowDef="let row; columns: displayedColumns();" class="hover:bg-hover transition-all duration-300" mat-row></tr>
     <!-- Fila sin datos -->
-    <tr *matNoDataRow>
-        <td [attr.colspan]="displayedColumns.length" class="text-center italic mat-hint py-4">
+    <tr *matNoDataRow class="hover:bg-hover transition-all duration-300">
+        <td [attr.colspan]="displayedColumns().length" class="text-center text-md italic mat-hint py-4">
             No hay datos disponibles
         </td>
     </tr>

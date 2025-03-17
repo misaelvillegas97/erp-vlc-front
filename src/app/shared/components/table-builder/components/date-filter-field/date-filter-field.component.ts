@@ -1,9 +1,9 @@
-import { Component, input }                 from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { DateTime }                         from 'luxon';
-import { MatFormFieldModule }               from '@angular/material/form-field';
-import { MatInput }                         from '@angular/material/input';
-import { MatDatepickerModule }              from '@angular/material/datepicker';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { FormControl, ReactiveFormsModule }          from '@angular/forms';
+import { DateTime }                                  from 'luxon';
+import { MatFormFieldModule }                        from '@angular/material/form-field';
+import { MatInput }                                  from '@angular/material/input';
+import { MatDatepickerModule }                       from '@angular/material/datepicker';
 
 @Component({
     selector: 'date-filter-field',
@@ -13,6 +13,7 @@ import { MatDatepickerModule }              from '@angular/material/datepicker';
         MatInput,
         ReactiveFormsModule
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
             <input

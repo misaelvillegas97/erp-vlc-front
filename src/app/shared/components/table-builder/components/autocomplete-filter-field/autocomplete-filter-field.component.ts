@@ -1,8 +1,8 @@
-import { Component, input }                 from '@angular/core';
-import { MatFormFieldModule }               from '@angular/material/form-field';
-import { MatAutocompleteModule }            from '@angular/material/autocomplete';
-import { MatInput }                         from '@angular/material/input';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { MatFormFieldModule }                        from '@angular/material/form-field';
+import { MatAutocompleteModule }                     from '@angular/material/autocomplete';
+import { MatInput }                                  from '@angular/material/input';
+import { FormControl, ReactiveFormsModule }          from '@angular/forms';
 
 @Component({
     selector: 'autocomplete-filter-field',
@@ -12,6 +12,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
         MatInput,
         ReactiveFormsModule
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
             <input
