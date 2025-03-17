@@ -1119,13 +1119,15 @@
 /*  @ Paginator
 /* -------------------------------------------------------------------------- */
 .mat-mdc-paginator {
+    background: unset !important;
 
     .mat-mdc-paginator-container {
-        padding: 8px 16px;
+        //padding: 8px 16px;
+        padding: 0;
         justify-content: space-between;
 
         @screen sm {
-            justify-content: normal;
+            justify-content: flex-end;
         }
 
         /* Page size select */
@@ -1133,6 +1135,11 @@
             align-items: center;
             min-height: 40px;
             margin: 8px;
+            width: 100%;
+
+            @screen sm {
+                width: auto;
+            }
 
             .mat-mdc-paginator-page-size-label {
                 display: none;
@@ -1144,10 +1151,20 @@
             }
 
             .mat-mdc-paginator-page-size-select {
+                width: 100%;
                 margin: 0;
+
+                @screen sm {
+                    width: auto;
+                }
 
                 .mat-mdc-text-field-wrapper {
                     padding: 0 10px;
+                    width: 100%;
+
+                    @screen sm {
+                        width: 64px;
+                    }
 
                     .mat-form-field-flex {
                         min-height: 32px;

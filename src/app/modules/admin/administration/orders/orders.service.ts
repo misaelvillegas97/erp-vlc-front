@@ -5,6 +5,7 @@ import { Notyf }            from 'notyf';
 import { catchError }       from 'rxjs';
 import { Order }            from '@modules/admin/administration/orders/domain/model/order';
 import { OrdersOverview }   from '@modules/admin/administration/orders/domain/interfaces/orders-overview.interface';
+import { Pagination }       from '@shared/domain/model/pagination';
 
 @Injectable({providedIn: 'root'})
 export class OrdersService {
@@ -15,8 +16,8 @@ export class OrdersService {
         private readonly _translateService: TranslocoService
     ) {}
 
-    public findAll(query?: any) {
-        return this._httpClient.get<Order[]>('/api/orders', {params: query})
+    public findAll(query: any, {page, limit}: { page?: number; limit: number }) {
+        return this._httpClient.get<Pagination<Order>>('/api/orders', {params: {...query, page, limit}})
             .pipe(
                 catchError(() => {
                     this._notyf.error(this._translateService.translate('operations.orders.list.error'));

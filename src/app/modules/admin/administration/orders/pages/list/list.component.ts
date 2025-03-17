@@ -121,10 +121,10 @@ export class ListComponent implements OnDestroy {
     // Additional signals
     columnsOverlay: Signal<TemplateRef<any>> = viewChild('columnsOverlay');
     columnsOverlayButton: Signal<MatButton> = viewChild('columnsOverlayButton');
-    showMobileFilters: WritableSignal<boolean> = signal<boolean>(false);
     showColumnsOverlay = signal(false);
-    localStorageColumns = signal<string[] | undefined>(localStorage.getItem('ordersListColumnsConfig') ? JSON.parse(localStorage.getItem('ordersListColumnsConfig')) : undefined);
-    localStorageFilterColumns = signal<string[] | undefined>(localStorage.getItem('ordersListColumnsFilterConfig') ? JSON.parse(localStorage.getItem('ordersListColumnsFilterConfig')) : undefined);
+
+    // Pagination
+    pagination = signal({page: 1, limit: 10, totalElements: 0, totalPages: 0, disabled: true});
 
     filters = computed(() => {
         const filter = {};
@@ -148,13 +148,71 @@ export class ListComponent implements OnDestroy {
     customActionsColumn = viewChild<TemplateRef<any>>('actionsCell');
 
     ordersResource = resource({
-        request: () => this.filters(),
-        loader : () => firstValueFrom(this.#ordersService.findAll(this.filters()))
+        request: () => ({filters: this.filters(), pagination: this.pagination()}),
+        loader : async ({request}) => {
+            const paginationOrders = await firstValueFrom(this.#ordersService.findAll(request.filters, {
+                page : request.pagination.page,
+                limit: request.pagination.limit
+            }));
+
+            this.pagination.set({
+                page         : paginationOrders.page,
+                limit        : paginationOrders.limit,
+                totalElements: paginationOrders.totalElements,
+                totalPages   : paginationOrders.totalPages,
+                disabled     : false
+            });
+
+            return paginationOrders.items;
+        }
     });
 
     clientsResource = resource({
         loader: () => firstValueFrom(this.#clientService.findAll({}, 'COMPACT'))
     });
+    columns = computed(() => this.columnsConfig().filter(col => col.visible).map((column) => column.key));
+    protected readonly OrderStatusEnum = OrderStatusEnum;
+    protected readonly trackByFn = trackByFn;
+    protected readonly Date = Date;
+
+    ngOnDestroy() {
+        if (this.#overlayRef) this.#overlayRef.detach();
+    }
+
+    toggleColumn = (columnKey: string) => {
+        const currentConfig = this.columnsConfig();
+        const index = currentConfig.findIndex((col) => col.key === columnKey);
+
+        if (index !== -1) {
+            const updatedColumn = {
+                ...currentConfig[index],
+                visible: !currentConfig[index].visible
+            };
+
+            const newConfig = [ ...currentConfig ];
+            newConfig[index] = updatedColumn;
+
+            this.columnsConfig.set(newConfig);
+        }
+
+        this.persistColumnsConfiguration();
+    };
+
+    clearFilters = () => {
+        this.orderNumberFormControl.setValue(undefined);
+        this.clientFormControl.setValue(undefined);
+        this.typeFormControl.setValue(undefined);
+        this.statusFormControl.setValue(undefined);
+        this.invoiceFormControl.setValue(undefined);
+        this.deliveryLocationFormControl.setValue(undefined);
+        this.emissionDateFormControl.setValue(undefined);
+        this.deliveryDateFormControl.setValue(undefined);
+        this.amountFormControl.setValue(undefined);
+    };
+
+    view = (order: Order) => {
+        this.#dialog.open(OrderDetailDialog, {data: {id: order.id}});
+    };
 
     columnsConfig: WritableSignal<ColumnConfig[]> = linkedSignal(() => {
         const persistedOrder: string[] = localStorage.getItem('ordersListColumnsConfig') && JSON.parse(localStorage.getItem('ordersListColumnsConfig'));
@@ -322,51 +380,6 @@ export class ListComponent implements OnDestroy {
         }) : columns;
     });
 
-    columns = computed(() => this.columnsConfig().filter(col => col.visible).map((column) => column.key));
-
-    protected readonly OrderStatusEnum = OrderStatusEnum;
-    protected readonly trackByFn = trackByFn;
-    protected readonly Date = Date;
-
-    ngOnDestroy() {
-        if (this.#overlayRef) this.#overlayRef.detach();
-    }
-
-    toggleColumn = (columnKey: string) => {
-        const currentConfig = this.columnsConfig();
-        const index = currentConfig.findIndex((col) => col.key === columnKey);
-
-        if (index !== -1) {
-            const updatedColumn = {
-                ...currentConfig[index],
-                visible: !currentConfig[index].visible
-            };
-
-            const newConfig = [ ...currentConfig ];
-            newConfig[index] = updatedColumn;
-
-            this.columnsConfig.set(newConfig);
-        }
-
-        this.persistColumnsConfiguration();
-    };
-
-    clearFilters = () => {
-        this.orderNumberFormControl.setValue(undefined);
-        this.clientFormControl.setValue(undefined);
-        this.typeFormControl.setValue(undefined);
-        this.statusFormControl.setValue(undefined);
-        this.invoiceFormControl.setValue(undefined);
-        this.deliveryLocationFormControl.setValue(undefined);
-        this.emissionDateFormControl.setValue(undefined);
-        this.deliveryDateFormControl.setValue(undefined);
-        this.amountFormControl.setValue(undefined);
-    };
-
-    view = (order: Order) => {
-        this.#dialog.open(OrderDetailDialog, {data: {id: order.id}});
-    };
-
     openAddInvoiceDialog = (order: Order): void => {
         const invoiceDialog = this.#dialog.open(InvoiceAddComponent, {
             data : {order},
@@ -446,4 +459,15 @@ export class ListComponent implements OnDestroy {
     persistColumnsConfiguration = (): void => localStorage.setItem('ordersListColumnsConfig', JSON.stringify(this.columns()));
 
     findActiveInvoice = (invoices: Invoice[]) => invoices.find((invoice) => invoice.isActive);
+
+    handlePagination = (event) => {
+        this.pagination.update((value) => ({
+            ...value,
+            page    : event.pageIndex + 1,
+            limit   : event.pageSize,
+            disabled: true
+        }));
+
+        this.ordersResource.reload();
+    };
 }

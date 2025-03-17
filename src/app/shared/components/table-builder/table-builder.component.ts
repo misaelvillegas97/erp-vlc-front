@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input }                                                                                          from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output }                                                                                  from '@angular/core';
 import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatNoDataRow, MatRow, MatRowDef, MatTable } from '@angular/material/table';
 import { MatSort }                                                                                                                                      from '@angular/material/sort';
 import { CurrencyPipe, DatePipe, DecimalPipe, NgStyle, NgTemplateOutlet }                                                                               from '@angular/common';
@@ -12,6 +12,7 @@ import { SelectFilterFieldComponent }                                           
 import { DateRangeFilterFieldComponent }                                                                                                                from '@shared/components/table-builder/components/date-range-filter-field/date-range-filter-field.component';
 import { DateFilterFieldComponent }                                                                                                                     from '@shared/components/table-builder/components/date-filter-field/date-filter-field.component';
 import { CellRendererComponent }                                                                                                                        from '@shared/components/table-builder/components/cell-renderer/cell-renderer.component';
+import { MatPaginator }                                                                                                                                 from '@angular/material/paginator';
 
 @Component({
     selector   : 'table-builder',
@@ -42,6 +43,7 @@ import { CellRendererComponent }                                                
         DateFilterFieldComponent,
         CellRendererComponent,
         NgStyle,
+        MatPaginator,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './table-builder.component.html'
@@ -51,6 +53,8 @@ export class TableBuilderComponent<T> {
         transform: (columns: ColumnConfig[]) => columns.filter(column => column.visible)
     });
     data = input.required<T[]>();
+    pagination = input<{ limit: number, totalPages: number, disabled: boolean, page: number, totalElements: number }>();
+    paginationChange = output<any>();
 
     displayedColumns = computed(() => this.columns().map(col => col.key));
     displayedFilterColumns = computed(() => this.columns().map(col => col.key + 'Filter'));

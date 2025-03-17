@@ -56,7 +56,12 @@
 
         <!-- TABLA (SOLO DESKTOP/TABLET) -->
         @defer (on immediate) {
-            <table-builder class="w-full" [columns]="columnsConfig()" [data]="ordersResource.value()"></table-builder>
+            <table-builder class="w-full"
+                           [columns]="columnsConfig()"
+                           [data]="ordersResource.value()"
+                           [pagination]="pagination()"
+                           (paginationChange)="handlePagination($event)"
+            ></table-builder>
         }
     </div>
 
