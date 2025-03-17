@@ -156,164 +156,173 @@ export class ListComponent implements OnDestroy {
         loader: () => firstValueFrom(this.#clientService.findAll({}, 'COMPACT'))
     });
 
-    columnsConfig: WritableSignal<ColumnConfig[]> = linkedSignal(() => [
-        {
-            key    : 'info',
-            header : '',
-            display: {
-                customTemplate  : this.customInfoColumn(),
-                containerClasses: 'block w-8'
-            },
-            visible: true
-        },
-        {
-            key    : 'orderNumber',
-            header : this.#ts.translate('operations.orders.list.table.order-number'),
-            display: {
-                classes: 'text-sm text-blue-500 cursor-pointer hover:underline',
-                type   : 'text',
-                onClick: (row) => this.view(row)
-            },
-            filter : {
-                control: this.orderNumberFormControl,
-                type   : 'text'
-            },
-            visible: true
-        },
-        {
-            key    : 'client',
-            header : this.#ts.translate('operations.orders.list.table.client'),
-            display: {
-                classes  : 'text-sm',
-                type     : 'text',
-                formatter: (client: Client, row) => client.fantasyName
-            },
-            filter : {
-                control: this.clientFormControl,
-                type   : 'select',
-                options : this.clientsResource.value()?.map((client) => ({
-                    value    : client,
-                    viewValue: client.fantasyName
-                })),
-                multiple: true
-            },
-            visible: true
-        },
-        {
-            key    : 'type',
-            header : this.#ts.translate('operations.orders.list.table.type'),
-            display: {
-                classes  : 'text-sm',
-                type     : 'text',
-                formatter: (value: string) => this.#ts.translate('enums.order-type.' + value)
-            },
-            filter : {
-                control: this.typeFormControl,
-                type   : 'select',
-                options : Object.values(OrderTypeEnum).map((type) => ({
-                    value    : type,
-                    viewValue: this.#ts.translate('enums.order-type.' + type)
-                })),
-                multiple: true
-            },
-            visible: true
-        },
-        {
-            key    : 'status',
-            header : this.#ts.translate('operations.orders.list.table.status'),
-            display: {
-                classes    : 'text-sm',
-                type       : 'badge',
-                pipeOptions: {color: (status: OrderStatusEnum) => OrderStatusConfig[status].color},
-                formatter  : (status: OrderStatusEnum) => this.#ts.translate('enums.order-status.' + status)
-            },
-            filter : {
-                control: this.statusFormControl,
-                type   : 'text'
-            },
-            visible: true
-        },
-        {
-            key    : 'invoice',
-            header : this.#ts.translate('operations.orders.list.table.invoice'),
-            display: {
-                type          : 'custom',
-                customTemplate: this.customInvoiceColumn()
-            },
-            filter : {
-                control: this.invoiceFormControl,
-                type   : 'number'
-            },
-            visible: true
-        },
-        {
-            key    : 'deliveryLocation',
-            header : this.#ts.translate('operations.orders.list.table.delivery-location'),
-            display: {
-                classes: 'text-sm line-clamp-1',
-                type   : 'text'
-            },
-            filter : {
-                control: this.deliveryLocationFormControl,
-                type   : 'text'
-            },
-            visible: true
-        },
-        {
-            key    : 'deliveryDate',
-            header : this.#ts.translate('operations.orders.list.table.delivery-date'),
-            display: {
-                classes    : (row) => {
-                    return row.deliveryDate && DateTime.fromISO(row.deliveryDate).toMillis() < DateTime.now().toMillis() ? 'text-sm text-red-500' : 'text-sm';
-                },
-                type       : 'date',
-                pipeOptions: {format: 'dd-MM-yyyy'}
-            },
-            filter : {
-                control: this.deliveryDateFormControl,
-                type   : 'date'
-            },
-            visible: true
-        },
-        {
-            key    : 'emissionDate',
-            header : this.#ts.translate('operations.orders.list.table.emission-date'),
-            display: {
-                classes    : 'text-sm',
-                type       : 'date',
-                pipeOptions: {format: 'dd-MM-yyyy'}
-            },
-            filter : {
-                control: this.emissionDateFormControl,
-                type   : 'date'
-            },
-            visible: true
-        },
-        {
-            key    : 'totalAmount',
-            header : this.#ts.translate('operations.orders.list.table.amount'),
-            display: {
-                classes    : 'text-sm',
-                type       : 'currency',
-                pipeOptions: {currency: 'CLP', symbolDisplay: 'symbol-narrow'}
-            },
-            filter : {
-                control: this.amountFormControl,
-                type   : 'number'
-            },
-            visible: true
-        },
-        // {
-        //   key: 'actions',
-        //   header: this.#ts.translate('operations.orders.list.table.actions'),
-        //   display: {
-        //     type: 'custom',
-        //     customTemplate: this.customActionsColumn()
-        //   }
-        // }
-    ]);
+    columnsConfig: WritableSignal<ColumnConfig[]> = linkedSignal(() => {
+        const persistedOrder: string[] = localStorage.getItem('ordersListColumnsConfig') && JSON.parse(localStorage.getItem('ordersListColumnsConfig'));
 
-    columns = computed(() => this.columnsConfig().map((column) => column.key));
+        const columns: ColumnConfig[] = [
+            {
+                key    : 'info',
+                header : '',
+                display: {
+                    customTemplate  : this.customInfoColumn(),
+                    containerClasses: 'block w-8'
+                },
+                visible: true
+            },
+            {
+                key    : 'orderNumber',
+                header : this.#ts.translate('operations.orders.list.table.order-number'),
+                display: {
+                    classes: 'text-sm text-blue-500 cursor-pointer hover:underline',
+                    type   : 'text',
+                    onClick: (row) => this.view(row)
+                },
+                filter : {
+                    control: this.orderNumberFormControl,
+                    type   : 'text'
+                },
+                visible: true
+            },
+            {
+                key    : 'client',
+                header : this.#ts.translate('operations.orders.list.table.client'),
+                display: {
+                    classes  : 'text-sm',
+                    type     : 'text',
+                    formatter: (client: Client, row) => client.fantasyName
+                },
+                filter : {
+                    control : this.clientFormControl,
+                    type    : 'select',
+                    options : this.clientsResource.value()?.map((client) => ({
+                        value    : client,
+                        viewValue: client.fantasyName
+                    })),
+                    multiple: true
+                },
+                visible: true
+            },
+            {
+                key    : 'type',
+                header : this.#ts.translate('operations.orders.list.table.type'),
+                display: {
+                    classes  : 'text-sm',
+                    type     : 'text',
+                    formatter: (value: string) => this.#ts.translate('enums.order-type.' + value)
+                },
+                filter : {
+                    control : this.typeFormControl,
+                    type    : 'select',
+                    options : Object.values(OrderTypeEnum).map((type) => ({
+                        value    : type,
+                        viewValue: this.#ts.translate('enums.order-type.' + type)
+                    })),
+                    multiple: true
+                },
+                visible: true
+            },
+            {
+                key    : 'status',
+                header : this.#ts.translate('operations.orders.list.table.status'),
+                display: {
+                    classes    : 'text-sm',
+                    type       : 'badge',
+                    pipeOptions: {color: (status: OrderStatusEnum) => OrderStatusConfig[status].color},
+                    formatter  : (status: OrderStatusEnum) => this.#ts.translate('enums.order-status.' + status)
+                },
+                filter : {
+                    control: this.statusFormControl,
+                    type   : 'text'
+                },
+                visible: true
+            },
+            {
+                key    : 'invoice',
+                header : this.#ts.translate('operations.orders.list.table.invoice'),
+                display: {
+                    type          : 'custom',
+                    customTemplate: this.customInvoiceColumn()
+                },
+                filter : {
+                    control: this.invoiceFormControl,
+                    type   : 'number'
+                },
+                visible: true
+            },
+            {
+                key    : 'deliveryLocation',
+                header : this.#ts.translate('operations.orders.list.table.delivery-location'),
+                display: {
+                    classes: 'text-sm line-clamp-1',
+                    type   : 'text'
+                },
+                filter : {
+                    control: this.deliveryLocationFormControl,
+                    type   : 'text'
+                },
+                visible: true
+            },
+            {
+                key    : 'deliveryDate',
+                header : this.#ts.translate('operations.orders.list.table.delivery-date'),
+                display: {
+                    classes    : (row) => {
+                        return row.deliveryDate && DateTime.fromISO(row.deliveryDate).toMillis() < DateTime.now().toMillis() ? 'text-sm text-red-500' : 'text-sm';
+                    },
+                    type       : 'date',
+                    pipeOptions: {format: 'dd-MM-yyyy'}
+                },
+                filter : {
+                    control: this.deliveryDateFormControl,
+                    type   : 'date'
+                },
+                visible: true
+            },
+            {
+                key    : 'emissionDate',
+                header : this.#ts.translate('operations.orders.list.table.emission-date'),
+                display: {
+                    classes    : 'text-sm',
+                    type       : 'date',
+                    pipeOptions: {format: 'dd-MM-yyyy'}
+                },
+                filter : {
+                    control: this.emissionDateFormControl,
+                    type   : 'date'
+                },
+                visible: true
+            },
+            {
+                key    : 'totalAmount',
+                header : this.#ts.translate('operations.orders.list.table.amount'),
+                display: {
+                    classes    : 'text-sm',
+                    type       : 'currency',
+                    pipeOptions: {currency: 'CLP', symbolDisplay: 'symbol-narrow'}
+                },
+                filter : {
+                    control: this.amountFormControl,
+                    type   : 'number'
+                },
+                visible: true
+            },
+            // {
+            //   key: 'actions',
+            //   header: this.#ts.translate('operations.orders.list.table.actions'),
+            //   display: {
+            //     type: 'custom',
+            //     customTemplate: this.customActionsColumn()
+            //   }
+            // }
+        ];
+
+        return persistedOrder ? columns.map((column) => {
+            const foundColumn = persistedOrder.find((col) => col === column.key);
+            return foundColumn ? column : {...column, visible: false};
+        }) : columns;
+    });
+
+    columns = computed(() => this.columnsConfig().filter(col => col.visible).map((column) => column.key));
 
     protected readonly OrderStatusEnum = OrderStatusEnum;
     protected readonly trackByFn = trackByFn;

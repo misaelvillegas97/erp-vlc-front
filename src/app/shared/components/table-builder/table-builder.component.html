@@ -30,7 +30,7 @@
                             <autocomplete-filter-field
                                 [header]="column.header"
                                 [filterControl]="column.filter.control"
-                                [filterOptions]="column.filter.options.options"
+                                [filterOptions]="column.filter.options"
                                 [filterDisplayWith]="column.filter.displayWith"
                             ></autocomplete-filter-field>
                         }
@@ -38,8 +38,8 @@
                             <select-filter-field
                                 [header]="column.header"
                                 [filterControl]="column.filter.control"
-                                [filterOptions]="column.filter.options.options"
-                                [multiple]="column.filter.options.multiple"
+                                [filterOptions]="column.filter.options"
+                                [multiple]="column.filter.multiple"
                             ></select-filter-field>
                         }
                         @case ('number') {

@@ -66,13 +66,13 @@
                 <div class="flex flex-col justify-between gap-4">
                     <h3 class="font-bold text-lg">Columnas</h3>
 
-                    @for (column of columns(); track column) {
+                    @for (column of columnsConfig(); track column) {
                         <div class="flex items-center gap-2">
                             <mat-slide-toggle
-                                [checked]="columns().includes(column)"
-                                (change)="toggleColumn(column)"
+                                [checked]="column.visible"
+                                (change)="toggleColumn(column.key)"
                             ></mat-slide-toggle>
-                            <span>{{ t('fields.' + column) }}</span>
+                            <span>{{ t('fields.' + column.key) }}</span>
                         </div>
                     }
                 </div>
