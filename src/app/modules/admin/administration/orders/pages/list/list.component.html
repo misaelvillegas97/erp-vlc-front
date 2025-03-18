@@ -52,6 +52,7 @@
                            [columns]="columnsConfig()"
                            [data]="ordersResource.value()"
                            [pagination]="pagination()"
+                           [itemsPerPageLabel]="'Órdenes por página'"
                            (paginationChange)="handlePagination($event)"
             ></table-builder>
         }

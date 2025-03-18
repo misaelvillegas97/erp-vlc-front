@@ -384,5 +384,15 @@
             "CHECK" : "Cheque",
             "DEPOSIT" : "Depósito"
         }
+    },
+    "table" : {
+        "paginator" : {
+            "items-per-page" : "Elementos por página",
+            "first-page" : "Primera página",
+            "last-page" : "Última página",
+            "next-page" : "Siguiente página",
+            "previous-page" : "Página anterior",
+            "range-label" : "{{startIndex}} - {{endIndex}} de {{length}}"
+        }
     }
 }

@@ -292,7 +292,12 @@ export class ListComponent implements OnDestroy {
                 },
                 filter : {
                     control: this.statusFormControl,
-                    type   : 'text'
+                    type    : 'select',
+                    options : Object.values(OrderStatusEnum).map((status) => ({
+                        value    : status,
+                        viewValue: this.#ts.translate('enums.order-status.' + status)
+                    })),
+                    multiple: true
                 },
                 visible: true
             },
