@@ -14,6 +14,7 @@ import { DateFilterFieldComponent }                                             
 import { CellRendererComponent }                                                                                                                        from '@shared/components/table-builder/components/cell-renderer/cell-renderer.component';
 import { MatPaginator }                                                                                                                                 from '@angular/material/paginator';
 import { TranslocoService }                                                                                                                             from '@ngneat/transloco';
+import { NumberRangeFilterFieldComponent }                                                                                                              from '@shared/components/table-builder/components/number-range-filter-field/number-range-filter-field.component';
 
 @Component({
     selector   : 'table-builder',
@@ -45,6 +46,7 @@ import { TranslocoService }                                                     
         CellRendererComponent,
         NgStyle,
         MatPaginator,
+        NumberRangeFilterFieldComponent,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './table-builder.component.html'
@@ -66,21 +68,23 @@ export class TableBuilderComponent<T> {
     matPaginator = viewChild<MatPaginator>('paginator');
 
     ngAfterViewInit(): void {
-        this.matPaginator()._intl.itemsPerPageLabel = this.itemsPerPageLabel();
-        this.matPaginator()._intl.firstPageLabel = this.#ts.translate('table.paginator.first-page');
-        this.matPaginator()._intl.lastPageLabel = this.#ts.translate('table.paginator.last-page');
-        this.matPaginator()._intl.nextPageLabel = this.#ts.translate('table.paginator.next-page');
-        this.matPaginator()._intl.previousPageLabel = this.#ts.translate('table.paginator.previous-page');
-        this.matPaginator()._intl.getRangeLabel = (page: number, pageSize: number, length: number) => {
-            if (length === 0 || pageSize === 0) return this.#ts.translate('table.paginator.range-label', {length});
+        if (this.pagination()) {
+            this.matPaginator()._intl.itemsPerPageLabel = this.itemsPerPageLabel();
+            this.matPaginator()._intl.firstPageLabel = this.#ts.translate('table.paginator.first-page');
+            this.matPaginator()._intl.lastPageLabel = this.#ts.translate('table.paginator.last-page');
+            this.matPaginator()._intl.nextPageLabel = this.#ts.translate('table.paginator.next-page');
+            this.matPaginator()._intl.previousPageLabel = this.#ts.translate('table.paginator.previous-page');
+            this.matPaginator()._intl.getRangeLabel = (page: number, pageSize: number, length: number) => {
+                if (length === 0 || pageSize === 0) return this.#ts.translate('table.paginator.range-label', {length});
 
-            length = Math.max(length, 0);
+                length = Math.max(length, 0);
 
-            const startIndex = page * pageSize;
-            const endIndex = startIndex < length ? Math.min(startIndex + pageSize, length) : startIndex + pageSize;
+                const startIndex = page * pageSize;
+                const endIndex = startIndex < length ? Math.min(startIndex + pageSize, length) : startIndex + pageSize;
 
-            return this.#ts.translate('table.paginator.range-label', {startIndex: startIndex + 1, endIndex, length});
-        };
+                return this.#ts.translate('table.paginator.range-label', {startIndex: startIndex + 1, endIndex, length});
+            };
+        }
     }
 
     computedContainerClasses = (column: ColumnConfig, row: T): string => {

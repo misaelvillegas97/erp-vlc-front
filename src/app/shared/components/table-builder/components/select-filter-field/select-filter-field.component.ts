@@ -15,7 +15,7 @@ import { MatSelectModule }                           from '@angular/material/sel
         <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
             <mat-select
                 [formControl]="filterControl()" placeholder="Filtrar {{ header() }}"
-                [multiple]="multiple"
+                [multiple]="multiple()"
             >
                 @for (option of filterOptions(); track option) {
                     <mat-option [value]="option.value">

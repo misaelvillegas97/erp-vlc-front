@@ -99,10 +99,10 @@
         <span class="text-sm">No aplica</span>
     } @else {
         @if (order?.invoices?.length > 0) {
-            @let lastInvoice = findActiveInvoice(order.invoices);
+            @let invoice = order.invoices[0];
             <div class="flex justify-between items-center">
-                <span (click)=" openInvoiceDetail(order, lastInvoice)" class="text-sm cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">{{ lastInvoice?.invoiceNumber }}</span>
-                <a mat-icon-button [routerLink]="['/operations', 'invoices', 'list']" [queryParams]="{ invoiceNumber: lastInvoice.invoiceNumber}">
+                <span (click)=" openInvoiceDetail(order, invoice)" class="text-sm cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">{{ invoice?.invoiceNumber }}</span>
+                <a mat-icon-button [routerLink]="['/operations', 'invoices', 'list']" [queryParams]="{ invoiceNumber: invoice.invoiceNumber}">
                     <mat-icon class="icon-size-4" svgIcon="heroicons_outline:arrow-top-right-on-square"></mat-icon>
                 </a>
             </div>

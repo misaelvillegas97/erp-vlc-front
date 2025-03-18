@@ -19,12 +19,12 @@ import { DateTime }                                                             
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
-            <mat-date-range-input [formGroup]="filterGroup()" [rangePicker]="pickerDueDate">
+            <mat-date-range-input [formGroup]="filterGroup()" [rangePicker]="picker">
                 <input formControlName="from" matStartDate placeholder="Start date">
                 <input formControlName="to" matEndDate placeholder="End date">
             </mat-date-range-input>
-            <mat-datepicker-toggle [for]="pickerDueDate" matIconSuffix></mat-datepicker-toggle>
-            <mat-date-range-picker #pickerDueDate></mat-date-range-picker>
+            <mat-datepicker-toggle [for]="picker" matIconSuffix></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
         </mat-form-field>
     `
 })

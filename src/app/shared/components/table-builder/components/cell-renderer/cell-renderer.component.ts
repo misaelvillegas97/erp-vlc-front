@@ -32,7 +32,7 @@ import { CurrencyPipe, DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/
                     <badge
                         (click)="handleClick()"
                         [class]="computedClasses"
-                        [color]="column.display.pipeOptions?.color(row[column.key], row)"
+                        [color]="column.display.pipeOptions?.color?.(row[column.key], row) || 'gray'"
                         [label]="column.display.formatter(row[column.key], row)"></badge>
                 }
                 @default {

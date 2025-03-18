@@ -25,7 +25,7 @@
         @for (column of columns(); track column.key) {
             <ng-container [matColumnDef]="column.key + 'Filter'">
                 <th *matHeaderCellDef mat-header-cell>
-                    @if (column.filter?.control) {
+                    @if (column.filter?.control || column.filter?.group) {
                         @switch (column.filter.type) {
                             @case ('autocomplete') {
                                 <autocomplete-filter-field
@@ -43,6 +43,12 @@
                                     [multiple]="column.filter.multiple"
                                 ></select-filter-field>
                             }
+                            @case ('date-range') {
+                                <date-range-filter-field
+                                    [header]="column.header"
+                                    [filterGroup]="column.filter.group"
+                                ></date-range-filter-field>
+                            }
                             @case ('number') {
                                 <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
                                     <input
@@ -59,11 +65,11 @@
                                     [filterControl]="column.filter.control"
                                 ></date-filter-field>
                             }
-                            @case ('date-range') {
-                                <date-range-filter-field
+                            @case ('number-range') {
+                                <number-range-filter-field
                                     [header]="column.header"
                                     [filterGroup]="column.filter.group"
-                                ></date-range-filter-field>
+                                ></number-range-filter-field>
                             }
                             @default {
                                 <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">

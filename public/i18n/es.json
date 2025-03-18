@@ -285,7 +285,8 @@
         "reload" : "Recargar",
         "clear-filters" : "Limpiar filtros",
         "deletable" : "Eliminable",
-        "re-invoice" : "Re-facturar"
+        "re-invoice" : "Re-facturar",
+        "add-observations" : "Agregar observaciones"
     },
     "modal" : {
         "confirmation-default" : {

@@ -1,23 +1,23 @@
 // column-config.model.ts
 import { TemplateRef }            from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { DateTime }               from 'luxon';
 
 export type ColumnType = 'text' | 'date' | 'currency' | 'badge' | 'custom';
-export type FilterType = 'text' | 'select' | 'autocomplete' | 'date' | 'date-range' | 'number';
 
 interface BaseFilterConfig {
-    control?: FormControl;
-    group?: FormGroup;
     placeholder?: string;
 }
 
 export interface TextFilterConfig extends BaseFilterConfig {
     type: 'text';
+    control: FormControl<string>;
     pattern?: string;
 }
 
 export interface DateFilterConfig extends BaseFilterConfig {
     type: 'date';
+    control: FormControl<DateTime>;
     minDate?: Date;
     maxDate?: Date;
     dateFormat?: string;
@@ -25,6 +25,7 @@ export interface DateFilterConfig extends BaseFilterConfig {
 
 export interface DateRangeFilterConfig extends BaseFilterConfig {
     type: 'date-range';
+    group: FormGroup<{ from: FormControl<DateTime>; to: FormControl<DateTime> }>;
     minDate?: Date;
     maxDate?: Date;
     dateFormat?: string;
@@ -32,6 +33,15 @@ export interface DateRangeFilterConfig extends BaseFilterConfig {
 
 export interface NumberFilterConfig extends BaseFilterConfig {
     type: 'number';
+    control: FormControl<number>;
+    min?: number;
+    max?: number;
+    step?: number;
+}
+
+export interface NumberRangeFilterConfig extends BaseFilterConfig {
+    type: 'number-range';
+    group: FormGroup<{ from: FormControl<number>; to: FormControl<number> }>;
     min?: number;
     max?: number;
     step?: number;
@@ -39,12 +49,14 @@ export interface NumberFilterConfig extends BaseFilterConfig {
 
 export interface AutocompleteFilterConfig extends BaseFilterConfig {
     type: 'autocomplete';
+    control: FormControl;
     options: { value: any; viewValue: string }[];
     displayWith?: (value: any) => string;
 }
 
 export interface SelectFilterConfig extends BaseFilterConfig {
     type: 'select';
+    control: FormControl;
     options: { value: any; viewValue: string }[];
     multiple: boolean;
 }
@@ -54,6 +66,7 @@ export type ColumnFilterConfig =
     | DateFilterConfig
     | DateRangeFilterConfig
     | NumberFilterConfig
+    | NumberRangeFilterConfig
     | AutocompleteFilterConfig
     | SelectFilterConfig;
 
@@ -63,18 +76,11 @@ export interface ColumnDisplayConfig {
     containerClasses?: string | ((row: any) => string);
     formatter?: (value: any, row?: any) => string;
     customTemplate?: TemplateRef<any>;
-    pipeOptions?: any;
+    pipeOptions?: any; // TODO: Define available types
     onClick?: (row: any) => void;
-    // Posibles nuevas propiedades para la presentación
+
     alignment?: 'left' | 'center' | 'right';
     width?: string;
-}
-
-export interface ColumnFilterOptions {
-    options?: { value: any; viewValue: string }[];
-    multiple?: boolean;
-    placeholder?: string;
-    placeholderFn?: (value: any, row?: any) => string;
 }
 
 export interface ColumnConfig {

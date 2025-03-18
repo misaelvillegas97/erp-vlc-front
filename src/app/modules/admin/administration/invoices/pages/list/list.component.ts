@@ -1,39 +1,43 @@
-import { Component, computed, inject, model, OnDestroy, resource, Signal, signal, TemplateRef, viewChild, ViewContainerRef } from '@angular/core';
-import { InvoicesService }                                                                                                   from '@modules/admin/administration/invoices/invoices.service';
-import { InvoiceStatusConfig, InvoiceStatusEnum }                                                                            from '@modules/admin/administration/invoices/domains/enums/invoice-status.enum';
-import { TranslocoDirective, TranslocoPipe, TranslocoService }                                                               from '@ngneat/transloco';
-import { debounceTime, firstValueFrom, map }                                                                                 from 'rxjs';
-import { PageHeaderComponent }                                                                                               from '@layout/components/page-header/page-header.component';
-import { MatIcon }                                                                                                           from '@angular/material/icon';
-import { MatButton, MatIconButton }                                                                                          from '@angular/material/button';
-import { MatTooltip }                                                                                                        from '@angular/material/tooltip';
-import { BreakpointObserver, Breakpoints }                                                                                   from '@angular/cdk/layout';
-import { toSignal }                                                                                                          from '@angular/core/rxjs-interop';
-import { MatTableModule }                                                                                                    from '@angular/material/table';
-import { MatSortModule }                                                                                                     from '@angular/material/sort';
-import { trackByFn }                                                                                                         from '@libs/ui/utils/utils';
-import { MatInput }                                                                                                          from '@angular/material/input';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule }                                                          from '@angular/forms';
-import { MatAutocompleteModule }                                                                                             from '@angular/material/autocomplete';
-import { ClientService }                                                                                                     from '@modules/admin/maintainers/clients/client.service';
-import { MatSelect }                                                                                                         from '@angular/material/select';
-import { MatFormFieldModule }                                                                                                from '@angular/material/form-field';
-import { CurrencyPipe, DatePipe }                                                                                            from '@angular/common';
-import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker, MatEndDate, MatStartDate }                              from '@angular/material/datepicker';
-import { DateTime }                                                                                                          from 'luxon';
-import { MatMenuModule }                                                                                                     from '@angular/material/menu';
-import { Invoice }                                                                                                           from '@modules/admin/administration/invoices/domains/model/invoice';
-import { MatDialog }                                                                                                         from '@angular/material/dialog';
-import { UpdateInvoiceStatusDialog }                                                                                         from '@modules/admin/administration/invoices/dialogs/update-invoice-status/update-invoice-status.dialog';
-import { Overlay, OverlayRef }                                                                                               from '@angular/cdk/overlay';
-import { MatSlideToggle }                                                                                                    from '@angular/material/slide-toggle';
-import { TemplatePortal }                                                                                                    from '@angular/cdk/portal';
-import { BadgeComponent }                                                                                                    from '@shared/components/badge/badge.component';
-import { OrderDetailDialog }                                                                                                 from '@modules/admin/administration/orders/dialogs/order-detail/order-detail.dialog';
-import { Router }                                                                                                            from '@angular/router';
-import { NotyfService }                                                                                                      from '@shared/services/notyf.service';
-import { ReInvoiceDialog }                                                                                                   from '@modules/admin/administration/invoices/dialogs/re-invoice/re-invoice.dialog';
-import { InvoiceDetailComponent }                                                                                            from '@modules/admin/administration/invoices/dialogs/invoice-detail/invoice-detail.component';
+import { Component, computed, inject, linkedSignal, model, OnDestroy, resource, Signal, signal, TemplateRef, viewChild, ViewContainerRef, WritableSignal } from '@angular/core';
+import { InvoicesService }                                                                                                                                 from '@modules/admin/administration/invoices/invoices.service';
+import { InvoiceStatusConfig, InvoiceStatusEnum }                                                                                                          from '@modules/admin/administration/invoices/domains/enums/invoice-status.enum';
+import { TranslocoDirective, TranslocoPipe, TranslocoService }                                                                                             from '@ngneat/transloco';
+import { debounceTime, firstValueFrom }                                                                                                                    from 'rxjs';
+import { PageHeaderComponent }                                                                                                                             from '@layout/components/page-header/page-header.component';
+import { MatIcon }                                                                                                                                         from '@angular/material/icon';
+import { MatButton, MatIconButton }                                                                                                                        from '@angular/material/button';
+import { MatTooltip }                                                                                                                                      from '@angular/material/tooltip';
+import { toSignal }                                                                                                                                        from '@angular/core/rxjs-interop';
+import { MatTableModule }                                                                                                                                  from '@angular/material/table';
+import { MatSortModule }                                                                                                                                   from '@angular/material/sort';
+import { trackByFn }                                                                                                                                       from '@libs/ui/utils/utils';
+import { MatInput }                                                                                                                                        from '@angular/material/input';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule }                                                                                        from '@angular/forms';
+import { MatAutocompleteModule }                                                                                                                           from '@angular/material/autocomplete';
+import { ClientService }                                                                                                                                   from '@modules/admin/maintainers/clients/client.service';
+import { MatSelect }                                                                                                                                       from '@angular/material/select';
+import { MatFormFieldModule }                                                                                                                              from '@angular/material/form-field';
+import { CurrencyPipe, DatePipe }                                                                                                                          from '@angular/common';
+import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker, MatEndDate, MatStartDate }                                                            from '@angular/material/datepicker';
+import { DateTime }                                                                                                                                        from 'luxon';
+import { MatMenuModule }                                                                                                                                   from '@angular/material/menu';
+import { Invoice }                                                                                                                                         from '@modules/admin/administration/invoices/domains/model/invoice';
+import { MatDialog }                                                                                                                                       from '@angular/material/dialog';
+import { UpdateInvoiceStatusDialog }                                                                                                                       from '@modules/admin/administration/invoices/dialogs/update-invoice-status/update-invoice-status.dialog';
+import { Overlay, OverlayRef }                                                                                                                             from '@angular/cdk/overlay';
+import { MatSlideToggle }                                                                                                                                  from '@angular/material/slide-toggle';
+import { BadgeComponent }                                                                                                                                  from '@shared/components/badge/badge.component';
+import { OrderDetailDialog }                                                                                                                               from '@modules/admin/administration/orders/dialogs/order-detail/order-detail.dialog';
+import { Router }                                                                                                                                          from '@angular/router';
+import { NotyfService }                                                                                                                                    from '@shared/services/notyf.service';
+import { ReInvoiceDialog }                                                                                                                                 from '@modules/admin/administration/invoices/dialogs/re-invoice/re-invoice.dialog';
+import { InvoiceDetailComponent }                                                                                                                          from '@modules/admin/administration/invoices/dialogs/invoice-detail/invoice-detail.component';
+import { openOverlay }                                                                                                                                     from '@shared/utils/overlay.util';
+import { ColumnConfig }                                                                                                                                    from '@shared/components/table-builder/column.type';
+import { Client }                                                                                                                                          from '@modules/admin/maintainers/clients/domain/model/client';
+import { toggleColumn }                                                                                                                                    from '@shared/utils/column.util';
+import { TableBuilderComponent }                                                                                                                           from '@shared/components/table-builder/table-builder.component';
+import { Order }                                                                                                                                           from '@modules/admin/administration/orders/domain/model/order';
 
 @Component({
     selector   : 'app-list',
@@ -61,13 +65,14 @@ import { InvoiceDetailComponent }                                               
         MatDateRangePicker,
         MatMenuModule,
         MatSlideToggle,
-        BadgeComponent
+        BadgeComponent,
+        TableBuilderComponent
     ],
     templateUrl: './list.component.html'
 })
 export class ListComponent implements OnDestroy {
     readonly #dialog = inject(MatDialog);
-    readonly #translationService = inject(TranslocoService);
+    readonly #ts = inject(TranslocoService);
     readonly #clientService = inject(ClientService);
     readonly #overlay = inject(Overlay);
     readonly #vcr = inject(ViewContainerRef);
@@ -75,12 +80,7 @@ export class ListComponent implements OnDestroy {
     readonly #router = inject(Router);
     readonly #notyf = inject(NotyfService);
     #overlayRef: OverlayRef;
-    readonly breakpointObserver = inject(BreakpointObserver);
-    readonly isMobile$ = this.breakpointObserver.observe(Breakpoints.Handset).pipe(map((result) => result.matches));
     readonly today = DateTime.now().toISODate();
-
-    isMobile = toSignal(this.isMobile$, {initialValue: false});
-
     // Fields from query params
     readonly invoiceNumberQP = model(undefined, {alias: 'invoiceNumber'});
 
@@ -129,13 +129,7 @@ export class ListComponent implements OnDestroy {
     deliveryAssignmentFilter = toSignal(this.deliveryAssignmentFormControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
 
     // Additional signals
-    showMobileFilters = signal<boolean>(false);
     showColumnsOverlay = signal(false);
-
-    localStorageColumns = signal<string[] | undefined>(localStorage.getItem('invoiceListColumnsConfig') ? JSON.parse(localStorage.getItem('invoiceListColumnsConfig')) : undefined);
-    localStorageFilterColumns = signal<string[] | undefined>(localStorage.getItem('invoiceListColumnsFilterConfig') ? JSON.parse(localStorage.getItem('invoiceListColumnsFilterConfig')) : undefined);
-    columns = signal(this.localStorageColumns() ?? [ ...this.displayedColumns ]);
-    filterColumns = signal(this.localStorageFilterColumns() ?? [ ...this.displayedColumnsFilters ]);
 
     filters = computed(() => {
         const filter = {};
@@ -160,23 +154,25 @@ export class ListComponent implements OnDestroy {
 
         return filter;
     });
-    translatedSelectedStatus = computed(() => {
-        return this.statusFilter()?.map((status) => this.#translationService.translate(`enums.invoice-status.${ status }`)).join(',\n ');
-    });
+
     clientsResource = resource({
         loader: () => firstValueFrom(this.#clientService.findAll({}, 'COMPACT'))
     });
+
     invoicesResource = resource({
         request: () => this.filters(),
         loader: async () => firstValueFrom(this.#invoicesService.findAll(this.filters()))
     });
+
     columnsOverlay: Signal<TemplateRef<any>> = viewChild('columnsOverlay');
     columnsOverlayButton: Signal<MatButton> = viewChild('columnsOverlayButton');
+    actionsCellTemplate: Signal<TemplateRef<any>> = viewChild('actionsCell');
 
     protected readonly trackByFn = trackByFn;
     protected readonly invoiceStatuses = Object.values(InvoiceStatusEnum);
     protected readonly InvoiceStatusEnum = InvoiceStatusEnum;
     protected readonly InvoiceStatusConfig = InvoiceStatusConfig;
+    columns = computed(() => this.columnsConfig().filter(col => col.visible).map((column) => column.key));
 
     ngOnInit() {
         if (this.invoiceNumberQP()) this.invoiceNumberFormControl.setValue(this.invoiceNumberQP());
@@ -190,84 +186,7 @@ export class ListComponent implements OnDestroy {
     }
     protected readonly DateTime = DateTime;
 
-    // Toggle column visibility, keeping the order from the original displayedColumns array
-    toggleColumn = (column: string) => {
-        const originalOrder = [ ...this.displayedColumns ];
-        const columns = this.columns();
-        const filterColumns = this.filterColumns();
-        const index = columns.indexOf(column);
-
-        if (index > -1) {
-            columns.splice(index, 1);
-            filterColumns.splice(index, 1);
-        } else {
-            columns.push(column);
-            filterColumns.push(column + 'Filter');
-            columns.sort((a, b) => originalOrder.indexOf(a) - originalOrder.indexOf(b));
-            filterColumns.sort((a, b) =>
-                originalOrder.indexOf(a.replace('Filter', '')) - originalOrder.indexOf(b.replace('Filter', '')));
-        }
-
-        this.columns.set(columns);
-        this.filterColumns.set(filterColumns);
-        this.persistColumnsConfiguration();
-    };
-
-    openColumnsOverlay = () => {
-        this.#overlayRef = this.#overlay.create({
-            backdropClass   : '',
-            hasBackdrop     : true,
-            scrollStrategy  : this.#overlay.scrollStrategies.block(),
-            positionStrategy: this.#overlay
-                .position()
-                .flexibleConnectedTo(
-                    this.columnsOverlayButton()._elementRef.nativeElement
-                )
-                .withFlexibleDimensions(true)
-                .withViewportMargin(16)
-                .withLockedPosition(true)
-                .withPositions([
-                    {
-                        originX : 'start',
-                        originY : 'bottom',
-                        overlayX: 'start',
-                        overlayY: 'top',
-                    },
-                    {
-                        originX : 'start',
-                        originY : 'top',
-                        overlayX: 'start',
-                        overlayY: 'bottom',
-                    },
-                    {
-                        originX : 'end',
-                        originY : 'bottom',
-                        overlayX: 'end',
-                        overlayY: 'top',
-                    },
-                    {
-                        originX : 'end',
-                        originY : 'top',
-                        overlayX: 'end',
-                        overlayY: 'bottom',
-                    },
-                ]),
-        });
-
-        // Create a portal from the template
-        const templatePortal = new TemplatePortal(this.columnsOverlay(), this.#vcr);
-
-        this.#overlayRef.attach(templatePortal);
-
-        this.#overlayRef.backdropClick().subscribe(() => {
-            this.#overlayRef.detach();
-        });
-
-        if (templatePortal && templatePortal.isAttached) {
-            // Detach it
-            templatePortal.detach();
-        }
-    };
+    toggleColumn = (columnKey: string) => toggleColumn(columnKey, this.columnsConfig, this.persistColumnsConfiguration);
 
     viewOrderDetail = (invoice: Invoice) => {
         this.#dialog.open(OrderDetailDialog, {data: {id: invoice.order.id}, maxWidth: '900px'});
@@ -299,7 +218,6 @@ export class ListComponent implements OnDestroy {
 
     persistColumnsConfiguration = (): void => {
         localStorage.setItem('invoiceListColumnsConfig', JSON.stringify(this.columns()));
-        localStorage.setItem('invoiceListColumnsFilterConfig', JSON.stringify(this.filterColumns()));
     };
 
     reInvoice = (invoice: Invoice) => {
@@ -308,22 +226,217 @@ export class ListComponent implements OnDestroy {
         dialog.afterClosed().subscribe((result) => result && this.invoicesResource.reload());
     };
 
-    isLessThan6Months = (emissionDate: any) => {
-        return DateTime.fromISO(emissionDate).diffNow('months').months < 6;
+    openColumnsOverlay = () => {
+        this.#overlayRef = openOverlay(
+            this.#overlay,
+            this.#vcr,
+            this.columnsOverlayButton()._elementRef.nativeElement,
+            this.columnsOverlay()
+        );
     };
 
-    getPayments = (invoice) => {
+    isLessThan6Months = (emissionDate: any) => DateTime.fromISO(emissionDate).diffNow('months').months < 6;
+
+    getPayments = (invoice: Invoice) => {
         const totalPayments = invoice.payments.reduce((acc, payment) => acc + payment.amount, 0);
         const percentagePaid = Math.round((totalPayments / invoice.totalAmount) * 100 * 100) / 100;
 
         return {totalPayments, percentagePaid};
     };
 
-    openDetail(invoice: Invoice) {
+    view(invoice: Invoice) {
         this.#dialog.open(InvoiceDetailComponent, {
             data : {invoiceId: invoice.id},
             width: '900px'
         });
     }
+
+    buildColumnsConfig = (): ColumnConfig[] => ([
+        {
+            key    : 'invoiceNumber',
+            header : this.#ts.translate('operations.invoices.fields.invoice-number'),
+            visible: true,
+            display: {
+                type   : 'text',
+                classes: 'text-sm text-blue-500 cursor-pointer hover:underline',
+                onClick: (row) => this.view(row)
+            },
+            filter : {
+                type   : 'number',
+                control: this.invoiceNumberFormControl,
+            }
+        },
+        {
+            key    : 'order',
+            header : this.#ts.translate('operations.invoices.fields.order-number'),
+            visible: true,
+            display: {
+                type     : 'text',
+                classes  : 'text-sm text-blue-500 cursor-pointer hover:underline',
+                formatter: (order: Order) => order.orderNumber,
+                onClick  : (row) => this.viewOrderDetail(row)
+            },
+            filter : {
+                type   : 'text',
+                control: this.orderNumberFormControl,
+            }
+        },
+        {
+            key    : 'client',
+            header : this.#ts.translate('operations.invoices.fields.client'),
+            visible: true,
+            display: {
+                type     : 'text',
+                classes  : 'text-sm',
+                formatter: (client: Client) => client.fantasyName
+            },
+            filter : {
+                type    : 'select',
+                control : this.clientFormControl,
+                options : this.clientsResource.value()?.map((client) => ({value: client, viewValue: client.fantasyName})),
+                multiple: true
+            }
+        },
+        {
+            key    : 'status',
+            header : this.#ts.translate('operations.invoices.fields.status'),
+            visible: true,
+            display: {
+                type            : 'badge',
+                containerClasses: 'block min-w-36',
+                classes         : 'text-sm',
+                formatter       : (status: InvoiceStatusEnum) => this.#ts.translate(`enums.invoice-status.${ status }`),
+                pipeOptions     : {color: (status: InvoiceStatusEnum) => InvoiceStatusConfig[status].color}
+            },
+            filter : {
+                type    : 'select',
+                control : this.statusFormControl,
+                options : this.invoiceStatuses.map((status) => ({value: status, viewValue: this.#ts.translate(`enums.invoice-status.${ status }`)})),
+                multiple: true
+            }
+        },
+        {
+            key    : 'isPaid',
+            header : this.#ts.translate('operations.invoices.fields.is-paid'),
+            visible: true,
+            display: {
+                type       : 'badge',
+                classes    : 'text-sm',
+                formatter  : (isPaid: boolean) => isPaid ? 'Sí' : 'No',
+                pipeOptions: {enum: InvoiceStatusEnum}
+            },
+            filter : {
+                type    : 'select',
+                control : this.isPaidFormControl,
+                options : [
+                    {value: null, viewValue: 'Todos'},
+                    {value: true, viewValue: 'Pagado'},
+                    {value: false, viewValue: 'No pagado'}
+                ],
+                multiple: false
+            }
+        },
+        {
+            key    : 'emissionDate',
+            header : this.#ts.translate('operations.invoices.fields.emission-date'),
+            visible: true,
+            display: {
+                type       : 'date',
+                classes    : 'text-sm',
+                pipeOptions: {format: 'dd-MM-yyyy'},
+            },
+            filter : {
+                type : 'date-range',
+                group: this.emissionDateFormControl,
+            }
+        },
+        {
+            key    : 'dueDate',
+            header : this.#ts.translate('operations.invoices.fields.due-date'),
+            visible: true,
+            display: {
+                type       : 'date',
+                classes    : 'text-sm',
+                pipeOptions: {format: 'dd-MM-yyyy'},
+            },
+            filter : {
+                type : 'date-range',
+                group: this.dueDateFormControl,
+            }
+        },
+        {
+            key    : 'netAmount',
+            header : this.#ts.translate('operations.invoices.fields.net-amount'),
+            visible: true,
+            display: {
+                type       : 'currency',
+                classes    : 'text-sm',
+                pipeOptions: {currency: 'CLP'}
+            },
+            filter : {
+                type : 'number-range',
+                group: this.netAmountFormControl
+            }
+        },
+        {
+            key    : 'taxAmount',
+            header : this.#ts.translate('operations.invoices.fields.tax-amount'),
+            visible: true,
+            display: {
+                type       : 'currency',
+                classes    : 'text-sm',
+                pipeOptions: {currency: 'CLP'}
+            },
+            filter : {
+                type : 'number-range',
+                group: this.taxAmountFormControl
+            }
+        },
+        {
+            key    : 'totalAmount',
+            header : this.#ts.translate('operations.invoices.fields.total-amount'),
+            visible: true,
+            display: {
+                type       : 'currency',
+                classes    : 'text-sm',
+                pipeOptions: {currency: 'CLP'}
+            },
+            filter : {
+                type : 'number-range',
+                group: this.totalAmountFormControl
+            }
+        },
+        {
+            key    : 'actions',
+            header : '',
+            visible: true,
+            display: {
+                type          : 'custom',
+                customTemplate: this.actionsCellTemplate()
+            }
+        }
+    ]);
+
+    columnsConfig: WritableSignal<ColumnConfig[]> = linkedSignal(() => {
+        const persistedInvoicesColumn: string[] = localStorage.getItem('invoiceListColumnsConfig') && JSON.parse(localStorage.getItem('ordersListColumnsConfig'));
+
+        const columns: ColumnConfig[] = this.buildColumnsConfig();
+
+        // Check if there persisted columns are valid to the actual columns, if there is inconsistency, remove the persisted columns
+        if (persistedInvoicesColumn) {
+            const columnKeys = columns.map((column) => column.key);
+            for (const column of persistedInvoicesColumn) {
+                if (!columnKeys.includes(column)) {
+                    localStorage.removeItem('invoiceListColumnsConfig');
+                    break;
+                }
+            }
+        }
+
+        return persistedInvoicesColumn ? columns.map((column) => {
+            const foundColumn = persistedInvoicesColumn.find((col) => col === column.key);
+            return foundColumn ? column : {...column, visible: false};
+        }) : columns;
+    });
 }
 

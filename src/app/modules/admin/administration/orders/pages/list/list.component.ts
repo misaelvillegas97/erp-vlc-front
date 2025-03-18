@@ -1,7 +1,6 @@
 import { Component, computed, inject, linkedSignal, OnDestroy, resource, Signal, signal, TemplateRef, viewChild, ViewContainerRef, WritableSignal }     from '@angular/core';
 import { BreakpointObserver, Breakpoints }                                                                                                              from '@angular/cdk/layout';
 import { Overlay, OverlayRef }                                                                                                                          from '@angular/cdk/overlay';
-import { TemplatePortal }                                                                                                                               from '@angular/cdk/portal';
 import { CurrencyPipe, DatePipe }                                                                                                                       from '@angular/common';
 import { toSignal }                                                                                                                                     from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule }                                                                                                from '@angular/forms';
@@ -38,6 +37,7 @@ import { BadgeComponent }                     from '@shared/components/badge/bad
 import { Invoice }                            from '@modules/admin/administration/invoices/domains/model/invoice';
 import { TableBuilderComponent }              from '@shared/components/table-builder/table-builder.component';
 import { ColumnConfig }                       from '@shared/components/table-builder/column.type';
+import { openOverlay }                        from '@shared/utils/overlay.util';
 
 @Component({
     selector   : 'app-list',
@@ -121,6 +121,11 @@ export class ListComponent implements OnDestroy {
     // Additional signals
     columnsOverlay: Signal<TemplateRef<any>> = viewChild('columnsOverlay');
     columnsOverlayButton: Signal<MatButton> = viewChild('columnsOverlayButton');
+
+    // Columns
+    customInfoColumn = viewChild<TemplateRef<any>>('infoCell');
+    customInvoiceColumn = viewChild<TemplateRef<any>>('invoiceCell');
+    customActionsColumn = viewChild<TemplateRef<any>>('actionsCell');
     showColumnsOverlay = signal(false);
 
     // Pagination
@@ -143,78 +148,6 @@ export class ListComponent implements OnDestroy {
 
         return filter;
     });
-
-    // View children
-    customInfoColumn = viewChild<TemplateRef<any>>('infoCell');
-    customInvoiceColumn = viewChild<TemplateRef<any>>('invoiceCell');
-    customActionsColumn = viewChild<TemplateRef<any>>('actionsCell');
-
-    ordersResource = resource({
-        request: () => ({filters: this.filters(), pagination: this.pagination()}),
-        loader : async ({request}) => {
-            const paginationOrders = await firstValueFrom(this.#ordersService.findAll(request.filters, {
-                page : request.pagination.page,
-                limit: request.pagination.limit
-            }));
-
-            this.pagination.set({
-                page         : paginationOrders.page,
-                limit        : paginationOrders.limit,
-                totalElements: paginationOrders.totalElements,
-                totalPages   : paginationOrders.totalPages,
-                disabled     : false
-            });
-
-            return paginationOrders.items;
-        }
-    });
-
-    clientsResource = resource({
-        loader: () => firstValueFrom(this.#clientService.findAll({}, 'COMPACT'))
-    });
-    columns = computed(() => this.columnsConfig().filter(col => col.visible).map((column) => column.key));
-    protected readonly OrderStatusEnum = OrderStatusEnum;
-    protected readonly trackByFn = trackByFn;
-    protected readonly Date = Date;
-
-    ngOnDestroy() {
-        if (this.#overlayRef) this.#overlayRef.detach();
-    }
-
-    toggleColumn = (columnKey: string) => {
-        const currentConfig = this.columnsConfig();
-        const index = currentConfig.findIndex((col) => col.key === columnKey);
-
-        if (index !== -1) {
-            const updatedColumn = {
-                ...currentConfig[index],
-                visible: !currentConfig[index].visible
-            };
-
-            const newConfig = [ ...currentConfig ];
-            newConfig[index] = updatedColumn;
-
-            this.columnsConfig.set(newConfig);
-        }
-
-        this.persistColumnsConfiguration();
-    };
-
-    clearFilters = () => {
-        this.orderNumberFormControl.setValue(undefined);
-        this.clientFormControl.setValue(undefined);
-        this.typeFormControl.setValue(undefined);
-        this.statusFormControl.setValue(undefined);
-        this.invoiceFormControl.setValue(undefined);
-        this.deliveryLocationFormControl.setValue(undefined);
-        this.emissionDateFormControl.setValue(undefined);
-        this.deliveryDateFormControl.setValue(undefined);
-        this.amountFormControl.setValue(undefined);
-    };
-
-    view = (order: Order) => {
-        this.#dialog.open(OrderDetailDialog, {data: {id: order.id}});
-    };
 
     columnsConfig: WritableSignal<ColumnConfig[]> = linkedSignal(() => {
         const persistedOrder: string[] = localStorage.getItem('ordersListColumnsConfig') && JSON.parse(localStorage.getItem('ordersListColumnsConfig'));
@@ -247,8 +180,8 @@ export class ListComponent implements OnDestroy {
                 key    : 'client',
                 header : this.#ts.translate('operations.orders.list.table.client'),
                 display: {
-                    classes  : 'text-sm',
                     type     : 'text',
+                    classes  : 'text-sm',
                     formatter: (client: Client, row) => client.fantasyName
                 },
                 filter : {
@@ -291,7 +224,7 @@ export class ListComponent implements OnDestroy {
                     formatter  : (status: OrderStatusEnum) => this.#ts.translate('enums.order-status.' + status)
                 },
                 filter : {
-                    control: this.statusFormControl,
+                    control : this.statusFormControl,
                     type    : 'select',
                     options : Object.values(OrderStatusEnum).map((status) => ({
                         value    : status,
@@ -387,6 +320,74 @@ export class ListComponent implements OnDestroy {
         }) : columns;
     });
 
+    columns = computed(() => this.columnsConfig().filter(col => col.visible).map((column) => column.key));
+
+    ordersResource = resource({
+        request: () => ({filters: this.filters(), pagination: this.pagination()}),
+        loader : async ({request}) => {
+            const paginationOrders = await firstValueFrom(this.#ordersService.findAll(request.filters, {
+                page : request.pagination.page,
+                limit: request.pagination.limit
+            }));
+
+            this.pagination.set({
+                page         : paginationOrders.page,
+                limit        : paginationOrders.limit,
+                totalElements: paginationOrders.totalElements,
+                totalPages   : paginationOrders.totalPages,
+                disabled     : false
+            });
+
+            return paginationOrders.items;
+        }
+    });
+
+    clientsResource = resource({
+        loader: () => firstValueFrom(this.#clientService.findAll({}, 'COMPACT'))
+    });
+    protected readonly OrderStatusEnum = OrderStatusEnum;
+    protected readonly trackByFn = trackByFn;
+    protected readonly Date = Date;
+
+    ngOnDestroy() {
+        if (this.#overlayRef) this.#overlayRef.detach();
+    }
+
+    toggleColumn = (columnKey: string) => {
+        const currentConfig = this.columnsConfig();
+        const index = currentConfig.findIndex((col) => col.key === columnKey);
+
+        if (index !== -1) {
+            const updatedColumn = {
+                ...currentConfig[index],
+                visible: !currentConfig[index].visible
+            };
+
+            const newConfig = [ ...currentConfig ];
+            newConfig[index] = updatedColumn;
+
+            this.columnsConfig.set(newConfig);
+        }
+
+        this.persistColumnsConfiguration();
+    };
+
+    clearFilters = () => {
+        this.orderNumberFormControl.setValue(undefined);
+        this.clientFormControl.setValue(undefined);
+        this.typeFormControl.setValue(undefined);
+        this.statusFormControl.setValue(undefined);
+        this.invoiceFormControl.setValue(undefined);
+        this.deliveryLocationFormControl.setValue(undefined);
+        this.emissionDateFormControl.setValue(undefined);
+        this.deliveryDateFormControl.setValue(undefined);
+        this.amountFormControl.setValue(undefined);
+    };
+
+    view = (order: Order) => {
+        this.#dialog.open(OrderDetailDialog, {data: {id: order.id}});
+    };
+
     openAddInvoiceDialog = (order: Order): void => {
         const invoiceDialog = this.#dialog.open(InvoiceAddComponent, {
             data : {order},
@@ -402,59 +403,12 @@ export class ListComponent implements OnDestroy {
     };
 
     openColumnsOverlay = (event: MouseEvent) => {
-        this.#overlayRef = this.#overlay.create({
-            backdropClass   : '',
-            hasBackdrop     : true,
-            scrollStrategy  : this.#overlay.scrollStrategies.block(),
-            positionStrategy: this.#overlay
-                .position()
-                .flexibleConnectedTo(
-                    this.columnsOverlayButton()._elementRef.nativeElement
-                )
-                .withFlexibleDimensions(true)
-                .withViewportMargin(16)
-                .withLockedPosition(true)
-                .withPositions([
-                    {
-                        originX : 'start',
-                        originY : 'bottom',
-                        overlayX: 'start',
-                        overlayY: 'top',
-                    },
-                    {
-                        originX : 'start',
-                        originY : 'top',
-                        overlayX: 'start',
-                        overlayY: 'bottom',
-                    },
-                    {
-                        originX : 'end',
-                        originY : 'bottom',
-                        overlayX: 'end',
-                        overlayY: 'top',
-                    },
-                    {
-                        originX : 'end',
-                        originY : 'top',
-                        overlayX: 'end',
-                        overlayY: 'bottom',
-                    },
-                ]),
-        });
-
-        // Create a portal from the template
-        const templatePortal = new TemplatePortal(this.columnsOverlay(), this.#vcr);
-
-        this.#overlayRef.attach(templatePortal);
-
-        this.#overlayRef.backdropClick().subscribe(() => {
-            this.#overlayRef.detach();
-        });
-
-        if (templatePortal && templatePortal.isAttached) {
-            // Detach it
-            templatePortal.detach();
-        }
+        this.#overlayRef = openOverlay(
+            this.#overlay,
+            this.#vcr,
+            this.columnsOverlayButton()._elementRef.nativeElement,
+            this.columnsOverlay()
+        );
     };
 
     openInvoiceDetail = (order: Order, invoice: Invoice) => {
@@ -465,8 +419,6 @@ export class ListComponent implements OnDestroy {
 
     persistColumnsConfiguration = (): void => localStorage.setItem('ordersListColumnsConfig', JSON.stringify(this.columns()));
 
-    findActiveInvoice = (invoices: Invoice[]) => invoices.find((invoice) => invoice.isActive);
-
     handlePagination = (event) => {
         this.pagination.update((value) => ({
             ...value,
@@ -474,7 +426,5 @@ export class ListComponent implements OnDestroy {
             limit   : event.pageSize,
             disabled: true
         }));
-
-        this.ordersResource.reload();
     };
 }
