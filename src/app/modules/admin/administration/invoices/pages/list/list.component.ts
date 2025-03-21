@@ -306,7 +306,8 @@ export class ListComponent implements OnDestroy {
                 containerClasses: 'block min-w-36',
                 classes         : 'text-sm',
                 formatter       : (status: InvoiceStatusEnum) => this.#ts.translate(`enums.invoice-status.${ status }`),
-                pipeOptions     : {color: (status: InvoiceStatusEnum) => InvoiceStatusConfig[status].color}
+                pipeOptions     : {color: (status: InvoiceStatusEnum) => InvoiceStatusConfig[status].color},
+                onClick         : (invoice: Invoice) => this.updateStatusInvoice(invoice)
             },
             filter : {
                 type    : 'select',
