@@ -13,7 +13,10 @@ export default [
                 path: 'list',
                 loadComponent: () => import('./pages/list/list.component').then((m) => m.ListComponent),
             },
-            {path: 'new', loadComponent: () => import('./pages/create/create.component').then((m) => m.CreateComponent)},
+            {
+                path         : 'new',
+                loadComponent: () => import('./pages/create/create.component').then((m) => m.CreateComponent),
+            },
         ]
     }
 ] satisfies Routes;

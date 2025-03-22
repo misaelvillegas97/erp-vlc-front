@@ -1,10 +1,10 @@
-import { Route }               from '@angular/router';
+import { Routes }              from '@angular/router';
 import { initialDataResolver } from 'app/app.resolvers';
 import { AuthGuard }           from 'app/core/auth/guards/auth.guard';
 import { NoAuthGuard }         from 'app/core/auth/guards/noAuth.guard';
 import { LayoutComponent }     from 'app/layout/layout.component';
 
-export const appRoutes: Route[] = [
+export const appRoutes: Routes = [
 
     // Redirect empty path to '/example'
     {path: '', pathMatch: 'full', redirectTo: 'home'},
@@ -71,7 +71,6 @@ export const appRoutes: Route[] = [
         },
         children        : [
             {path: 'home', loadChildren: () => import('app/modules/admin/home/home.routes')},
-            // Dashboards
             {
                 path: 'dashboards', children: [
                     {path: 'project', loadChildren: () => import('app/modules/admin/dashboards/project/project.routes')},
@@ -83,6 +82,7 @@ export const appRoutes: Route[] = [
             {
                 path    : 'operations',
                 children: [
+                    {path: 'accounting', loadChildren: () => import('app/modules/admin/administration/accounting/accounting.routes')},
                     {path: 'orders', loadChildren: () => import('app/modules/admin/administration/orders/orders.routes')},
                     {path: 'invoices', loadChildren: () => import('app/modules/admin/administration/invoices/invoices.routes')},
                 ]

@@ -1,20 +1,17 @@
-import { Component, computed, inject, linkedSignal, OnDestroy, resource, Signal, signal, TemplateRef, viewChild, ViewContainerRef, WritableSignal }     from '@angular/core';
-import { BreakpointObserver, Breakpoints }                                                                                                              from '@angular/cdk/layout';
-import { Overlay, OverlayRef }                                                                                                                          from '@angular/cdk/overlay';
-import { CurrencyPipe, DatePipe }                                                                                                                       from '@angular/common';
-import { toSignal }                                                                                                                                     from '@angular/core/rxjs-interop';
-import { FormControl, FormsModule, ReactiveFormsModule }                                                                                                from '@angular/forms';
-import { MatSlideToggle }                                                                                                                               from '@angular/material/slide-toggle';
-import { MatSort, MatSortHeader }                                                                                                                       from '@angular/material/sort';
-import { MatDialog }                                                                                                                                    from '@angular/material/dialog';
-import { MatFormFieldModule }                                                                                                                           from '@angular/material/form-field';
-import { MatInputModule }                                                                                                                               from '@angular/material/input';
-import { MatSelectModule }                                                                                                                              from '@angular/material/select';
-import { MatIcon }                                                                                                                                      from '@angular/material/icon';
-import { MatButton, MatButtonModule, MatIconAnchor }                                                                                                    from '@angular/material/button';
-import { MatTooltip }                                                                                                                                   from '@angular/material/tooltip';
-import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatNoDataRow, MatRow, MatRowDef, MatTable } from '@angular/material/table';
-import { Router, RouterLink }                                                                                                                           from '@angular/router';
+import { Component, computed, inject, linkedSignal, OnDestroy, resource, Signal, signal, TemplateRef, viewChild, ViewContainerRef, WritableSignal } from '@angular/core';
+import { BreakpointObserver, Breakpoints }                                                                                                          from '@angular/cdk/layout';
+import { Overlay, OverlayRef }                                                                                                                      from '@angular/cdk/overlay';
+import { toSignal }                                                                                                                                 from '@angular/core/rxjs-interop';
+import { FormControl, FormsModule, ReactiveFormsModule }                                                                                            from '@angular/forms';
+import { MatSlideToggle }                                                                                                                           from '@angular/material/slide-toggle';
+import { MatDialog }                                                                                                                                from '@angular/material/dialog';
+import { MatFormFieldModule }                                                                                                                       from '@angular/material/form-field';
+import { MatInputModule }                                                                                                                           from '@angular/material/input';
+import { MatSelectModule }                                                                                                                          from '@angular/material/select';
+import { MatIcon }                                                                                                                                  from '@angular/material/icon';
+import { MatButton, MatButtonModule, MatIconAnchor }                                                                                                from '@angular/material/button';
+import { MatTooltip }                                                                                                                               from '@angular/material/tooltip';
+import { Router, RouterLink }                                                                                                                       from '@angular/router';
 
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@ngneat/transloco';
 import { DateTime }                                            from 'luxon';
@@ -33,7 +30,6 @@ import { InvoiceDetailComponent }             from '@modules/admin/administratio
 import { OrderDetailDialog }                  from '@modules/admin/administration/orders/dialogs/order-detail/order-detail.dialog';
 import { Client }                             from '@modules/admin/maintainers/clients/domain/model/client';
 import { ClientService }                      from '@modules/admin/maintainers/clients/client.service';
-import { BadgeComponent }                     from '@shared/components/badge/badge.component';
 import { Invoice }                            from '@modules/admin/administration/invoices/domains/model/invoice';
 import { TableBuilderComponent }              from '@shared/components/table-builder/table-builder.component';
 import { ColumnConfig }                       from '@shared/components/table-builder/column.type';
@@ -49,32 +45,14 @@ import { openOverlay }                        from '@shared/utils/overlay.util';
         RouterLink,
         MatIconAnchor,
         MatIcon,
-        MatTable,
-        MatSort,
-        MatSortHeader,
-        MatColumnDef,
-        MatHeaderCell,
-        MatCell,
-        MatHeaderCellDef,
-        MatCellDef,
-        CurrencyPipe,
-        MatHeaderRowDef,
-        MatRowDef,
-        MatNoDataRow,
-        MatHeaderRow,
-        MatRow,
         MatButtonModule,
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
         FormsModule,
-        DatePipe,
         TranslocoPipe,
         MatSlideToggle,
-        BadgeComponent,
         TableBuilderComponent,
-
-
     ],
     templateUrl: './list.component.html',
     host       : {

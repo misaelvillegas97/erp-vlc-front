@@ -11,14 +11,10 @@ import { toSignal }                                                             
 import { MatTableModule }                                                                                                                                  from '@angular/material/table';
 import { MatSortModule }                                                                                                                                   from '@angular/material/sort';
 import { trackByFn }                                                                                                                                       from '@libs/ui/utils/utils';
-import { MatInput }                                                                                                                                        from '@angular/material/input';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule }                                                                                        from '@angular/forms';
 import { MatAutocompleteModule }                                                                                                                           from '@angular/material/autocomplete';
 import { ClientService }                                                                                                                                   from '@modules/admin/maintainers/clients/client.service';
-import { MatSelect }                                                                                                                                       from '@angular/material/select';
 import { MatFormFieldModule }                                                                                                                              from '@angular/material/form-field';
-import { CurrencyPipe, DatePipe }                                                                                                                          from '@angular/common';
-import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker, MatEndDate, MatStartDate }                                                            from '@angular/material/datepicker';
 import { DateTime }                                                                                                                                        from 'luxon';
 import { MatMenuModule }                                                                                                                                   from '@angular/material/menu';
 import { Invoice }                                                                                                                                         from '@modules/admin/administration/invoices/domains/model/invoice';
@@ -26,7 +22,6 @@ import { MatDialog }                                                            
 import { UpdateInvoiceStatusDialog }                                                                                                                       from '@modules/admin/administration/invoices/dialogs/update-invoice-status/update-invoice-status.dialog';
 import { Overlay, OverlayRef }                                                                                                                             from '@angular/cdk/overlay';
 import { MatSlideToggle }                                                                                                                                  from '@angular/material/slide-toggle';
-import { BadgeComponent }                                                                                                                                  from '@shared/components/badge/badge.component';
 import { OrderDetailDialog }                                                                                                                               from '@modules/admin/administration/orders/dialogs/order-detail/order-detail.dialog';
 import { Router }                                                                                                                                          from '@angular/router';
 import { NotyfService }                                                                                                                                    from '@shared/services/notyf.service';
@@ -49,23 +44,13 @@ import { Order }                                                                
         MatTooltip,
         MatTableModule,
         MatSortModule,
-        MatInput,
         FormsModule,
         MatFormFieldModule,
         MatAutocompleteModule,
-        MatSelect,
         ReactiveFormsModule,
         TranslocoPipe,
-        DatePipe,
-        CurrencyPipe,
-        MatStartDate,
-        MatEndDate,
-        MatDateRangeInput,
-        MatDatepickerToggle,
-        MatDateRangePicker,
         MatMenuModule,
         MatSlideToggle,
-        BadgeComponent,
         TableBuilderComponent
     ],
     templateUrl: './list.component.html'
@@ -184,6 +169,7 @@ export class ListComponent implements OnDestroy {
     ngOnDestroy() {
         if (this.#overlayRef) this.#overlayRef.detach();
     }
+
     protected readonly DateTime = DateTime;
 
     toggleColumn = (columnKey: string) => toggleColumn(columnKey, this.columnsConfig, this.persistColumnsConfiguration);
