@@ -24,6 +24,14 @@
         },
         "operations" : {
             "title" : "Operaciones",
+            "accounting" : {
+                "title" : "Contabilidad",
+                "dashboard" : "Gráficas",
+                "list" : "Listado de contabilidad",
+                "receivables" : "Cuentas por cobrar",
+                "payables" : "Cuentas por pagar",
+                "bank" : "Bancos"
+            },
             "orders" : {
                 "title" : "Ordenes",
                 "dashboard" : "Gráficas",

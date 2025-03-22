@@ -52,6 +52,36 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon    : 'heroicons_outline:briefcase',
         children: [
             {
+                id      : 'operations.accounting.title',
+                type    : 'group',
+                children: [
+                    {
+                        id  : 'operations.accounting.dashboard',
+                        type: 'basic',
+                        link: '/operations/accounting/dashboard',
+                        icon: 'heroicons_outline:chart-pie'
+                    },
+                    {
+                        id  : 'operations.accounting.payables',
+                        type: 'basic',
+                        link: '/operations/accounting/payables/list',
+                        icon: 'heroicons_outline:document-text'
+                    },
+                    {
+                        id  : 'operations.accounting.receivables',
+                        type: 'basic',
+                        link: '/operations/accounting/receivables/list',
+                        icon: 'heroicons_outline:document-text'
+                    },
+                    {
+                        id  : 'operations.accounting.bank',
+                        type: 'basic',
+                        link: '/operations/accounting/bank/list',
+                        icon: 'heroicons_outline:banknotes'
+                    }
+                ]
+            },
+            {
                 id      : 'operations.orders.title',
                 type    : 'group',
                 children: [
