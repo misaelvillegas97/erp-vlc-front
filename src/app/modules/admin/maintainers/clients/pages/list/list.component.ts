@@ -1,24 +1,24 @@
-import { Component, OnInit }                            from '@angular/core';
-import { takeUntilDestroyed }                           from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatIconAnchor, MatIconButton }                 from '@angular/material/button';
-import { MatFormFieldModule }                           from '@angular/material/form-field';
-import { MatIcon }                                      from '@angular/material/icon';
-import { MatInputModule }                               from '@angular/material/input';
-import { MatTableModule }                               from '@angular/material/table';
-import { MatTooltip }                                   from '@angular/material/tooltip';
-import { RouterLink }                                   from '@angular/router';
+import { Component, inject, model, OnInit, resource, WritableSignal } from '@angular/core';
+import { toSignal }                                                   from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule, Validators }               from '@angular/forms';
+import { MatIconAnchor }                                              from '@angular/material/button';
+import { MatFormFieldModule }                                         from '@angular/material/form-field';
+import { MatIcon }                                                    from '@angular/material/icon';
+import { MatInputModule }                                             from '@angular/material/input';
+import { MatTableModule }                                             from '@angular/material/table';
+import { MatTooltip }                                                 from '@angular/material/tooltip';
+import { RouterLink }                                                 from '@angular/router';
 
-import { TranslocoDirective, TranslocoService }                                               from '@ngneat/transloco';
-import { Notyf }                                                                              from 'notyf';
-import { BehaviorSubject, debounceTime, distinctUntilChanged, mergeMap, of, switchMap, take } from 'rxjs';
+import { TranslocoDirective, TranslocoService }             from '@ngneat/transloco';
+import { Notyf }                                            from 'notyf';
+import { debounceTime, firstValueFrom, mergeMap, of, take } from 'rxjs';
 
-import { FuseConfirmationService }              from '@fuse/services/confirmation';
-import { PageHeaderComponent }                  from '@layout/components/page-header/page-header.component';
-import { Table }                                from '@shared/components/table/table.component';
-import { Client }                               from '@modules/admin/maintainers/clients/domain/model/client';
-import { ClientService }                        from '@modules/admin/maintainers/clients/client.service';
-import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
+import { PageHeaderComponent }     from '@layout/components/page-header/page-header.component';
+import { Client }                  from '@modules/admin/maintainers/clients/domain/model/client';
+import { ClientService }           from '@modules/admin/maintainers/clients/client.service';
+import { TableBuilderComponent }   from '@shared/components/table-builder/table-builder.component';
+import { ColumnConfig }            from '@shared/components/table-builder/column.type';
 
 @Component({
     selector   : 'app-list',
@@ -30,47 +30,42 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
         MatIconAnchor,
         MatTooltip,
         MatFormFieldModule,
-        MatIconButton,
         MatInputModule,
         MatTableModule,
-        Table,
         ReactiveFormsModule,
         RouterLink,
-        MatMenu,
-        MatMenuItem,
-        MatMenuTrigger
+        TableBuilderComponent
     ],
     templateUrl: './list.component.html'
 })
 export class ListComponent implements OnInit {
-    public clients$: BehaviorSubject<Client[]> = new BehaviorSubject<Client[]>(null);
-    public readonly displayedColumns: string[] = [ 'businessName', 'fantasyName', 'code', 'email', 'phone', 'actions' ];
-    public searchControl = new FormControl(undefined, [ Validators.minLength(3), Validators.maxLength(100) ]);
-    private _notyf = new Notyf();
+    readonly displayedColumns: string[] = [ 'businessName', 'fantasyName', 'code', 'email', 'phone', 'actions' ];
+    searchControl = new FormControl(undefined, [ Validators.minLength(3), Validators.maxLength(100) ]);
+    searchControlSignal = toSignal(this.searchControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
+    columnsConfig: WritableSignal<ColumnConfig[]> = model(undefined);
+    readonly #ts = inject(TranslocoService);
+    readonly #clientService = inject(ClientService);
+    clientsResource = resource({
+        request: () => this.searchControlSignal() || '',
+        loader : ({request}) => firstValueFrom(this.#clientService.findAll(request))
+    });
+    readonly #fuseConfirmationService = inject(FuseConfirmationService);
+    readonly #notyf = new Notyf();
 
-    constructor(
-        private readonly _fuseConfirmationService: FuseConfirmationService,
-        private readonly _clientService: ClientService,
-        private readonly _translationService: TranslocoService,
-    ) {
-        this._subscribeToSearchControl();
-        this._clientService.clients$
-            .pipe(takeUntilDestroyed())
-            .subscribe((clients) => this.clients$.next(clients));
+    ngOnInit() {
+        this.columnsConfig.set(this.buildColumnsConfig());
     }
 
-    ngOnInit() {}
-
     openDeleteDialog(client: Client): void {
-        const confirmation = this._fuseConfirmationService.open({
-            title  : this._translationService.translate('modal.delete-confirmation.title'),
-            message: this._translationService.translate('modal.delete-confirmation.message'),
+        const confirmation = this.#fuseConfirmationService.open({
+            title  : this.#ts.translate('modal.delete-confirmation.title'),
+            message: this.#ts.translate('modal.delete-confirmation.message'),
             actions: {
                 confirm: {
-                    label: this._translationService.translate('modal.delete-confirmation.confirm'),
+                    label: this.#ts.translate('modal.delete-confirmation.confirm'),
                 },
                 cancel : {
-                    label: this._translationService.translate('modal.delete-confirmation.cancel'),
+                    label: this.#ts.translate('modal.delete-confirmation.cancel'),
                 }
             },
         });
@@ -78,24 +73,51 @@ export class ListComponent implements OnInit {
         confirmation.afterClosed()
             .pipe(
                 take(1),
-                mergeMap((result) => result === 'confirmed' ? this._clientService.delete(client.id) : of(null))
+                mergeMap((result) => result === 'confirmed' ? this.#clientService.delete(client.id) : of(null))
             )
             .subscribe();
     }
 
-    private _subscribeToSearchControl() {
-        this.searchControl.valueChanges
-            .pipe(
-                takeUntilDestroyed(),
-                debounceTime(1000),
-                distinctUntilChanged(),
-                switchMap((value) => {
-                    value = value.trim();
-                    if (!value) return this._clientService.findAll();
-                    else if (value.length >= 3 && value.length < 100) return this._clientService.findAll(value);
-                    else return of('invalid');
-                })
-            )
-            .subscribe();
-    }
+    buildColumnsConfig = (): ColumnConfig[] => [
+        {
+            key    : 'businessName',
+            header : this.#ts.translate('maintainers.client.fields.business-name'),
+            display: {type: 'text'},
+            visible: true
+        },
+        {
+            key    : 'fantasyName',
+            header : this.#ts.translate('maintainers.client.fields.fantasy-name'),
+            display: {type: 'text'},
+            visible: true
+        },
+        {
+            key    : 'code',
+            header : this.#ts.translate('maintainers.client.fields.code'),
+            display: {type: 'text'},
+            visible: true
+        },
+        {
+            key    : 'email',
+            header : this.#ts.translate('maintainers.client.fields.email'),
+            display: {type: 'text'},
+            visible: true
+        },
+        {
+            key    : 'phone',
+            header : this.#ts.translate('maintainers.client.fields.phone'),
+            display: {type: 'text'},
+            visible: true
+        },
+        {
+            key    : 'actions',
+            header : '',
+            display: {
+                type  : 'actions', actions: [ {icon: 'delete', action: 'delete'} ],
+                action: (action: string, client: Client) => {},
+            },
+            visible: true
+
+        }
+    ];
 }

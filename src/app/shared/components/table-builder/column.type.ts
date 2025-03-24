@@ -3,7 +3,7 @@ import { TemplateRef }            from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DateTime }               from 'luxon';
 
-export type ColumnType = 'text' | 'date' | 'currency' | 'badge' | 'custom';
+export type ColumnType = 'text' | 'date' | 'currency' | 'badge' | 'actions' | 'custom';
 
 interface BaseFilterConfig {
     placeholder?: string;
@@ -78,6 +78,8 @@ export interface ColumnDisplayConfig {
     customTemplate?: TemplateRef<any>;
     pipeOptions?: any; // TODO: Define available types
     onClick?: (row: any) => void;
+    actions?: { icon: string; action: string; }[];
+    action?: (action: string, row: any) => void;
 
     alignment?: 'left' | 'center' | 'right';
     width?: string;

@@ -33,145 +33,6 @@
                            [itemsPerPageLabel]="'Facturas por página'"
                            class="w-full"
             ></table-builder>
-
-            <!--            <table [dataSource]="invoicesResource.value()"-->
-            <!--                   [trackBy]="trackByFn"-->
-            <!--                   class="min-w-240 w-full overflow-y-visible bg-transparent"-->
-            <!--                   mat-table-->
-            <!--                   matSort-->
-            <!--            >-->
-            <!--                <ng-container matColumnDef="invoiceNumber">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.invoice-number') }}</th>-->
-            <!--                    <td *matCellDef="let row" mat-cell>-->
-            <!--                        <span (click)=" view(row)" class="text-sm cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">{{ row?.invoiceNumber }}</span>-->
-            <!--                    </td>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="invoiceNumberFilter">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell>-->
-            <!--                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">-->
-            <!--                            <input-->
-            <!--                                [formControl]="invoiceNumberFormControl"-->
-            <!--                                matInput-->
-            <!--                                placeholder="{{ t('fields.invoice-number') }}"-->
-            <!--                                type="number"-->
-            <!--                            />-->
-            <!--                        </mat-form-field>-->
-            <!--                    </th>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="orderNumber">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.order-number') }}</th>-->
-            <!--                    <td *matCellDef="let row" mat-cell>-->
-            <!--                        <span (click)="viewOrderDetail(row)" class="font-medium text-sm text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">{{ row.order?.orderNumber }}</span>-->
-            <!--                    </td>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="orderNumberFilter">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell>-->
-            <!--                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">-->
-            <!--                            <input-->
-            <!--                                [formControl]="orderNumberFormControl"-->
-            <!--                                matInput-->
-            <!--                                placeholder="{{ t('fields.order-number') }}"-->
-            <!--                                type="number"-->
-            <!--                            />-->
-            <!--                        </mat-form-field>-->
-            <!--                    </th>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="client">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.client') }}</th>-->
-            <!--                    <td *matCellDef="let row" mat-cell>{{ row.client?.fantasyName }}</td>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="clientFilter">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell>-->
-            <!--                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">-->
-            <!--                            <mat-select [formControl]="clientFormControl"-->
-            <!--                                        multiple-->
-            <!--                                        placeholder="{{ t('fields.client') }}"-->
-            <!--                            >-->
-            <!--                                @if (!clientsResource.isLoading()) {-->
-            <!--                                    @for (client of clientsResource.value(); track client.id) {-->
-            <!--                                        <mat-option [value]="client">{{ client.fantasyName }}</mat-option>-->
-            <!--                                    }-->
-            <!--                                }-->
-            <!--                            </mat-select>-->
-            <!--                        </mat-form-field>-->
-            <!--                    </th>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="status">-->
-            <!--                    <th *matHeaderCellDef class="min-w-48" mat-header-cell>Estado</th>-->
-            <!--                    <td *matCellDef="let invoice" class="mat-col-w-3" mat-cell>-->
-            <!--                        <badge (click)="updateStatusInvoice(invoice)"-->
-            <!--                               [color]="InvoiceStatusConfig[invoice.status].color"-->
-            <!--                               [label]="'enums.invoice-status.' + invoice.status | transloco"-->
-            <!--                               class="cursor-pointer"-->
-            <!--                        ></badge>-->
-            <!--                    </td>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="statusFilter">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell>-->
-            <!--                        <mat-form-field-->
-            <!--                            [matTooltipClass]="'whitespace-pre-wrap'"-->
-            <!--                            [matTooltip]="translatedSelectedStatus()"-->
-            <!--                            class="fuse-mat-dense w-full"-->
-            <!--                            subscriptSizing="dynamic"-->
-            <!--                        >-->
-            <!--                            <mat-select-->
-            <!--                                [formControl]="statusFormControl"-->
-            <!--                                multiple-->
-            <!--                                placeholder="Sin filtro"-->
-            <!--                            >-->
-            <!--                                @for (status of invoiceStatuses; track status) {-->
-            <!--                                    <mat-option class="text-sm" [value]="status">{{ 'enums.invoice-status.' + status | transloco }}</mat-option>-->
-            <!--                                } @empty {-->
-            <!--                                    <mat-option class="text-sm" [value]="null">Sin filtros</mat-option>-->
-            <!--                                }-->
-            <!--                            </mat-select>-->
-            <!--                        </mat-form-field>-->
-            <!--                    </th>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="isPaid">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.is-paid') }}</th>-->
-            <!--                    <td *matCellDef="let invoice" mat-cell>-->
-            <!--                        <div class="flex align-center">-->
-            <!--                            @let invalidStatuses = [ InvoiceStatusEnum.RE_INVOICED, InvoiceStatusEnum.REJECTED ];-->
-            <!--                            @let payments = getPayments(invoice);-->
-            <!--                            @let isPartiallyPaid = payments.percentagePaid < 100 && payments.percentagePaid > 0;-->
-
-            <!--                            @if (invoice.isPaid) {-->
-            <!--                                <mat-icon [matTooltip]="'Pagado el ' + (invoice.paymentDate | date: 'dd-MM-yyyy')" class="text-green-500">task_alt</mat-icon>-->
-            <!--                            } @else if (isPartiallyPaid) {-->
-            <!--                                <mat-icon class="text-yellow-500"-->
-            <!--                                          [matTooltip]="(payments.totalPayments | currency: 'CLP': 'symbol-narrow') + ' (' + payments.percentagePaid + '%) pagado'"-->
-            <!--                                >task_alt-->
-            <!--                                </mat-icon>-->
-            <!--                            } @else if (DateTime.now().toISODate() <= invoice.dueDate || invalidStatuses.includes(invoice.status)) {-->
-            <!--                                <mat-icon class="text-accent-500">pending</mat-icon>-->
-            <!--                            } @else {-->
-            <!--                                <mat-icon class="text-red-500">cancel</mat-icon>-->
-            <!--                            }-->
-            <!--                        </div>-->
-            <!--                    </td>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="isPaidFilter">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell>-->
-            <!--                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">-->
-            <!--                            <mat-select [formControl]="isPaidFormControl" placeholder="Pagado">-->
-            <!--                                <mat-option [value]="null">Sin filtro</mat-option>-->
-            <!--                                <mat-option [value]="true">Pagado</mat-option>-->
-            <!--                                <mat-option [value]="false">No pagado</mat-option>-->
-            <!--                            </mat-select>-->
-            <!--                        </mat-form-field>-->
-            <!--                    </th>-->
-            <!--                </ng-container>-->
-
             <!--                <ng-container matColumnDef="deliveryAssignment">-->
             <!--                    <th *matHeaderCellDef mat-header-cell>Asignación de entrega</th>-->
             <!--                    <td *matCellDef="let invoice" mat-cell>-->
@@ -182,161 +43,6 @@
             <!--                        }-->
             <!--                    </td>-->
             <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="deliveryAssignmentFilter">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell>-->
-            <!--                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">-->
-            <!--                            <mat-select [formControl]="deliveryAssignmentFormControl"-->
-            <!--                                        multiple-->
-            <!--                                        placeholder="Asignación de entrega"-->
-            <!--                            >-->
-            <!--                                &lt;!&ndash;                                @if (!deliveryAssignmentsResource.isLoading()) {&ndash;&gt;-->
-            <!--                                &lt;!&ndash;                                    @for (deliveryAssignment of deliveryAssignmentsResource.value(); track deliveryAssignment.id) {&ndash;&gt;-->
-            <!--                                &lt;!&ndash;                                        <mat-option [value]="deliveryAssignment">{{ deliveryAssignment.name }}</mat-option>&ndash;&gt;-->
-            <!--                                &lt;!&ndash;                                    }&ndash;&gt;-->
-            <!--                                &lt;!&ndash;                                }&ndash;&gt;-->
-            <!--                            </mat-select>-->
-            <!--                        </mat-form-field>-->
-            <!--                    </th>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="emissionDate">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.emission-date') }}</th>-->
-            <!--                    <td *matCellDef="let invoice" mat-cell>{{ invoice.emissionDate | date: 'dd-MM-yyyy' }}</td>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="emissionDateFilter">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell>-->
-            <!--                        <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">-->
-            <!--                            <mat-date-range-input [formGroup]="emissionDateFormControl" [rangePicker]="pickerEmissionDate">-->
-            <!--                                <input formControlName="from" matStartDate placeholder="Start date">-->
-            <!--                                <input formControlName="to" matEndDate placeholder="End date">-->
-            <!--                            </mat-date-range-input>-->
-            <!--                            <mat-datepicker-toggle [for]="pickerEmissionDate" matIconSuffix></mat-datepicker-toggle>-->
-            <!--                            <mat-date-range-picker #pickerEmissionDate></mat-date-range-picker>-->
-            <!--                        </mat-form-field>-->
-            <!--                    </th>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="dueDate">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.due-date') }}</th>-->
-            <!--                    <td *matCellDef="let invoice" mat-cell>-->
-            <!--                        @if (!invoice.dueDate) {-->
-            <!--                            <span class="italic mat-hint font-normal">{{ t('fields.no-due-date') }}</span>-->
-            <!--                        } @else if ([ InvoiceStatusEnum.ISSUED ].includes(invoice.status) && today > invoice.dueDate) {-->
-            <!--                            <span class="text-red-500">{{ invoice.dueDate | date: 'dd-MM-yyyy' }}</span>-->
-            <!--                        } @else {-->
-            <!--                            <span>{{ invoice.dueDate | date: 'dd-MM-yyyy' }}</span>-->
-            <!--                        }-->
-            <!--                    </td>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="dueDateFilter">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell>-->
-            <!--                        <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">-->
-            <!--                            <mat-date-range-input [formGroup]="dueDateFormControl" [rangePicker]="pickerDueDate">-->
-            <!--                                <input formControlName="from" matStartDate placeholder="Start date">-->
-            <!--                                <input formControlName="to" matEndDate placeholder="End date">-->
-            <!--                            </mat-date-range-input>-->
-            <!--                            <mat-datepicker-toggle [for]="pickerDueDate" matIconSuffix></mat-datepicker-toggle>-->
-            <!--                            <mat-date-range-picker #pickerDueDate></mat-date-range-picker>-->
-            <!--                        </mat-form-field>-->
-            <!--                    </th>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="netAmount">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.net-amount') }}</th>-->
-            <!--                    <td *matCellDef="let invoice" mat-cell>{{ invoice.netAmount | currency: 'CLP': 'symbol-narrow' }}</td>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="netAmountFilter">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell>-->
-            <!--                        <div [formGroup]="netAmountFormControl" class="flex gap-2">-->
-            <!--                            <mat-form-field class="fuse-mat-dense flex-1" subscriptSizing="dynamic">-->
-            <!--                                <input-->
-            <!--                                    formControlName="from"-->
-            <!--                                    matInput-->
-            <!--                                    placeholder="$ {{ t('fields.from') }}"-->
-            <!--                                    type="number"-->
-            <!--                                />-->
-            <!--                            </mat-form-field>-->
-            <!--                            <mat-form-field class="fuse-mat-dense flex-1" subscriptSizing="dynamic">-->
-            <!--                                <input-->
-            <!--                                    formControlName="to"-->
-            <!--                                    matInput-->
-            <!--                                    placeholder="$ {{ t('fields.to') }}"-->
-            <!--                                    type="number"-->
-            <!--                                />-->
-            <!--                            </mat-form-field>-->
-            <!--                        </div>-->
-            <!--                    </th>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="taxAmount">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.tax-amount') }}</th>-->
-            <!--                    <td *matCellDef="let invoice" mat-cell>{{ invoice.taxAmount | currency: 'CLP': 'symbol-narrow' }}</td>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="taxAmountFilter">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell>-->
-            <!--                        <div [formGroup]="taxAmountFormControl" class="flex gap-2">-->
-            <!--                            <mat-form-field class="fuse-mat-dense flex-1" subscriptSizing="dynamic">-->
-            <!--                                <input-->
-            <!--                                    formControlName="from"-->
-            <!--                                    matInput-->
-            <!--                                    placeholder="$ {{ t('fields.from') }}"-->
-            <!--                                    type="number"-->
-            <!--                                />-->
-            <!--                            </mat-form-field>-->
-            <!--                            <mat-form-field class="fuse-mat-dense flex-1" subscriptSizing="dynamic">-->
-            <!--                                <input-->
-            <!--                                    formControlName="to"-->
-            <!--                                    matInput-->
-            <!--                                    placeholder="$ {{ t('fields.to') }}"-->
-            <!--                                    type="number"-->
-            <!--                                />-->
-            <!--                            </mat-form-field>-->
-            <!--                        </div>-->
-            <!--                    </th>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="totalAmount">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell mat-sort-header>{{ t('fields.total-amount') }}</th>-->
-            <!--                    <td *matCellDef="let invoice" mat-cell>{{ invoice.totalAmount | currency: 'CLP': 'symbol-narrow' }}</td>-->
-            <!--                </ng-container>-->
-
-            <!--                <ng-container matColumnDef="totalAmountFilter">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell>-->
-            <!--                        <div [formGroup]="totalAmountFormControl" class="flex gap-2">-->
-            <!--                            <mat-form-field class="fuse-mat-dense flex-1" subscriptSizing="dynamic">-->
-            <!--                                <input-->
-            <!--                                    formControlName="from"-->
-            <!--                                    matInput-->
-            <!--                                    placeholder="$ {{ t('fields.from') }}"-->
-            <!--                                    type="number"-->
-            <!--                                />-->
-            <!--                            </mat-form-field>-->
-            <!--                            <mat-form-field class="fuse-mat-dense flex-1" subscriptSizing="dynamic">-->
-            <!--                                <input-->
-            <!--                                    formControlName="to"-->
-            <!--                                    matInput-->
-            <!--                                    placeholder="$ {{ t('fields.to') }}"-->
-            <!--                                    type="number"-->
-            <!--                                />-->
-            <!--                            </mat-form-field>-->
-            <!--                        </div>-->
-            <!--                    </th>-->
-            <!--                </ng-container>-->
-
-
-            <!--                <ng-container matColumnDef="actionsFilter">-->
-            <!--                    <th *matHeaderCellDef mat-header-cell></th>-->
-            <!--                </ng-container>-->
-
-            <!--                <tr *matHeaderRowDef="columns()" mat-header-row></tr>-->
-            <!--                <tr *matHeaderRowDef="filterColumns()" mat-header-row></tr>-->
-            <!--                <tr *matRowDef="let row; columns: columns()" class="text-sm" mat-row></tr>-->
-            <!--            </table>-->
         </div>
     </div>
 
@@ -359,6 +65,26 @@
             </div>
         </div>
     </ng-template>
+    <ng-template #isPaidCell let-invoice="row">
+        <div class="flex align-center">
+            @let invalidStatuses = [InvoiceStatusEnum.RE_INVOICED, InvoiceStatusEnum.REJECTED];
+            @let payments = getPayments(invoice);
+            @let isPartiallyPaid = payments.percentagePaid < 100 && payments.percentagePaid > 0;
+
+            @if (invoice.isPaid) {
+                <mat-icon [matTooltip]="'Pagado el ' + (invoice.paymentDate | date: 'dd-MM-yyyy')" class="text-green-500">task_alt</mat-icon>
+            } @else if (isPartiallyPaid) {
+                <mat-icon class="text-yellow-500"
+                          [matTooltip]="(payments.totalPayments | currency: 'CLP': 'symbol-narrow') + ' (' + payments.percentagePaid + '%) pagado'"
+                >task_alt
+                </mat-icon>
+            } @else if (DateTime.now().toISODate() <= invoice.dueDate || invalidStatuses.includes(invoice.status)) {
+                <mat-icon class="text-accent-500">pending</mat-icon>
+            } @else {
+                <mat-icon class="text-red-500">cancel</mat-icon>
+            }
+        </div>
+    </ng-template>
 </div>
 
 <ng-template #actionsCell let-invoice="row">
@@ -372,7 +98,7 @@
 
     <mat-menu #menu="matMenu">
         @let isTooOld = !isLessThan6Months(invoice.emissionDate);
-        @let invalidStatus = [ InvoiceStatusEnum.RE_INVOICED ].includes(invoice.status);
+        @let invalidStatus = [InvoiceStatusEnum.RE_INVOICED].includes(invoice.status);
 
         @if (!isTooOld && !invalidStatus && !invoice.isPaid) {
             <button (click)="reInvoice(invoice)" mat-menu-item>

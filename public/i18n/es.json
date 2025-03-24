@@ -157,6 +157,7 @@
                 "dueDate" : "Fecha de vencimiento",
                 "due-date" : "Fecha de vencimiento",
                 "is-paid" : "Pagada",
+                "isPaid" : "Pagada",
                 "no-due-date" : "No posee",
                 "payment-date" : "Fecha de pago",
                 "netAmount" : "Monto neto",
@@ -179,6 +180,41 @@
             },
             "actions" : {
                 "update-status" : "Actualizar estado"
+            }
+        },
+        "accounting" : {
+            "title" : "Contabilidad",
+            "dashboard" : {
+                "title" : "Tablero de contabilidad",
+                "subtitle" : "Resumen de contabilidad",
+                "description" : "Resumen de contabilidad"
+            },
+            "receivables" : {
+                "title" : "Cuentas por cobrar",
+                "subtitle" : "Administra las cuentas por cobrar",
+                "list" : {
+                    "title" : "Listado de cuentas por cobrar",
+                    "subtitle" : "Administra las cuentas por cobrar",
+                    "description" : "Lista de cuentas por cobrar"
+                }
+            },
+            "payables" : {
+                "title" : "Cuentas por pagar",
+                "subtitle" : "Administra las cuentas por pagar",
+                "list" : {
+                    "title" : "Listado de cuentas por pagar",
+                    "subtitle" : "Administra las cuentas por pagar",
+                    "description" : "Lista de cuentas por pagar"
+                }
+            },
+            "bank" : {
+                "title" : "Bancos",
+                "subtitle" : "Administra los bancos",
+                "list" : {
+                    "title" : "Listado de bancos",
+                    "subtitle" : "Administra los bancos",
+                    "description" : "Lista de bancos"
+                }
             }
         }
     },

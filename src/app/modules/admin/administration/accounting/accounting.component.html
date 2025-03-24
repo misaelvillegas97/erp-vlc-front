@@ -1,1 +1,10 @@
-<p>accounting works! :)</p>
+<drawer-listing
+    *transloco="let t; read: 'admin.benefits'"
+    [panels]="panels"
+    [selectedPanel]="'list'"
+    [title]="'operations.accounting.title' | transloco"
+>
+    <drawer-content class="h-full">
+        <router-outlet></router-outlet>
+    </drawer-content>
+</drawer-listing>

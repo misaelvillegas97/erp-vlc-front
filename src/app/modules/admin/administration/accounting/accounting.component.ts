@@ -1,10 +1,17 @@
-import { Component, inject } from '@angular/core';
-import { PanelType }         from '@shared/components/drawer-listing/panel.type';
-import { TranslocoService }  from '@ngneat/transloco';
+import { Component, inject }                                   from '@angular/core';
+import { PanelType }                                           from '@shared/components/drawer-listing/panel.type';
+import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@ngneat/transloco';
+import { DrawerListingComponent }                              from '@shared/components/drawer-listing/drawer-listing.component';
+import { RouterOutlet }                                        from '@angular/router';
 
 @Component({
     selector   : 'app-accounting',
-    imports    : [],
+    imports: [
+        DrawerListingComponent,
+        RouterOutlet,
+        TranslocoDirective,
+        TranslocoPipe
+    ],
     templateUrl: './accounting.component.html'
 })
 export class AccountingComponent {
@@ -12,28 +19,36 @@ export class AccountingComponent {
 
     panels: PanelType[] = [
         {
-            id          : 'orders.dashboard',
-            title       : this.#ts.translate('operations.orders.dashboard.title'),
-            description : this.#ts.translate('operations.orders.dashboard.subtitle'),
+            id         : 'accounting.dashboard',
+            title      : this.#ts.translate('operations.accounting.dashboard.title'),
+            description: this.#ts.translate('operations.accounting.dashboard.subtitle'),
             icon        : 'heroicons_outline:chart-pie',
             selectedIcon: 'heroicons_solid:chart-pie',
-            link        : '/operations/orders/dashboard'
+            link       : '/operations/accounting/dashboard'
         },
         {
-            id          : 'orders.list',
-            title       : this.#ts.translate('operations.orders.list.title'),
-            description : this.#ts.translate('operations.orders.list.subtitle'),
+            id          : 'accounting.payables',
+            title       : this.#ts.translate('operations.accounting.payables.title'),
+            description : this.#ts.translate('operations.accounting.payables.subtitle'),
             icon        : 'heroicons_outline:document-text',
             selectedIcon: 'heroicons_solid:document-text',
-            link        : '/operations/orders/list'
+            link        : '/operations/accounting/payables/list'
         },
         {
-            id          : 'orders.new',
-            title       : this.#ts.translate('operations.orders.new.title'),
-            description : this.#ts.translate('operations.orders.new.subtitle'),
-            icon        : 'heroicons_outline:plus-circle',
-            selectedIcon: 'heroicons_solid:plus-circle',
-            link        : '/operations/orders/new'
+            id         : 'accounting.receivables',
+            title      : this.#ts.translate('operations.accounting.receivables.title'),
+            description: this.#ts.translate('operations.accounting.receivables.subtitle'),
+            icon        : 'heroicons_outline:document-text',
+            selectedIcon: 'heroicons_solid:document-text',
+            link       : '/operations/accounting/receivables/list'
+        },
+        {
+            id          : 'accounting.bank',
+            title       : this.#ts.translate('operations.accounting.bank.title'),
+            description : this.#ts.translate('operations.accounting.bank.subtitle'),
+            icon        : 'heroicons_outline:banknotes',
+            selectedIcon: 'heroicons_solid:banknotes',
+            link        : '/operations/accounting/bank/transfers'
         }
     ];
 }

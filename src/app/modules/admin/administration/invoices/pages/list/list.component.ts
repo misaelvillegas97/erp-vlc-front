@@ -33,6 +33,7 @@ import { Client }                                                               
 import { toggleColumn }                                                                                                                                    from '@shared/utils/column.util';
 import { TableBuilderComponent }                                                                                                                           from '@shared/components/table-builder/table-builder.component';
 import { Order }                                                                                                                                           from '@modules/admin/administration/orders/domain/model/order';
+import { CurrencyPipe, DatePipe }                                                                                                                          from '@angular/common';
 
 @Component({
     selector   : 'app-list',
@@ -51,7 +52,9 @@ import { Order }                                                                
         TranslocoPipe,
         MatMenuModule,
         MatSlideToggle,
-        TableBuilderComponent
+        TableBuilderComponent,
+        DatePipe,
+        CurrencyPipe
     ],
     templateUrl: './list.component.html'
 })
@@ -151,6 +154,7 @@ export class ListComponent implements OnDestroy {
 
     columnsOverlay: Signal<TemplateRef<any>> = viewChild('columnsOverlay');
     columnsOverlayButton: Signal<MatButton> = viewChild('columnsOverlayButton');
+    isPaidCellTemplate: Signal<TemplateRef<any>> = viewChild('isPaidCell');
     actionsCellTemplate: Signal<TemplateRef<any>> = viewChild('actionsCell');
 
     protected readonly trackByFn = trackByFn;
@@ -290,7 +294,7 @@ export class ListComponent implements OnDestroy {
             display: {
                 type            : 'badge',
                 containerClasses: 'block min-w-36',
-                classes         : 'text-sm',
+                classes: 'text-sm cursor-pointer',
                 formatter       : (status: InvoiceStatusEnum) => this.#ts.translate(`enums.invoice-status.${ status }`),
                 pipeOptions     : {color: (status: InvoiceStatusEnum) => InvoiceStatusConfig[status].color},
                 onClick         : (invoice: Invoice) => this.updateStatusInvoice(invoice)
@@ -307,10 +311,8 @@ export class ListComponent implements OnDestroy {
             header : this.#ts.translate('operations.invoices.fields.is-paid'),
             visible: true,
             display: {
-                type       : 'badge',
-                classes    : 'text-sm',
-                formatter  : (isPaid: boolean) => isPaid ? 'Sí' : 'No',
-                pipeOptions: {enum: InvoiceStatusEnum}
+                type          : 'custom',
+                customTemplate: this.isPaidCellTemplate()
             },
             filter : {
                 type    : 'select',
