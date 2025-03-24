@@ -39,54 +39,23 @@
         </div>
 
         <div class="relative max-w-full overflow-auto w-full">
-            <table [dataSource]="usersResource.value()"
-                   [trackBy]="trackByFn"
-                   class="min-w-240 w-full overflow-y-visible bg-transparent"
-                   mat-table
-            >
-                <ng-container matColumnDef="name">
-                    <th *matHeaderCellDef mat-header-cell>{{ t('fields.name') }}</th>
-                    <td *matCellDef="let user" mat-cell>
-                        <a [routerLink]="['edit', user.id]">{{ user.name }}</a>
-                    </td>
-                </ng-container>
-
-                <ng-container matColumnDef="email">
-                    <th *matHeaderCellDef mat-header-cell>{{ t('fields.email') }}</th>
-                    <td *matCellDef="let user" mat-cell>{{ user.email }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="role">
-                    <th *matHeaderCellDef mat-header-cell>{{ t('fields.role') }}</th>
-                    <td *matCellDef="let user" mat-cell>{{ user.roles | displayRoles }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="createdAt">
-                    <th *matHeaderCellDef mat-header-cell>{{ t('fields.created-at') }}</th>
-                    <td *matCellDef="let user" mat-cell>{{ user.createdAt | date: 'dd-MM-yyyy HH:mm' }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="actions">
-                    <th *matHeaderCellDef mat-header-cell>{{ t('fields.actions') }}</th>
-                    <td *matCellDef="let user" mat-cell>
-                        <div class="flex gap-2">
-                            <button mat-icon-button>
-                                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil"></mat-icon>
-                            </button>
-                            <button (click)="remove(user)" mat-icon-button>
-                                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:trash"></mat-icon>
-                            </button>
-                        </div>
-                    </td>
-                </ng-container>
-
-                <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
-                <tr *matRowDef="let row; columns: displayedColumns" class="text-sm" mat-row></tr>
-
-                <tr *matNoDataRow class="text-center">
-                    <td [attr.colspan]="displayedColumns.length" class="mat-hint italic py-4 text-md">{{ t('no-data') }}</td>
-                </tr>
-            </table>
+            @if (columnsConfig()) {
+                <table-builder [columns]="columnsConfig()"
+                               [data]="usersResource.value()"
+                               class="w-full"
+                ></table-builder>
+            }
         </div>
     </div>
+
+    <ng-template #actionsCell let-user="row">
+        <div class="flex gap-2">
+            <button mat-icon-button>
+                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil"></mat-icon>
+            </button>
+            <button (click)="remove(user)" mat-icon-button>
+                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:trash"></mat-icon>
+            </button>
+        </div>
+    </ng-template>
 </div>

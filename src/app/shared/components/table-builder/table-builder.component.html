@@ -89,8 +89,7 @@
         <!-- Fila de encabezados de datos -->
         <tr *matHeaderRowDef="displayedColumns()" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
         <!-- Fila de filtros -->
-        {{ displayedFilterColumns() }}
-        @if (displayedFilterColumns().length > 0) {
+        @if (containFilters()) {
             <tr *matHeaderRowDef="displayedFilterColumns()" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
         }
         <!-- Fila de datos -->

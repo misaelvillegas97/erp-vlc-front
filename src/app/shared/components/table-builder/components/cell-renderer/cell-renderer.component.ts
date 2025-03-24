@@ -15,7 +15,7 @@ import { CurrencyPipe, DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template       : `
-        @if (column.display.customTemplate) {
+        @if (column.display.type === 'custom' && column.display.customTemplate) {
             <ng-container *ngTemplateOutlet="column.display.customTemplate; context: { $implicit: row[column.key], row: row }"></ng-container>
         } @else {
             @switch (column.display.type) {

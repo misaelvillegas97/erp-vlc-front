@@ -56,9 +56,9 @@ export class TableBuilderComponent<T> {
     paginationChange = output<any>();
     itemsPerPageLabel = input<string>(this.#ts.translate('table.paginator.items-per-page'));
 
+    containFilters = computed(() => this.columns().some(col => col.filter));
     displayedColumns = computed(() => this.columns().map(col => col.key));
     displayedFilterColumns = computed(() => this.columns()
-        .filter((col => col.filter))
         .map(col => col.key + 'Filter'));
 
     matPaginator = viewChild<MatPaginator>('paginator');

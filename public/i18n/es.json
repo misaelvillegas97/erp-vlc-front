@@ -343,7 +343,9 @@
             "title" : "Eliminar",
             "message" : "¿Estás seguro de que deseas eliminar este elemento?, <span class=\"font-medium\">No podrás deshacer esta acción.</span>",
             "cancel" : "Cancelar",
-            "confirm" : "Eliminar"
+            "confirm" : "Eliminar",
+            "success" : "Eliminado exitosamente",
+            "error" : "Error al eliminar"
         }
     },
     "errors" : {

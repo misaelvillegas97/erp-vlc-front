@@ -44,28 +44,25 @@
             }
         </div>
     </div>
-</div>
-<!--<ng-container matColumnDef="actions">-->
-<!--    <th *matHeaderCellDef mat-header-cell><span class="select-none">{{ t('list.table.actions') }}</span></th>-->
-<!--    <td *matCellDef="let client" mat-cell>-->
-<!--        <button [matMenuTriggerFor]="clientMenu" mat-icon-button>-->
-<!--            <mat-icon-->
-<!--                class="icon-size-5"-->
-<!--                svgIcon="heroicons_outline:ellipsis-vertical"-->
-<!--            ></mat-icon>-->
-<!--        </button>-->
-<!--        <mat-menu #clientMenu="matMenu">-->
-<!--            <button mat-menu-item matTooltip="Próximamente">Asociar producto/s</button>-->
-<!--            <button mat-menu-item>Ver ordenes</button>-->
-<!--            <button mat-menu-item>Editar</button>-->
-<!--            <button (click)="openDeleteDialog(client)"-->
-<!--                    [disabled]="!client.deletable"-->
-<!--                    [matTooltip]="!client.deletable ? 'No se puede eliminar': ''"-->
-<!--                    mat-menu-item-->
-<!--            >-->
-<!--                Eliminar-->
-<!--            </button>-->
-<!--        </mat-menu>-->
 
-<!--    </td>-->
-<!--</ng-container>-->
+    <ng-template #actionsCell let-client="row">
+        <button [matMenuTriggerFor]="clientMenu" mat-icon-button>
+            <mat-icon
+                class="icon-size-5"
+                svgIcon="heroicons_outline:ellipsis-vertical"
+            ></mat-icon>
+        </button>
+        <mat-menu #clientMenu="matMenu">
+            <button mat-menu-item matTooltip="Próximamente">Asociar producto/s</button>
+            <button mat-menu-item>Ver ordenes</button>
+            <button mat-menu-item>Editar</button>
+            <button (click)="openDeleteDialog(client)"
+                    [disabled]="!client.deletable"
+                    [matTooltip]="!client.deletable ? 'No se puede eliminar': ''"
+                    mat-menu-item
+            >
+                Eliminar
+            </button>
+        </mat-menu>
+    </ng-template>
+</div>
