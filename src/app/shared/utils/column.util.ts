@@ -1,7 +1,7 @@
 import { WritableSignal } from '@angular/core';
 import { ColumnConfig }   from '@shared/components/table-builder/column.type';
 
-export function toggleColumn(columnKey: string, columnsConfig: WritableSignal<ColumnConfig[]>, persistColumnsConfiguration: () => void): void {
+export function toggleColumn<T>(columnKey: string, columnsConfig: WritableSignal<ColumnConfig<T>[]>, persistColumnsConfiguration: () => void): void {
     const currentConfig = columnsConfig();
     const index = currentConfig.findIndex((col) => col.key === columnKey);
 

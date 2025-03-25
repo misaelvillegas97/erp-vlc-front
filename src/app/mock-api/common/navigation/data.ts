@@ -138,6 +138,12 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 icon: 'heroicons_outline:building-storefront'
             },
             {
+                id  : 'maintainers.suppliers',
+                type: 'basic',
+                link: '/maintainers/suppliers',
+                icon: 'heroicons_outline:user-group'
+            },
+            {
                 id  : 'maintainers.products',
                 type: 'basic',
                 link: '/maintainers/products',

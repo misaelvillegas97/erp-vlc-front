@@ -43,8 +43,8 @@ import { CurrencyPipe, DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/
         }
     `
 })
-export class CellRendererComponent {
-    @Input() column!: ColumnConfig;
+export class CellRendererComponent<T> {
+    @Input() column!: ColumnConfig<T>;
     @Input() row: any;
 
     // Getter para calcular las clases basadas en la configuración de la columna y la fila actual

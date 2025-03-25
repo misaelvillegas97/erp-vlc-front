@@ -176,7 +176,7 @@ export class ListComponent implements OnDestroy {
 
     protected readonly DateTime = DateTime;
 
-    toggleColumn = (columnKey: string) => toggleColumn(columnKey, this.columnsConfig, this.persistColumnsConfiguration);
+    toggleColumn = (columnKey: string) => toggleColumn<Invoice>(columnKey, this.columnsConfig, this.persistColumnsConfiguration);
 
     viewOrderDetail = (invoice: Invoice) => {
         this.#dialog.open(OrderDetailDialog, {data: {id: invoice.order.id}, maxWidth: '900px'});
@@ -241,7 +241,7 @@ export class ListComponent implements OnDestroy {
         });
     }
 
-    buildColumnsConfig = (): ColumnConfig[] => ([
+    buildColumnsConfig = (): ColumnConfig<Invoice>[] => ([
         {
             key    : 'invoiceNumber',
             header : this.#ts.translate('operations.invoices.fields.invoice-number'),
@@ -406,10 +406,10 @@ export class ListComponent implements OnDestroy {
         }
     ]);
 
-    columnsConfig: WritableSignal<ColumnConfig[]> = linkedSignal(() => {
+    columnsConfig: WritableSignal<ColumnConfig<Invoice>[]> = linkedSignal(() => {
         const persistedInvoicesColumn: string[] = localStorage.getItem('invoiceListColumnsConfig') && JSON.parse(localStorage.getItem('ordersListColumnsConfig'));
 
-        const columns: ColumnConfig[] = this.buildColumnsConfig();
+        const columns: ColumnConfig<Invoice>[] = this.buildColumnsConfig();
 
         // Check if there persisted columns are valid to the actual columns, if there is inconsistency, remove the persisted columns
         if (persistedInvoicesColumn) {

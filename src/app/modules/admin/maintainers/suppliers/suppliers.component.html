@@ -1,1 +1,10 @@
-<p>suppliers works!</p>
+<drawer-listing
+    *transloco="let t; read: 'maintainers.suppliers'"
+    [panels]="panels()"
+    [selectedPanel]="'list'"
+    [title]="t('title')"
+>
+    <drawer-content class="h-full">
+        <router-outlet></router-outlet>
+    </drawer-content>
+</drawer-listing>

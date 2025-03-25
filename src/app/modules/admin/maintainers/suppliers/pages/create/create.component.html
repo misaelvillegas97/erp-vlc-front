@@ -1,0 +1,12 @@
+<div *transloco="let t; read: 'maintainers.client.new'" class="flex flex-col min-w-0 w-full">
+    <page-detail-header
+        [subtitle]="t('description')"
+        [title]="t('title')"
+    ></page-detail-header>
+    <!-- Content -->
+    <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-4 sm:px-4">
+        <!-- Content -->
+        <form [formGroup]="form" class="flex flex-col items-center gap-y-4 w-full md:w-1/2 py-4">
+        </form>
+    </div>
+</div>

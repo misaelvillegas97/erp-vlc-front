@@ -48,7 +48,8 @@
             "title" : "Mantenedores",
             "clients" : "Clientes",
             "products" : "Productos",
-            "users" : "Usuarios"
+            "users" : "Usuarios",
+            "suppliers" : "Proveedores"
         }
     },
     "operations" : {
@@ -304,6 +305,34 @@
                 "actions" : "Acciones"
             },
             "no-data" : "No hay usuarios disponibles"
+        },
+        "suppliers" : {
+            "title" : "Proveedores",
+            "list" : {
+                "title" : "Mantenedor de proveedores",
+                "subtitle" : "Administra los proveedores de la aplicación",
+                "description" : "Lista de proveedores",
+                "no-data" : "No hay proveedores disponibles"
+            },
+            "new" : {
+                "title" : "Nuevo proveedor",
+                "subtitle" : "Crea un nuevo proveedor",
+                "description" : "Crear un nuevo proveedor",
+                "success" : "Proveedor creado exitosamente"
+            },
+            "fields" : {
+                "rut" : "Rol Único Tributario",
+                "business-name" : "Razón social",
+                "fantasy-name" : "Nombre de fantasía",
+                "code" : "Código",
+                "code-hint" : "Código único para identificar al proveedor (Sin espacios ni caracteres especiales)",
+                "national-id" : "RUT",
+                "type" : "Tipo",
+                "is-active" : "Activo",
+                "email" : "Correo",
+                "phone" : "Teléfono",
+                "address" : "Dirección"
+            }
         }
     },
     "actions" : {

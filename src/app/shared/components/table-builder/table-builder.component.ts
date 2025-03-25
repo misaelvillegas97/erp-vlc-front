@@ -48,8 +48,8 @@ import { NumberRangeFilterFieldComponent }                                      
 export class TableBuilderComponent<T> {
     readonly #ts = inject(TranslocoService);
 
-    columns = input.required<ColumnConfig[], ColumnConfig[]>({
-        transform: (columns: ColumnConfig[]) => columns.filter(column => column.visible)
+    columns = input.required<ColumnConfig<T>[], ColumnConfig<T>[]>({
+        transform: (columns: ColumnConfig<T>[]) => columns.filter(column => column.visible)
     });
     data = input.required<T[]>();
     pagination = input<{ limit: number, totalPages: number, disabled: boolean, page: number, totalElements: number }>();
@@ -83,7 +83,7 @@ export class TableBuilderComponent<T> {
         }
     }
 
-    computedContainerClasses = (column: ColumnConfig, row: T): string => {
+    computedContainerClasses = (column: ColumnConfig<T>, row: T): string => {
         return typeof column.display.containerClasses === 'function' ? column.display.containerClasses(row) : column.display.containerClasses || '';
     };
 }

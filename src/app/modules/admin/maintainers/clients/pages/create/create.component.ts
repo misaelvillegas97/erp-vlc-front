@@ -63,8 +63,6 @@ export class CreateComponent {
     readonly #osmService = inject(OpenStreetMapService);
     readonly #notyf = new Notyf();
 
-    position = this.#osmService.reverse().then((position) => console.log(position));
-
     form: UntypedFormGroup = this.#fb.group({
         businessName : [ '', [ Validators.required ] ],
         fantasyName  : [ '', [ Validators.required ] ],

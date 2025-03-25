@@ -51,7 +51,7 @@ export class ListComponent {
 
     // #region Table config
     readonly actionsCell: Signal<TemplateRef<any>> = viewChild('actionsCell');
-    columnsConfig: WritableSignal<ColumnConfig[]> = signal(undefined);
+    columnsConfig: WritableSignal<ColumnConfig<Client>[]> = signal(undefined);
 
     clientsResource = resource({
         request: () => this.searchControlSignal() || '',
@@ -93,7 +93,7 @@ export class ListComponent {
         });
     }
 
-    buildColumnsConfig = (): ColumnConfig[] => [
+    buildColumnsConfig = (): ColumnConfig<Client>[] => [
         {key: 'businessName', header: this.#ts.translate('maintainers.client.fields.business-name'), display: {type: 'text'}, visible: true},
         {key: 'fantasyName', header: this.#ts.translate('maintainers.client.fields.fantasy-name'), display: {type: 'text'}, visible: true},
         {key: 'code', header: this.#ts.translate('maintainers.client.fields.code'), display: {type: 'text'}, visible: true},

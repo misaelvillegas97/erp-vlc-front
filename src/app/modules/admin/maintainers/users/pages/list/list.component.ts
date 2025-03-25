@@ -58,7 +58,7 @@ export class ListComponent {
     });
 
     readonly actionsCell: Signal<TemplateRef<any>> = viewChild('actionsCell');
-    columnsConfig: WritableSignal<ColumnConfig[]> = signal(undefined);
+    columnsConfig: WritableSignal<ColumnConfig<User>[]> = signal(undefined);
 
     protected readonly trackByFn = trackByFn;
 
@@ -81,7 +81,7 @@ export class ListComponent {
             .subscribe((result) => result === 'confirmed' && this.#userService.remove(user.id).subscribe(() => this.usersResource.reload()));
     };
 
-    buildColumnsConfig = (): ColumnConfig[] => [
+    buildColumnsConfig = (): ColumnConfig<User>[] => [
         {key: 'name', header: this.#ts.translate('maintainers.users.fields.name'), visible: true, display: {type: 'text'}},
         {key: 'email', header: this.#ts.translate('maintainers.users.fields.email'), visible: true, display: {type: 'text'}},
         {key: 'role', header: this.#ts.translate('maintainers.users.fields.role'), visible: true, display: {type: 'text'}},

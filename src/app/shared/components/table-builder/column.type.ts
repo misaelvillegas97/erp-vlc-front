@@ -70,25 +70,25 @@ export type ColumnFilterConfig =
     | AutocompleteFilterConfig
     | SelectFilterConfig;
 
-export interface ColumnDisplayConfig {
+export interface ColumnDisplayConfig<T> {
     type?: ColumnType;
-    classes?: string | ((row: any) => string);
-    containerClasses?: string | ((row: any) => string);
-    formatter?: (value: any, row?: any) => string;
+    classes?: string | ((row: T) => string);
+    containerClasses?: string | ((row: T) => string);
+    formatter?: (value: any, row?: T) => string;
     customTemplate?: TemplateRef<any>;
     pipeOptions?: any; // TODO: Define available types
-    onClick?: (row: any) => void;
+    onClick?: (row: T) => void;
     actions?: { icon: string; action: string; }[];
-    action?: (action: string, row: any) => void;
+    action?: (action: string, row: T) => void;
 
     alignment?: 'left' | 'center' | 'right';
     width?: string;
 }
 
-export interface ColumnConfig {
+export interface ColumnConfig<T> {
     key: string;
     header: string;
-    display?: ColumnDisplayConfig;
+    display?: ColumnDisplayConfig<T>;
     filter?: ColumnFilterConfig;
 
     // Nuevas propiedades generales, por ejemplo, para ordenamiento

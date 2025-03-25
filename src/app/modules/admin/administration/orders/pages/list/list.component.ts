@@ -127,10 +127,10 @@ export class ListComponent implements OnDestroy {
         return filter;
     });
 
-    columnsConfig: WritableSignal<ColumnConfig[]> = linkedSignal(() => {
+    columnsConfig: WritableSignal<ColumnConfig<Order>[]> = linkedSignal(() => {
         const persistedOrder: string[] = localStorage.getItem('ordersListColumnsConfig') && JSON.parse(localStorage.getItem('ordersListColumnsConfig'));
 
-        const columns: ColumnConfig[] = [
+        const columns: ColumnConfig<Order>[] = [
             {
                 key    : 'info',
                 header : '',
