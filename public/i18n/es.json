@@ -332,7 +332,17 @@
                 "email" : "Correo",
                 "phone" : "Teléfono",
                 "address" : "Dirección",
-                "city" : "Ciudad"
+                "commune" : "Comuna",
+                "city" : "Ciudad",
+                "payment-term-days" : "Días de plazo de pago",
+                "tax-category" : "Categoría tributaria",
+                "sii-code" : "Código SII",
+                "economic-activity" : "Actividad económica",
+                "contact-person" : "Persona de contacto",
+                "contact-phone" : "Teléfono de contacto",
+                "notes" : "Notas",
+                "tags" : "Etiquetas",
+                "tags-placeholder" : "Selecciona o agrega etiquetas"
             }
         }
     },
