@@ -47,7 +47,7 @@ export class CreateComponent {
         email          : new FormControl<string>(undefined, [ Validators.email, Validators.required ]), //*
         contactPerson   : new FormControl<string>(undefined),
         contactPhone    : new FormControl<string>(undefined),
-        isActive        : new FormControl<boolean>(true),
+        isActive: new FormControl<boolean>({value: true, disabled: true}),
         notes           : new FormControl<string>(undefined),
         tags            : new FormControl<string[]>(undefined),
         paymentTermDays: new FormControl<number>(undefined, [ Validators.required, Validators.min(1) ]),

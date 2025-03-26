@@ -3,12 +3,17 @@
         [subtitle]="t('description')"
         [title]="t('title')"
     ></page-detail-header>
-    <!-- Content -->
-    <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-4 sm:px-4">
-        <!-- Content -->
-        <form [formGroup]="form" class="flex flex-col items-center gap-y-4 w-full md:w-1/2 py-4">
-            <!-- Type -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+    <!-- Contenedor principal -->
+    <div class="flex-1 flex flex-col w-full max-w-5xl mx-auto py-4 px-4">
+        <!--
+          grid-cols-1: 1 columna por defecto (mobile)
+          md:grid-cols-2: 2 columnas en pantallas >= md (768px por defecto)
+          gap-4: espacio entre elementos
+        -->
+        <form [formGroup]="form" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full py-4">
+
+            <!-- Tipo -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
                 <mat-label>{{ 'maintainers.suppliers.fields.type' | transloco }}</mat-label>
                 <mat-select formControlName="type">
                     @for (type of SupplierTypeEnums; track type) {
@@ -23,7 +28,7 @@
             </mat-form-field>
 
             <!-- RUT -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
                 <mat-label>{{ 'maintainers.suppliers.fields.rut' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.suppliers.fields.rut' | transloco"
@@ -31,7 +36,6 @@
                     matInput
                     pattern="^[0-9]+-[0-9kK]{1}$"
                 />
-
                 @if (form.controls.rut.hasError('required')) {
                     <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
                 }
@@ -40,8 +44,8 @@
                 }
             </mat-form-field>
 
-            <!-- Business Name -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+            <!-- Razón Social -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
                 <mat-label>{{ 'maintainers.suppliers.fields.business-name' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.suppliers.fields.business-name' | transloco"
@@ -53,8 +57,8 @@
                 }
             </mat-form-field>
 
-            <!-- Fantasy Name -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+            <!-- Nombre Fantasía -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
                 <mat-label>{{ 'maintainers.suppliers.fields.fantasy-name' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.suppliers.fields.fantasy-name' | transloco"
@@ -66,8 +70,28 @@
                 }
             </mat-form-field>
 
+            <!-- Código SII -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                <mat-label>{{ 'maintainers.suppliers.fields.sii-code' | transloco }}</mat-label>
+                <input
+                    [placeholder]="'maintainers.suppliers.fields.sii-code' | transloco"
+                    formControlName="siiCode"
+                    matInput
+                />
+            </mat-form-field>
+
+            <!-- Actividad Económica -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                <mat-label>{{ 'maintainers.suppliers.fields.economic-activity' | transloco }}</mat-label>
+                <input
+                    [placeholder]="'maintainers.suppliers.fields.economic-activity' | transloco"
+                    formControlName="economicActivity"
+                    matInput
+                />
+            </mat-form-field>
+
             <!-- Email -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
                 <mat-label>{{ 'maintainers.suppliers.fields.email' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.suppliers.fields.email' | transloco"
@@ -82,8 +106,8 @@
                 }
             </mat-form-field>
 
-            <!-- Phone -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+            <!-- Teléfono -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
                 <mat-label>{{ 'maintainers.suppliers.fields.phone' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.suppliers.fields.phone' | transloco"
@@ -98,8 +122,8 @@
                 }
             </mat-form-field>
 
-            <!-- Address -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+            <!-- Dirección (ocupa las 2 columnas en md) -->
+            <mat-form-field class="col-span-1 md:col-span-2 fuse-mat-dense w-full" subscriptSizing="fixed">
                 <mat-label>{{ 'maintainers.suppliers.fields.address' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.suppliers.fields.address' | transloco"
@@ -111,8 +135,28 @@
                 }
             </mat-form-field>
 
-            <!-- Payment Term Days -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+            <!-- Comuna -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                <mat-label>{{ 'maintainers.suppliers.fields.commune' | transloco }}</mat-label>
+                <input
+                    [placeholder]="'maintainers.suppliers.fields.commune' | transloco"
+                    formControlName="commune"
+                    matInput
+                />
+            </mat-form-field>
+
+            <!-- Ciudad -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                <mat-label>{{ 'maintainers.suppliers.fields.city' | transloco }}</mat-label>
+                <input
+                    [placeholder]="'maintainers.suppliers.fields.city' | transloco"
+                    formControlName="city"
+                    matInput
+                />
+            </mat-form-field>
+
+            <!-- Días de Pago -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
                 <mat-label>{{ 'maintainers.suppliers.fields.payment-term-days' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.suppliers.fields.payment-term-days' | transloco"
@@ -131,8 +175,8 @@
                 }
             </mat-form-field>
 
-            <!-- Tax Category -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+            <!-- Categoría Tributaria -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
                 <mat-label>{{ 'maintainers.suppliers.fields.tax-category' | transloco }}</mat-label>
                 <mat-select formControlName="taxCategory">
                     @for (category of SupplierTaxCategoryEnums; track category) {
@@ -146,50 +190,8 @@
                 }
             </mat-form-field>
 
-            <!-- Others -->
-
-            <!-- SII Code -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
-                <mat-label>{{ 'maintainers.suppliers.fields.sii-code' | transloco }}</mat-label>
-                <input
-                    [placeholder]="'maintainers.suppliers.fields.sii-code' | transloco"
-                    formControlName="siiCode"
-                    matInput
-                />
-            </mat-form-field>
-
-            <!-- Economic Activity -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
-                <mat-label>{{ 'maintainers.suppliers.fields.economic-activity' | transloco }}</mat-label>
-                <input
-                    [placeholder]="'maintainers.suppliers.fields.economic-activity' | transloco"
-                    formControlName="economicActivity"
-                    matInput
-                />
-            </mat-form-field>
-
-            <!-- Commune -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
-                <mat-label>{{ 'maintainers.suppliers.fields.commune' | transloco }}</mat-label>
-                <input
-                    [placeholder]="'maintainers.suppliers.fields.commune' | transloco"
-                    formControlName="commune"
-                    matInput
-                />
-            </mat-form-field>
-
-            <!-- City -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
-                <mat-label>{{ 'maintainers.suppliers.fields.city' | transloco }}</mat-label>
-                <input
-                    [placeholder]="'maintainers.suppliers.fields.city' | transloco"
-                    formControlName="city"
-                    matInput
-                />
-            </mat-form-field>
-
-            <!-- Contact person -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+            <!-- Persona de Contacto -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
                 <mat-label>{{ 'maintainers.suppliers.fields.contact-person' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.suppliers.fields.contact-person' | transloco"
@@ -198,8 +200,8 @@
                 />
             </mat-form-field>
 
-            <!-- Contact phone -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+            <!-- Teléfono de Contacto -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
                 <mat-label>{{ 'maintainers.suppliers.fields.contact-phone' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.suppliers.fields.contact-phone' | transloco"
@@ -208,33 +210,23 @@
                 />
             </mat-form-field>
 
-            <!-- Is active -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
-                <mat-label>{{ 'maintainers.suppliers.fields.is-active' | transloco }}</mat-label>
-                <mat-select formControlName="isActive">
-                    <mat-option [value]="true">{{ 'yes' | transloco }}</mat-option>
-                    <mat-option [value]="false">{{ 'no' | transloco }}</mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <!-- Notes -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+            <!-- Notas (ocupa 2 columnas en md) -->
+            <mat-form-field class="col-span-1 md:col-span-2 fuse-mat-dense w-full" subscriptSizing="fixed">
                 <mat-label>{{ 'maintainers.suppliers.fields.notes' | transloco }}</mat-label>
                 <textarea
                     [placeholder]="'maintainers.suppliers.fields.notes' | transloco"
-                    cdkTextareaAutosize
                     formControlName="notes"
                     matInput
+                    cdkTextareaAutosize
                 ></textarea>
             </mat-form-field>
 
-            <!-- Tags -->
-            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+            <!-- Tags (ocupa 2 columnas en md) -->
+            <mat-form-field class="col-span-1 md:col-span-2 fuse-mat-dense w-full" subscriptSizing="fixed">
                 <mat-label>{{ 'maintainers.suppliers.fields.tags' | transloco }}</mat-label>
                 <mat-chip-grid #chipList>
                     @for (tag of form.controls.tags.value; track tag) {
                         <mat-chip
-                            [selectable]="true"
                             [removable]="true"
                             (removed)="removeTag(tag)"
                         >
@@ -242,7 +234,6 @@
                             <button matChipRemove aria-label="Remove tag">x</button>
                         </mat-chip>
                     }
-
                     <input
                         (matChipInputTokenEnd)="addTag($event)"
                         [formControl]="tagsControl"
