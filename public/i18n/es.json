@@ -331,7 +331,8 @@
                 "is-active" : "Activo",
                 "email" : "Correo",
                 "phone" : "Teléfono",
-                "address" : "Dirección"
+                "address" : "Dirección",
+                "city" : "Ciudad"
             }
         }
     },

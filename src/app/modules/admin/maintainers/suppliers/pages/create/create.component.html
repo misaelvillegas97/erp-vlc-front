@@ -1,4 +1,4 @@
-<div *transloco="let t; read: 'maintainers.client.new'" class="flex flex-col min-w-0 w-full">
+<div *transloco="let t; read: 'maintainers.suppliers.new'" class="flex flex-col min-w-0 w-full">
     <page-detail-header
         [subtitle]="t('description')"
         [title]="t('title')"
@@ -7,6 +7,102 @@
     <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-4 sm:px-4">
         <!-- Content -->
         <form [formGroup]="form" class="flex flex-col items-center gap-y-4 w-full md:w-1/2 py-4">
+            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'maintainers.suppliers.fields.rut' | transloco }}</mat-label>
+                <input
+                    [placeholder]="'maintainers.suppliers.fields.rut' | transloco"
+                    formControlName="rut"
+                    matInput
+                    pattern="^[0-9]+-[0-9kK]{1}$"
+                />
+
+                @if (form.controls.rut.hasError('required')) {
+                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                }
+                @if (form.controls.rut.hasError('pattern')) {
+                    <mat-error>{{ 'errors.form.pattern' | transloco: {pattern: '^[0-9]+-[0-9kK]{1}$'} }}</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'maintainers.suppliers.fields.business-name' | transloco }}</mat-label>
+                <input
+                    [placeholder]="'maintainers.suppliers.fields.business-name' | transloco"
+                    formControlName="businessName"
+                    matInput
+                />
+                @if (form.controls.businessName.hasError('required')) {
+                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'maintainers.suppliers.fields.fantasy-name' | transloco }}</mat-label>
+                <input
+                    [placeholder]="'maintainers.suppliers.fields.fantasy-name' | transloco"
+                    formControlName="fantasyName"
+                    matInput
+                />
+                @if (form.controls.fantasyName.hasError('required')) {
+                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'maintainers.suppliers.fields.email' | transloco }}</mat-label>
+                <input
+                    [placeholder]="'maintainers.suppliers.fields.email' | transloco"
+                    formControlName="email"
+                    matInput
+                />
+                @if (form.controls.email.hasError('required')) {
+                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                }
+                @if (form.controls.email.hasError('email')) {
+                    <mat-error>{{ 'errors.form.email' | transloco }}</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'maintainers.suppliers.fields.phone' | transloco }}</mat-label>
+                <input
+                    [placeholder]="'maintainers.suppliers.fields.phone' | transloco"
+                    formControlName="phone"
+                    matInput
+                />
+                @if (form.controls.phone.hasError('required')) {
+                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                }
+                @if (form.controls.phone.hasError('pattern')) {
+                    <mat-error>{{ 'errors.form.pattern' | transloco: {pattern: '^[0-9]*$'} }}</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'maintainers.suppliers.fields.address' | transloco }}</mat-label>
+                <input
+                    [placeholder]="'maintainers.suppliers.fields.address' | transloco"
+                    formControlName="address"
+                    matInput
+                />
+                @if (form.controls.address.hasError('required')) {
+                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'maintainers.suppliers.fields.city' | transloco }}</mat-label>
+                <input
+                    [placeholder]="'maintainers.suppliers.fields.city' | transloco"
+                    formControlName="city"
+                    matInput
+                />
+                @if (form.controls.city.hasError('required')) {
+                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                }
+            </mat-form-field>
+
+
         </form>
     </div>
 </div>
