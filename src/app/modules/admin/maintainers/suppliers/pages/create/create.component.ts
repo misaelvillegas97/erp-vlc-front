@@ -11,6 +11,9 @@ import { MatInput }                                                             
 import { MatSelectModule }                                                      from '@angular/material/select';
 import { CdkTextareaAutosize }                                                  from '@angular/cdk/text-field';
 import { MatChipInputEvent, MatChipsModule }                                    from '@angular/material/chips';
+import communes                                                                 from 'assets/json/comunas.json';
+import { MatAutocomplete, MatAutocompleteTrigger }                              from '@angular/material/autocomplete';
+import { displayWithFn }                                                        from '@core/utils';
 
 @Component({
     selector   : 'app-create',
@@ -23,7 +26,9 @@ import { MatChipInputEvent, MatChipsModule }                                    
         TranslocoPipe,
         MatInput,
         CdkTextareaAutosize,
-        MatChipsModule
+        MatChipsModule,
+        MatAutocomplete,
+        MatAutocompleteTrigger
     ],
     templateUrl: './create.component.html'
 })
@@ -37,24 +42,23 @@ export class CreateComponent {
         businessName   : new FormControl<string>(undefined, [ Validators.required ]), //*
         fantasyName    : new FormControl<string>(undefined, [ Validators.required ]), //*
         type            : new FormControl<SupplierTypeEnum>(SupplierTypeEnum.JURIDICA, [ Validators.required ]),
-        taxCategory     : new FormControl<SupplierTaxCategoryEnum>(SupplierTaxCategoryEnum.PRIMERA_CATEGORIA, [ Validators.required ]),
-        siiCode         : new FormControl<string>(undefined),
         economicActivity: new FormControl<string>(undefined),
         address        : new FormControl<string>(undefined), //*
-        commune         : new FormControl<string>(undefined),
         city           : new FormControl<string>(undefined),
         phone          : new FormControl<string>(undefined), //*
         email          : new FormControl<string>(undefined, [ Validators.email, Validators.required ]), //*
         contactPerson   : new FormControl<string>(undefined),
         contactPhone    : new FormControl<string>(undefined),
-        isActive: new FormControl<boolean>({value: true, disabled: true}),
+        isActive       : new FormControl<boolean>({value: true, disabled: true}),
         notes           : new FormControl<string>(undefined),
         tags            : new FormControl<string[]>(undefined),
         paymentTermDays: new FormControl<number>(undefined, [ Validators.required, Validators.min(1) ]),
     });
 
+    cityControl = new FormControl<string>(undefined);
     tagsControl = new FormControl<string>(undefined);
     separatorKeysCodes: number[] = [ 188, 13, 9 ];
+    filteredCities: any[] = communes;
 
     readonly #router = inject(Router);
     readonly #ts = inject(TranslocoService);
@@ -84,6 +88,30 @@ export class CreateComponent {
         if (index >= 0) {
             tags.splice(index, 1);
             this.form.patchValue({tags});
+        }
+    };
+    protected readonly communes = communes;
+    protected readonly displayWithFn = displayWithFn('name');
+
+    onCitySelected = (event: any) => {
+        const selectedCity = event.option.value;
+        this.form.patchValue({city: selectedCity});
+    };
+
+    onCityInput = (event: any) => {
+        event.stopPropagation();
+        const inputValue = event.target.value;
+
+        this.filteredCities = communes.filter((city: any) =>
+            city.name.toLowerCase().includes(inputValue.toLowerCase())
+        );
+
+        if (this.filteredCities.length === 0) {
+            this.filteredCities = communes;
+        }
+
+        if (inputValue === '') {
+            this.filteredCities = communes;
         }
     };
 }

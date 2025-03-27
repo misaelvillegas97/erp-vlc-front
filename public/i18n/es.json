@@ -320,6 +320,11 @@
                 "description" : "Crear un nuevo proveedor",
                 "success" : "Proveedor creado exitosamente"
             },
+            "sections" : {
+                "company-info" : "Información de la empresa",
+                "contact-info" : "Información de contacto",
+                "notes-tags" : "Notas y etiquetas"
+            },
             "fields" : {
                 "rut" : "Rol Único Tributario",
                 "business-name" : "Razón social",

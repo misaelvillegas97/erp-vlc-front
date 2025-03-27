@@ -1,11 +1,11 @@
+import { SupplierTypeEnum } from '@modules/admin/maintainers/suppliers/domain/enums/supplier-type.enum';
+
 export interface Supplier {
     id: number;
     rut: string;
     businessName: string;
     fantasyName: string;
-    type: string;
-    taxCategory?: string;
-    siiCode?: string;
+    type: SupplierTypeEnum;
     economicActivity?: string;
     address?: string;
     commune?: string;
