@@ -21,3 +21,26 @@ export interface Supplier {
     createdAt?: Date;
     updatedAt?: Date;
 }
+
+export class SupplierMapper {
+    static fromForm(form: Supplier) {
+        return {
+            rut             : form.rut,
+            businessName    : form.businessName,
+            fantasyName     : form.fantasyName,
+            type            : form.type,
+            economicActivity: form.economicActivity,
+            address         : form.address,
+            commune         : form.commune,
+            city            : form.city,
+            phone           : form.phone,
+            email           : form.email,
+            contactPerson   : form.contactPerson,
+            contactPhone    : form.contactPhone,
+            isActive        : form.isActive,
+            notes           : form.notes,
+            tags            : form.tags,
+            paymentTermDays : form.paymentTermDays,
+        };
+    }
+}

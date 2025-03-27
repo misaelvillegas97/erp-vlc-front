@@ -7,7 +7,7 @@
     <!-- Contenedor principal -->
     <div class="flex-1 flex flex-col w-full max-w-5xl mx-auto py-4 px-4">
         <!-- Formulario con Grid -->
-        <form [formGroup]="form" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full py-4">
+        <form (ngSubmit)="submit()" [formGroup]="form" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full py-4">
 
             <!-- Sección: Información de la Empresa -->
             <div class="col-span-1 md:col-span-2">
@@ -240,6 +240,29 @@
                     />
                 </mat-chip-grid>
             </mat-form-field>
+
+            <!-- Actions -->
+            <div class="w-full flex flex-col-reverse md:flex-row justify-end col-span-1 md:col-span-2 gap-4">
+                <button
+                    color="warn"
+                    mat-button
+                    type="reset"
+                >
+                    {{ 'actions.reset' | transloco }}
+                </button>
+
+                <button
+                    [disabled]="form.invalid || form.disabled"
+                    color="primary"
+                    mat-raised-button
+                >
+                    @if (form.disabled) {
+                        <mat-spinner [diameter]="24" [mode]="'indeterminate'"></mat-spinner>
+                    } @else {
+                        {{ 'actions.save' | transloco }}
+                    }
+                </button>
+            </div>
         </form>
     </div>
 </div>

@@ -14,6 +14,9 @@ import { MatChipInputEvent, MatChipsModule }                                    
 import communes                                                                 from 'assets/json/comunas.json';
 import { MatAutocomplete, MatAutocompleteTrigger }                              from '@angular/material/autocomplete';
 import { displayWithFn }                                                        from '@core/utils';
+import { MatButton }                                                            from '@angular/material/button';
+import { SupplierMapper }                                                       from '@modules/admin/maintainers/suppliers/domain/model/supplier';
+import { MatProgressSpinner }                                                   from '@angular/material/progress-spinner';
 
 @Component({
     selector   : 'app-create',
@@ -28,7 +31,9 @@ import { displayWithFn }                                                        
         CdkTextareaAutosize,
         MatChipsModule,
         MatAutocomplete,
-        MatAutocompleteTrigger
+        MatAutocompleteTrigger,
+        MatButton,
+        MatProgressSpinner
     ],
     templateUrl: './create.component.html'
 })
@@ -113,5 +118,19 @@ export class CreateComponent {
         if (inputValue === '') {
             this.filteredCities = communes;
         }
+    };
+
+    submit = () => {
+        if (this.form.invalid) {
+            this.form.markAllAsTouched();
+            this.#notyf.error(this.#ts.translate('errors.form.invalid'));
+            return;
+        }
+
+        this.form.disable();
+
+        const formValue = SupplierMapper.fromForm(this.form.getRawValue());
+
+        this.#notyf.success(this.#ts.translate('notyf-modal.create.success'));
     };
 }
