@@ -3,8 +3,6 @@ import { registerLocaleData } from '@angular/common';
 import localeEs               from '@angular/common/locales/es';
 import { RouterOutlet }       from '@angular/router';
 
-import { register } from 'swiper/element/bundle';
-
 @Component({
     selector   : 'app-root',
     templateUrl: './app.component.html',
@@ -16,7 +14,6 @@ import { register } from 'swiper/element/bundle';
 export class AppComponent {
 
     constructor() {
-        register(); // initialize swiper in the project
         registerLocaleData(localeEs);
     }
 }

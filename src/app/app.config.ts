@@ -4,13 +4,10 @@ import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE }                       
 import { LuxonDateAdapter }                                                                                                             from '@angular/material-luxon-adapter';
 import { PreloadAllModules, provideRouter, withComponentInputBinding, withInMemoryScrolling, withPreloading, withViewTransitions }      from '@angular/router';
 
-import { IonicStorageModule }                                 from '@ionic/storage-angular';
-import { provideTransloco, TranslocoService }                 from '@ngneat/transloco';
-import { CalendarCommonModule, DateAdapter as DateAdapterAC } from 'angular-calendar';
-import { adapterFactory }                                     from 'angular-calendar/date-adapters/date-fns';
-import { LightgalleryModule }                                 from 'lightgallery/angular';
-import { SocketIoConfig, SocketIoModule }                     from 'ngx-socket-io';
-import { firstValueFrom }                                     from 'rxjs';
+import { IonicStorageModule }                 from '@ionic/storage-angular';
+import { provideTransloco, TranslocoService } from '@ngneat/transloco';
+import { SocketIoConfig, SocketIoModule }     from 'ngx-socket-io';
+import { firstValueFrom }                     from 'rxjs';
 
 
 import { provideAuth }            from '@core/auth/auth.provider';
@@ -47,11 +44,10 @@ export const appConfig: ApplicationConfig = {
             IonicStorageModule.forRoot({
                 name: 'erpDB'
             }),
-            CalendarCommonModule.forRoot({
-                provide   : DateAdapterAC,
-                useFactory: adapterFactory
-            }),
-            LightgalleryModule
+            // CalendarCommonModule.forRoot({
+            //     provide   : DateAdapterAC,
+            //     useFactory: adapterFactory
+            // }),
         ),
 
         {
