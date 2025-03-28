@@ -1,11 +1,10 @@
-import { Component, inject }                                                    from '@angular/core';
+import { Component, computed, inject, Signal }                                  from '@angular/core';
 import { TranslocoDirective, TranslocoPipe, TranslocoService }                  from '@ngneat/transloco';
 import { PageDetailHeaderComponent }                                            from '@shared/components/page-detail-header/page-detail-header.component';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router }                                                               from '@angular/router';
 import { Notyf }                                                                from 'notyf';
 import { SupplierTypeEnum }                                                     from '@modules/admin/maintainers/suppliers/domain/enums/supplier-type.enum';
-import { SupplierTaxCategoryEnum }                                              from '@modules/admin/maintainers/suppliers/domain/enums/supplier-tax-category.enum';
 import { MatFormFieldModule }                                                   from '@angular/material/form-field';
 import { MatInput }                                                             from '@angular/material/input';
 import { MatSelectModule }                                                      from '@angular/material/select';
@@ -17,6 +16,11 @@ import { displayWithFn }                                                        
 import { MatButton }                                                            from '@angular/material/button';
 import { SupplierMapper }                                                       from '@modules/admin/maintainers/suppliers/domain/model/supplier';
 import { MatProgressSpinner }                                                   from '@angular/material/progress-spinner';
+import { Commune }                                                              from '@shared/models/comune';
+import { firstValueFrom }                                                       from 'rxjs';
+import { SuppliersService }                                                     from '@modules/admin/maintainers/suppliers/suppliers.service';
+import { UpperCasePipe }                                                        from '@angular/common';
+import { fuseAnimations }                                                       from '../../../../../../../@fuse/animations';
 
 @Component({
     selector   : 'app-create',
@@ -33,25 +37,26 @@ import { MatProgressSpinner }                                                   
         MatAutocomplete,
         MatAutocompleteTrigger,
         MatButton,
-        MatProgressSpinner
+        MatProgressSpinner,
+        UpperCasePipe
     ],
-    templateUrl: './create.component.html'
+    templateUrl: './create.component.html',
+    animations: fuseAnimations,
 })
 export class CreateComponent {
     readonly #fb = inject(FormBuilder);
-
-    // Required fields: rut, businessName, fantasyName, email, paymentTermDays, type, taxCategory
-    // Optional fields: siiCode, economicActivity, address, phone, commune, city, contactPerson, contactPhone, isActive, notes, tags
+    sortedCommunes: Signal<Commune[]> = computed((): Commune[] => communes.sort((a: Commune, b: Commune) => a.name.localeCompare(b.name)));
+    // Optional fields: economicActivity, address, phone, city, contactPerson, contactPhone, isActive, notes, tags
     form: FormGroup = this.#fb.group({
-        rut            : new FormControl<string>(undefined, [ Validators.required ]), //*
-        businessName   : new FormControl<string>(undefined, [ Validators.required ]), //*
-        fantasyName    : new FormControl<string>(undefined, [ Validators.required ]), //*
+        rut            : new FormControl<string>(undefined, [ Validators.required ]),
+        businessName   : new FormControl<string>(undefined, [ Validators.required ]),
+        fantasyName    : new FormControl<string>(undefined, [ Validators.required ]),
         type            : new FormControl<SupplierTypeEnum>(SupplierTypeEnum.JURIDICA, [ Validators.required ]),
         economicActivity: new FormControl<string>(undefined),
-        address        : new FormControl<string>(undefined), //*
+        address        : new FormControl<string>(undefined),
         city           : new FormControl<string>(undefined),
-        phone          : new FormControl<string>(undefined), //*
-        email          : new FormControl<string>(undefined, [ Validators.email, Validators.required ]), //*
+        phone          : new FormControl<string>(undefined),
+        email          : new FormControl<string>(undefined, [ Validators.email, Validators.required ]),
         contactPerson   : new FormControl<string>(undefined),
         contactPhone    : new FormControl<string>(undefined),
         isActive       : new FormControl<boolean>({value: true, disabled: true}),
@@ -59,17 +64,19 @@ export class CreateComponent {
         tags            : new FormControl<string[]>(undefined),
         paymentTermDays: new FormControl<number>(undefined, [ Validators.required, Validators.min(1) ]),
     });
+    filteredCities: any[] = this.sortedCommunes();
+    readonly #service = inject(SuppliersService);
+    readonly #router = inject(Router);
+
+    // Required fields: rut, businessName, fantasyName, email, paymentTermDays, type
+    readonly #ts = inject(TranslocoService);
 
     cityControl = new FormControl<string>(undefined);
     tagsControl = new FormControl<string>(undefined);
     separatorKeysCodes: number[] = [ 188, 13, 9 ];
-    filteredCities: any[] = communes;
-
-    readonly #router = inject(Router);
-    readonly #ts = inject(TranslocoService);
     readonly #notyf = new Notyf();
+
     protected readonly SupplierTypeEnums = Object.values(SupplierTypeEnum);
-    protected readonly SupplierTaxCategoryEnums = Object.values(SupplierTaxCategoryEnum);
 
     addTag = ($event: MatChipInputEvent) => {
         const input = $event.input;
@@ -95,7 +102,6 @@ export class CreateComponent {
             this.form.patchValue({tags});
         }
     };
-    protected readonly communes = communes;
     protected readonly displayWithFn = displayWithFn('name');
 
     onCitySelected = (event: any) => {
@@ -107,20 +113,20 @@ export class CreateComponent {
         event.stopPropagation();
         const inputValue = event.target.value;
 
-        this.filteredCities = communes.filter((city: any) =>
+        this.filteredCities = this.sortedCommunes().filter((city: any) =>
             city.name.toLowerCase().includes(inputValue.toLowerCase())
         );
 
         if (this.filteredCities.length === 0) {
-            this.filteredCities = communes;
+            this.filteredCities = this.sortedCommunes();
         }
 
         if (inputValue === '') {
-            this.filteredCities = communes;
+            this.filteredCities = this.sortedCommunes();
         }
     };
 
-    submit = () => {
+    submit = async () => {
         if (this.form.invalid) {
             this.form.markAllAsTouched();
             this.#notyf.error(this.#ts.translate('errors.form.invalid'));
@@ -131,6 +137,10 @@ export class CreateComponent {
 
         const formValue = SupplierMapper.fromForm(this.form.getRawValue());
 
-        this.#notyf.success(this.#ts.translate('notyf-modal.create.success'));
+        await firstValueFrom(this.#service.post(formValue))
+            .then(() => this.#notyf.success(this.#ts.translate('notyf-modal.create.success')))
+            .then(() => this.#router.navigate([ 'maintainers', 'suppliers' ]))
+            .catch(() => this.form.enable())
+            .catch(() => this.#notyf.error(this.#ts.translate('notyf-modal.create.error')));
     };
 }

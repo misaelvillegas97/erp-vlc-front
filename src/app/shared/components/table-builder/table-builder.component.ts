@@ -84,6 +84,6 @@ export class TableBuilderComponent<T> {
     }
 
     computedContainerClasses = (column: ColumnConfig<T>, row: T): string => {
-        return typeof column.display.containerClasses === 'function' ? column.display.containerClasses(row) : column.display.containerClasses || '';
+        return typeof column.display?.containerClasses === 'function' ? column.display.containerClasses(row) : column.display?.containerClasses || '';
     };
 }

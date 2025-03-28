@@ -830,6 +830,15 @@
                 }
             }
         }
+
+        /* For mat chips */
+        .mat-mdc-chip {
+            --mdc-chip-container-height: 26px;
+
+            .mat-mdc-chip-action-label {
+                @apply text-sm;
+            }
+        }
     }
 
     /* Emphasized affix */

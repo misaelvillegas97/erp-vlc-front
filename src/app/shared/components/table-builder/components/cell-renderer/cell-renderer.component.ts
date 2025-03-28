@@ -15,10 +15,10 @@ import { CurrencyPipe, DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template       : `
-        @if (column.display.type === 'custom' && column.display.customTemplate) {
+        @if (column.display?.type === 'custom' && column.display.customTemplate) {
             <ng-container *ngTemplateOutlet="column.display.customTemplate; context: { $implicit: row[column.key], row: row }"></ng-container>
         } @else {
-            @switch (column.display.type) {
+            @switch (column.display?.type) {
                 @case ('date') {
                     <span (click)="handleClick()" [class]="computedClasses">{{ row[column.key] | date:(column.display.pipeOptions?.format || 'shortDate') }}</span>
                 }
@@ -36,7 +36,7 @@ import { CurrencyPipe, DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/
                         [label]="column.display.formatter(row[column.key], row)"></badge>
                 }
                 @default {
-                    <span (click)="handleClick()" [class]="computedClasses">{{ column.display.formatter ? column.display.formatter(row[column.key], row) : row[column.key] }}</span>
+                    <span (click)="handleClick()" [class]="computedClasses">{{ column.display?.formatter ? column.display.formatter(row[column.key], row) : row[column.key] }}</span>
                 }
             }
 
@@ -49,9 +49,9 @@ export class CellRendererComponent<T> {
 
     // Getter para calcular las clases basadas en la configuración de la columna y la fila actual
     get computedClasses(): string {
-        return typeof this.column.display.classes === 'function'
-            ? this.column.display.classes(this.row)
-            : this.column.display.classes || '';
+        return typeof this.column.display?.classes === 'function'
+            ? this.column.display?.classes(this.row)
+            : this.column.display?.classes || '';
     }
 
     handleClick = (): void => this.column.display.onClick && this.column.display.onClick(this.row);

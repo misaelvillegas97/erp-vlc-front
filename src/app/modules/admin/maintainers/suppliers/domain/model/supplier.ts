@@ -1,7 +1,7 @@
 import { SupplierTypeEnum } from '@modules/admin/maintainers/suppliers/domain/enums/supplier-type.enum';
 
 export interface Supplier {
-    id: number;
+    id?: number;
     rut: string;
     businessName: string;
     fantasyName: string;
@@ -23,7 +23,7 @@ export interface Supplier {
 }
 
 export class SupplierMapper {
-    static fromForm(form: Supplier) {
+    static fromForm(form: any): Supplier {
         return {
             rut             : form.rut,
             businessName    : form.businessName,

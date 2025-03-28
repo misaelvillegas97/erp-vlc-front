@@ -105,7 +105,7 @@
             </mat-form-field>
 
             <!-- Dirección (ocupa 2 columnas en md) -->
-            <mat-form-field class="col-span-1 md:col-span-2 fuse-mat-dense w-full" subscriptSizing="fixed">
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
                 <mat-label>{{ 'maintainers.suppliers.fields.address' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.suppliers.fields.address' | transloco"
@@ -130,12 +130,11 @@
                 />
                 <mat-autocomplete #cityAutocomplete="matAutocomplete"
                                   (optionSelected)="onCitySelected($event)"
-                                  [displayWith]="displayWithFn"
                                   autoActiveFirstOption
                 >
                     @for (commune of filteredCities; track commune) {
-                        <mat-option [value]="commune" [disabled]="!filteredCities?.includes(commune)">
-                            {{ commune.name }}
+                        <mat-option [value]="commune.name | uppercase" [disabled]="!filteredCities?.includes(commune)">
+                            {{ commune.name | uppercase }}
                         </mat-option>
                     }
                 </mat-autocomplete>
@@ -155,6 +154,7 @@
                     [placeholder]="'maintainers.suppliers.fields.email' | transloco"
                     formControlName="email"
                     matInput
+                    type="email"
                 />
                 @if (form.controls.email.hasError('required')) {
                     <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
@@ -171,6 +171,7 @@
                     [placeholder]="'maintainers.suppliers.fields.phone' | transloco"
                     formControlName="phone"
                     matInput
+                    type="tel"
                 />
                 @if (form.controls.phone.hasError('required')) {
                     <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
@@ -197,6 +198,7 @@
                     [placeholder]="'maintainers.suppliers.fields.contact-phone' | transloco"
                     formControlName="contactPhone"
                     matInput
+                    type="tel"
                 />
             </mat-form-field>
 
@@ -224,8 +226,10 @@
                 <mat-chip-grid #chipList>
                     @for (tag of form.controls.tags.value; track tag) {
                         <mat-chip
+                            class="fuse-mat-dense duration-500"
                             [removable]="true"
                             (removed)="removeTag(tag)"
+                            @fadeIn
                         >
                             {{ tag }}
                             <button matChipRemove aria-label="Remove tag">x</button>
@@ -251,8 +255,7 @@
                     {{ 'actions.reset' | transloco }}
                 </button>
 
-                <button
-                    [disabled]="form.invalid || form.disabled"
+                <button [disabled]="form.invalid || form.disabled"
                     color="primary"
                     mat-raised-button
                 >
