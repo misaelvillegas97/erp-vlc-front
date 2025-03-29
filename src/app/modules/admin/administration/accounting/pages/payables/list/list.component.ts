@@ -5,6 +5,8 @@ import { PageHeaderComponent }                                 from '@layout/com
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@ngneat/transloco';
 import { MatTooltip }                                          from '@angular/material/tooltip';
 import { RouterLink }                                          from '@angular/router';
+import { NotyfService }                                        from '@shared/services/notyf.service';
+import { AccountingService }                                   from '@modules/admin/administration/accounting/accounting.service';
 
 @Component({
     selector   : 'app-list',
@@ -21,6 +23,7 @@ import { RouterLink }                                          from '@angular/ro
     templateUrl: './list.component.html'
 })
 export class ListComponent {
-    readonly;
     readonly #ts = inject(TranslocoService);
+    readonly #service = inject(AccountingService);
+    readonly #notyf = inject(NotyfService);
 }

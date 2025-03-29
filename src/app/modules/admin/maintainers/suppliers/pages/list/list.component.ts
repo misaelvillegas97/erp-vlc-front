@@ -12,7 +12,6 @@ import { SuppliersService }      from '@modules/admin/maintainers/suppliers/supp
 import { ColumnConfig }          from '@shared/components/table-builder/column.type';
 import { TableBuilderComponent } from '@shared/components/table-builder/table-builder.component';
 import { Supplier }              from '@modules/admin/maintainers/suppliers/domain/model/supplier';
-import { JsonPipe }              from '@angular/common';
 
 @Component({
     selector   : 'app-list',
@@ -23,8 +22,7 @@ import { JsonPipe }              from '@angular/common';
         TranslocoDirective,
         TableBuilderComponent,
         MatTooltip,
-        RouterLink,
-        JsonPipe
+        RouterLink
     ],
     templateUrl: './list.component.html'
 })

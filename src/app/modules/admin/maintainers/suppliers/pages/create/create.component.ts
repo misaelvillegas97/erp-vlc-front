@@ -24,7 +24,7 @@ import { fuseAnimations }                                                       
 
 @Component({
     selector   : 'app-create',
-    imports: [
+    imports   : [
         TranslocoDirective,
         PageDetailHeaderComponent,
         ReactiveFormsModule,
@@ -45,7 +45,13 @@ import { fuseAnimations }                                                       
 })
 export class CreateComponent {
     readonly #fb = inject(FormBuilder);
+    readonly #ts = inject(TranslocoService);
+    readonly #service = inject(SuppliersService);
+    readonly #router = inject(Router);
+    readonly #notyf = new Notyf();
+
     sortedCommunes: Signal<Commune[]> = computed((): Commune[] => communes.sort((a: Commune, b: Commune) => a.name.localeCompare(b.name)));
+    // Required fields: rut, businessName, fantasyName, email, paymentTermDays, type
     // Optional fields: economicActivity, address, phone, city, contactPerson, contactPhone, isActive, notes, tags
     form: FormGroup = this.#fb.group({
         rut            : new FormControl<string>(undefined, [ Validators.required ]),
@@ -65,16 +71,10 @@ export class CreateComponent {
         paymentTermDays: new FormControl<number>(undefined, [ Validators.required, Validators.min(1) ]),
     });
     filteredCities: any[] = this.sortedCommunes();
-    readonly #service = inject(SuppliersService);
-    readonly #router = inject(Router);
-
-    // Required fields: rut, businessName, fantasyName, email, paymentTermDays, type
-    readonly #ts = inject(TranslocoService);
 
     cityControl = new FormControl<string>(undefined);
     tagsControl = new FormControl<string>(undefined);
     separatorKeysCodes: number[] = [ 188, 13, 9 ];
-    readonly #notyf = new Notyf();
 
     protected readonly SupplierTypeEnums = Object.values(SupplierTypeEnum);
 
