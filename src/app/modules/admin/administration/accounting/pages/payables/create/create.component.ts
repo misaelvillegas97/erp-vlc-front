@@ -4,23 +4,27 @@ import { MatFormFieldModule }                                      from '@angula
 import { MatInput }                                                from '@angular/material/input';
 import { MatSelectModule }                                         from '@angular/material/select';
 import { MatDatepickerModule }                                     from '@angular/material/datepicker';
-import { MatButton }                                               from '@angular/material/button';
 import { AccountingService }                                       from '@modules/admin/administration/accounting/accounting.service';
 import { Router }                                                  from '@angular/router';
 import { SupplierInvoiceStatusEnum }                               from '@modules/admin/maintainers/suppliers/domain/enums/invoice-status.enum';
 import { DateTime }                                                from 'luxon';
 import { SuppliersService }                                        from '@modules/admin/maintainers/suppliers/suppliers.service';
 import { firstValueFrom }                                          from 'rxjs';
+import { PageDetailHeaderComponent }                               from '@shared/components/page-detail-header/page-detail-header.component';
+import { TranslocoDirective }                                      from '@ngneat/transloco';
+import { LoaderButtonComponent }                                   from '@shared/components/loader-button/loader-button.component';
 
 @Component({
     selector   : 'app-new',
-    imports    : [
+    imports: [
         ReactiveFormsModule,
         MatFormFieldModule,
         MatInput,
         MatSelectModule,
         MatDatepickerModule,
-        MatButton,
+        PageDetailHeaderComponent,
+        TranslocoDirective,
+        LoaderButtonComponent,
     ],
     templateUrl: './create.component.html'
 })

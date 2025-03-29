@@ -23,7 +23,7 @@ export default [
                     {
                         path         : 'new',
                         loadComponent: () =>
-                            import('./pages/payables/new/create.component').then(m => m.CreateComponent),
+                            import('./pages/payables/create/create.component').then(m => m.CreateComponent),
                         title        : 'Registro de Nueva Factura - Cuentas por Pagar'
                     },
                     {

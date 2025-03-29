@@ -206,6 +206,12 @@
                     "title" : "Listado de cuentas por pagar",
                     "subtitle" : "Administra las cuentas por pagar",
                     "description" : "Lista de cuentas por pagar"
+                },
+                "new" : {
+                    "title" : "Nueva cuenta por pagar",
+                    "subtitle" : "Crea una nueva cuenta por pagar",
+                    "description" : "Crear una nueva cuenta por pagar",
+                    "success" : "Cuenta por pagar creada exitosamente"
                 }
             },
             "bank" : {
