@@ -1,0 +1,43 @@
+<div *transloco="let t; read: 'maintainers.expense-type.new'" class="flex flex-col min-w-0 w-full">
+    <page-detail-header [subtitle]="t('description')" [title]="t('title')"></page-detail-header>
+    <!-- Contenido -->
+    <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-4 sm:px-4">
+        <form [formGroup]="form" class="flex flex-col items-center gap-y-4 w-full md:w-1/2 py-4">
+            <!-- Campo: nombre -->
+            <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'maintainers.expense-type.fields.name' | transloco }}</mat-label>
+                <input
+                    [placeholder]="'maintainers.expense-type.fields.name' | transloco"
+                    formControlName="name"
+                    matInput
+                />
+                @if (form.controls.name.hasError('required')) {
+                    <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                }
+            </mat-form-field>
+
+            <!-- Campo: descripción -->
+            <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-label>{{ 'maintainers.expense-type.fields.description' | transloco }}</mat-label>
+                <textarea
+                    [placeholder]="'maintainers.expense-type.fields.description' | transloco"
+                    formControlName="description"
+                    matInput
+                ></textarea>
+            </mat-form-field>
+
+            <!-- Acciones -->
+            <div class="flex-0 pt-4 w-full flex md:justify-end flex-col md:flex-row sm:items-center gap-6">
+                <button class="w-full md:w-30" color="secondary" mat-flat-button type="reset">
+                    <span [innerText]="'actions.reset' | transloco"></span>
+                </button>
+
+                <loader-button [disable]="form.disabled || form.invalid"
+                               [loading]="form.disabled"
+                               [label]="'actions.save' | transloco"
+                               type="submit"
+                ></loader-button>
+            </div>
+        </form>
+    </div>
+</div>

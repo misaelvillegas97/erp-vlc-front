@@ -1,8 +1,9 @@
-import { Component }                                           from '@angular/core';
-import { RouterOutlet }                                        from '@angular/router';
-import { DrawerListingComponent }                              from '@shared/components/drawer-listing/drawer-listing.component';
-import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@ngneat/transloco';
-import { PanelType }                                           from '@shared/components/drawer-listing/panel.type';
+import { Component }                       from '@angular/core';
+import { RouterOutlet }                    from '@angular/router';
+import { DrawerListingComponent }          from '@shared/components/drawer-listing/drawer-listing.component';
+import { TranslocoPipe, TranslocoService } from '@ngneat/transloco';
+import { PanelType }                       from '@shared/components/drawer-listing/panel.type';
+import { DrawerContentComponent }          from '@shared/components/drawer-listing/components/drawer-content.component';
 
 @Component({
     selector   : 'app-news',
@@ -10,8 +11,8 @@ import { PanelType }                                           from '@shared/com
     imports    : [
         RouterOutlet,
         DrawerListingComponent,
-        TranslocoDirective,
-        TranslocoPipe
+        TranslocoPipe,
+        DrawerContentComponent
     ],
     templateUrl: './client.component.html'
 })

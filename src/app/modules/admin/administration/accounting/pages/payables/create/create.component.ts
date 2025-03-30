@@ -1,4 +1,4 @@
-import { Component, inject, resource }                             from '@angular/core';
+import { Component, computed, inject, resource }                   from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule }                                      from '@angular/material/form-field';
 import { MatInput }                                                from '@angular/material/input';
@@ -13,6 +13,8 @@ import { firstValueFrom }                                          from 'rxjs';
 import { PageDetailHeaderComponent }                               from '@shared/components/page-detail-header/page-detail-header.component';
 import { TranslocoDirective }                                      from '@ngneat/transloco';
 import { LoaderButtonComponent }                                   from '@shared/components/loader-button/loader-button.component';
+import { toSignal }                                                from '@angular/core/rxjs-interop';
+import BigNumber                                                   from 'bignumber.js';
 
 @Component({
     selector   : 'app-new',
@@ -31,6 +33,9 @@ import { LoaderButtonComponent }                                   from '@shared
 export class CreateComponent {
     protected readonly SupplierInvoiceStatusEnums = Object.values(SupplierInvoiceStatusEnum);
     readonly #fb = inject(FormBuilder);
+    readonly #service = inject(AccountingService);
+    readonly #supplierService = inject(SuppliersService);
+
     form: FormGroup = this.#fb.group({
         supplier     : [ null, [ Validators.required ] ],
         invoiceNumber: [ '', [ Validators.required ] ],
@@ -38,13 +43,14 @@ export class CreateComponent {
         issueDate    : [ DateTime.now().toJSDate(), [ Validators.required ] ],
         dueDate      : [ '', [ Validators.required ] ],
         netAmount    : [ 0, [ Validators.required, Validators.min(0) ] ],
-        taxAmount    : [ {value: 0, disabled: true} ],
-        grossAmount  : [ {value: 0, disabled: true} ],
         description  : [ '' ],
         observations : [ '' ]
     });
-    readonly #service = inject(AccountingService);
-    readonly #supplierService = inject(SuppliersService);
+
+    netAmountInput = toSignal(this.form.get('netAmount').valueChanges);
+    taxAmount = computed(() => new BigNumber(this.netAmountInput() || 0).multipliedBy(0.19).toFixed(0));
+    grossAmount = computed(() => new BigNumber(this.netAmountInput() || 0).plus(this.taxAmount()).toFixed(0));
+
     suppliersResource = resource({
         loader: () => firstValueFrom(this.#supplierService.findAll()).then((res) => res.suppliers),
     });

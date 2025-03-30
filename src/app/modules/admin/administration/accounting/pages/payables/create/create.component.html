@@ -70,14 +70,14 @@
                 <!-- Monto de Impuesto (IVA 19%) -->
                 <mat-form-field appearance="fill" class="w-full md:col-span-2 fuse-mat-dense">
                     <mat-label>Monto de Impuesto (IVA 19%)</mat-label>
-                    <input disabled formControlName="taxAmount" matInput placeholder="Calculado automáticamente" type="number">
+                    <input disabled readonly matInput placeholder="Calculado automáticamente" type="number" [value]="taxAmount()">
                     <mat-hint>El monto del impuesto se calcula automáticamente</mat-hint>
                 </mat-form-field>
 
                 <!-- Monto Bruto: ocupa 2 columnas en desktop -->
                 <mat-form-field appearance="fill" class="w-full md:col-span-2 fuse-mat-dense">
                     <mat-label>Monto Bruto</mat-label>
-                    <input disabled formControlName="grossAmount" matInput placeholder="Calculado automáticamente" type="number">
+                    <input disabled readonly matInput placeholder="Calculado automáticamente" type="number" [value]="grossAmount()">
                     <mat-hint>El monto bruto se calcula automáticamente (neto + impuesto)</mat-hint>
                 </mat-form-field>
 

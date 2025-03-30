@@ -154,6 +154,19 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 type: 'basic',
                 link: '/maintainers/users',
                 icon: 'heroicons_outline:user-group'
+            },
+            {
+                id      : 'maintainers.payables.title',
+                icon    : 'mat_outline:attach_money',
+                type    : 'group',
+                children: [
+                    {
+                        id  : 'maintainers.payables.expense-type',
+                        type: 'basic',
+                        link: '/maintainers/expense-type/list',
+                        icon: 'mat_outline:label'
+                    },
+                ]
             }
         ]
     }

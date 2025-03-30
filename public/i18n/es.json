@@ -49,7 +49,11 @@
             "clients" : "Clientes",
             "products" : "Productos",
             "users" : "Usuarios",
-            "suppliers" : "Proveedores"
+            "suppliers" : "Proveedores",
+            "payables" : {
+                "title" : "Cuentas por pagar",
+                "expense-type" : "Tipos de gasto"
+            }
         }
     },
     "operations" : {
@@ -354,6 +358,25 @@
                 "notes" : "Notas",
                 "tags" : "Etiquetas",
                 "tags-placeholder" : "Selecciona o agrega etiquetas"
+            }
+        },
+        "expense-type" : {
+            "title" : "Tipos de gasto",
+            "list" : {
+                "title" : "Mantenedor de tipos de gasto",
+                "subtitle" : "Administra los tipos de gasto de la aplicación",
+                "description" : "Lista de tipos de gasto",
+                "no-data" : "No hay tipos de gasto disponibles"
+            },
+            "new" : {
+                "title" : "Nuevo tipo de gasto",
+                "subtitle" : "Crea un nuevo tipo de gasto",
+                "description" : "Crear un nuevo tipo de gasto",
+                "success" : "Tipo de gasto creado exitosamente"
+            },
+            "fields" : {
+                "name" : "Nombre",
+                "description" : "Descripción"
             }
         }
     },
