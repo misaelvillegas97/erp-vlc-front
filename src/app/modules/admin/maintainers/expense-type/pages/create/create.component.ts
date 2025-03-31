@@ -47,7 +47,7 @@ export class CreateComponent {
 
         // Aquí deberías llamar a tu servicio para guardar el tipo de gasto.
         // Ejemplo:
-        this.#service.post(this.form.getRawValue()).subscribe({
+        this.#service.create(this.form.getRawValue()).subscribe({
           next: () => {
             this.#notyf.success({ message: this.#ts.translate('maintainers.expense-type.new.success') });
             this.#router.navigate(['/maintainers', 'expense-types']);
