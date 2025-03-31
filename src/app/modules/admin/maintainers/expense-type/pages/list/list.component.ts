@@ -11,6 +11,8 @@ import { MatIconAnchor }                                       from '@angular/ma
 import { MatIcon }                                             from '@angular/material/icon';
 import { TableBuilderComponent }                               from '@shared/components/table-builder/table-builder.component';
 import { MatInput }                                            from '@angular/material/input';
+import { ExpenseTypeService }                                  from '@modules/admin/maintainers/expense-type/expense-type.service';
+import { firstValueFrom }                                      from 'rxjs';
 
 @Component({
     selector   : 'app-list',
@@ -32,6 +34,7 @@ import { MatInput }                                            from '@angular/ma
 })
 export class ListComponent {
     readonly #ts = inject(TranslocoService);
+    readonly #service = inject(ExpenseTypeService);
     readonly #notyf = new Notyf();
 
     searchControl = new FormControl('', [ Validators.minLength(3), Validators.maxLength(100) ]);
@@ -39,15 +42,7 @@ export class ListComponent {
     // Recurso para cargar los tipos de gasto. Reemplaza la llamada simulada por la invocación a tu servicio real.
     expenseTypesResource = resource({
         request: () => this.searchControl.value || '',
-        loader : ({request}): Promise<any[]> =>
-            // this.expenseTypeService.findAll(request)
-            new Promise(resolve => {
-                resolve([
-                    {id: 1, name: 'Transporte', description: 'Transporte de productos'},
-                    {id: 2, name: 'Alimentación', description: 'Alimentación de empleados'},
-                    {id: 3, name: 'Servicios', description: 'Servicios de limpieza'},
-                ]);
-            })
+        loader: ({request}) => firstValueFrom(this.#service.findAll())
     });
 
     // Configuración de columnas para el table-builder
