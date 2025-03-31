@@ -8,6 +8,7 @@ import { MatFormFieldModule }                                                   
 import { MatButton }                                                             from '@angular/material/button';
 import { LoaderButtonComponent }                                                 from '@shared/components/loader-button/loader-button.component';
 import { MatInput }                                                              from '@angular/material/input';
+import { ExpenseTypeService } from '../../expense-type.service';
 
 @Component({
     selector   : 'app-create',
@@ -26,6 +27,7 @@ import { MatInput }                                                             
 export class CreateComponent {
     readonly #fb = inject(UntypedFormBuilder);
     readonly #router = inject(Router);
+    readonly #service = inject(ExpenseTypeService);
     readonly #ts = inject(TranslocoService);
     readonly #notyf = new Notyf();
 
@@ -45,16 +47,16 @@ export class CreateComponent {
 
         // Aquí deberías llamar a tu servicio para guardar el tipo de gasto.
         // Ejemplo:
-        // this.expenseTypeService.post(this.form.getRawValue()).subscribe({
-        //   next: () => {
-        //     this.notyf.success({ message: this.translocoService.translate('maintainers.expense-type.new.success') });
-        //     this.router.navigate(['/maintainers', 'expense-types']);
-        //   },
-        //   error: () => {
-        //     this.notyf.error({ message: this.translocoService.translate('errors.service.message') });
-        //     this.form.enable();
-        //   }
-        // });
+        this.#service.post(this.form.getRawValue()).subscribe({
+          next: () => {
+            this.#notyf.success({ message: this.#ts.translate('maintainers.expense-type.new.success') });
+            this.#router.navigate(['/maintainers', 'expense-types']);
+          },
+          error: () => {
+            this.#notyf.error({ message: this.#ts.translate('errors.service.message') });
+            this.form.enable();
+          }
+        });
 
         // Para efectos de este ejemplo, simulamos la respuesta:
         setTimeout(() => {
