@@ -84,7 +84,7 @@ export class CreateComponent {
         dialogRef.afterClosed().subscribe((result) => {
             if (result) {
                 this.expenseTypesResource.reload();
-                this.form.get('expenseType').setValue(result);
+                this.form.get('expenseType').setValue(result.id);
             }
         });
     };
