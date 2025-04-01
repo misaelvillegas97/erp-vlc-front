@@ -1,0 +1,30 @@
+<h2 class="text-lg border-b pb-4" mat-dialog-title>{{ 'maintainers.expense-types.new.title' | transloco }}</h2>
+<mat-dialog-content class="py-4">
+    <form (ngSubmit)="submit()" [formGroup]="form" class="space-y-2">
+        <mat-form-field class="w-full fuse-mat-dense">
+            <mat-label>{{ 'maintainers.expense-types.fields.name' | transloco }}</mat-label>
+            <input autocomplete="new-expense-type" formControlName="name" matInput>
+            @if (form.get('name').hasError('required')) {
+                <mat-error [innerText]="'errors.form.required' | transloco"></mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field class="w-full fuse-mat-dense">
+            <mat-label>{{ 'maintainers.expense-types.fields.description' | transloco }}</mat-label>
+            <textarea formControlName="description" matInput></textarea>
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <div class="flex-0 pt-4 w-full flex md:justify-end flex-col md:flex-row sm:items-center gap-6">
+        <button class="w-full md:w-30" color="secondary" mat-flat-button type="reset">
+            <span [innerText]="'actions.reset' | transloco"></span>
+        </button>
+
+        <loader-button [disable]="form.disabled || form.invalid"
+                       [loading]="form.disabled"
+                       [label]="'actions.save' | transloco"
+                       (click)="submit()"
+                       class="w-full md:w-30"
+        ></loader-button>
+    </div>
+</mat-dialog-actions>

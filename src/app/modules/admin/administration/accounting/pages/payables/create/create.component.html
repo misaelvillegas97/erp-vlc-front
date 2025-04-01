@@ -31,6 +31,10 @@
                                 {{ expenseType.name }}
                             </mat-option>
                         }
+                        <mat-option (click)="openNewExpenseTypeDialog()">
+                            <mat-icon svgIcon="heroicons_outline:plus" class="icon-size-5"></mat-icon>
+                            Crear nuevo tipo de gasto
+                        </mat-option>
                     </mat-select>
                     <mat-hint>Seleccione el tipo de gasto asociado a la factura</mat-hint>
                 </mat-form-field>
@@ -113,8 +117,9 @@
             <div class="flex justify-end">
                 <loader-button [buttonType]="'submit'"
                                [disable]="form.invalid"
-                               [label]="'Crear Factura'"
                                [loading]="form.disabled"
+                               [color]="'primary'"
+                               [label]="'Crear Factura'"
                 ></loader-button>
             </div>
         </form>

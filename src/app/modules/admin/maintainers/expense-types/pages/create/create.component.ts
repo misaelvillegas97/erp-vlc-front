@@ -38,8 +38,6 @@ export class CreateComponent {
     });
 
     submit() {
-        console.log(this.form.getRawValue());
-
         if (this.form.invalid) {
             this.form.markAllAsTouched();
             this.#notyf.error({message: this.#ts.translate('errors.validation.message')});
@@ -47,11 +45,9 @@ export class CreateComponent {
         }
         this.form.disable();
 
-        // Aquí deberías llamar a tu servicio para guardar el tipo de gasto.
-        // Ejemplo:
         this.#service.create(this.form.getRawValue()).subscribe({
           next: () => {
-            this.#notyf.success({ message: this.#ts.translate('maintainers.expense-type.new.success') });
+              this.#notyf.success({message: this.#ts.translate('maintainers.expense-types.new.success')});
             this.#router.navigate(['/maintainers', 'expense-types']);
           },
           error: () => {

@@ -11,11 +11,14 @@ import { DateTime }                                                from 'luxon';
 import { SuppliersService }                                        from '@modules/admin/maintainers/suppliers/suppliers.service';
 import { firstValueFrom }                                          from 'rxjs';
 import { PageDetailHeaderComponent }                               from '@shared/components/page-detail-header/page-detail-header.component';
-import { TranslocoDirective }                                      from '@ngneat/transloco';
+import { TranslocoDirective, TranslocoService }                    from '@ngneat/transloco';
 import { LoaderButtonComponent }                                   from '@shared/components/loader-button/loader-button.component';
 import { toSignal }                                                from '@angular/core/rxjs-interop';
 import BigNumber                                                   from 'bignumber.js';
 import { ExpenseTypesService }                                     from '@modules/admin/maintainers/expense-types/expense-types.service';
+import { MatDialog }                                               from '@angular/material/dialog';
+import { MatIcon }                                                 from '@angular/material/icon';
+import { CreateDialog }                                            from '@modules/admin/maintainers/expense-types/dialog/create/create.dialog';
 
 @Component({
     selector   : 'app-new',
@@ -28,18 +31,22 @@ import { ExpenseTypesService }                                     from '@module
         PageDetailHeaderComponent,
         TranslocoDirective,
         LoaderButtonComponent,
+        MatIcon,
     ],
     templateUrl: './create.component.html'
 })
 export class CreateComponent {
     protected readonly SupplierInvoiceStatusEnums = Object.values(SupplierInvoiceStatusEnum);
     readonly #fb = inject(FormBuilder);
+    readonly #ts = inject(TranslocoService);
     readonly #service = inject(AccountingService);
     readonly #supplierService = inject(SuppliersService);
     readonly #expenseTypesService = inject(ExpenseTypesService);
+    readonly #dialog = inject(MatDialog);
 
     form: FormGroup = this.#fb.group({
         supplier     : [ null, [ Validators.required ] ],
+        expenseType: [ null, [ Validators.required ] ],
         invoiceNumber: [ '', [ Validators.required ] ],
         status       : [ SupplierInvoiceStatusEnum.ISSUED, [ Validators.required ] ],
         issueDate    : [ DateTime.now().toJSDate(), [ Validators.required ] ],
@@ -66,5 +73,19 @@ export class CreateComponent {
             this.form.markAllAsTouched();
             return;
         }
+    };
+
+    openNewExpenseTypeDialog = () => {
+        const dialogRef = this.#dialog.open(CreateDialog, {
+            width: '600px',
+            data : {title: this.#ts.translate('maintainers.expense-types.new.title')}
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result) {
+                this.expenseTypesResource.reload();
+                this.form.get('expenseType').setValue(result);
+            }
+        });
     };
 }

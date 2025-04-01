@@ -360,7 +360,7 @@
                 "tags-placeholder" : "Selecciona o agrega etiquetas"
             }
         },
-        "expense-type" : {
+        "expense-types" : {
             "title" : "Tipos de gasto",
             "list" : {
                 "title" : "Mantenedor de tipos de gasto",

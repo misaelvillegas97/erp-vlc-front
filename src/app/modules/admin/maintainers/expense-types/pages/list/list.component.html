@@ -1,4 +1,4 @@
-<div *transloco="let t; read: 'maintainers.expense-type'" class="flex flex-col min-w-0 w-full">
+<div *transloco="let t; read: 'maintainers.expense-types'" class="flex flex-col min-w-0 w-full">
     <page-header [description]="t('list.subtitle')" [subtitle]="t('list.title')"></page-header>
 
     <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-10 gap-y-4 sm:px-4">
@@ -6,7 +6,7 @@
             <h2 class="flex-1 font-bold text-secondary text-xl self-center">{{ t('title') }}</h2>
             <a
                 [matTooltip]="t('new.title')"
-                [routerLink]="['new']"
+                [routerLink]="['/maintainers', 'expense-types', 'new']"
                 class="flex-0 font-bold py-2 px-4 rounded"
                 color="primary"
                 mat-icon-button

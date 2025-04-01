@@ -1,13 +1,13 @@
-<div *transloco="let t; read: 'maintainers.expense-type.new'" class="flex flex-col min-w-0 w-full">
+<div *transloco="let t; read: 'maintainers.expense-types.new'" class="flex flex-col min-w-0 w-full">
     <page-detail-header [subtitle]="t('description')" [title]="t('title')"></page-detail-header>
     <!-- Contenido -->
     <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-4 sm:px-4">
         <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col items-center gap-y-4 w-full md:w-1/2 py-4">
             <!-- Campo: nombre -->
             <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
-                <mat-label>{{ 'maintainers.expense-type.fields.name' | transloco }}</mat-label>
+                <mat-label>{{ 'maintainers.expense-types.fields.name' | transloco }}</mat-label>
                 <input
-                    [placeholder]="'maintainers.expense-type.fields.name' | transloco"
+                    [placeholder]="'maintainers.expense-types.fields.name' | transloco"
                     formControlName="name"
                     matInput
                 />
@@ -18,9 +18,9 @@
 
             <!-- Campo: descripción -->
             <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
-                <mat-label>{{ 'maintainers.expense-type.fields.description' | transloco }}</mat-label>
+                <mat-label>{{ 'maintainers.expense-types.fields.description' | transloco }}</mat-label>
                 <textarea
-                    [placeholder]="'maintainers.expense-type.fields.description' | transloco"
+                    [placeholder]="'maintainers.expense-types.fields.description' | transloco"
                     formControlName="description"
                     matInput
                 ></textarea>

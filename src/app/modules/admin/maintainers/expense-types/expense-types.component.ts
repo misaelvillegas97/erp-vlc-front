@@ -17,7 +17,7 @@ import { DrawerContentComponent }                    from '@shared/components/dr
         <drawer-listing
             [panels]="panels()"
             [selectedPanel]="'list'"
-            [title]="'maintainers.expense-type.title' | transloco"
+            [title]="'maintainers.expense-types.title' | transloco"
         >
             <drawer-content class="h-full">
                 <router-outlet></router-outlet>
@@ -32,19 +32,19 @@ export class ExpenseTypesComponent {
     panels: WritableSignal<PanelType[]> = signal([
         {
             id          : 'expense-type.list',
-            title       : this.#ts.translate('maintainers.expense-type.list.title'),
-            description : this.#ts.translate('maintainers.expense-type.list.description'),
+            title      : this.#ts.translate('maintainers.expense-types.list.title'),
+            description: this.#ts.translate('maintainers.expense-types.list.description'),
             icon        : 'mat_outline:label',
             selectedIcon: 'mat_solid:label',
-            link        : [ '/maintainers', 'expense-type', 'list' ]
+            link       : [ '/maintainers', 'expense-types', 'list' ]
         },
         {
             id          : 'expense-type.new',
-            title       : this.#ts.translate('maintainers.expense-type.new.title'),
-            description : this.#ts.translate('maintainers.expense-type.new.description'),
+            title      : this.#ts.translate('maintainers.expense-types.new.title'),
+            description: this.#ts.translate('maintainers.expense-types.new.description'),
             icon        : 'mat_outline:add_circle',
             selectedIcon: 'mat_solid:add_circle',
-            link        : [ '/maintainers', 'expense-type', 'new' ]
+            link       : [ '/maintainers', 'expense-types', 'new' ]
         }
     ]);
 }

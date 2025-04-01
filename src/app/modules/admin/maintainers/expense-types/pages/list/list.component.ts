@@ -58,13 +58,13 @@ export class ListComponent {
     buildColumnsConfig = (): ColumnConfig<any>[] => [
         {
             key    : 'name',
-            header : this.#ts.translate('maintainers.expense-type.fields.name'),
+            header: this.#ts.translate('maintainers.expense-types.fields.name'),
             display: {type: 'text'},
             visible: true
         },
         {
             key    : 'description',
-            header : this.#ts.translate('maintainers.expense-type.fields.description'),
+            header: this.#ts.translate('maintainers.expense-types.fields.description'),
             display: {
                 type   : 'text',
                 classes: 'text-truncate',
