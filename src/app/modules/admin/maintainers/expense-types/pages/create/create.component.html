@@ -2,9 +2,9 @@
     <page-detail-header [subtitle]="t('description')" [title]="t('title')"></page-detail-header>
     <!-- Contenido -->
     <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-4 sm:px-4">
-        <form [formGroup]="form" class="flex flex-col items-center gap-y-4 w-full md:w-1/2 py-4">
+        <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col items-center gap-y-4 w-full md:w-1/2 py-4">
             <!-- Campo: nombre -->
-            <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                 <mat-label>{{ 'maintainers.expense-type.fields.name' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.expense-type.fields.name' | transloco"
@@ -17,7 +17,7 @@
             </mat-form-field>
 
             <!-- Campo: descripción -->
-            <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                 <mat-label>{{ 'maintainers.expense-type.fields.description' | transloco }}</mat-label>
                 <textarea
                     [placeholder]="'maintainers.expense-type.fields.description' | transloco"
@@ -35,9 +35,11 @@
                 <loader-button [disable]="form.disabled || form.invalid"
                                [loading]="form.disabled"
                                [label]="'actions.save' | transloco"
-                               type="submit"
+                               buttonType="submit"
+                               class="w-full md:w-30"
                 ></loader-button>
             </div>
         </form>
     </div>
 </div>
+

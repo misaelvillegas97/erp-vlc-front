@@ -26,7 +26,7 @@ import { DrawerContentComponent }                    from '@shared/components/dr
 
     `
 })
-export class ExpenseTypeComponent {
+export class ExpenseTypesComponent {
     readonly #ts = inject(TranslocoService);
 
     panels: WritableSignal<PanelType[]> = signal([

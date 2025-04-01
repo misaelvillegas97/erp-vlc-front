@@ -8,11 +8,11 @@ import { MatFormFieldModule }                                                   
 import { MatButton }                                                             from '@angular/material/button';
 import { LoaderButtonComponent }                                                 from '@shared/components/loader-button/loader-button.component';
 import { MatInput }                                                              from '@angular/material/input';
-import { ExpenseTypeService } from '../../expense-type.service';
+import { ExpenseTypesService }                                                   from '../../expense-types.service';
 
 @Component({
     selector   : 'app-create',
-    imports    : [
+    imports: [
         TranslocoDirective,
         PageDetailHeaderComponent,
         ReactiveFormsModule,
@@ -20,14 +20,14 @@ import { ExpenseTypeService } from '../../expense-type.service';
         TranslocoPipe,
         MatButton,
         LoaderButtonComponent,
-        MatInput
+        MatInput,
     ],
     templateUrl: './create.component.html'
 })
 export class CreateComponent {
     readonly #fb = inject(UntypedFormBuilder);
     readonly #router = inject(Router);
-    readonly #service = inject(ExpenseTypeService);
+    readonly #service = inject(ExpenseTypesService);
     readonly #ts = inject(TranslocoService);
     readonly #notyf = new Notyf();
 
@@ -38,6 +38,8 @@ export class CreateComponent {
     });
 
     submit() {
+        console.log(this.form.getRawValue());
+
         if (this.form.invalid) {
             this.form.markAllAsTouched();
             this.#notyf.error({message: this.#ts.translate('errors.validation.message')});
@@ -57,11 +59,5 @@ export class CreateComponent {
             this.form.enable();
           }
         });
-
-        // Para efectos de este ejemplo, simulamos la respuesta:
-        setTimeout(() => {
-            this.#notyf.success({message: this.#ts.translate('maintainers.expense-type.new.success')});
-            this.#router.navigate([ '/maintainers', 'expense-types' ]);
-        }, 1000);
     }
 }

@@ -163,7 +163,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                     {
                         id  : 'maintainers.payables.expense-type',
                         type: 'basic',
-                        link: '/maintainers/expense-type/list',
+                        link: '/maintainers/expense-types/list',
                         icon: 'mat_outline:label'
                     },
                 ]

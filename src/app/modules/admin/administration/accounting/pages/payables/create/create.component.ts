@@ -15,6 +15,7 @@ import { TranslocoDirective }                                      from '@ngneat
 import { LoaderButtonComponent }                                   from '@shared/components/loader-button/loader-button.component';
 import { toSignal }                                                from '@angular/core/rxjs-interop';
 import BigNumber                                                   from 'bignumber.js';
+import { ExpenseTypesService }                                     from '@modules/admin/maintainers/expense-types/expense-types.service';
 
 @Component({
     selector   : 'app-new',
@@ -35,6 +36,7 @@ export class CreateComponent {
     readonly #fb = inject(FormBuilder);
     readonly #service = inject(AccountingService);
     readonly #supplierService = inject(SuppliersService);
+    readonly #expenseTypesService = inject(ExpenseTypesService);
 
     form: FormGroup = this.#fb.group({
         supplier     : [ null, [ Validators.required ] ],
@@ -53,6 +55,9 @@ export class CreateComponent {
 
     suppliersResource = resource({
         loader: () => firstValueFrom(this.#supplierService.findAll()).then((res) => res.suppliers),
+    });
+    expenseTypesResource = resource({
+        loader: () => firstValueFrom(this.#expenseTypesService.findAll()),
     });
     readonly #router = inject(Router);
 

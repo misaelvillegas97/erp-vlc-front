@@ -11,6 +11,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     template: `
         <button
             mat-raised-button
+            [class]="class()"
             [disabled]="disable() || loading()"
             [type]="buttonType()">
             @if (loading()) {
@@ -31,4 +32,5 @@ export class LoaderButtonComponent {
     label = input('button');
     spinnerDiameter = input(20);
     buttonType = input('button');
+    class = input('w-full');
 }

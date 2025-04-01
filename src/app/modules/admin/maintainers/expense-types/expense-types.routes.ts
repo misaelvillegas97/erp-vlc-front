@@ -4,7 +4,7 @@ export default [
     {
         path         : '',
         loadComponent: () =>
-            import('./expense-type.component').then(m => m.ExpenseTypeComponent),
+            import('./expense-types.component').then(m => m.ExpenseTypesComponent),
         children     : [
             {
                 path         : 'list',

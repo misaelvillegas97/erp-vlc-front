@@ -10,7 +10,7 @@
             <!-- Contenedor de cuadrícula responsiva -->
             <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
                 <!-- Selector de Proveedor: ocupa 2 columnas en desktop -->
-                <mat-form-field appearance="fill" class="w-full md:col-span-6 fuse-mat-dense">
+                <mat-form-field appearance="fill" class="w-full md:col-span-3 fuse-mat-dense">
                     <mat-label>Proveedor</mat-label>
                     <mat-select formControlName="supplier" placeholder="Seleccione un proveedor">
                         @for (supplier of suppliersResource.value(); track supplier) {
@@ -20,6 +20,19 @@
                         }
                     </mat-select>
                     <mat-hint>Seleccione el proveedor para la factura</mat-hint>
+                </mat-form-field>
+
+                <!-- Tipos de gasto -->
+                <mat-form-field appearance="fill" class="w-full md:col-span-3 fuse-mat-dense">
+                    <mat-label>Tipo de Gasto</mat-label>
+                    <mat-select formControlName="expenseType" placeholder="Seleccione un tipo de gasto">
+                        @for (expenseType of expenseTypesResource.value(); track expenseType) {
+                            <mat-option [value]="expenseType.id">
+                                {{ expenseType.name }}
+                            </mat-option>
+                        }
+                    </mat-select>
+                    <mat-hint>Seleccione el tipo de gasto asociado a la factura</mat-hint>
                 </mat-form-field>
 
                 <!-- Número de Factura -->
