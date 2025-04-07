@@ -2,7 +2,7 @@ import { Component, computed, inject, resource }                   from '@angula
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule }                                      from '@angular/material/form-field';
 import { MatInput }                                                from '@angular/material/input';
-import { MatSelectModule }                                         from '@angular/material/select';
+import { MatSelectChange, MatSelectModule }                        from '@angular/material/select';
 import { MatDatepickerModule }                                     from '@angular/material/datepicker';
 import { AccountingService }                                       from '@modules/admin/administration/accounting/accounting.service';
 import { Router }                                                  from '@angular/router';
@@ -19,6 +19,7 @@ import { ExpenseTypesService }                                     from '@module
 import { MatDialog }                                               from '@angular/material/dialog';
 import { MatIcon }                                                 from '@angular/material/icon';
 import { CreateDialog }                                            from '@modules/admin/maintainers/expense-types/dialog/create/create.dialog';
+import { Supplier }                                                from '@modules/admin/maintainers/suppliers/domain/model/supplier';
 
 @Component({
     selector   : 'app-new',
@@ -73,6 +74,8 @@ export class CreateComponent {
             this.form.markAllAsTouched();
             return;
         }
+
+        console.log(this.form.getRawValue());
     };
 
     openNewExpenseTypeDialog = () => {
@@ -87,5 +90,14 @@ export class CreateComponent {
                 this.form.get('expenseType').setValue(result.id);
             }
         });
+    };
+
+    onSupplierChange = ($event: MatSelectChange) => {
+        const supplier = this.suppliersResource.value().find((s: Supplier) => s.id === $event.value);
+
+        if (supplier?.paymentTermDays) {
+            const dueDate = DateTime.now().plus({days: supplier.paymentTermDays});
+            this.form.get('dueDate').setValue(dueDate.toJSDate());
+        }
     };
 }

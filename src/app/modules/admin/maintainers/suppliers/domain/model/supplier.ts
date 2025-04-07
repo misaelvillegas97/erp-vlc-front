@@ -1,7 +1,7 @@
 import { SupplierTypeEnum } from '@modules/admin/maintainers/suppliers/domain/enums/supplier-type.enum';
 
 export interface Supplier {
-    id?: number;
+    id?: string;
     rut: string;
     businessName: string;
     fantasyName: string;

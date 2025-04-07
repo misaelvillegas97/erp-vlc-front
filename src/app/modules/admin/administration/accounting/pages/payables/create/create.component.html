@@ -4,15 +4,13 @@
         [title]="t('title')"
     ></page-detail-header>
 
-    <!-- Contenedor principal -->
     <div class="flex-1 flex flex-col w-full max-w-5xl mx-auto py-4 px-4">
         <form (ngSubmit)="onSubmit()" [formGroup]="form" class="space-y-6">
-            <!-- Contenedor de cuadrícula responsiva -->
             <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
                 <!-- Selector de Proveedor: ocupa 2 columnas en desktop -->
-                <mat-form-field appearance="fill" class="w-full md:col-span-3 fuse-mat-dense" floatLabel="always">
+                <mat-form-field class="w-full md:col-span-3 fuse-mat-dense" floatLabel="always">
                     <mat-label>Proveedor</mat-label>
-                    <mat-select formControlName="supplier" placeholder="Seleccione un proveedor">
+                    <mat-select formControlName="supplier" placeholder="Seleccione un proveedor" (selectionChange)="onSupplierChange($event)">
                         @for (supplier of suppliersResource.value(); track supplier) {
                             <mat-option [value]="supplier.id">
                                 {{ supplier.fantasyName }}
@@ -23,7 +21,7 @@
                 </mat-form-field>
 
                 <!-- Tipos de gasto -->
-                <mat-form-field appearance="fill" class="w-full md:col-span-3 fuse-mat-dense" floatLabel="always">
+                <mat-form-field class="w-full md:col-span-3 fuse-mat-dense" floatLabel="always">
                     <mat-label>Tipo de Gasto</mat-label>
                     <mat-select formControlName="expenseType" placeholder="Seleccione un tipo de gasto">
                         @for (expenseType of expenseTypesResource.value(); track expenseType) {
@@ -40,14 +38,14 @@
                 </mat-form-field>
 
                 <!-- Número de Factura -->
-                <mat-form-field appearance="fill" class="w-full md:col-span-3 fuse-mat-dense">
+                <mat-form-field class="w-full md:col-span-3 fuse-mat-dense">
                     <mat-label>Número de Factura</mat-label>
                     <input formControlName="invoiceNumber" matInput placeholder="Ej. FAC-001">
                     <mat-hint>Ingrese un número único para la factura</mat-hint>
                 </mat-form-field>
 
                 <!-- Estado de la Factura -->
-                <mat-form-field appearance="fill" class="w-full md:col-span-3 fuse-mat-dense">
+                <mat-form-field class="w-full md:col-span-3 fuse-mat-dense">
                     <mat-label>Estado</mat-label>
                     <mat-select formControlName="status" placeholder="Seleccione un estado">
                         @for (status of SupplierInvoiceStatusEnums; track status) {
@@ -60,7 +58,7 @@
                 </mat-form-field>
 
                 <!-- Fecha de Emisión -->
-                <mat-form-field appearance="fill" class="w-full md:col-span-3 fuse-mat-dense">
+                <mat-form-field class="w-full md:col-span-3 fuse-mat-dense">
                     <mat-label>Fecha de Emisión</mat-label>
                     <input [matDatepicker]="picker1" formControlName="issueDate" matInput placeholder="Seleccione la fecha">
                     <mat-datepicker-toggle [for]="picker1" matSuffix></mat-datepicker-toggle>
@@ -69,7 +67,7 @@
                 </mat-form-field>
 
                 <!-- Fecha de Vencimiento -->
-                <mat-form-field appearance="fill" class="w-full md:col-span-3 fuse-mat-dense">
+                <mat-form-field class="w-full md:col-span-3 fuse-mat-dense">
                     <mat-label>Fecha de Vencimiento</mat-label>
                     <input [matDatepicker]="picker2" formControlName="dueDate" matInput placeholder="Seleccione la fecha de vencimiento">
                     <mat-datepicker-toggle [for]="picker2" matSuffix></mat-datepicker-toggle>
@@ -78,42 +76,41 @@
                 </mat-form-field>
 
                 <!-- Monto Neto -->
-                <mat-form-field appearance="fill" class="w-full md:col-span-2 fuse-mat-dense">
+                <mat-form-field class="w-full md:col-span-2 fuse-mat-dense">
                     <mat-label>Monto Neto</mat-label>
                     <input formControlName="netAmount" matInput placeholder="Ej. 1000" type="number">
                     <mat-hint>Ingrese el monto neto antes de impuestos</mat-hint>
                 </mat-form-field>
 
                 <!-- Monto de Impuesto (IVA 19%) -->
-                <mat-form-field appearance="fill" class="w-full md:col-span-2 fuse-mat-dense">
+                <mat-form-field class="w-full md:col-span-2 fuse-mat-dense">
                     <mat-label>Monto de Impuesto (IVA 19%)</mat-label>
                     <input disabled readonly matInput placeholder="Calculado automáticamente" type="number" [value]="taxAmount()">
                     <mat-hint>El monto del impuesto se calcula automáticamente</mat-hint>
                 </mat-form-field>
 
                 <!-- Monto Bruto: ocupa 2 columnas en desktop -->
-                <mat-form-field appearance="fill" class="w-full md:col-span-2 fuse-mat-dense">
+                <mat-form-field class="w-full md:col-span-2 fuse-mat-dense">
                     <mat-label>Monto Bruto</mat-label>
                     <input disabled readonly matInput placeholder="Calculado automáticamente" type="number" [value]="grossAmount()">
                     <mat-hint>El monto bruto se calcula automáticamente (neto + impuesto)</mat-hint>
                 </mat-form-field>
 
                 <!-- Descripción: ocupa 2 columnas en desktop -->
-                <mat-form-field appearance="fill" class="w-full md:col-span-6 fuse-mat-dense">
+                <mat-form-field class="w-full md:col-span-6 fuse-mat-dense">
                     <mat-label>Descripción</mat-label>
                     <textarea formControlName="description" matInput placeholder="Ingrese una descripción breve"></textarea>
                     <mat-hint>Información adicional sobre la factura</mat-hint>
                 </mat-form-field>
 
                 <!-- Observaciones: ocupa 2 columnas en desktop -->
-                <mat-form-field appearance="fill" class="w-full md:col-span-6 fuse-mat-dense">
+                <mat-form-field class="w-full md:col-span-6 fuse-mat-dense">
                     <mat-label>Observaciones</mat-label>
                     <textarea formControlName="observations" matInput placeholder="Ingrese observaciones adicionales"></textarea>
                     <mat-hint>Notas u observaciones pertinentes a la factura</mat-hint>
                 </mat-form-field>
             </div>
 
-            <!-- Botón para Enviar el Formulario -->
             <div class="flex justify-end">
                 <loader-button [buttonType]="'submit'"
                                [disable]="form.invalid"
