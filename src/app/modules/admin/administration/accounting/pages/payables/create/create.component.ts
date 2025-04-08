@@ -1,4 +1,4 @@
-import { Component, computed, inject, resource }                   from '@angular/core';
+import { Component, inject, linkedSignal, resource }               from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule }                                      from '@angular/material/form-field';
 import { MatInput }                                                from '@angular/material/input';
@@ -20,6 +20,8 @@ import { MatDialog }                                               from '@angula
 import { MatIcon }                                                 from '@angular/material/icon';
 import { CreateDialog }                                            from '@modules/admin/maintainers/expense-types/dialog/create/create.dialog';
 import { Supplier }                                                from '@modules/admin/maintainers/suppliers/domain/model/supplier';
+import { MatCheckbox }                                             from '@angular/material/checkbox';
+import { SupplierInvoiceMapper }                                   from '@modules/admin/administration/accounting/domain/models/supplier-invoice';
 
 @Component({
     selector   : 'app-new',
@@ -33,6 +35,7 @@ import { Supplier }                                                from '@module
         TranslocoDirective,
         LoaderButtonComponent,
         MatIcon,
+        MatCheckbox,
     ],
     templateUrl: './create.component.html'
 })
@@ -50,16 +53,32 @@ export class CreateComponent {
         expenseType: [ null, [ Validators.required ] ],
         invoiceNumber: [ '', [ Validators.required ] ],
         status       : [ SupplierInvoiceStatusEnum.ISSUED, [ Validators.required ] ],
-        issueDate    : [ DateTime.now().toJSDate(), [ Validators.required ] ],
+        issueDate  : [ DateTime.now().toISODate(), [ Validators.required ] ],
         dueDate      : [ '', [ Validators.required ] ],
+        isExempt   : [ false ],
         netAmount    : [ 0, [ Validators.required, Validators.min(0) ] ],
+        taxAmount  : [ 0, [ Validators.required, Validators.min(0) ] ],
+        grossAmount: [ 0, [ Validators.required, Validators.min(0) ] ],
         description  : [ '' ],
         observations : [ '' ]
     });
 
     netAmountInput = toSignal(this.form.get('netAmount').valueChanges);
-    taxAmount = computed(() => new BigNumber(this.netAmountInput() || 0).multipliedBy(0.19).toFixed(0));
-    grossAmount = computed(() => new BigNumber(this.netAmountInput() || 0).plus(this.taxAmount()).toFixed(0));
+    isExemptInput = toSignal(this.form.get('isExempt').valueChanges);
+    amountCalc = linkedSignal(() => {
+        const netAmount = this.netAmountInput() || 0;
+        const taxAmount = this.isExemptInput() ? 0 : new BigNumber(netAmount).multipliedBy(0.19).toFixed(0);
+        const grossAmount = new BigNumber(netAmount).plus(taxAmount).toFixed(0);
+
+        this.form.get('taxAmount').setValue(taxAmount);
+        this.form.get('grossAmount').setValue(grossAmount);
+
+        return {
+            netAmount,
+            taxAmount,
+            grossAmount
+        };
+    });
 
     suppliersResource = resource({
         loader: () => firstValueFrom(this.#supplierService.findAll()).then((res) => res.suppliers),
@@ -69,13 +88,17 @@ export class CreateComponent {
     });
     readonly #router = inject(Router);
 
-    onSubmit = () => {
+    onSubmit = async () => {
         if (this.form.invalid) {
             this.form.markAllAsTouched();
             return;
         }
 
         console.log(this.form.getRawValue());
+        const form = SupplierInvoiceMapper.toCreateDto(this.form.getRawValue());
+
+        firstValueFrom(this.#service.createPayable(form))
+            .then(() => this.#router.navigate([ '/operations/accounting/payables/list' ]));
     };
 
     openNewExpenseTypeDialog = () => {

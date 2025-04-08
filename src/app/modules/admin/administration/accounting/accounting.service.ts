@@ -1,13 +1,14 @@
-import { Injectable }                from '@angular/core';
+import { inject, Injectable }        from '@angular/core';
 import { Observable, of }            from 'rxjs';
 import { SupplierInvoice }           from './domain/models/supplier-invoice';
 import { BankTransaction, Transfer } from './domain/models/transaction';
+import { HttpClient }                from '@angular/common/http';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AccountingService {
-    // Simulación de llamadas a API con datos dummy
+    readonly #http = inject(HttpClient);
 
     // Para el Dashboard
     getFinancialSummary(): Observable<any> {
@@ -20,38 +21,28 @@ export class AccountingService {
 
     // Cuentas por Pagar
     getPayables(): Observable<SupplierInvoice[]> {
-        const dummy: SupplierInvoice[] = [
-            {id: 1, number: 'INV-001', date: new Date(), dueDate: new Date(), amount: 1000, status: 'pending', supplier: 'Supplier A'},
-            {id: 2, number: 'INV-002', date: new Date(), dueDate: new Date(), amount: 2000, status: 'paid', supplier: 'Supplier B'}
-        ];
-        return of(dummy);
+        return this.#http.get<SupplierInvoice[]>('/api/payables');
     }
 
     getPayableById(id: number): Observable<SupplierInvoice> {
-        const dummy: SupplierInvoice = {id, number: 'INV-001', date: new Date(), dueDate: new Date(), amount: 1000, status: 'pending', supplier: 'Supplier A'};
-        return of(dummy);
+        return this.#http.get<SupplierInvoice>(`/api/payables/${ id }`);
     }
 
     createPayable(invoice: SupplierInvoice): Observable<SupplierInvoice> {
-        return of({...invoice, id: Math.floor(Math.random() * 1000)});
+        return this.#http.post<SupplierInvoice>('/api/payables', invoice);
     }
 
     // Cuentas por Cobrar
     getReceivables(): Observable<SupplierInvoice[]> {
-        const dummy: SupplierInvoice[] = [
-            {id: 3, number: 'INV-101', date: new Date(), dueDate: new Date(), amount: 1500, status: 'pending', customer: 'Customer X'},
-            {id: 4, number: 'INV-102', date: new Date(), dueDate: new Date(), amount: 2500, status: 'overdue', customer: 'Customer Y'}
-        ];
-        return of(dummy);
+        return this.#http.get<SupplierInvoice[]>('/api/receivables');
     }
 
     getReceivableById(id: number): Observable<SupplierInvoice> {
-        const dummy: SupplierInvoice = {id, number: 'INV-101', date: new Date(), dueDate: new Date(), amount: 1500, status: 'pending', customer: 'Customer X'};
-        return of(dummy);
+        return this.#http.get<SupplierInvoice>(`/api/receivables/${ id }`);
     }
 
     createReceivable(invoice: SupplierInvoice): Observable<SupplierInvoice> {
-        return of({...invoice, id: Math.floor(Math.random() * 1000)});
+        return this.#http.post<SupplierInvoice>('/api/receivables', invoice);
     }
 
     // Transacciones Bancarias
