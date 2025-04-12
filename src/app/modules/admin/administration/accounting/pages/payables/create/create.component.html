@@ -10,7 +10,7 @@
                 <!-- Selector de Proveedor: ocupa 2 columnas en desktop -->
                 <mat-form-field class="w-full md:col-span-6 fuse-mat-dense" floatLabel="always">
                     <mat-label>Proveedor</mat-label>
-                    <mat-select formControlName="supplier" placeholder="Seleccione un proveedor" (selectionChange)="onSupplierChange($event)">
+                    <mat-select formControlName="supplierId" placeholder="Seleccione un proveedor" (selectionChange)="onSupplierChange($event)">
                         @for (supplier of suppliersResource.value(); track supplier) {
                             <mat-option [value]="supplier.id">
                                 {{ supplier.fantasyName }}
@@ -23,7 +23,7 @@
                 <!-- Tipos de gasto -->
                 <mat-form-field class="w-full md:col-span-6 fuse-mat-dense" floatLabel="always">
                     <mat-label>Tipo de Gasto</mat-label>
-                    <mat-select formControlName="expenseType" placeholder="Seleccione un tipo de gasto">
+                    <mat-select formControlName="expenseTypeId" placeholder="Seleccione un tipo de gasto">
                         @for (expenseType of expenseTypesResource.value(); track expenseType) {
                             <mat-option [value]="expenseType.id">
                                 {{ expenseType.name }}
@@ -84,10 +84,10 @@
 
                 <!-- Exempt -->
                 <div class="w-full flex flex-col md:justify-end md:col-span-3">
-                    <mat-checkbox class="w-full" formControlName="exempt">
+                    <mat-checkbox class="w-full" formControlName="isExempt">
                         <span>Exento</span>
                     </mat-checkbox>
-                    <mat-hint class="mat-hint">Marque esta casilla si la factura es exenta de impuestos</mat-hint>
+                    <mat-hint class="mat-hint">Factura excenta de impuestos</mat-hint>
                 </div>
 
                 <!-- Monto de Impuesto (IVA 19%) -->

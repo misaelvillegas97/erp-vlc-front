@@ -50,7 +50,6 @@ export class ListComponent {
     // Configuración de columnas para el table-builder
     columnsConfig: WritableSignal<ColumnConfig<any>[]> = signal(undefined);
 
-
     ngAfterViewInit() {
         this.columnsConfig.set(this.buildColumnsConfig());
     }

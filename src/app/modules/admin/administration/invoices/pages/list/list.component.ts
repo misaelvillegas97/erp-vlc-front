@@ -72,9 +72,6 @@ export class ListComponent implements OnDestroy {
     // Fields from query params
     readonly invoiceNumberQP = model(undefined, {alias: 'invoiceNumber'});
 
-    // Table
-    displayedColumns = [ 'invoiceNumber', 'orderNumber', 'client', 'status', 'isPaid', 'emissionDate', 'dueDate', 'netAmount', 'taxAmount', 'totalAmount', 'actions' ];
-    displayedColumnsFilters = this.displayedColumns.map((column) => column + 'Filter');
     // formControls
     invoiceNumberFormControl = new FormControl<number>(undefined);
     orderNumberFormControl = new FormControl();

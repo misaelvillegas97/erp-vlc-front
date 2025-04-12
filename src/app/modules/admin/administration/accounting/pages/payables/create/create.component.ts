@@ -22,6 +22,7 @@ import { CreateDialog }                                            from '@module
 import { Supplier }                                                from '@modules/admin/maintainers/suppliers/domain/model/supplier';
 import { MatCheckbox }                                             from '@angular/material/checkbox';
 import { SupplierInvoiceMapper }                                   from '@modules/admin/administration/accounting/domain/models/supplier-invoice';
+import { NotyfService }                                            from '@shared/services/notyf.service';
 
 @Component({
     selector   : 'app-new',
@@ -46,11 +47,12 @@ export class CreateComponent {
     readonly #service = inject(AccountingService);
     readonly #supplierService = inject(SuppliersService);
     readonly #expenseTypesService = inject(ExpenseTypesService);
+    readonly #notyfService = inject(NotyfService);
     readonly #dialog = inject(MatDialog);
 
     form: FormGroup = this.#fb.group({
-        supplier     : [ null, [ Validators.required ] ],
-        expenseType: [ null, [ Validators.required ] ],
+        supplierId   : [ null, [ Validators.required ] ],
+        expenseTypeId: [ null, [ Validators.required ] ],
         invoiceNumber: [ '', [ Validators.required ] ],
         status       : [ SupplierInvoiceStatusEnum.ISSUED, [ Validators.required ] ],
         issueDate  : [ DateTime.now().toISODate(), [ Validators.required ] ],
@@ -94,11 +96,19 @@ export class CreateComponent {
             return;
         }
 
-        console.log(this.form.getRawValue());
+        this.form.disable();
+
         const form = SupplierInvoiceMapper.toCreateDto(this.form.getRawValue());
 
+        console.log('form', form);
+
         firstValueFrom(this.#service.createPayable(form))
-            .then(() => this.#router.navigate([ '/operations/accounting/payables/list' ]));
+            .then(() => this.#notyfService.success('Factura agregada correctamente'))
+            .then(() => this.#router.navigate([ '/operations/accounting/payables/list' ]))
+            .catch((error) => {
+                this.form.enable();
+                console.error(error);
+            });
     };
 
     openNewExpenseTypeDialog = () => {
@@ -120,7 +130,7 @@ export class CreateComponent {
 
         if (supplier?.paymentTermDays) {
             const dueDate = DateTime.now().plus({days: supplier.paymentTermDays});
-            this.form.get('dueDate').setValue(dueDate.toJSDate());
+            this.form.get('dueDate').setValue(dueDate.toISODate());
         }
     };
 }

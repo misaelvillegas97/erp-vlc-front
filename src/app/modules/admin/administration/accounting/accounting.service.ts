@@ -21,15 +21,15 @@ export class AccountingService {
 
     // Cuentas por Pagar
     getPayables(): Observable<SupplierInvoice[]> {
-        return this.#http.get<SupplierInvoice[]>('/api/payables');
+        return this.#http.get<SupplierInvoice[]>('/api/supplier-invoices');
     }
 
     getPayableById(id: number): Observable<SupplierInvoice> {
-        return this.#http.get<SupplierInvoice>(`/api/payables/${ id }`);
+        return this.#http.get<SupplierInvoice>(`/api/supplier-invoices/${ id }`);
     }
 
     createPayable(invoice: SupplierInvoice): Observable<SupplierInvoice> {
-        return this.#http.post<SupplierInvoice>('/api/payables', invoice);
+        return this.#http.post<SupplierInvoice>('/api/supplier-invoices', invoice);
     }
 
     // Cuentas por Cobrar

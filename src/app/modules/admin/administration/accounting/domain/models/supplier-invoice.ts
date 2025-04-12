@@ -3,11 +3,11 @@ import { Supplier }                  from '@modules/admin/maintainers/suppliers/
 
 export interface SupplierInvoice {
     id: number;
+    invoiceNumber: string,
     supplier?: Supplier,
     supplierId?: string,
     expenseType?: any,
     expenseTypeId?: string,
-    invoiceNumber: string,
     status: SupplierInvoiceStatusEnum,
     issueDate: string,
     dueDate: string,
@@ -21,6 +21,7 @@ export interface SupplierInvoice {
 
 export class SupplierInvoiceMapper {
     static toCreateDto(data: any): SupplierInvoice {
+        console.log('toCreateDto', data);
         return {
             id           : data.id,
             supplierId   : data.supplierId,
@@ -30,9 +31,9 @@ export class SupplierInvoiceMapper {
             issueDate    : data.issueDate,
             dueDate      : data.dueDate,
             isExempt     : data.isExempt,
-            netAmount    : data.netAmount,
-            taxAmount    : data.taxAmount,
-            grossAmount  : data.grossAmount,
+            netAmount  : +data.netAmount,
+            taxAmount  : +data.taxAmount,
+            grossAmount: +data.grossAmount,
             description  : data.description,
             observations : data.observations
         };

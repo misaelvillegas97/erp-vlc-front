@@ -27,5 +27,11 @@
         </div>
     </div>
 
-
+    <div class="relative max-w-full overflow-auto w-full">
+        <table-builder [columns]="columnsConfig()"
+                       [data]="payablesResource.value() || []"
+                       [itemsPerPageLabel]="'Facturas por página'"
+                       class="w-full"
+        ></table-builder>
+    </div>
 </div>

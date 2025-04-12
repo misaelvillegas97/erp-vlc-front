@@ -216,6 +216,14 @@
                     "subtitle" : "Crea una nueva cuenta por pagar",
                     "description" : "Crear una nueva cuenta por pagar",
                     "success" : "Cuenta por pagar creada exitosamente"
+                },
+                "fields" : {
+                    "invoice-number" : "Número de factura",
+                    "supplier" : "Proveedor",
+                    "expense-type" : "Tipo de gasto",
+                    "status" : "Estado",
+                    "issue-date" : "Fecha de emisión",
+                    "due-date" : "Fecha de vencimiento"
                 }
             },
             "bank" : {
