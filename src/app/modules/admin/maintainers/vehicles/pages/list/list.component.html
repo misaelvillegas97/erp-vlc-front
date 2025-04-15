@@ -1,0 +1,57 @@
+<div *transloco="let t; read: 'maintainers.vehicles'" class="flex flex-col min-w-0 w-full">
+    <page-header [description]="t('list.subtitle')" [subtitle]="t('list.title')"></page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-10 gap-y-4 sm:px-4">
+        <div class="flex flex-row w-full">
+            <h2 class="flex-1 font-bold text-secondary text-xl self-center">{{ t('title') }}</h2>
+            <a
+                [matTooltip]="t('new.title')"
+                [routerLink]="['/maintainers', 'vehicles', 'new']"
+                class="flex-0 font-bold py-2 px-4 rounded"
+                color="primary"
+                mat-icon-button
+            >
+                <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+            </a>
+        </div>
+
+        <div class="w-full">
+            <mat-form-field [subscriptSizing]="'dynamic'" class="fuse-mat-dense fuse-mat-rounded w-full">
+                <mat-icon [svgIcon]="'heroicons_solid:magnifying-glass'" class="icon-size-5" matPrefix></mat-icon>
+                <input #searchBar [formControl]="searchControl" [placeholder]="'Buscar vehículo'" matInput type="search"/>
+                @if (searchControl.errors?.minlength) {
+                    <mat-error>{{ 'errors.form.min-length' | transloco:{length: 3} }}</mat-error>
+                }
+                <mat-hint class="ml-4">{{ searchBar.value?.length || 0 }}/100</mat-hint>
+            </mat-form-field>
+        </div>
+
+        <div class="relative max-w-full overflow-auto w-full">
+            @if (columnsConfig()) {
+                <table-builder
+                    [columns]="columnsConfig()"
+                    [data]="vehiclesResource.value()"
+                    [itemsPerPageLabel]="'Registros por página'"
+                    class="w-full"
+                ></table-builder>
+            }
+        </div>
+    </div>
+</div>
+
+<ng-template #actionsCell let-vehicle="row">
+    <div class="flex gap-4">
+        <a
+            [routerLink]="['/maintainers', 'vehicles', 'edit', vehicle.id]"
+            mat-icon-button
+            matTooltip="Editar vehículo">
+            <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:pencil"></mat-icon>
+        </a>
+        <button
+            mat-icon-button
+            matTooltip="Ver documentos"
+            (click)="viewDocuments(vehicle)">
+            <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:document"></mat-icon>
+        </button>
+    </div>
+</ng-template>

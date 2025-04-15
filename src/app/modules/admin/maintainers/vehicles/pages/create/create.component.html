@@ -1,0 +1,237 @@
+<div *transloco="let t; read: 'maintainers.vehicles.new'" class="flex flex-col min-w-0 w-full">
+    <page-detail-header [subtitle]="t('description')" [title]="t('title')"></page-detail-header>
+    <!-- Contenido -->
+    <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-4 sm:px-4">
+        <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col items-center gap-y-4 w-full md:w-2/3 py-4">
+            <!-- Datos del vehículo -->
+            <div class="w-full border-b pb-4 mb-4">
+                <h3 class="text-lg font-semibold mb-4">Datos del vehículo</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Campo: Marca -->
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>{{ 'maintainers.vehicles.fields.brand' | transloco }}</mat-label>
+                        <input
+                            [placeholder]="'maintainers.vehicles.fields.brand' | transloco"
+                            formControlName="brand"
+                            matInput
+                        />
+                        @if (form.controls['brand'].hasError('required')) {
+                            <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <!-- Campo: Modelo -->
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>{{ 'maintainers.vehicles.fields.model' | transloco }}</mat-label>
+                        <input
+                            [placeholder]="'maintainers.vehicles.fields.model' | transloco"
+                            formControlName="model"
+                            matInput
+                        />
+                        @if (form.controls['model'].hasError('required')) {
+                            <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <!-- Campo: Año -->
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>{{ 'maintainers.vehicles.fields.year' | transloco }}</mat-label>
+                        <input
+                            [placeholder]="'maintainers.vehicles.fields.year' | transloco"
+                            formControlName="year"
+                            matInput
+                            type="number"
+                            min="1900"
+                            max="{{ DateTime.now().plus({year: 1}).year }}"
+                        />
+                        @if (form.controls['year'].hasError('required')) {
+                            <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                        } @else if (form.controls['year'].hasError('min') || form.controls['year'].hasError('max')) {
+                            <mat-error>{{ 'errors.form.invalid-year-range' | transloco }}</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <!-- Campo: Patente -->
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>{{ 'maintainers.vehicles.fields.license-plate' | transloco }}</mat-label>
+                        <input
+                            [placeholder]="'maintainers.vehicles.fields.license-plate' | transloco"
+                            formControlName="licensePlate"
+                            matInput
+                            style="text-transform: uppercase;"
+                        />
+                        <mat-hint>Formato: AABB12 o AA1234</mat-hint>
+                        @if (form.controls['licensePlate'].hasError('required')) {
+                            <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                        } @else if (form.controls['licensePlate'].hasError('pattern')) {
+                            <mat-error>Formato inválido. Ej: AABB12 o AA1234</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <!-- Campo: Fecha de compra -->
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>{{ 'maintainers.vehicles.fields.purchase-date' | transloco }}</mat-label>
+                        <input
+                            [placeholder]="'maintainers.vehicles.fields.purchase-date' | transloco"
+                            formControlName="purchaseDate"
+                            [matDatepicker]="purchaseDatePicker"
+                            matInput
+                        >
+                        <mat-hint>DD/MM/AAAA</mat-hint>
+                        <mat-datepicker-toggle matIconSuffix [for]="purchaseDatePicker"></mat-datepicker-toggle>
+                        <mat-datepicker #purchaseDatePicker></mat-datepicker>
+                        @if (form.controls['purchaseDate'].hasError('required')) {
+                            <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <!-- Documentos -->
+            <div class="w-full">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Documentos del vehículo</h3>
+                    <button
+                        type="button"
+                        mat-flat-button
+                        color="primary"
+                        (click)="addDocument()"
+                        class="flex items-center"
+                    >
+                        <mat-icon svgIcon="heroicons_outline:plus" class="mr-2"></mat-icon>
+                        Agregar documento
+                    </button>
+                </div>
+
+                <div formArrayName="documents" class="flex flex-col gap-y-6">
+                    @for (documentForm of documents.controls; track $index) {
+                        <div [formGroupName]="$index" class="border p-4 rounded-md bg-gray-50 dark:bg-gray-800">
+                            <div class="flex justify-between items-center mb-3">
+                                <h4 class="font-medium">Documento #{{ $index + 1 }}</h4>
+                                <button type="button" mat-icon-button (click)="removeDocument($index)">
+                                    <mat-icon svgIcon="heroicons_outline:trash" class="text-red-500"></mat-icon>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Nombre del documento -->
+                                <mat-form-field class="w-full fuse-mat-dense">
+                                    <mat-label>Nombre del documento</mat-label>
+                                    <input formControlName="name" matInput placeholder="Ej. Permiso de circulación 2025">
+                                    @if (documentForm.get('name')?.hasError('required')) {
+                                        <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                                    }
+                                </mat-form-field>
+
+                                <!-- Tipo de documento -->
+                                <mat-form-field class="w-full fuse-mat-dense">
+                                    <mat-label>Tipo de documento</mat-label>
+                                    <mat-select formControlName="type">
+                                        @for (docType of documentTypes; track docType) {
+                                            <mat-option [value]="docType">
+                                                @switch (docType) {
+                                                    @case ('CIRCULATION_PERMIT') {
+                                                        Permiso de circulación
+                                                    }
+                                                    @case ('SOAP') {
+                                                        Seguro obligatorio (SOAP)
+                                                    }
+                                                    @case ('TECHNICAL_REVISION') {
+                                                        Revisión técnica
+                                                    }
+                                                    @case ('INSURANCE') {
+                                                        Seguro adicional
+                                                    }
+                                                    @default {
+                                                        Otro
+                                                    }
+                                                }
+                                            </mat-option>
+                                        }
+                                    </mat-select>
+                                    @if (documentForm.get('type')?.hasError('required')) {
+                                        <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                                    }
+                                </mat-form-field>
+
+                                <!-- Fecha de vencimiento (opcional) -->
+                                <mat-form-field class="w-full fuse-mat-dense">
+                                    <mat-label>Fecha de vencimiento</mat-label>
+                                    <input
+                                        formControlName="expirationDate"
+                                        [matDatepicker]="expirationPicker"
+                                        matInput
+                                    >
+                                    <mat-hint>DD/MM/AAAA (opcional)</mat-hint>
+                                    <mat-datepicker-toggle matIconSuffix [for]="expirationPicker"></mat-datepicker-toggle>
+                                    <mat-datepicker #expirationPicker></mat-datepicker>
+                                </mat-form-field>
+
+                                <!-- Archivo -->
+                                <div class="flex flex-col">
+                                    <label for="document-file-{{$index}}" class="mb-2 text-sm font-medium">Archivo</label>
+                                    <div class="flex">
+                                        <input
+                                            type="file"
+                                            class="hidden"
+                                            id="document-file-{{$index}}"
+                                            (change)="onFileSelected($event, $index)"
+                                        >
+                                        <button
+                                            type="button"
+                                            mat-flat-button
+                                            color="accent"
+                                            class="w-full"
+                                            (click)="documentFileInput($index)"
+                                        >
+                                            <mat-icon svgIcon="heroicons_outline:paper-clip" class="mr-2"></mat-icon>
+                                            Seleccionar archivo
+                                        </button>
+                                    </div>
+                                    @if (documentForm.get('fileUrl')?.value) {
+                                        <div class="mt-2 text-sm text-green-600 dark:text-green-400">
+                                            <mat-icon svgIcon="heroicons_outline:check-circle" class="inline-block mr-1"></mat-icon>
+                                            Archivo cargado
+                                        </div>
+                                    } @else if (documentForm.get('fileUrl')?.hasError('required') && documentForm.get('fileUrl')?.touched) {
+                                        <div class="mt-2 text-sm text-red-500">
+                                            Debes seleccionar un archivo
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    } @empty {
+                        <div class="text-center py-8 border border-dashed rounded-md">
+                            <p class="text-gray-500 dark:text-gray-400">No hay documentos agregados</p>
+                            <button
+                                type="button"
+                                mat-stroked-button
+                                color="primary"
+                                (click)="addDocument()"
+                                class="mt-4"
+                            >
+                                <mat-icon svgIcon="heroicons_outline:plus" class="mr-2"></mat-icon>
+                                Agregar primer documento
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="flex-0 pt-6 w-full flex md:justify-end flex-col md:flex-row sm:items-center gap-6">
+                <button class="w-full md:w-30" color="secondary" mat-flat-button type="reset">
+                    <span [innerText]="'actions.reset' | transloco"></span>
+                </button>
+
+                <loader-button
+                    [disable]="form.invalid"
+                    [loading]="form.disabled"
+                    [label]="'actions.save' | transloco"
+                    buttonType="submit"
+                    class="w-full md:w-30"
+                ></loader-button>
+            </div>
+        </form>
+    </div>
+</div>

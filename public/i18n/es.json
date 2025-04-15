@@ -53,6 +53,11 @@
             "payables" : {
                 "title" : "Cuentas por pagar",
                 "expense-type" : "Tipos de gasto"
+            },
+            "logistics" : {
+                "title" : "Logística",
+                "vehicles" : "Vehículos",
+                "drivers" : "Conductores"
             }
         }
     },
@@ -385,6 +390,28 @@
             "fields" : {
                 "name" : "Nombre",
                 "description" : "Descripción"
+            }
+        },
+        "vehicles" : {
+            "title" : "Vehículos",
+            "list" : {
+                "title" : "Mantenedor de vehículos",
+                "subtitle" : "Administra los vehículos de la aplicación",
+                "description" : "Lista de vehículos",
+                "no-data" : "No hay vehículos disponibles"
+            },
+            "new" : {
+                "title" : "Nuevo vehículo",
+                "subtitle" : "Crea un nuevo vehículo",
+                "description" : "Crear un nuevo vehículo",
+                "success" : "Vehículo creado exitosamente"
+            },
+            "fields" : {
+                "license-plate" : "Patente",
+                "brand" : "Marca",
+                "model" : "Modelo",
+                "year" : "Año",
+                "purchase-date" : "Fecha de compra"
             }
         }
     },

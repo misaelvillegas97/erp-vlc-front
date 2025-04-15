@@ -95,6 +95,7 @@ export const appRoutes: Routes = [
                     {path: 'users', loadChildren: () => import('app/modules/admin/maintainers/users/users.routes')},
                     {path: 'suppliers', loadChildren: () => import('app/modules/admin/maintainers/suppliers/suppliers.routes')},
                     {path: 'expense-types', loadChildren: () => import('app/modules/admin/maintainers/expense-types/expense-types.routes')},
+                    {path: 'vehicles', loadChildren: () => import('app/modules/admin/maintainers/vehicles/vehicles.routes')},
                 ]
             }
         ]

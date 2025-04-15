@@ -53,7 +53,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         children: [
             {
                 id      : 'operations.accounting.title',
-                type    : 'group',
+                type: 'collapsable',
                 children: [
                     {
                         id  : 'operations.accounting.dashboard',
@@ -83,7 +83,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
             },
             {
                 id      : 'operations.orders.title',
-                type    : 'group',
+                type: 'collapsable',
                 children: [
                     {
                         id  : 'operations.orders.dashboard',
@@ -107,7 +107,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
             },
             {
                 id      : 'operations.invoices.title',
-                type    : 'group',
+                type: 'collapsable',
                 children: [
                     {
                         id  : 'operations.invoices.dashboard',
@@ -157,7 +157,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
             },
             {
                 id      : 'maintainers.payables.title',
-                icon    : 'mat_outline:attach_money',
+                // icon    : 'mat_outline:attach_money',
                 type    : 'group',
                 children: [
                     {
@@ -166,6 +166,25 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         link: '/maintainers/expense-types/list',
                         icon: 'mat_outline:label'
                     },
+                ]
+            },
+            {
+                id: 'maintainers.logistics.title',
+                // icon: 'heroicons_outline:truck',
+                type    : 'group',
+                children: [
+                    {
+                        id  : 'maintainers.logistics.vehicles',
+                        type: 'basic',
+                        link: '/maintainers/vehicles/list',
+                        icon: 'heroicons_outline:truck'
+                    },
+                    {
+                        id  : 'maintainers.logistics.drivers',
+                        type: 'basic',
+                        link: '/maintainers/drivers/list',
+                        icon: 'heroicons_outline:user-circle'
+                    }
                 ]
             }
         ]
