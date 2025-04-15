@@ -88,6 +88,10 @@ export const appRoutes: Routes = [
                 ]
             },
             {
+                path        : 'logistics',
+                loadChildren: () => import('app/modules/admin/logistics/logistics.routes'),
+            },
+            {
                 path    : 'maintainers',
                 children: [
                     {path: 'clients', loadChildren: () => import('app/modules/admin/maintainers/clients/client.routes')},

@@ -1,0 +1,155 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header subtitle="Monitoreo de sesiones en curso" title="Sesiones Activas"></page-header>
+
+    <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-6 sm:px-6">
+        <!-- Barra de filtros -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Búsqueda -->
+                <div class="w-full">
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Buscar por conductor o vehículo</mat-label>
+                        <input matInput [formControl]="searchControl" placeholder="Nombre, apellido, placa, marca o modelo">
+                        <mat-icon matSuffix svgIcon="mat_outline:search"></mat-icon>
+                    </mat-form-field>
+                </div>
+
+                <!-- Ordenamiento -->
+                <div class="w-full">
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Ordenar por</mat-label>
+                        <mat-select [formControl]="sortControl">
+                            <mat-option value="duration_desc">Duración (mayor a menor)</mat-option>
+                            <mat-option value="duration_asc">Duración (menor a mayor)</mat-option>
+                            <mat-option value="name_asc">Conductor (A-Z)</mat-option>
+                            <mat-option value="name_desc">Conductor (Z-A)</mat-option>
+                            <mat-option value="plate_asc">Placa (A-Z)</mat-option>
+                            <mat-option value="plate_desc">Placa (Z-A)</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estado de carga -->
+        @if (isLoading) {
+            <div class="flex justify-center items-center py-20">
+                <div class="text-center">
+                    <mat-spinner diameter="48" color="primary"></mat-spinner>
+                    <p class="mt-4 text-gray-600 dark:text-gray-300">Cargando sesiones activas...</p>
+                </div>
+            </div>
+        } @else if (filteredSessions.length === 0) {
+            <div class="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 shadow rounded-lg">
+                <mat-icon class="text-gray-400 icon-size-10 mb-4" svgIcon="mat_outline:directions_car_off"></mat-icon>
+                <h3 class="text-xl font-bold mb-2">No hay sesiones activas</h3>
+                <p class="text-center mb-6 max-w-lg text-gray-500 dark:text-gray-400">
+                    Actualmente no hay vehículos en uso. Puede iniciar una nueva sesión desde el panel de Control de Flota.
+                </p>
+                <button mat-flat-button color="primary" [routerLink]="['/logistics/fleet-control']">
+                    Iniciar Nueva Sesión
+                </button>
+            </div>
+        } @else {
+            <!-- Lista de sesiones -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @for (session of filteredSessions; track session.id) {
+                    <mat-card class="relative overflow-hidden">
+                        <!-- Indicador de estado -->
+                        <div class="absolute top-0 right-0 w-0 h-0">
+                            <div class="absolute -top-2 -right-2 rotate-45 w-20 h-20 {{ getStatusColor(session.status) }}"></div>
+                            <div class="absolute top-1 right-1 transform rotate-45 text-white text-xs font-bold">
+                                {{ getStatusText(session.status) }}
+                            </div>
+                        </div>
+
+                        <mat-card-content class="p-4">
+                            <div class="flex flex-col">
+                                <!-- Info del conductor -->
+                                <div class="flex items-center mb-4">
+                                    <div class="flex-shrink-0">
+                                        <img
+                                            [src]="session.driver.photoUrl"
+                                            alt="Foto del conductor"
+                                            class="w-14 h-14 rounded-full object-cover"
+                                            onerror="this.src='assets/images/avatars/male-01.jpg'"
+                                        >
+                                    </div>
+                                    <div class="ml-4 flex-1">
+                                        <p class="text-lg font-semibold">
+                                            {{ session.driver.name }} {{ session.driver.lastName }}
+                                        </p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                            Conductor
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Info del vehículo -->
+                                <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 mb-4 flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <img
+                                            [src]="session.vehicle.photoUrl"
+                                            alt="Foto del vehículo"
+                                            class="w-14 h-14 rounded object-cover"
+                                            onerror="this.src='assets/images/ui/vehicle-placeholder.jpg'"
+                                        >
+                                    </div>
+                                    <div class="ml-3 flex-1">
+                                        <p class="font-medium">
+                                            {{ session.vehicle.brand }} {{ session.vehicle.model }}
+                                        </p>
+                                        <p class="text-sm font-semibold">
+                                            Placa: {{ session.vehicle.licensePlate }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Información de la sesión -->
+                                <div class="flex flex-wrap gap-4">
+                                    <div class="flex-1 min-w-[120px]">
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Inicio</p>
+                                        <p class="font-medium">{{ session.startTimestamp | date:'dd/MM/yyyy HH:mm' }}</p>
+                                    </div>
+                                    <div class="flex-1 min-w-[120px]">
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Duración</p>
+                                        <p class="font-medium">{{ formatDuration(session.duration) }}</p>
+                                    </div>
+                                    <div class="flex-1 min-w-[120px]">
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Odómetro inicial</p>
+                                        <p class="font-medium">{{ session.initialOdometer | number:'1.0-0' }} km</p>
+                                    </div>
+                                </div>
+
+                                <!-- Ubicación actual (mapa miniatura) -->
+                                @if (session.currentLocation) {
+                                    <div class="mt-4 rounded-lg overflow-hidden h-[120px] mb-3 bg-gray-200">
+                                        <!-- Aquí iría un componente de mapa, por ahora un placeholder -->
+                                        <div class="flex items-center justify-center h-full bg-gray-200 dark:bg-gray-600 text-sm">
+                                            <mat-icon class="mr-2" svgIcon="mat_outline:location_on"></mat-icon>
+                                            <span>
+                                                Lat: {{ session.currentLocation.latitude | number:'1.4-6' }}, 
+                                                Lon: {{ session.currentLocation.longitude | number:'1.4-6' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                }
+
+                                <!-- Acción de finalizar -->
+                                <div class="mt-2 flex justify-end">
+                                    <button
+                                        mat-flat-button
+                                        color="primary"
+                                        (click)="finishSession(session.id)"
+                                    >
+                                        Finalizar Sesión
+                                    </button>
+                                </div>
+                            </div>
+                        </mat-card-content>
+                    </mat-card>
+                }
+            </div>
+        }
+    </div>
+</div>

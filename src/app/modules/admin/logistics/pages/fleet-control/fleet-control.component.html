@@ -1,0 +1,218 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        title="Control de Flota Vehicular"
+        subtitle="Inicie una nueva sesión de uso de vehículo"
+        icon="heroicons_outline:truck">
+    </page-header>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full p-6">
+        <!-- Formulario de inicio de sesión -->
+        <div class="md:col-span-8">
+            <mat-card class="rounded-md shadow">
+                <mat-card-content>
+                    <!-- Contador de fecha y hora actual -->
+                    <div class="flex flex-col items-center justify-center p-4 bg-gray-100 dark:bg-gray-800 rounded-md mb-6">
+                        <h2 class="text-xl font-medium mb-1">Fecha y Hora Actual</h2>
+                        <div class="text-3xl font-semibold">
+                            {{ currentDateTime() | date:'dd/MM/yyyy HH:mm:ss' }}
+                        </div>
+                    </div>
+
+                    <!-- Formulario de inicio de sesión de vehículo -->
+                    <form [formGroup]="form" (ngSubmit)="startVehicleSession()" class="flex flex-col space-y-4">
+                        <!-- Selección de conductor -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <mat-form-field class="w-full">
+                                <mat-label>Conductor</mat-label>
+                                <mat-select formControlName="driverId">
+                                    <mat-option *ngFor="let driver of availableDrivers()" [value]="driver.id">
+                                        {{ driver.name }}
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="form.get('driverId').hasError('required')">
+                                    El conductor es requerido
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Selección de vehículo -->
+                            <mat-form-field class="w-full">
+                                <mat-label>Vehículo</mat-label>
+                                <mat-select formControlName="vehicleId">
+                                    <mat-option *ngFor="let vehicle of availableVehicles()" [value]="vehicle.id">
+                                        {{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.licensePlate }})
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="form.get('vehicleId').hasError('required')">
+                                    El vehículo es requerido
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <!-- Odómetro inicial -->
+                        <mat-form-field class="w-full">
+                            <mat-label>Odómetro Inicial (Km)</mat-label>
+                            <input matInput type="number" formControlName="initialOdometer" placeholder="Ingrese el kilometraje actual">
+                            <mat-hint>Ingrese el kilometraje actual del vehículo</mat-hint>
+                            <mat-error *ngIf="form.get('initialOdometer').hasError('required')">
+                                El kilometraje inicial es requerido
+                            </mat-error>
+                            <mat-error *ngIf="form.get('initialOdometer').hasError('min')">
+                                El kilometraje debe ser mayor o igual a 0
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Observaciones -->
+                        <mat-form-field class="w-full">
+                            <mat-label>Observaciones</mat-label>
+                            <textarea matInput formControlName="observations" placeholder="Observaciones adicionales" rows="3"></textarea>
+                            <mat-hint>Opcional: Registre cualquier observación relevante</mat-hint>
+                            <mat-error *ngIf="form.get('observations').hasError('maxlength')">
+                                Las observaciones no pueden exceder los 500 caracteres
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Estado de ubicación GPS -->
+                        <div class="flex items-center p-4 rounded-md mb-4"
+                             [ngClass]="hasGeolocationPermission() ? 'bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800' : 'bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800'">
+                            <mat-icon
+                                [svgIcon]="hasGeolocationPermission() ? 'heroicons_outline:check-circle' : 'heroicons_outline:exclamation-circle'"
+                                [ngClass]="hasGeolocationPermission() ? 'text-green-600' : 'text-red-600'"
+                                class="mr-3">
+                            </mat-icon>
+                            <div>
+                                <p class="font-medium">
+                                    {{ hasGeolocationPermission() ? 'Ubicación GPS disponible' : 'Ubicación GPS no disponible' }}
+                                </p>
+                                <p class="text-sm" *ngIf="!hasGeolocationPermission()">
+                                    Se requiere acceso a su ubicación para registrar correctamente la sesión. Por favor, habilite los permisos de ubicación.
+                                </p>
+                                <p class="text-sm" *ngIf="hasGeolocationPermission() && currentLocation()">
+                                    Lat: {{ currentLocation()?.latitude?.toFixed(6) }}, Lng: {{ currentLocation()?.longitude?.toFixed(6) }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Botón de inicio de sesión -->
+                        <div class="flex flex-col items-center mt-4 gap-y-4">
+                            <button
+                                type="submit"
+                                mat-flat-button
+                                color="primary"
+                                class="min-w-[200px]"
+                                [disabled]="isSubmitting() || !hasGeolocationPermission()">
+                                <mat-icon svgIcon="heroicons_outline:play" class="mr-2"></mat-icon>
+                                <span>Iniciar Sesión de Vehículo</span>
+                                <mat-progress-spinner
+                                    *ngIf="isSubmitting()"
+                                    [diameter]="24"
+                                    [mode]="'indeterminate'"
+                                    class="ml-2">
+                                </mat-progress-spinner>
+                            </button>
+                            @if (!hasGeolocationPermission()) {
+                                <span class="text-red-500 text-sm ml-2">
+                                    Habilite la ubicación GPS para continuar
+                                </span>
+                            }
+                        </div>
+                    </form>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Tarjetas de información -->
+        <div class="md:col-span-4 flex flex-col gap-6">
+            <!-- Detalles del conductor -->
+            <mat-card class="rounded-md shadow" *ngIf="selectedDriver()">
+                <mat-card-content>
+                    <h2 class="text-xl font-medium mb-4 flex items-center">
+                        <mat-icon svgIcon="heroicons_outline:user" class="mr-2"></mat-icon>
+                        Detalles del Conductor
+                    </h2>
+                    <div class="flex flex-col space-y-3">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Nombre</p>
+                            <p class="font-medium">{{ selectedDriver().name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">DNI</p>
+                            <p class="font-medium">{{ selectedDriver().documentId }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Licencia</p>
+                            <p class="font-medium">{{ selectedDriver().licenseNumber }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Categoría</p>
+                            <p class="font-medium">{{ selectedDriver().licenseType }}</p>
+                        </div>
+                        <!--                        <div>-->
+                        <!--                            <p class="text-sm text-gray-500 dark:text-gray-400">Contacto</p>-->
+                        <!--                            <p class="font-medium">{{ selectedDriver().phoneNumber }}</p>-->
+                        <!--                        </div>-->
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Detalles del vehículo -->
+            <mat-card class="rounded-md shadow" *ngIf="selectedVehicle()">
+                <mat-card-content>
+                    <h2 class="text-xl font-medium mb-4 flex items-center">
+                        <mat-icon svgIcon="heroicons_outline:truck" class="mr-2"></mat-icon>
+                        Detalles del Vehículo
+                    </h2>
+                    <div class="flex flex-col space-y-3">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Vehículo</p>
+                            <p class="font-medium">{{ selectedVehicle().brand }} {{ selectedVehicle().model }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Placa</p>
+                            <p class="font-medium">{{ selectedVehicle().licensePlate }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Año</p>
+                            <p class="font-medium">{{ selectedVehicle().year }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Tipo</p>
+                            <p class="font-medium">{{ selectedVehicle().type }}</p>
+                        </div>
+                        <div *ngIf="selectedVehicle().lastMaintenanceDate">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Último mantenimiento</p>
+                            <p class="font-medium">{{ selectedVehicle().lastMaintenanceDate | date:'dd/MM/yyyy' }}</p>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Instrucciones para el sistema -->
+            <mat-card class="rounded-md shadow" *ngIf="!selectedDriver() && !selectedVehicle()">
+                <mat-card-content>
+                    <h2 class="text-xl font-medium mb-4 flex items-center">
+                        <mat-icon svgIcon="heroicons_outline:information-circle" class="mr-2"></mat-icon>
+                        Instrucciones
+                    </h2>
+                    <div class="text-gray-700 dark:text-gray-300 space-y-3">
+                        <p>
+                            Bienvenido al sistema de control de flota vehicular. Utilice este panel para iniciar una nueva sesión de uso de vehículo.
+                        </p>
+                        <p>
+                            Para comenzar, seleccione un conductor y un vehículo disponible, ingrese el kilometraje actual y cualquier observación relevante.
+                        </p>
+                        <p>
+                            Asegúrese de que su ubicación GPS esté habilitada para poder registrar correctamente el punto de inicio.
+                        </p>
+                        <div class="mt-4 text-amber-600 dark:text-amber-400">
+                            <p class="flex items-start">
+                                <mat-icon svgIcon="heroicons_outline:exclamation-triangle" class="mr-2 flex-shrink-0"></mat-icon>
+                                <span>Al finalizar el uso del vehículo, asegúrese de cerrar la sesión para registrar la información completa del viaje.</span>
+                            </p>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+
+</div>

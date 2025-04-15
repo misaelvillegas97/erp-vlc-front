@@ -1,0 +1,222 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header subtitle="Registro de finalización" title="Finalizar Sesión de Vehículo"></page-header>
+
+    <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-6 sm:px-6">
+        <!-- Estado de carga -->
+        @if (isLoading) {
+            <div class="flex justify-center items-center py-20">
+                <div class="text-center">
+                    <mat-spinner diameter="48" color="primary"></mat-spinner>
+                    <p class="mt-4 text-gray-600 dark:text-gray-300">Cargando datos de la sesión...</p>
+                </div>
+            </div>
+        } @else {
+            <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-6">
+                <!-- Información del conductor y vehículo -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Conductor -->
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <img
+                                [src]="driver?.photoUrl"
+                                alt="Foto del conductor"
+                                class="w-16 h-16 rounded-full object-cover"
+                                onerror="this.src='assets/images/avatars/male-01.jpg'"
+                            >
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="font-medium">{{ driver?.name }} {{ driver?.lastName }}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Conductor</p>
+                            <p class="text-sm">ID: {{ driver?.documentId }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Vehículo -->
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <img
+                                [src]="vehicle?.photoUrl"
+                                alt="Foto del vehículo"
+                                class="w-16 h-16 rounded object-cover"
+                                onerror="this.src='assets/images/ui/vehicle-placeholder.jpg'"
+                            >
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="font-medium">{{ vehicle?.brand }} {{ vehicle?.model }}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Placa: {{ vehicle?.licensePlate }}</p>
+                            <p class="text-sm">Año: {{ vehicle?.year }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalles de la sesión actual -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Fecha/hora de inicio</p>
+                        <p class="font-medium">{{ session?.startTimestamp | date:'dd/MM/yyyy HH:mm' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Duración</p>
+                        <p class="font-medium">{{ formatDuration(elapsedMinutes) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Odómetro inicial</p>
+                        <p class="font-medium">{{ session?.initialOdometer | number:'1.0-0' }} km</p>
+                    </div>
+                </div>
+
+                <!-- Formulario de finalización -->
+                <form [formGroup]="form" (ngSubmit)="confirmFinish()" class="flex flex-col">
+                    <!-- Odómetro final -->
+                    <div class="mb-6">
+                        <mat-form-field class="w-full">
+                            <mat-label>Odómetro final (km)</mat-label>
+                            <input
+                                matInput
+                                type="number"
+                                formControlName="finalOdometer"
+                                min="0"
+                            >
+                            @if (form.get('finalOdometer').touched) {
+                                @if (form.get('finalOdometer').hasError('required')) {
+                                    <mat-error>Debe ingresar el valor del odómetro final</mat-error>
+                                } @else if (form.get('finalOdometer').hasError('min')) {
+                                    <mat-error>El valor debe ser mayor al odómetro inicial ({{ session?.initialOdometer | number:'1.0-0' }} km)</mat-error>
+                                }
+                            }
+                        </mat-form-field>
+
+                        <!-- Distancia calculada (si el odómetro final es válido) -->
+                        @if (form.get('finalOdometer').valid && form.get('finalOdometer').value) {
+                            <div class="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 p-3 rounded-lg mt-1">
+                                <p class="text-green-800 dark:text-green-200">
+                                    <span class="font-medium">Distancia calculada:</span>
+                                    {{ calculateDistance() | number:'1.0-0' }} km
+                                </p>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Ubicación final (automática) -->
+                    <div class="mb-6">
+                        <h3 class="mb-2 font-medium">Ubicación final (GPS)</h3>
+                        <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
+                            @if (currentLocation) {
+                                <p class="font-mono text-sm">
+                                    Latitud: {{ currentLocation.latitude | number:'1.4-6' }}<br>
+                                    Longitud: {{ currentLocation.longitude | number:'1.4-6' }}<br>
+                                    Precisión: {{ currentLocation.accuracy | number:'1.0-0' }} metros
+                                </p>
+                            } @else {
+                                <p class="text-amber-500">
+                                    <mat-icon class="icon-size-4 align-middle" svgIcon="mat_outline:warning"></mat-icon>
+                                    Obteniendo ubicación...
+                                </p>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Campo de incidentes/novedades -->
+                    <div class="mb-6">
+                        <mat-form-field class="w-full">
+                            <mat-label>Incidentes o novedades (opcional)</mat-label>
+                            <textarea
+                                matInput
+                                formControlName="incidents"
+                                placeholder="Ingrese cualquier incidente o novedad ocurrida durante el uso del vehículo"
+                                rows="4"
+                                maxlength="500"
+                            ></textarea>
+                            <mat-hint align="end">{{ form.get('incidents').value?.length || 0 }}/500</mat-hint>
+                            @if (form.get('incidents').hasError('maxlength')) {
+                                <mat-error>Máximo 500 caracteres</mat-error>
+                            }
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Subida de fotos (opcional) -->
+                    <div class="mb-6">
+                        <h3 class="mb-2 font-medium">Imágenes (opcional, máx. 5)</h3>
+
+                        <!-- Botón para subir fotos -->
+                        <div class="mb-3">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                id="photo-upload"
+                                class="hidden"
+                                (change)="onFileSelected($event)"
+                                [disabled]="uploadedFiles.length >= 5"
+                            >
+                            <button
+                                type="button"
+                                mat-stroked-button
+                                color="primary"
+                                [disabled]="uploadedFiles.length >= 5"
+                                (click)="document.getElementById('photo-upload').click()"
+                                class="w-full"
+                            >
+                                <mat-icon svgIcon="mat_outline:camera_alt" class="mr-2"></mat-icon>
+                                Seleccionar imágenes
+                            </button>
+                            <p class="text-sm text-gray-500 mt-1">
+                                {{ uploadedFiles.length }}/5 imágenes - Haga clic para añadir más
+                            </p>
+                        </div>
+
+                        <!-- Previsualización de imágenes -->
+                        @if (uploadedPhotoPreviews.length > 0) {
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mt-3">
+                                @for (preview of uploadedPhotoPreviews; track $index) {
+                                    <div class="relative">
+                                        <img
+                                            [src]="preview"
+                                            alt="Preview"
+                                            class="object-cover w-full h-24 rounded-lg"
+                                        >
+                                        <button
+                                            type="button"
+                                            mat-mini-fab
+                                            color="warn"
+                                            class="absolute -top-2 -right-2 !w-6 !h-6 !min-h-6 !p-0"
+                                            (click)="removeFile($index)"
+                                        >
+                                            <mat-icon svgIcon="mat_outline:close" class="!w-4 !h-4"></mat-icon>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="flex justify-between mt-6">
+                        <button
+                            type="button"
+                            mat-stroked-button
+                            [routerLink]="['/logistics/active-sessions']"
+                        >
+                            Cancelar
+                        </button>
+
+                        <button
+                            type="submit"
+                            mat-flat-button
+                            color="primary"
+                            [disabled]="isSubmitting || form.invalid || !currentLocation"
+                            class="min-w-[200px]"
+                        >
+                            @if (isSubmitting) {
+                                <mat-spinner diameter="20" class="mr-2"></mat-spinner>
+                                Procesando...
+                            } @else {
+                                Finalizar y Registrar
+                            }
+                        </button>
+                    </div>
+                </form>
+            </div>
+        }
+    </div>
+</div>

@@ -44,6 +44,12 @@
                 "list" : "Listado de facturas"
             }
         },
+        "logistics" : {
+            "title" : "Logística",
+            "fleet-control" : "Control de flota",
+            "active-sessions" : "Sesiones activas",
+            "history" : "Historial de sesiones"
+        },
         "maintainers" : {
             "title" : "Mantenedores",
             "clients" : "Clientes",
@@ -238,6 +244,33 @@
                     "title" : "Listado de bancos",
                     "subtitle" : "Administra los bancos",
                     "description" : "Lista de bancos"
+                }
+            }
+        },
+        "logistics" : {
+            "title" : "Logística",
+            "dashboard" : {
+                "title" : "Tablero de logística",
+                "subtitle" : "Resumen de logística",
+                "description" : "Resumen de logística"
+            },
+            "fleet" : {
+                "title" : "Control de flota",
+                "subtitle" : "Administra la flota de vehículos",
+                "control" : {
+                    "title" : "Control de flota",
+                    "subtitle" : "Administra la flota de vehículos",
+                    "description" : "Lista de vehículos"
+                },
+                "active-sessions" : {
+                    "title" : "Sesiones activas",
+                    "subtitle" : "Administra las sesiones activas de los vehículos",
+                    "description" : "Lista de sesiones activas"
+                },
+                "history" : {
+                    "title" : "Historial de sesiones",
+                    "subtitle" : "Administra el historial de sesiones de los vehículos",
+                    "description" : "Lista de historial de sesiones"
                 }
             }
         }

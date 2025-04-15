@@ -126,10 +126,34 @@ export const defaultNavigation: FuseNavigationItem[] = [
         ]
     },
     {
+        id      : 'logistics.title',
+        type    : 'collapsable',
+        icon    : 'heroicons_outline:truck',
+        children: [
+            {
+                id  : 'logistics.fleet-control',
+                type: 'basic',
+                link: '/logistics/fleet-control',
+                icon: 'heroicons_outline:truck'
+            },
+            {
+                id  : 'logistics.active-sessions',
+                type: 'basic',
+                link: '/logistics/active-sessions',
+                icon: 'heroicons_outline:user-circle'
+            },
+            {
+                id  : 'logistics.history',
+                type: 'basic',
+                link: '/logistics/history',
+                icon: 'heroicons_outline:clock'
+            }
+        ]
+    },
+    {
         id: 'maintainers.title',
         type    : 'collapsable',
         icon    : 'heroicons_outline:cog',
-        link    : '/admin',
         children: [
             {
                 id  : 'maintainers.clients',
