@@ -336,7 +336,7 @@ export class VehicleSessionsService {
                             initialOdometer: session.initialOdometer,
                             driver         : {
                                 id        : session.driverId,
-                                name      : 'Nombre', // En producción, estos datos vendrían del backend
+                                firstName: 'Nombre', // En producción, estos datos vendrían del backend
                                 lastName  : 'Apellido',
                                 documentId: '12345678-9',
                                 photoUrl  : '/images/avatars/male-01.jpg'

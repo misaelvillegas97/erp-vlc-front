@@ -1,29 +1,30 @@
-import { Component, OnInit, inject }                     from '@angular/core';
-import { CommonModule }                                  from '@angular/common';
-import { FormControl, ReactiveFormsModule }              from '@angular/forms';
-import { MatButtonModule }                               from '@angular/material/button';
-import { MatCardModule }                                 from '@angular/material/card';
-import { MatDatepickerModule }                           from '@angular/material/datepicker';
-import { MatNativeDateModule }                           from '@angular/material/core';
-import { MatFormFieldModule }                            from '@angular/material/form-field';
-import { MatIconModule }                                 from '@angular/material/icon';
-import { MatInputModule }                                from '@angular/material/input';
-import { MatProgressSpinnerModule }                      from '@angular/material/progress-spinner';
-import { MatSelectModule }                               from '@angular/material/select';
-import { MatTableModule }                                from '@angular/material/table';
-import { MatPaginatorModule, PageEvent }                 from '@angular/material/paginator';
-import { TranslocoPipe, TranslocoService }               from '@ngneat/transloco';
-import { PageHeaderComponent }                           from '@layout/components/page-header/page-header.component';
-import { Notyf }                                         from 'notyf';
-import { debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators';
-import { VehicleSessionsService }                        from '../../services/vehicle-sessions.service';
-import { VehicleSession, SessionStatus }                 from '../../domain/model/vehicle-session.model';
-import { Router }                                        from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { CommonModule }                                                         from '@angular/common';
+import { FormControl, ReactiveFormsModule }                                     from '@angular/forms';
+import { MatButtonModule }                                                      from '@angular/material/button';
+import { MatCardModule }                                                        from '@angular/material/card';
+import { MatDatepickerModule }                                                  from '@angular/material/datepicker';
+import { MatNativeDateModule }                                                  from '@angular/material/core';
+import { MatFormFieldModule }                                                   from '@angular/material/form-field';
+import { MatIconModule }                                                        from '@angular/material/icon';
+import { MatInputModule }                                                       from '@angular/material/input';
+import { MatProgressSpinnerModule }                                             from '@angular/material/progress-spinner';
+import { MatSelectModule }                                                      from '@angular/material/select';
+import { MatTableModule }                                                       from '@angular/material/table';
+import { MatPaginatorModule, PageEvent }                                        from '@angular/material/paginator';
+import { TranslocoService }                                                     from '@ngneat/transloco';
+import { PageHeaderComponent }                                                  from '@layout/components/page-header/page-header.component';
+import { debounceTime, distinctUntilChanged, startWith }                        from 'rxjs/operators';
+import { VehicleSessionsService }                                               from '../../services/vehicle-sessions.service';
+import { SessionStatus, VehicleSession }                                        from '../../domain/model/vehicle-session.model';
+import { Router }                                                               from '@angular/router';
+import { MatTooltip }                                                           from '@angular/material/tooltip';
+import { NotyfService }                                                         from '@shared/services/notyf.service';
 
 @Component({
     selector   : 'app-history',
     standalone : true,
-    imports    : [
+    imports        : [
         CommonModule,
         MatButtonModule,
         MatCardModule,
@@ -37,25 +38,42 @@ import { Router }                                        from '@angular/router';
         MatTableModule,
         MatPaginatorModule,
         ReactiveFormsModule,
-        PageHeaderComponent
+        PageHeaderComponent,
+        MatTooltip
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './history.component.html'
 })
 export class HistoryComponent implements OnInit {
-    readonly #router = inject(Router);
-    readonly #ts = inject(TranslocoService);
-    readonly #sessionsService = inject(VehicleSessionsService);
-    readonly #notyf = new Notyf();
+    private readonly router = inject(Router);
+    private readonly translocoService = inject(TranslocoService);
+    private readonly sessionsService = inject(VehicleSessionsService);
+    private readonly notyf = inject(NotyfService);
 
-    // Filtros
+    // Controles de filtro (se mantienen para los inputs, pero se sincronizan con señales)
     driverFilter = new FormControl('');
     vehicleFilter = new FormControl('');
     dateFromFilter = new FormControl('');
     dateToFilter = new FormControl('');
     statusFilter = new FormControl('');
 
-    // Estado de la tabla
-    isLoading = true;
+    // Estados manejados con Signals
+    isLoading = signal(true);
+    sessionsHistory = signal<VehicleSession[]>([]);
+
+    // Señales para almacenar los valores actuales de cada filtro
+    driverFilterSignal = signal<string>('');
+    vehicleFilterSignal = signal<string>('');
+    dateFromSignal = signal<string>('');
+    dateToSignal = signal<string>('');
+    statusFilterSignal = signal<string>('');
+
+    // Paginación con Signals
+    pageSize = signal(10);
+    pageSizeOptions = signal<number[]>([ 5, 10, 25, 50 ]);
+    currentPage = signal(0);
+
+    // Columnas que se muestran en la tabla (constante)
     displayedColumns: string[] = [
         'startTimestamp',
         'endTimestamp',
@@ -65,127 +83,128 @@ export class HistoryComponent implements OnInit {
         'status',
         'actions'
     ];
-    sessionsHistory: VehicleSession[] = [];
-    filteredSessions: VehicleSession[] = [];
 
-    // Paginación
-    pageSize = 10;
-    pageSizeOptions: number[] = [ 5, 10, 25, 50 ];
-    currentPage = 0;
-    totalSessions = 0;
+    // Signal computada: sesiones filtradas sin paginación
+    private filteredFullSessions = computed(() => {
+        let filtered = [ ...this.sessionsHistory() ];
+        const driverSearch = this.driverFilterSignal().toLowerCase();
+        if (driverSearch) {
+            filtered = filtered.filter(session =>
+                    session.driverId.toLowerCase().includes(driverSearch)
+                // Si tu sesión dispone de más información del conductor,
+                // se puede extender el filtro (ej. session.driverName)
+            );
+        }
+        const vehicleSearch = this.vehicleFilterSignal().toLowerCase();
+        if (vehicleSearch) {
+            filtered = filtered.filter(session =>
+                    session.vehicleId.toLowerCase().includes(vehicleSearch)
+                // Se podría ampliar si se cuenta con otros datos (ej. licensePlate)
+            );
+        }
+        const dateFrom = this.dateFromSignal();
+        if (dateFrom) {
+            const fromDate = new Date(dateFrom);
+            filtered = filtered.filter(session => new Date(session.startTimestamp) >= fromDate);
+        }
+        const dateTo = this.dateToSignal();
+        if (dateTo) {
+            const toDate = new Date(dateTo);
+            toDate.setHours(23, 59, 59, 999);
+            filtered = filtered.filter(session => new Date(session.startTimestamp) <= toDate);
+        }
+        const statusValue = this.statusFilterSignal();
+        if (statusValue) {
+            filtered = filtered.filter(session => session.status === statusValue);
+        }
+        return filtered;
+    });
 
-    // Enum para uso en el template
-    SessionStatus = SessionStatus;
+    // Signal computada: sesiones filtradas con paginación aplicada
+    filteredSessions = computed(() => {
+        const filtered = this.filteredFullSessions();
+        const start = this.currentPage() * this.pageSize();
+        return filtered.slice(start, start + this.pageSize());
+    });
+
+    // Signal computada para mostrar el total de sesiones filtradas
+    totalSessions = computed(() => this.filteredFullSessions().length);
 
     ngOnInit(): void {
         this.loadSessionsHistory();
-
-        // Configurar suscripciones para filtros
         this.setupFilters();
     }
 
+    // Configurar la sincronización de cada control de filtro con sus respectivas señales
     setupFilters(): void {
-        // Combinar todos los filtros
-        const filterControls = [
-            this.driverFilter,
-            this.vehicleFilter,
-            this.dateFromFilter,
-            this.dateToFilter,
-            this.statusFilter
-        ];
+        this.driverFilter.valueChanges.pipe(
+            startWith(''),
+            debounceTime(300),
+            distinctUntilChanged()
+        ).subscribe(value => {
+            this.driverFilterSignal.set(value || '');
+            this.currentPage.set(0);
+        });
 
-        filterControls.forEach(control => {
-            control.valueChanges.pipe(
-                startWith(''),
-                debounceTime(300),
-                distinctUntilChanged()
-            ).subscribe(() => this.applyFilters());
+        this.vehicleFilter.valueChanges.pipe(
+            startWith(''),
+            debounceTime(300),
+            distinctUntilChanged()
+        ).subscribe(value => {
+            this.vehicleFilterSignal.set(value || '');
+            this.currentPage.set(0);
+        });
+
+        this.dateFromFilter.valueChanges.pipe(
+            startWith(''),
+            debounceTime(300),
+            distinctUntilChanged()
+        ).subscribe(value => {
+            this.dateFromSignal.set(value || '');
+            this.currentPage.set(0);
+        });
+
+        this.dateToFilter.valueChanges.pipe(
+            startWith(''),
+            debounceTime(300),
+            distinctUntilChanged()
+        ).subscribe(value => {
+            this.dateToSignal.set(value || '');
+            this.currentPage.set(0);
+        });
+
+        this.statusFilter.valueChanges.pipe(
+            startWith(''),
+            debounceTime(300),
+            distinctUntilChanged()
+        ).subscribe(value => {
+            this.statusFilterSignal.set(value || '');
+            this.currentPage.set(0);
         });
     }
 
+    // Carga el historial de sesiones y actualiza la señal correspondiente
     loadSessionsHistory(): void {
-        this.isLoading = true;
-
-        this.#sessionsService.getHistoricalSessions().subscribe({
-            next : (sessions) => {
-                this.sessionsHistory = sessions;
-                this.applyFilters();
-                this.isLoading = false;
+        this.isLoading.set(true);
+        this.sessionsService.getHistoricalSessions().subscribe({
+            next : sessions => {
+                this.sessionsHistory.set(sessions);
+                this.isLoading.set(false);
             },
             error: () => {
-                this.#notyf.error({message: 'Error al cargar el historial de sesiones'});
-                this.isLoading = false;
+                this.notyf.error('Error al cargar el historial de sesiones');
+                this.isLoading.set(false);
             }
         });
     }
 
-    applyFilters(): void {
-        let filtered = [ ...this.sessionsHistory ];
-
-        // Filtro por conductor
-        const driverSearch = (this.driverFilter.value || '').toLowerCase();
-        if (driverSearch) {
-            filtered = filtered.filter(session =>
-                session.driverId.toLowerCase().includes(driverSearch) ||
-                // Asumiendo que tienes información del conductor en la sesión
-                // session.driverName?.toLowerCase().includes(driverSearch)
-                false
-            );
-        }
-
-        // Filtro por vehículo
-        const vehicleSearch = (this.vehicleFilter.value || '').toLowerCase();
-        if (vehicleSearch) {
-            filtered = filtered.filter(session =>
-                session.vehicleId.toLowerCase().includes(vehicleSearch) ||
-                // Asumiendo que tienes información del vehículo en la sesión
-                // session.vehicleLicensePlate?.toLowerCase().includes(vehicleSearch)
-                false
-            );
-        }
-
-        // Filtro por fecha desde
-        const dateFrom = this.dateFromFilter.value;
-        if (dateFrom) {
-            const fromDate = new Date(dateFrom);
-            filtered = filtered.filter(session =>
-                new Date(session.startTimestamp) >= fromDate
-            );
-        }
-
-        // Filtro por fecha hasta
-        const dateTo = this.dateToFilter.value;
-        if (dateTo) {
-            const toDate = new Date(dateTo);
-            // Establecer la hora al final del día
-            toDate.setHours(23, 59, 59, 999);
-            filtered = filtered.filter(session =>
-                new Date(session.startTimestamp) <= toDate
-            );
-        }
-
-        // Filtro por estado
-        const statusValue = this.statusFilter.value;
-        if (statusValue) {
-            filtered = filtered.filter(session =>
-                session.status === statusValue
-            );
-        }
-
-        // Aplicar paginación
-        this.totalSessions = filtered.length;
-        this.filteredSessions = filtered.slice(
-            this.currentPage * this.pageSize,
-            (this.currentPage + 1) * this.pageSize
-        );
-    }
-
+    // Actualiza la paginación al cambiar página o tamaño de página
     onPageChange(event: PageEvent): void {
-        this.pageSize = event.pageSize;
-        this.currentPage = event.pageIndex;
-        this.applyFilters();
+        this.pageSize.set(event.pageSize);
+        this.currentPage.set(event.pageIndex);
     }
 
+    // Formatea la fecha/hora para mostrarla en la tabla
     formatDateTime(dateStr: string): string {
         const date = new Date(dateStr);
         return date.toLocaleString('es-CL', {
@@ -197,6 +216,7 @@ export class HistoryComponent implements OnInit {
         });
     }
 
+    // Calcula la distancia recorrida a partir del odómetro final e inicial
     calculateDistance(session: VehicleSession): number {
         if (session.finalOdometer && session.initialOdometer) {
             return session.finalOdometer - session.initialOdometer;
@@ -204,6 +224,7 @@ export class HistoryComponent implements OnInit {
         return 0;
     }
 
+    // Determina la clase de estilo según el estado de la sesión
     getStatusClass(status: SessionStatus): string {
         switch (status) {
             case SessionStatus.COMPLETED:
@@ -217,6 +238,7 @@ export class HistoryComponent implements OnInit {
         }
     }
 
+    // Devuelve un texto descriptivo del estado de la sesión
     getStatusText(status: SessionStatus): string {
         switch (status) {
             case SessionStatus.ACTIVE:
@@ -232,9 +254,11 @@ export class HistoryComponent implements OnInit {
         }
     }
 
+    // Navega o muestra detalles de la sesión (lógica pendiente de implementar)
     viewDetails(session: VehicleSession): void {
-        // Aquí implementaríamos la navegación a una vista de detalle
-        this.#notyf.success({message: 'Vista de detalle no implementada aún'});
-        // this.#router.navigate(['/logistics/session-details', session.id]);
+        this.notyf.info('Vista de detalle no implementada aún');
+        // this.router.navigate(['/logistics/session-details', session.id]);
     }
+
+    protected readonly SessionStatus = SessionStatus;
 }

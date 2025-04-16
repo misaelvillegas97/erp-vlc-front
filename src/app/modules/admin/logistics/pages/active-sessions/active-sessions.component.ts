@@ -1,28 +1,27 @@
-import { Component, OnInit, OnDestroy, inject }                                     from '@angular/core';
-import { Router }                                                                   from '@angular/router';
-import { CommonModule }                                                             from '@angular/common';
-import { FormControl, ReactiveFormsModule }                                         from '@angular/forms';
-import { MatButtonModule }                                                          from '@angular/material/button';
-import { MatCardModule }                                                            from '@angular/material/card';
-import { MatDialog, MatDialogModule }                                               from '@angular/material/dialog';
-import { MatFormFieldModule }                                                       from '@angular/material/form-field';
-import { MatIconModule }                                                            from '@angular/material/icon';
-import { MatInputModule }                                                           from '@angular/material/input';
-import { MatProgressSpinnerModule }                                                 from '@angular/material/progress-spinner';
-import { MatSelectModule }                                                          from '@angular/material/select';
-import { TranslocoPipe, TranslocoService }                                          from '@ngneat/transloco';
-import { PageHeaderComponent }                                                      from '@layout/components/page-header/page-header.component';
-import { Notyf }                                                                    from 'notyf';
-import { Subject, interval }                                                        from 'rxjs';
-import { debounceTime, distinctUntilChanged, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { VehicleSessionsService }                                                   from '../../services/vehicle-sessions.service';
-import { ActiveSessionView }                                                        from '../../domain/model/vehicle-session.model';
-import { ConfirmDialogComponent }                                                   from './confirm-dialog.component';
+import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Router, RouterLink }                                                              from '@angular/router';
+import { CommonModule }                                                                    from '@angular/common';
+import { FormControl, ReactiveFormsModule }                                                from '@angular/forms';
+import { MatButtonModule }                                                                 from '@angular/material/button';
+import { MatCardModule }                                                                   from '@angular/material/card';
+import { MatDialog, MatDialogModule }                                                      from '@angular/material/dialog';
+import { MatFormFieldModule }                                                              from '@angular/material/form-field';
+import { MatIconModule }                                                                   from '@angular/material/icon';
+import { MatInputModule }                                                                  from '@angular/material/input';
+import { MatProgressSpinnerModule }                                                        from '@angular/material/progress-spinner';
+import { MatSelectModule }                                                                 from '@angular/material/select';
+import { PageHeaderComponent }                                                             from '@layout/components/page-header/page-header.component';
+import { Notyf }                                                                           from 'notyf';
+import { interval, Subscription }                                                          from 'rxjs';
+import { debounceTime, distinctUntilChanged, startWith }                                   from 'rxjs/operators';
+import { VehicleSessionsService }                                                          from '../../services/vehicle-sessions.service';
+import { ActiveSessionView }                                                               from '../../domain/model/vehicle-session.model';
+import { ConfirmDialogComponent }                                                          from './confirm-dialog.component';
 
 @Component({
     selector   : 'app-active-sessions',
     standalone : true,
-    imports    : [
+    imports        : [
         CommonModule,
         MatButtonModule,
         MatCardModule,
@@ -33,118 +32,116 @@ import { ConfirmDialogComponent }                                               
         MatProgressSpinnerModule,
         MatSelectModule,
         ReactiveFormsModule,
-        PageHeaderComponent
+        PageHeaderComponent,
+        RouterLink
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './active-sessions.component.html'
 })
 export class ActiveSessionsComponent implements OnInit, OnDestroy {
-    readonly #router = inject(Router);
-    readonly #ts = inject(TranslocoService);
-    readonly #dialog = inject(MatDialog);
-    readonly #sessionsService = inject(VehicleSessionsService);
-    readonly #notyf = new Notyf();
+    private readonly router = inject(Router);
+    private readonly dialog = inject(MatDialog);
+    private readonly sessionsService = inject(VehicleSessionsService);
+    private readonly notyf = new Notyf();
 
     // Filtros
     searchControl = new FormControl('');
     sortControl = new FormControl('duration_desc');
 
-    // Estado
-    isLoading = true;
-    activeSessions: ActiveSessionView[] = [];
-    filteredSessions: ActiveSessionView[] = [];
+    // Signals para estado
+    isLoading = signal(true);
+    activeSessions = signal<ActiveSessionView[]>([]);
+    searchTerm = signal('');
+    sortOption = signal('duration_desc');
 
-    // Utilidades
-    private destroy$ = new Subject<void>();
+    // Signal computado para sesiones filtradas
+    filteredSessions = computed(() => {
+        let sessions = [ ...this.activeSessions() ];
+        const term = this.searchTerm().toLowerCase();
+
+        if (term) {
+            sessions = sessions.filter(session =>
+                session.driver.firstName.toLowerCase().includes(term) ||
+                session.driver.lastName.toLowerCase().includes(term) ||
+                session.vehicle.brand.toLowerCase().includes(term) ||
+                session.vehicle.model.toLowerCase().includes(term) ||
+                session.vehicle.licensePlate.toLowerCase().includes(term)
+            );
+        }
+
+        switch (this.sortOption()) {
+            case 'duration_asc':
+                sessions.sort((a, b) => a.duration - b.duration);
+                break;
+            case 'duration_desc':
+                sessions.sort((a, b) => b.duration - a.duration);
+                break;
+            case 'name_asc':
+                sessions.sort((a, b) =>
+                    (a.driver.lastName + a.driver.firstName).localeCompare(b.driver.lastName + b.driver.firstName)
+                );
+                break;
+            case 'name_desc':
+                sessions.sort((a, b) =>
+                    (b.driver.lastName + b.driver.firstName).localeCompare(a.driver.lastName + a.driver.firstName)
+                );
+                break;
+            case 'plate_asc':
+                sessions.sort((a, b) => a.vehicle.licensePlate.localeCompare(b.vehicle.licensePlate));
+                break;
+            case 'plate_desc':
+                sessions.sort((a, b) => b.vehicle.licensePlate.localeCompare(a.vehicle.licensePlate));
+                break;
+        }
+
+        return sessions;
+    });
+
+    private subscriptions: Subscription[] = [];
 
     ngOnInit(): void {
-        // Cargar sesiones y refrescar cada 30 segundos
         this.loadActiveSessions();
-        interval(30000).pipe(
-            takeUntil(this.destroy$)
-        ).subscribe(() => this.loadActiveSessions());
 
-        // Aplicar filtros cuando cambian
-        this.searchControl.valueChanges.pipe(
+        // Recargar sesiones activas cada 30 segundos
+        const intervalSub = interval(30000).subscribe(() => this.loadActiveSessions());
+        this.subscriptions.push(intervalSub);
+
+        // Suscribirse a cambios en los filtros
+        const searchSub = this.searchControl.valueChanges.pipe(
             startWith(''),
             debounceTime(300),
-            distinctUntilChanged(),
-            takeUntil(this.destroy$)
-        ).subscribe(() => this.applyFilters());
+            distinctUntilChanged()
+        ).subscribe(value => this.searchTerm.set(value || ''));
 
-        this.sortControl.valueChanges.pipe(
+        const sortSub = this.sortControl.valueChanges.pipe(
             startWith('duration_desc'),
-            takeUntil(this.destroy$)
-        ).subscribe(() => this.applyFilters());
+            distinctUntilChanged()
+        ).subscribe(value => this.sortOption.set(value || 'duration_desc'));
+
+        this.subscriptions.push(searchSub, sortSub);
     }
 
     ngOnDestroy(): void {
-        this.destroy$.next();
-        this.destroy$.complete();
+        this.subscriptions.forEach(sub => sub.unsubscribe());
     }
 
-    loadActiveSessions(): void {
-        this.isLoading = true;
+    private loadActiveSessions(): void {
+        this.isLoading.set(true);
 
-        this.#sessionsService.getActiveSessions().subscribe({
-            next : (sessions) => {
-                this.activeSessions = sessions;
-                this.applyFilters();
-                this.isLoading = false;
+        this.sessionsService.getActiveSessions().subscribe({
+            next : sessions => {
+                this.activeSessions.set(sessions);
+                this.isLoading.set(false);
             },
-            error: (error) => {
-                this.#notyf.error({message: 'Error al cargar sesiones activas'});
-                this.isLoading = false;
+            error: () => {
+                this.notyf.error({message: 'Error al cargar sesiones activas'});
+                this.isLoading.set(false);
             }
         });
     }
 
-    applyFilters(): void {
-        let filtered = [ ...this.activeSessions ];
-
-        // Aplicar búsqueda
-        const searchTerm = (this.searchControl.value || '').toLowerCase();
-        if (searchTerm) {
-            filtered = filtered.filter(session =>
-                session.driver.name.toLowerCase().includes(searchTerm) ||
-                session.driver.lastName.toLowerCase().includes(searchTerm) ||
-                session.vehicle.brand.toLowerCase().includes(searchTerm) ||
-                session.vehicle.model.toLowerCase().includes(searchTerm) ||
-                session.vehicle.licensePlate.toLowerCase().includes(searchTerm)
-            );
-        }
-
-        // Aplicar ordenamiento
-        const sortOption = this.sortControl.value;
-        if (sortOption) {
-            switch (sortOption) {
-                case 'duration_asc':
-                    filtered.sort((a, b) => a.duration - b.duration);
-                    break;
-                case 'duration_desc':
-                    filtered.sort((a, b) => b.duration - a.duration);
-                    break;
-                case 'name_asc':
-                    filtered.sort((a, b) => (a.driver.lastName + a.driver.name)
-                        .localeCompare(b.driver.lastName + b.driver.name));
-                    break;
-                case 'name_desc':
-                    filtered.sort((a, b) => (b.driver.lastName + b.driver.name)
-                        .localeCompare(a.driver.lastName + a.driver.name));
-                    break;
-                case 'plate_asc':
-                    filtered.sort((a, b) => a.vehicle.licensePlate.localeCompare(b.vehicle.licensePlate));
-                    break;
-                case 'plate_desc':
-                    filtered.sort((a, b) => b.vehicle.licensePlate.localeCompare(a.vehicle.licensePlate));
-                    break;
-            }
-        }
-
-        this.filteredSessions = filtered;
-    }
-
     finishSession(sessionId: string): void {
-        const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             width: '400px',
             data : {
                 title  : 'Confirmar finalización',
@@ -154,7 +151,7 @@ export class ActiveSessionsComponent implements OnInit, OnDestroy {
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
-                this.#router.navigate([ '/logistics/finish-session', sessionId ]);
+                this.router.navigate([ '/logistics/finish-session', sessionId ]);
             }
         });
     }
@@ -168,11 +165,11 @@ export class ActiveSessionsComponent implements OnInit, OnDestroy {
     getStatusColor(status: 'normal' | 'warning' | 'alert'): string {
         switch (status) {
             case 'normal':
-                return 'bg-green-500';
+                return 'bg-green-600 hover:bg-green-700';
             case 'warning':
-                return 'bg-amber-500';
+                return 'bg-amber-600 hover:bg-amber-700';
             case 'alert':
-                return 'bg-red-500';
+                return 'bg-red-600 hover:bg-red-700';
         }
     }
 

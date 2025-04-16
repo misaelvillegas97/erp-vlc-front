@@ -24,7 +24,7 @@ import { MatIconModule }                 from '@angular/material/icon';
 
             <div>
                 <div class="flex flex-col items-center justify-center mb-6">
-                    <div class="bg-blue-50 dark:bg-blue-900 p-4 rounded-full mb-4">
+                    <div class="bg-blue-50 dark:bg-blue-900 p-4 rounded-full mb-4 flex">
                         <mat-icon class="text-blue-500 dark:text-blue-200" svgIcon="heroicons_outline:map-pin" style="width: 32px; height: 32px;"></mat-icon>
                     </div>
 

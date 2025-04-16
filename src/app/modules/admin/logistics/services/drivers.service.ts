@@ -1,7 +1,7 @@
 import { Injectable }                        from '@angular/core';
 import { HttpClient }                        from '@angular/common/http';
 import { Observable, of }                    from 'rxjs';
-import { delay, map, tap }                   from 'rxjs/operators';
+import { delay, map }                        from 'rxjs/operators';
 import { Driver, DriverStatus, LicenseType } from '../domain/model/driver.model';
 import { environment }                       from 'environments/environment';
 
@@ -17,7 +17,7 @@ export class DriversService {
     private readonly mockDrivers: Driver[] = [
         {
             id               : '1',
-            name             : 'Juan',
+            firstName: 'Juan',
             lastName         : 'Pérez',
             documentId       : '12345678-9',
             licenseNumber    : 'B-987654',
@@ -28,7 +28,7 @@ export class DriversService {
         },
         {
             id               : '2',
-            name             : 'María',
+            firstName: 'María',
             lastName         : 'González',
             documentId       : '98765432-1',
             licenseNumber    : 'A-123456',
@@ -39,7 +39,7 @@ export class DriversService {
         },
         {
             id               : '3',
-            name             : 'Carlos',
+            firstName: 'Carlos',
             lastName         : 'Rodríguez',
             documentId       : '45678912-3',
             licenseNumber    : 'C-456789',

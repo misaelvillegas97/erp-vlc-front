@@ -24,7 +24,7 @@ export enum LicenseType {
  */
 export interface Driver {
     id: string;
-    name: string;
+    firstName: string;
     lastName: string;
     documentId: string;         // Número de identificación personal
     licenseNumber: string;      // Número de licencia de conducir

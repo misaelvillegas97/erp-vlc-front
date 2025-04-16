@@ -1,20 +1,20 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, effect }       from '@angular/core';
-import { CommonModule }                                                         from '@angular/common';
-import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Router }                                                               from '@angular/router';
-import { MatButtonModule }                                                      from '@angular/material/button';
-import { MatCardModule }                                                        from '@angular/material/card';
-import { MatDialog, MatDialogModule }                                           from '@angular/material/dialog';
-import { MatFormFieldModule }                                                   from '@angular/material/form-field';
-import { MatIconModule }                                                        from '@angular/material/icon';
-import { MatInputModule }                                                       from '@angular/material/input';
-import { MatProgressSpinnerModule }                                             from '@angular/material/progress-spinner';
-import { MatSelectModule }                                                      from '@angular/material/select';
-import { TranslocoPipe }                                                        from '@ngneat/transloco';
-import { PageHeaderComponent }                                                  from '@layout/components/page-header/page-header.component';
-import { Notyf }                                                                from 'notyf';
-import { forkJoin, of, interval }                                               from 'rxjs';
-import { catchError, finalize, take, switchMap }                                from 'rxjs/operators';
+import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { CommonModule }                                                                    from '@angular/common';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators }            from '@angular/forms';
+import { Router }                                                                          from '@angular/router';
+import { MatButtonModule }                                                                 from '@angular/material/button';
+import { MatCardModule }                                                                   from '@angular/material/card';
+import { MatDialog, MatDialogModule }                                                      from '@angular/material/dialog';
+import { MatFormFieldModule }                                                              from '@angular/material/form-field';
+import { MatIconModule }                                                                   from '@angular/material/icon';
+import { MatInputModule }                                                                  from '@angular/material/input';
+import { MatProgressSpinnerModule }                                                        from '@angular/material/progress-spinner';
+import { MatSelectModule }                                                                 from '@angular/material/select';
+import { PageHeaderComponent }                                                             from '@layout/components/page-header/page-header.component';
+import { Notyf }                                                                           from 'notyf';
+import { forkJoin, of }                                                                    from 'rxjs';
+import { catchError, finalize, switchMap, take }                                           from 'rxjs/operators';
+import { environment }                                                                     from 'environments/environment';
 
 import { DriversService }                                    from '../../services/drivers.service';
 import { VehiclesService }                                   from '../../services/vehicles.service';
@@ -42,6 +42,7 @@ import { GpsWarningDialogComponent }                         from './gps-warning
         FormsModule,
         PageHeaderComponent
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './fleet-control.component.html'
 })
 export class FleetControlComponent implements OnInit, OnDestroy {
@@ -270,5 +271,30 @@ export class FleetControlComponent implements OnInit, OnDestroy {
         this.vehicleId.set(null);
         this.initialOdometer.set(null);
         this.observations.set('');
+    }
+
+    /**
+     * Genera la URL para el mapa estático usando la API de Google Maps Static
+     * @returns URL de la imagen del mapa estático
+     */
+    getStaticMapUrl(): string {
+        if (!this.currentLocation()) {
+            return '';
+        }
+
+        const location = this.currentLocation();
+        const zoom = 15; // Nivel de zoom (1-20)
+        const size = '600x300'; // Tamaño de la imagen
+        const scale = 2; // Factor de escala para pantallas de alta densidad
+        const mapType = 'roadmap'; // Tipo de mapa: roadmap, satellite, hybrid, terrain
+
+        // Agregar un marcador en la ubicación actual
+        const marker = `markers=color:red%7C${ location.latitude },${ location.longitude }`;
+
+        // Usar la API key configurada en el entorno
+        const apiKey = environment.GMAPS_API_KEY;
+
+        // Construir la URL del mapa estático
+        return `https://maps.googleapis.com/maps/api/staticmap?center=${ location.latitude },${ location.longitude }&zoom=${ zoom }&size=${ size }&scale=${ scale }&maptype=${ mapType }&${ marker }&key=${ apiKey }`;
     }
 }

@@ -124,7 +124,7 @@ export class AuthService {
      * Sign out
      */
     signOut(): Observable<boolean> {
-        return this._httpClient.post('api/auth/sign-out', {}).pipe(
+        return this._httpClient.post('api/v1/auth/logout', {}).pipe(
             tap(() => {
                 // Remove the access token from the local storage
                 localStorage.removeItem('accessToken');

@@ -8,7 +8,7 @@ import { MatFormFieldModule }                                      from '@angula
 import { MatIconModule }                                           from '@angular/material/icon';
 import { MatInputModule }                                          from '@angular/material/input';
 import { MatProgressSpinnerModule }                                from '@angular/material/progress-spinner';
-import { ActivatedRoute, Router }                                  from '@angular/router';
+import { ActivatedRoute, Router, RouterModule }                    from '@angular/router';
 import { TranslocoService }                                        from '@ngneat/transloco';
 import { Notyf }                                                   from 'notyf';
 import { catchError, finalize, forkJoin, of, switchMap, tap }      from 'rxjs';
@@ -21,11 +21,12 @@ import { GeolocationService }                                      from '../../s
 import { VehicleSessionsService }                                  from '../../services/vehicle-sessions.service';
 import { VehiclesService }                                         from '../../services/vehicles.service';
 import { ConfirmDialogComponent }                                  from '../active-sessions/confirm-dialog.component';
+import { environment }                                             from 'environments/environment';
 
 @Component({
     selector   : 'app-finish-session',
     standalone : true,
-    imports    : [
+    imports: [
         CommonModule,
         MatButtonModule,
         MatCardModule,
@@ -35,6 +36,7 @@ import { ConfirmDialogComponent }                                  from '../acti
         MatInputModule,
         MatProgressSpinnerModule,
         ReactiveFormsModule,
+        RouterModule,
         PageHeaderComponent
     ],
     templateUrl: './finish-session.component.html'
@@ -241,5 +243,66 @@ export class FinishSessionComponent implements OnInit {
                 this.isSubmitting = false;
             })
         ).subscribe();
+    }
+
+    /**
+     * Genera la URL para el mapa estático que muestra tanto la ubicación inicial como la final
+     * @returns URL de la imagen del mapa estático
+     */
+    getStaticMapUrl(): string {
+        if (!this.currentLocation || !this.session?.initialLocation) {
+            return '';
+        }
+
+        // Obtenemos las ubicaciones inicial y final
+        const startLocation = this.session.initialLocation;
+        const endLocation = this.currentLocation;
+
+        // Calculamos el centro del mapa (punto medio entre ambas ubicaciones)
+        const centerLat = (startLocation.latitude + endLocation.latitude) / 2;
+        const centerLng = (startLocation.longitude + endLocation.longitude) / 2;
+
+        // Configuramos los parámetros del mapa
+        const zoom = 13; // Nivel de zoom (más bajo para que se vean ambos puntos)
+        const size = '600x300'; // Tamaño de la imagen
+        const scale = 2; // Factor de escala para pantallas de alta densidad
+        const mapType = 'roadmap'; // Tipo de mapa
+
+        // Marcadores: azul para ubicación inicial, rojo para ubicación final
+        const startMarker = `markers=color:blue%7Clabel:I%7C${ startLocation.latitude },${ startLocation.longitude }`;
+        const endMarker = `markers=color:red%7Clabel:F%7C${ endLocation.latitude },${ endLocation.longitude }`;
+
+        // Usar la API key configurada en el entorno
+        const apiKey = environment.GMAPS_API_KEY;
+
+        // Generamos una ruta si las ubicaciones están suficientemente separadas
+        // (cálculo básico de distancia usando la fórmula de Haversine)
+        const distance = this.calculateGeoDistance(startLocation, endLocation);
+        let path = '';
+        if (distance > 0.05) { // Si están separados más de 50 metros
+            path = `&path=color:0x0000ff80|weight:5|${ startLocation.latitude },${ startLocation.longitude }|${ endLocation.latitude },${ endLocation.longitude }`;
+        }
+
+        // Construir la URL del mapa estático
+        return `https://maps.googleapis.com/maps/api/staticmap?center=${ centerLat },${ centerLng }&zoom=${ zoom }&size=${ size }&scale=${ scale }&maptype=${ mapType }&${ startMarker }&${ endMarker }${ path }&key=${ apiKey }`;
+    }
+
+    /**
+     * Calcula la distancia en kilómetros entre dos puntos geográficos
+     */
+    private calculateGeoDistance(point1: GeoLocation, point2: GeoLocation): number {
+        const R = 6371; // Radio de la Tierra en km
+        const dLat = this.deg2rad(point2.latitude - point1.latitude);
+        const dLon = this.deg2rad(point2.longitude - point1.longitude);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(this.deg2rad(point1.latitude)) * Math.cos(this.deg2rad(point2.latitude)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // Distancia en km
+    }
+
+    private deg2rad(deg: number): number {
+        return deg * (Math.PI / 180);
     }
 }

@@ -22,11 +22,11 @@
                     <form [formGroup]="form" (ngSubmit)="startVehicleSession()" class="flex flex-col space-y-4">
                         <!-- Selección de conductor -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <mat-form-field class="w-full">
+                            <mat-form-field class="w-full" floatLabel="always">
                                 <mat-label>Conductor</mat-label>
-                                <mat-select formControlName="driverId">
+                                <mat-select formControlName="driverId" placeholder="Seleccione un conductor">
                                     <mat-option *ngFor="let driver of availableDrivers()" [value]="driver.id">
-                                        {{ driver.name }}
+                                        {{ driver.firstName }}
                                     </mat-option>
                                 </mat-select>
                                 <mat-error *ngIf="form.get('driverId').hasError('required')">
@@ -35,9 +35,9 @@
                             </mat-form-field>
 
                             <!-- Selección de vehículo -->
-                            <mat-form-field class="w-full">
+                            <mat-form-field class="w-full" floatLabel="always">
                                 <mat-label>Vehículo</mat-label>
-                                <mat-select formControlName="vehicleId">
+                                <mat-select formControlName="vehicleId" placeholder="Seleccione un vehículo">
                                     <mat-option *ngFor="let vehicle of availableVehicles()" [value]="vehicle.id">
                                         {{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.licensePlate }})
                                     </mat-option>
@@ -71,24 +71,40 @@
                             </mat-error>
                         </mat-form-field>
 
+                        <mat-hint class="mat-hint">* Campos requeridos</mat-hint>
+
                         <!-- Estado de ubicación GPS -->
-                        <div class="flex items-center p-4 rounded-md mb-4"
+                        <div class="flex flex-col p-4 rounded-md mb-4"
                              [ngClass]="hasGeolocationPermission() ? 'bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800' : 'bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800'">
-                            <mat-icon
-                                [svgIcon]="hasGeolocationPermission() ? 'heroicons_outline:check-circle' : 'heroicons_outline:exclamation-circle'"
-                                [ngClass]="hasGeolocationPermission() ? 'text-green-600' : 'text-red-600'"
-                                class="mr-3">
-                            </mat-icon>
-                            <div>
-                                <p class="font-medium">
-                                    {{ hasGeolocationPermission() ? 'Ubicación GPS disponible' : 'Ubicación GPS no disponible' }}
-                                </p>
-                                <p class="text-sm" *ngIf="!hasGeolocationPermission()">
-                                    Se requiere acceso a su ubicación para registrar correctamente la sesión. Por favor, habilite los permisos de ubicación.
-                                </p>
-                                <p class="text-sm" *ngIf="hasGeolocationPermission() && currentLocation()">
-                                    Lat: {{ currentLocation()?.latitude?.toFixed(6) }}, Lng: {{ currentLocation()?.longitude?.toFixed(6) }}
-                                </p>
+                            <div class="flex items-center">
+                                <mat-icon
+                                    [svgIcon]="hasGeolocationPermission() ? 'heroicons_outline:check-circle' : 'heroicons_outline:exclamation-circle'"
+                                    [ngClass]="hasGeolocationPermission() ? 'text-green-600' : 'text-red-600'"
+                                    class="mr-3">
+                                </mat-icon>
+                                <div>
+                                    <p class="font-medium">
+                                        {{ hasGeolocationPermission() ? 'Ubicación GPS disponible' : 'Ubicación GPS no disponible' }}
+                                    </p>
+                                    <p class="text-sm" *ngIf="!hasGeolocationPermission()">
+                                        Se requiere acceso a su ubicación para registrar correctamente la sesión. Por favor, habilite los permisos de ubicación.
+                                    </p>
+                                    <p class="text-sm" *ngIf="hasGeolocationPermission() && currentLocation()">
+                                        Lat: {{ currentLocation()?.latitude?.toFixed(6) }}, Lng: {{ currentLocation()?.longitude?.toFixed(6) }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Mapa estático cuando la ubicación está disponible -->
+                            <div *ngIf="hasGeolocationPermission() && currentLocation()" class="mt-4 w-full">
+                                <div class="rounded-lg overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700">
+                                    <img
+                                        [src]="getStaticMapUrl()"
+                                        alt="Ubicación actual en mapa"
+                                        class="w-full h-[180px] object-cover"
+                                        loading="lazy">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1 text-center">Ubicación actual (aproximada)</p>
                             </div>
                         </div>
 
@@ -132,7 +148,7 @@
                     <div class="flex flex-col space-y-3">
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Nombre</p>
-                            <p class="font-medium">{{ selectedDriver().name }}</p>
+                            <p class="font-medium">{{ selectedDriver().firstName }}</p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-400">DNI</p>

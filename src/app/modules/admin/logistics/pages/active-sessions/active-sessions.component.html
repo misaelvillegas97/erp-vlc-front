@@ -7,7 +7,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Búsqueda -->
                 <div class="w-full">
-                    <mat-form-field appearance="outline" class="w-full">
+                    <mat-form-field class="w-full">
                         <mat-label>Buscar por conductor o vehículo</mat-label>
                         <input matInput [formControl]="searchControl" placeholder="Nombre, apellido, placa, marca o modelo">
                         <mat-icon matSuffix svgIcon="mat_outline:search"></mat-icon>
@@ -16,7 +16,7 @@
 
                 <!-- Ordenamiento -->
                 <div class="w-full">
-                    <mat-form-field appearance="outline" class="w-full">
+                    <mat-form-field class="w-full">
                         <mat-label>Ordenar por</mat-label>
                         <mat-select [formControl]="sortControl">
                             <mat-option value="duration_desc">Duración (mayor a menor)</mat-option>
@@ -32,14 +32,14 @@
         </div>
 
         <!-- Estado de carga -->
-        @if (isLoading) {
+        @if (isLoading()) {
             <div class="flex justify-center items-center py-20">
                 <div class="text-center">
                     <mat-spinner diameter="48" color="primary"></mat-spinner>
                     <p class="mt-4 text-gray-600 dark:text-gray-300">Cargando sesiones activas...</p>
                 </div>
             </div>
-        } @else if (filteredSessions.length === 0) {
+        } @else if (filteredSessions().length === 0) {
             <div class="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 shadow rounded-lg">
                 <mat-icon class="text-gray-400 icon-size-10 mb-4" svgIcon="mat_outline:directions_car_off"></mat-icon>
                 <h3 class="text-xl font-bold mb-2">No hay sesiones activas</h3>
@@ -53,12 +53,11 @@
         } @else {
             <!-- Lista de sesiones -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                @for (session of filteredSessions; track session.id) {
+            @for (session of filteredSessions(); track session.id) {
                     <mat-card class="relative overflow-hidden">
                         <!-- Indicador de estado -->
-                        <div class="absolute top-0 right-0 w-0 h-0">
-                            <div class="absolute -top-2 -right-2 rotate-45 w-20 h-20 {{ getStatusColor(session.status) }}"></div>
-                            <div class="absolute top-1 right-1 transform rotate-45 text-white text-xs font-bold">
+                        <div class="absolute top-2 right-2">
+                            <div class="px-3 py-1 rounded-full text-xs font-medium text-white shadow-sm {{ getStatusColor(session.status) }}">
                                 {{ getStatusText(session.status) }}
                             </div>
                         </div>
@@ -72,12 +71,12 @@
                                             [src]="session.driver.photoUrl"
                                             alt="Foto del conductor"
                                             class="w-14 h-14 rounded-full object-cover"
-                                            onerror="this.src='assets/images/avatars/male-01.jpg'"
+                                            onerror="this.src='images/avatars/male-01.jpg'"
                                         >
                                     </div>
                                     <div class="ml-4 flex-1">
                                         <p class="text-lg font-semibold">
-                                            {{ session.driver.name }} {{ session.driver.lastName }}
+                                            {{ session.driver.firstName }} {{ session.driver.lastName }}
                                         </p>
                                         <p class="text-sm text-gray-500 dark:text-gray-400">
                                             Conductor
@@ -92,7 +91,7 @@
                                             [src]="session.vehicle.photoUrl"
                                             alt="Foto del vehículo"
                                             class="w-14 h-14 rounded object-cover"
-                                            onerror="this.src='assets/images/ui/vehicle-placeholder.jpg'"
+                                            onerror="this.src='images/placeholders/vehicle.png'"
                                         >
                                     </div>
                                     <div class="ml-3 flex-1">

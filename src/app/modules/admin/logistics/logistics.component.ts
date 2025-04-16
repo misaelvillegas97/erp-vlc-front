@@ -18,7 +18,7 @@ import { DrawerContentComponent }                    from '@shared/components/dr
         <drawer-listing
             [panels]="panels()"
             [selectedPanel]="'fleet-control'"
-            [title]="'logistics.fleet.title' | transloco"
+            [title]="'operations.logistics.fleet.title' | transloco"
         >
             <drawer-content class="h-full">
                 <router-outlet></router-outlet>
@@ -41,7 +41,7 @@ export class LogisticsComponent {
         {
             id          : 'active-sessions',
             title       : this.#ts.translate('operations.logistics.fleet.active-sessions.title'),
-            description : this.#ts.translate('operations.logistics.fleet.active.description'),
+            description: this.#ts.translate('operations.logistics.fleet.active-sessions.description'),
             icon        : 'mat_outline:timer',
             selectedIcon: 'mat_solid:timer',
             link        : [ '/logistics', 'active-sessions' ]

@@ -1,144 +1,146 @@
-<div class="flex flex-col flex-auto min-w-0 p-4 sm:p-6 md:p-8">
+<div class="flex flex-col w-full">
     <page-header title="Historial de Sesiones" subtitle="Registro histórico de todos los usos de vehículos"></page-header>
 
-    <!-- Panel de filtros -->
-    <div class="bg-card rounded-md shadow mb-6 p-6">
-        <h2 class="text-xl font-medium mb-4">Filtros</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <!-- Filtro por conductor -->
-            <mat-form-field class="w-full" appearance="outline">
-                <mat-label>Conductor</mat-label>
-                <input matInput [formControl]="driverFilter" placeholder="Buscar por conductor">
-                <mat-icon matSuffix>person</mat-icon>
-            </mat-form-field>
+    <div class="flex flex-col flex-auto min-w-0 p-4 sm:p-6">
+        <!-- Panel de filtros -->
+        <div class="bg-card rounded-md shadow mb-6 p-6">
+            <h2 class="text-xl font-medium mb-4">Filtros</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <!-- Filtro por conductor -->
+                <mat-form-field class="w-full">
+                    <mat-label>Conductor</mat-label>
+                    <input matInput [formControl]="driverFilter" placeholder="Buscar por conductor">
+                    <mat-icon matSuffix>person</mat-icon>
+                </mat-form-field>
 
-            <!-- Filtro por vehículo -->
-            <mat-form-field class="w-full" appearance="outline">
-                <mat-label>Vehículo</mat-label>
-                <input matInput [formControl]="vehicleFilter" placeholder="Buscar por vehículo">
-                <mat-icon matSuffix>directions_car</mat-icon>
-            </mat-form-field>
+                <!-- Filtro por vehículo -->
+                <mat-form-field class="w-full">
+                    <mat-label>Vehículo</mat-label>
+                    <input matInput [formControl]="vehicleFilter" placeholder="Buscar por vehículo">
+                    <mat-icon matSuffix>directions_car</mat-icon>
+                </mat-form-field>
 
-            <!-- Filtro por fecha desde -->
-            <mat-form-field class="w-full" appearance="outline">
-                <mat-label>Desde</mat-label>
-                <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFromFilter">
-                <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
-                <mat-datepicker #pickerFrom></mat-datepicker>
-            </mat-form-field>
+                <!-- Filtro por fecha desde -->
+                <mat-form-field class="w-full">
+                    <mat-label>Desde</mat-label>
+                    <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFromFilter" placeholder="Desde">
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerFrom></mat-datepicker>
+                </mat-form-field>
 
-            <!-- Filtro por fecha hasta -->
-            <mat-form-field class="w-full" appearance="outline">
-                <mat-label>Hasta</mat-label>
-                <input matInput [matDatepicker]="pickerTo" [formControl]="dateToFilter">
-                <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
-                <mat-datepicker #pickerTo></mat-datepicker>
-            </mat-form-field>
+                <!-- Filtro por fecha hasta -->
+                <mat-form-field class="w-full">
+                    <mat-label>Hasta</mat-label>
+                    <input matInput [matDatepicker]="pickerTo" [formControl]="dateToFilter" placeholder="Hasta">
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerTo></mat-datepicker>
+                </mat-form-field>
 
-            <!-- Filtro por estado -->
-            <mat-form-field class="w-full" appearance="outline">
-                <mat-label>Estado</mat-label>
-                <mat-select [formControl]="statusFilter">
-                    <mat-option value="">Todos</mat-option>
-                    <mat-option [value]="SessionStatus.ACTIVE">Activa</mat-option>
-                    <mat-option [value]="SessionStatus.COMPLETED">Completada</mat-option>
-                    <mat-option [value]="SessionStatus.CANCELLED">Cancelada</mat-option>
-                    <mat-option [value]="SessionStatus.EXPIRED">Expirada</mat-option>
-                </mat-select>
-            </mat-form-field>
-        </div>
-    </div>
-
-    <!-- Tabla de datos -->
-    <div class="bg-card rounded-md shadow">
-        <div class="overflow-x-auto">
-            <!-- Estado de carga -->
-            <div *ngIf="isLoading" class="flex justify-center items-center p-8">
-                <mat-spinner diameter="40"></mat-spinner>
-                <span class="ml-4 text-secondary">Cargando datos...</span>
+                <!-- Filtro por estado -->
+                <mat-form-field class="w-full">
+                    <mat-label>Estado</mat-label>
+                    <mat-select [formControl]="statusFilter">
+                        <mat-option value="">Todos</mat-option>
+                        <mat-option [value]="SessionStatus.ACTIVE">Activa</mat-option>
+                        <mat-option [value]="SessionStatus.COMPLETED">Completada</mat-option>
+                        <mat-option [value]="SessionStatus.CANCELLED">Cancelada</mat-option>
+                        <mat-option [value]="SessionStatus.EXPIRED">Expirada</mat-option>
+                    </mat-select>
+                </mat-form-field>
             </div>
+        </div>
 
-            <!-- Tabla con datos -->
-            <table *ngIf="!isLoading" mat-table [dataSource]="filteredSessions" class="w-full">
-                <!-- Fecha de inicio -->
-                <ng-container matColumnDef="startTimestamp">
-                    <th mat-header-cell *matHeaderCellDef> Fecha de inicio</th>
-                    <td mat-cell *matCellDef="let session"> {{ formatDateTime(session.startTimestamp) }}</td>
-                </ng-container>
+        <!-- Tabla de datos -->
+        <div class="bg-card rounded-md shadow">
+            <div class="overflow-x-auto">
+                <!-- Estado de carga -->
+                <div *ngIf="isLoading()" class="flex justify-center items-center p-8">
+                    <mat-spinner diameter="40"></mat-spinner>
+                    <span class="ml-4 text-secondary">Cargando datos...</span>
+                </div>
 
-                <!-- Fecha de finalización -->
-                <ng-container matColumnDef="endTimestamp">
-                    <th mat-header-cell *matHeaderCellDef> Fecha de fin</th>
-                    <td mat-cell *matCellDef="let session">
-                        {{ session.endTimestamp ? formatDateTime(session.endTimestamp) : 'En curso' }}
-                    </td>
-                </ng-container>
+                <!-- Tabla con datos -->
+                <table *ngIf="!isLoading()" mat-table [dataSource]="filteredSessions()" class="w-full">
+                    <!-- Fecha de inicio -->
+                    <ng-container matColumnDef="startTimestamp">
+                        <th mat-header-cell *matHeaderCellDef> Fecha de inicio</th>
+                        <td mat-cell *matCellDef="let session"> {{ formatDateTime(session.startTimestamp) }}</td>
+                    </ng-container>
 
-                <!-- Conductor -->
-                <ng-container matColumnDef="driverName">
-                    <th mat-header-cell *matHeaderCellDef> Conductor</th>
-                    <td mat-cell *matCellDef="let session">
-                        {{ session.driverName || session.driverId }}
-                    </td>
-                </ng-container>
+                    <!-- Fecha de finalización -->
+                    <ng-container matColumnDef="endTimestamp">
+                        <th mat-header-cell *matHeaderCellDef> Fecha de fin</th>
+                        <td mat-cell *matCellDef="let session">
+                            {{ session.endTimestamp ? formatDateTime(session.endTimestamp) : 'En curso' }}
+                        </td>
+                    </ng-container>
 
-                <!-- Vehículo -->
-                <ng-container matColumnDef="vehicleInfo">
-                    <th mat-header-cell *matHeaderCellDef> Vehículo</th>
-                    <td mat-cell *matCellDef="let session">
-                        {{ session.vehicleInfo || session.vehicleId }}
-                    </td>
-                </ng-container>
+                    <!-- Conductor -->
+                    <ng-container matColumnDef="driverName">
+                        <th mat-header-cell *matHeaderCellDef> Conductor</th>
+                        <td mat-cell *matCellDef="let session">
+                            {{ session.driverName || session.driverId }}
+                        </td>
+                    </ng-container>
 
-                <!-- Distancia recorrida -->
-                <ng-container matColumnDef="distance">
-                    <th mat-header-cell *matHeaderCellDef> Distancia (km)</th>
-                    <td mat-cell *matCellDef="let session">
-                        {{ calculateDistance(session) }} km
-                    </td>
-                </ng-container>
+                    <!-- Vehículo -->
+                    <ng-container matColumnDef="vehicleInfo">
+                        <th mat-header-cell *matHeaderCellDef> Vehículo</th>
+                        <td mat-cell *matCellDef="let session">
+                            {{ session.vehicleInfo || session.vehicleId }}
+                        </td>
+                    </ng-container>
 
-                <!-- Estado -->
-                <ng-container matColumnDef="status">
-                    <th mat-header-cell *matHeaderCellDef> Estado</th>
-                    <td mat-cell *matCellDef="let session">
-            <span class="px-3 py-1 rounded-full text-xs font-medium" [ngClass]="getStatusClass(session.status)">
-              {{ getStatusText(session.status) }}
-            </span>
-                    </td>
-                </ng-container>
+                    <!-- Distancia recorrida -->
+                    <ng-container matColumnDef="distance">
+                        <th mat-header-cell *matHeaderCellDef> Distancia (km)</th>
+                        <td mat-cell *matCellDef="let session">
+                            {{ calculateDistance(session) }} km
+                        </td>
+                    </ng-container>
 
-                <!-- Acciones -->
-                <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef></th>
-                    <td mat-cell *matCellDef="let session" class="text-right">
-                        <button mat-icon-button color="primary" (click)="viewDetails(session)" matTooltip="Ver detalles">
-                            <mat-icon>visibility</mat-icon>
-                        </button>
-                    </td>
-                </ng-container>
+                    <!-- Estado -->
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef> Estado</th>
+                        <td mat-cell *matCellDef="let session">
+                            <span class="px-3 py-1 rounded-full text-xs font-medium" [ngClass]="getStatusClass(session.status)">
+                              {{ getStatusText(session.status) }}
+                            </span>
+                        </td>
+                    </ng-container>
 
-                <!-- Cabeceras y filas -->
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    <!-- Acciones -->
+                    <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let session" class="text-right">
+                            <button mat-icon-button color="primary" (click)="viewDetails(session)" matTooltip="Ver detalles">
+                                <mat-icon>visibility</mat-icon>
+                            </button>
+                        </td>
+                    </ng-container>
 
-                <!-- Mensaje cuando no hay datos -->
-                <tr class="mat-row" *matNoDataRow>
-                    <td class="mat-cell py-4 text-center" [attr.colspan]="displayedColumns.length">
-                        No se encontraron registros que coincidan con los filtros aplicados.
-                    </td>
-                </tr>
-            </table>
+                    <!-- Cabeceras y filas -->
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
-            <!-- Paginador -->
-            <mat-paginator
-                *ngIf="!isLoading && totalSessions > 0"
-                [length]="totalSessions"
-                [pageSize]="pageSize"
-                [pageSizeOptions]="pageSizeOptions"
-                (page)="onPageChange($event)"
-                showFirstLastButtons>
-            </mat-paginator>
+                    <!-- Mensaje cuando no hay datos -->
+                    <tr class="mat-row" *matNoDataRow>
+                        <td class="mat-cell py-4 text-center" [attr.colspan]="displayedColumns.length">
+                            No se encontraron registros que coincidan con los filtros aplicados.
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Paginador -->
+                <mat-paginator
+                    *ngIf="!isLoading() && totalSessions() > 0"
+                    [length]="totalSessions()"
+                    [pageSize]="pageSize()"
+                    [pageSizeOptions]="pageSizeOptions()"
+                    (page)="onPageChange($event)"
+                    showFirstLastButtons>
+                </mat-paginator>
+            </div>
         </div>
     </div>
 </div>

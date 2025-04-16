@@ -81,7 +81,7 @@ export interface ActiveSessionView {
     initialOdometer: number;       // Lectura del odómetro al inicio
     driver: {                      // Datos del conductor
         id: string;
-        name: string;
+        firstName: string;
         lastName: string;
         documentId: string;
         photoUrl?: string;
