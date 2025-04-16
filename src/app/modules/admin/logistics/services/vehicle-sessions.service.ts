@@ -147,6 +147,17 @@ export class VehicleSessionsService {
         return this.http.get<VehicleSession[]>(`${ this.apiUrl }/active`);
     }
 
+    public findMyActiveSession(): Observable<VehicleSession> {
+        // Para desarrollo, filtramos los datos mock
+        if (!environment.production) {
+            const activeSession = this.mockSessions.find(s => s.status === SessionStatus.ACTIVE);
+            return of(activeSession ? {...activeSession} : null).pipe(delay(300));
+        }
+
+        // En producción, hacemos la llamada real a la API
+        return this.http.get<VehicleSession>(`${ this.apiUrl }/my-active`);
+    }
+
     /**
      * Busca sesiones por vehículo
      * @param vehicleId ID del vehículo

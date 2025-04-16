@@ -29,6 +29,26 @@
                     </mat-form-field>
                 </div>
             </div>
+
+            <!-- Banner de Modo Conducción para dispositivos móviles -->
+            @if (isMobileDevice) {
+                <div class="mt-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-700 rounded-lg p-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <mat-icon class="text-blue-600 dark:text-blue-400 mr-3" svgIcon="heroicons_outline:map"></mat-icon>
+                            <div>
+                                <h3 class="font-medium">Modo Conducción Disponible</h3>
+                                <p class="text-sm text-blue-700 dark:text-blue-300">
+                                    Vista en tiempo real con métricas de viaje y mapa actualizado.
+                                </p>
+                            </div>
+                        </div>
+                        <a [routerLink]="['/logistics/driving-mode']" mat-flat-button color="primary">
+                            Ver Modo
+                        </a>
+                    </div>
+                </div>
+            }
         </div>
 
         <!-- Estado de carga -->
@@ -134,8 +154,20 @@
                                     </div>
                                 }
 
-                                <!-- Acción de finalizar -->
-                                <div class="mt-2 flex justify-end">
+                                <!-- Botones de acción -->
+                                <div class="mt-2 flex flex-col sm:flex-row gap-4 justify-between">
+                                    <!-- Botón para Modo Conducción -->
+                                    <button
+                                        mat-stroked-button
+                                        [routerLink]="['/logistics/driving-mode']"
+                                        class="flex items-center"
+                                        [class.hidden]="!isMobileDevice"
+                                    >
+                                        <mat-icon svgIcon="heroicons_outline:map" class="mr-1"></mat-icon>
+                                        Modo Conducción
+                                    </button>
+
+                                    <!-- Botón para finalizar sesión -->
                                     <button
                                         mat-flat-button
                                         color="primary"

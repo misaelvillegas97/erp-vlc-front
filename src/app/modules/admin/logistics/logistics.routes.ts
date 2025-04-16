@@ -20,6 +20,12 @@ export default [
                 title        : 'Sesiones Activas'
             },
             {
+                path         : 'driving-mode',
+                loadComponent: () =>
+                    import('./pages/driving-mode/driving-mode.component').then(m => m.DrivingModeComponent),
+                title        : 'Modo Conducción'
+            },
+            {
                 path         : 'finish-session/:id',
                 canActivate  : [ VehicleSessionGuard ],
                 loadComponent: () =>

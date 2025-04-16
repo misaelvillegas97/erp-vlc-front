@@ -1,0 +1,54 @@
+:host {
+    display: block;
+}
+
+/* Estilos para modo pantalla completa */
+:host-context(:-webkit-full-screen) {
+    .full-screen-container {
+        width: 100vw;
+        height: 100vh;
+        overflow-y: auto;
+    }
+}
+
+/* Animación pulsante para el indicador de señal */
+.pulse {
+    animation: pulse-animation 2s infinite;
+}
+
+@keyframes pulse-animation {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Estilos responsivos para diferentes tamaños de pantalla */
+@media screen and (max-width: 768px) {
+    .font-mono {
+        font-size: 1.5rem;
+    }
+}
+
+@media screen and (max-width: 640px) {
+    .metrics-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Modo oscuro optimizado para conducción nocturna */
+@media (prefers-color-scheme: dark) {
+    .driving-mode-card {
+        background-color: #1a1f2e;
+    }
+
+    .metric-value {
+        color: #fff;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+}

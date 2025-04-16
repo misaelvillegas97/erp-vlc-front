@@ -251,22 +251,13 @@ export class FleetControlComponent implements OnInit, OnDestroy {
         ).subscribe((session: VehicleSession | null) => {
             if (session) {
                 this.notyf.success({message: 'Sesión de vehículo iniciada correctamente'});
-
-                // Si es un dispositivo móvil o tablet, iniciar el rastreo en segundo plano
-                if (this.isMobileDevice()) {
-                    this.locationTrackingService.startTracking(session.id);
-                    // Mostrar mensaje adicional si se está rastreando en segundo plano
-                    this.notyf.success({
-                        message : 'Se ha iniciado el rastreo GPS en segundo plano',
-                        duration: 5000
-                    });
-                }
-                
                 this.resetForm();
+
                 // Actualizar la lista de vehículos disponibles luego de iniciar la sesión
                 this.vehiclesService.findAvailableVehicles().subscribe(vehicles => {
                     this.availableVehicles.set(vehicles.items);
                 });
+
                 // Redirigir a la página de sesiones activas
                 this.router.navigate([ '/logistics/active-sessions' ]);
             }
