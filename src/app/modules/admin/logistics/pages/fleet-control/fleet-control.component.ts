@@ -20,6 +20,7 @@ import { DriversService }                                    from '../../service
 import { VehiclesService }                                   from '../../services/vehicles.service';
 import { VehicleSessionsService }                            from '../../services/vehicle-sessions.service';
 import { GeolocationService }                                from '../../services/geolocation.service';
+import { LocationTrackingService }                           from '../../services/location-tracking.service';
 import { Driver }                                            from '../../domain/model/driver.model';
 import { Vehicle }                                           from '../../domain/model/vehicle.model';
 import { GeoLocation, NewVehicleSessionDto, VehicleSession } from '../../domain/model/vehicle-session.model';
@@ -53,6 +54,7 @@ export class FleetControlComponent implements OnInit, OnDestroy {
     readonly vehiclesService = inject(VehiclesService);
     readonly sessionsService = inject(VehicleSessionsService);
     readonly geolocationService = inject(GeolocationService);
+    readonly locationTrackingService = inject(LocationTrackingService);
     readonly fb = inject(FormBuilder);
     readonly router = inject(Router);
     readonly dialog = inject(MatDialog);
@@ -64,6 +66,7 @@ export class FleetControlComponent implements OnInit, OnDestroy {
     hasGeolocationPermission = signal(false);
     currentDateTime = signal(new Date());
     currentLocation = signal<GeoLocation | null>(null);
+    isMobileDevice = signal(false);
 
     availableDrivers = signal<Driver[]>([]);
     availableVehicles = signal<Vehicle[]>([]);
@@ -88,6 +91,9 @@ export class FleetControlComponent implements OnInit, OnDestroy {
     private cleanupCallbacks: Array<() => void> = [];
 
     ngOnInit(): void {
+        // Detectar si es un dispositivo móvil
+        this.isMobileDevice.set(this.locationTrackingService.isMobileOrTablet());
+        
         // Abrir diálogo de advertencia de GPS
         this.dialog.open(GpsWarningDialogComponent, {
             width       : '400px',
@@ -245,6 +251,17 @@ export class FleetControlComponent implements OnInit, OnDestroy {
         ).subscribe((session: VehicleSession | null) => {
             if (session) {
                 this.notyf.success({message: 'Sesión de vehículo iniciada correctamente'});
+
+                // Si es un dispositivo móvil o tablet, iniciar el rastreo en segundo plano
+                if (this.isMobileDevice()) {
+                    this.locationTrackingService.startTracking(session.id);
+                    // Mostrar mensaje adicional si se está rastreando en segundo plano
+                    this.notyf.success({
+                        message : 'Se ha iniciado el rastreo GPS en segundo plano',
+                        duration: 5000
+                    });
+                }
+                
                 this.resetForm();
                 // Actualizar la lista de vehículos disponibles luego de iniciar la sesión
                 this.vehiclesService.findAvailableVehicles().subscribe(vehicles => {
