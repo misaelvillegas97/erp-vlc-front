@@ -25,9 +25,15 @@
                             <mat-form-field class="w-full" floatLabel="always">
                                 <mat-label>Conductor</mat-label>
                                 <mat-select formControlName="driverId" placeholder="Seleccione un conductor">
-                                    <mat-option *ngFor="let driver of availableDrivers()" [value]="driver.id">
-                                        {{ driver.firstName }}
-                                    </mat-option>
+                                    @for (driver of availableDrivers(); track driver.id) {
+                                        <mat-option [value]="driver.id">
+                                            {{ driver.firstName }} {{ driver.lastName }}
+                                        </mat-option>
+                                    } @empty {
+                                        <mat-option disabled>
+                                            No hay conductores disponibles
+                                        </mat-option>
+                                    }
                                 </mat-select>
                                 <mat-error *ngIf="form.get('driverId').hasError('required')">
                                     El conductor es requerido
@@ -38,9 +44,15 @@
                             <mat-form-field class="w-full" floatLabel="always">
                                 <mat-label>Vehículo</mat-label>
                                 <mat-select formControlName="vehicleId" placeholder="Seleccione un vehículo">
-                                    <mat-option *ngFor="let vehicle of availableVehicles()" [value]="vehicle.id">
-                                        {{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.licensePlate }})
-                                    </mat-option>
+                                    @for (vehicle of availableVehicles(); track vehicle.id) {
+                                        <mat-option [value]="vehicle.id">
+                                            {{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.licensePlate }})
+                                        </mat-option>
+                                    } @empty {
+                                        <mat-option disabled>
+                                            No hay vehículos disponibles
+                                        </mat-option>
+                                    }
                                 </mat-select>
                                 <mat-error *ngIf="form.get('vehicleId').hasError('required')">
                                     El vehículo es requerido
@@ -115,7 +127,7 @@
                                 mat-flat-button
                                 color="primary"
                                 class="min-w-[200px]"
-                                [disabled]="isSubmitting() || !hasGeolocationPermission()">
+                                [disabled]="isSubmitting() || !hasGeolocationPermission() || form.invalid || form.disabled">
                                 <mat-icon svgIcon="heroicons_outline:play" class="mr-2"></mat-icon>
                                 <span>Iniciar Sesión de Vehículo</span>
                                 <mat-progress-spinner

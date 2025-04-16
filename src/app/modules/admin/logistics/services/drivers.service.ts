@@ -4,6 +4,7 @@ import { Observable, of }                    from 'rxjs';
 import { delay, map }                        from 'rxjs/operators';
 import { Driver, DriverStatus, LicenseType } from '../domain/model/driver.model';
 import { environment }                       from 'environments/environment';
+import { FindCount }                         from '@shared/domain/model/find-count';
 
 @Injectable({
     providedIn: 'root'
@@ -11,7 +12,7 @@ import { environment }                       from 'environments/environment';
 export class DriversService {
 
     // API URL base para conductores
-    private readonly apiUrl = `/api/logistics/drivers`;
+    private readonly apiUrl = `/api/v1/logistics/drivers`;
 
     // Datos mock para desarrollo
     private readonly mockDrivers: Driver[] = [
@@ -56,14 +57,14 @@ export class DriversService {
     /**
      * Obtiene la lista de todos los conductores
      */
-    public findAll(): Observable<Driver[]> {
+    public findAll(): Observable<FindCount<Driver>> {
         // Para desarrollo, usamos datos mock con un delay para simular latencia de red
         if (!environment.production) {
-            return of([ ...this.mockDrivers ]).pipe(delay(500));
+            return of({items: [ ...this.mockDrivers ], total: this.mockDrivers.length}).pipe(delay(500));
         }
 
         // En producción, hacemos la llamada real a la API
-        return this.http.get<Driver[]>(this.apiUrl);
+        return this.http.get<FindCount<Driver>>(this.apiUrl);
     }
 
     /**

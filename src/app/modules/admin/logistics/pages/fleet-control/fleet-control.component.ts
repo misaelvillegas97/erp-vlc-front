@@ -1,20 +1,20 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { CommonModule }                                                                    from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators }            from '@angular/forms';
-import { Router }                                                                          from '@angular/router';
-import { MatButtonModule }                                                                 from '@angular/material/button';
-import { MatCardModule }                                                                   from '@angular/material/card';
-import { MatDialog, MatDialogModule }                                                      from '@angular/material/dialog';
-import { MatFormFieldModule }                                                              from '@angular/material/form-field';
-import { MatIconModule }                                                                   from '@angular/material/icon';
-import { MatInputModule }                                                                  from '@angular/material/input';
-import { MatProgressSpinnerModule }                                                        from '@angular/material/progress-spinner';
-import { MatSelectModule }                                                                 from '@angular/material/select';
-import { PageHeaderComponent }                                                             from '@layout/components/page-header/page-header.component';
-import { Notyf }                                                                           from 'notyf';
-import { forkJoin, of }                                                                    from 'rxjs';
-import { catchError, finalize, switchMap, take }                                           from 'rxjs/operators';
-import { environment }                                                                     from 'environments/environment';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { CommonModule }                                                          from '@angular/common';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators }  from '@angular/forms';
+import { Router }                                                                from '@angular/router';
+import { MatButtonModule }                                                       from '@angular/material/button';
+import { MatCardModule }                                                         from '@angular/material/card';
+import { MatDialog, MatDialogModule }                                            from '@angular/material/dialog';
+import { MatFormFieldModule }                                                    from '@angular/material/form-field';
+import { MatIconModule }                                                         from '@angular/material/icon';
+import { MatInputModule }                                                        from '@angular/material/input';
+import { MatProgressSpinnerModule }                                              from '@angular/material/progress-spinner';
+import { MatSelectModule }                                                       from '@angular/material/select';
+import { PageHeaderComponent }                                                   from '@layout/components/page-header/page-header.component';
+import { Notyf }                                                                 from 'notyf';
+import { forkJoin, of }                                                          from 'rxjs';
+import { catchError, finalize, switchMap, take }                                 from 'rxjs/operators';
+import { environment }                                                           from 'environments/environment';
 
 import { DriversService }                                    from '../../services/drivers.service';
 import { VehiclesService }                                   from '../../services/vehicles.service';
@@ -24,6 +24,7 @@ import { Driver }                                            from '../../domain/
 import { Vehicle }                                           from '../../domain/model/vehicle.model';
 import { GeoLocation, NewVehicleSessionDto, VehicleSession } from '../../domain/model/vehicle-session.model';
 import { GpsWarningDialogComponent }                         from './gps-warning-dialog.component';
+import { FindCount }                                         from '@shared/domain/model/find-count';
 
 @Component({
     selector   : 'app-fleet-control',
@@ -82,16 +83,6 @@ export class FleetControlComponent implements OnInit, OnDestroy {
     vehicleId = signal<string | null>(null);
     initialOdometer = signal<number | null>(null);
     observations = signal<string>('');
-
-    // Signal computada para determinar la validez del formulario
-    isFormValid = computed(() => {
-        return (
-            !!this.driverId() &&
-            !!this.vehicleId() &&
-            this.initialOdometer() !== null &&
-            this.initialOdometer()! >= 0
-        );
-    });
 
     // Colección para almacenar funciones de limpieza de efectos y suscripciones
     private cleanupCallbacks: Array<() => void> = [];
@@ -163,13 +154,13 @@ export class FleetControlComponent implements OnInit, OnDestroy {
             drivers : this.driversService.findAll().pipe(
                 catchError(() => {
                     this.notyf.error({message: 'Error al cargar conductores'});
-                    return of([]);
+                    return of(new FindCount([], 0));
                 })
             ),
             vehicles: this.vehiclesService.findAvailableVehicles().pipe(
                 catchError(() => {
                     this.notyf.error({message: 'Error al cargar vehículos'});
-                    return of([]);
+                    return of(new FindCount([], 0));
                 })
             )
         })
@@ -177,9 +168,9 @@ export class FleetControlComponent implements OnInit, OnDestroy {
                 this.isLoading.set(false);
             }))
             .subscribe(({drivers, vehicles}) => {
-                this.availableDrivers.set(drivers);
-                this.availableVehicles.set(vehicles);
-                if (vehicles.length === 0) {
+                this.availableDrivers.set(drivers.items);
+                this.availableVehicles.set(vehicles.items);
+                if (vehicles.total === 0) {
                     this.notyf.error({message: 'No hay vehículos disponibles actualmente', duration: 5000});
                 }
             });
@@ -212,7 +203,7 @@ export class FleetControlComponent implements OnInit, OnDestroy {
     }
 
     startVehicleSession(): void {
-        if (!this.isFormValid()) {
+        if (this.form.invalid) {
             this.form.markAllAsTouched();
             this.notyf.error({message: 'Por favor, complete todos los campos requeridos'});
             return;
@@ -257,7 +248,7 @@ export class FleetControlComponent implements OnInit, OnDestroy {
                 this.resetForm();
                 // Actualizar la lista de vehículos disponibles luego de iniciar la sesión
                 this.vehiclesService.findAvailableVehicles().subscribe(vehicles => {
-                    this.availableVehicles.set(vehicles);
+                    this.availableVehicles.set(vehicles.items);
                 });
                 // Redirigir a la página de sesiones activas
                 this.router.navigate([ '/logistics/active-sessions' ]);

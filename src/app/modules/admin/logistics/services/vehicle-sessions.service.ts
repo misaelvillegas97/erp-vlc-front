@@ -125,6 +125,7 @@ export class VehicleSessionsService {
         // Para desarrollo, usamos datos mock con un delay para simular latencia de red
         if (!environment.production) {
             const session = this.mockSessions.find(s => s.id === id);
+            console.log(session);
             return of(session ? {...session} : null).pipe(delay(300));
         }
 

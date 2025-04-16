@@ -4,6 +4,7 @@ import { Observable, of }                      from 'rxjs';
 import { delay, map }                          from 'rxjs/operators';
 import { Vehicle, VehicleStatus, VehicleType } from '../domain/model/vehicle.model';
 import { environment }                         from 'environments/environment';
+import { FindCount }                           from '@shared/domain/model/find-count';
 
 @Injectable({
     providedIn: 'root'
@@ -11,7 +12,7 @@ import { environment }                         from 'environments/environment';
 export class VehiclesService {
 
     // API URL base para vehículos
-    private readonly apiUrl = `/api/logistics/vehicles`;
+    private readonly apiUrl = `/api/v1/logistics/vehicles`;
 
     // Datos mock para desarrollo
     private readonly mockVehicles: Vehicle[] = [
@@ -120,21 +121,21 @@ export class VehiclesService {
     /**
      * Obtiene la lista de vehículos disponibles (filtrados por estado)
      */
-    public findAvailable(): Observable<Vehicle[]> {
+    public findAvailable(): Observable<FindCount<Vehicle>> {
         // Para desarrollo, filtramos los datos mock
         if (!environment.production) {
             const availableVehicles = this.mockVehicles.filter(v => v.status === VehicleStatus.AVAILABLE);
-            return of([ ...availableVehicles ]).pipe(delay(500));
+            return of(new FindCount([ ...availableVehicles ], availableVehicles.length)).pipe(delay(500));
         }
 
         // En producción, hacemos la llamada real a la API con un filtro
-        return this.http.get<Vehicle[]>(`${ this.apiUrl }/available`);
+        return this.http.get<FindCount<Vehicle>>(`${ this.apiUrl }/available`);
     }
 
     /**
      * Alias para findAvailable - mantiene compatibilidad con el código existente
      */
-    public findAvailableVehicles(): Observable<Vehicle[]> {
+    public findAvailableVehicles(): Observable<FindCount<Vehicle>> {
         return this.findAvailable();
     }
 

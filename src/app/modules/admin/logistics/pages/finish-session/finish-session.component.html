@@ -3,7 +3,7 @@
 
     <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-6 sm:px-6">
         <!-- Estado de carga -->
-        @if (isLoading) {
+        @if (isLoading()) {
             <div class="flex justify-center items-center py-20">
                 <div class="text-center">
                     <mat-spinner diameter="48" color="primary"></mat-spinner>
@@ -18,16 +18,16 @@
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <img
-                                [src]="driver?.photoUrl"
+                                [src]="driver()?.photoUrl"
                                 alt="Foto del conductor"
                                 class="w-16 h-16 rounded-full object-cover"
-                                onerror="this.src='assets/images/avatars/male-01.jpg'"
+                                onerror="this.src='images/avatars/male-01.jpg'"
                             >
                         </div>
                         <div class="ml-4">
-                            <h3 class="font-medium">{{ driver?.firstName }} {{ driver?.lastName }}</h3>
+                            <h3 class="font-medium">{{ driver()?.firstName }} {{ driver()?.lastName }}</h3>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Conductor</p>
-                            <p class="text-sm">ID: {{ driver?.documentId }}</p>
+                            <p class="text-sm">ID: {{ driver()?.documentId }}</p>
                         </div>
                     </div>
 
@@ -35,16 +35,16 @@
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <img
-                                [src]="vehicle?.photoUrl"
+                                [src]="vehicle()?.photoUrl"
                                 alt="Foto del vehículo"
                                 class="w-16 h-16 rounded object-cover"
-                                onerror="this.src='assets/images/ui/vehicle-placeholder.jpg'"
+                                onerror="this.src='images/placeholders/vehicle.png'"
                             >
                         </div>
                         <div class="ml-4">
-                            <h3 class="font-medium">{{ vehicle?.brand }} {{ vehicle?.model }}</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Placa: {{ vehicle?.licensePlate }}</p>
-                            <p class="text-sm">Año: {{ vehicle?.year }}</p>
+                            <h3 class="font-medium">{{ vehicle()?.brand }} {{ vehicle()?.model }}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Placa: {{ vehicle()?.licensePlate }}</p>
+                            <p class="text-sm">Año: {{ vehicle()?.year }}</p>
                         </div>
                     </div>
                 </div>
@@ -53,15 +53,15 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                     <div>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Fecha/hora de inicio</p>
-                        <p class="font-medium">{{ session?.startTimestamp | date:'dd/MM/yyyy HH:mm' }}</p>
+                        <p class="font-medium">{{ session()?.startTimestamp | date:'dd/MM/yyyy HH:mm' }}</p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Duración</p>
-                        <p class="font-medium">{{ formatDuration(elapsedMinutes) }}</p>
+                        <p class="font-medium">{{ formatDuration(elapsedMinutes()) }}</p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Odómetro inicial</p>
-                        <p class="font-medium">{{ session?.initialOdometer | number:'1.0-0' }} km</p>
+                        <p class="font-medium">{{ session()?.initialOdometer | number:'1.0-0' }} km</p>
                     </div>
                 </div>
 
@@ -77,12 +77,10 @@
                                 formControlName="finalOdometer"
                                 min="0"
                             >
-                            @if (form.get('finalOdometer').touched) {
-                                @if (form.get('finalOdometer').hasError('required')) {
-                                    <mat-error>Debe ingresar el valor del odómetro final</mat-error>
-                                } @else if (form.get('finalOdometer').hasError('min')) {
-                                    <mat-error>El valor debe ser mayor al odómetro inicial ({{ session?.initialOdometer | number:'1.0-0' }} km)</mat-error>
-                                }
+                            @if (form.get('finalOdometer').hasError('required')) {
+                                <mat-error>Debe ingresar el valor del odómetro final</mat-error>
+                            } @else if (form.get('finalOdometer').hasError('min')) {
+                                <mat-error>El valor debe ser mayor al odómetro inicial ({{ session()?.initialOdometer | number:'1.0-0' }} km)</mat-error>
                             }
                         </mat-form-field>
 
@@ -91,7 +89,7 @@
                             <div class="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 p-3 rounded-lg mt-1">
                                 <p class="text-green-800 dark:text-green-200">
                                     <span class="font-medium">Distancia calculada:</span>
-                                    {{ calculateDistance() | number:'1.0-0' }} km
+                                    {{ calculatedDistance() | number:'1.0-0' }} km
                                 </p>
                             </div>
                         }
@@ -101,11 +99,11 @@
                     <div class="mb-6">
                         <h3 class="mb-2 font-medium">Ubicación final (GPS)</h3>
                         <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
-                            @if (currentLocation) {
+                            @if (currentLocation()) {
                                 <p class="font-mono text-sm mb-3">
-                                    Latitud: {{ currentLocation.latitude | number:'1.4-6' }}<br>
-                                    Longitud: {{ currentLocation.longitude | number:'1.4-6' }}<br>
-                                    Precisión: {{ currentLocation.accuracy | number:'1.0-0' }} metros
+                                    Latitud: {{ currentLocation().latitude | number:'1.4-6' }}<br>
+                                    Longitud: {{ currentLocation().longitude | number:'1.4-6' }}<br>
+                                    Precisión: {{ currentLocation().accuracy | number:'1.0-0' }} metros
                                 </p>
 
                                 <!-- Mapa estático que muestra ambas ubicaciones (inicial y final) -->
@@ -113,7 +111,7 @@
                                     <img
                                         [src]="getStaticMapUrl()"
                                         alt="Mapa de inicio y fin"
-                                        class="w-full h-[200px] object-cover"
+                                        class="w-full h-[450px] object-cover"
                                         loading="lazy">
                                 </div>
                                 <p class="text-xs text-gray-500 mt-1 text-center">
@@ -159,48 +157,47 @@
                                 multiple
                                 id="photo-upload"
                                 class="hidden"
+                                #documentInput
                                 (change)="onFileSelected($event)"
-                                [disabled]="uploadedFiles.length >= 5"
+                                [disabled]="uploadedFiles().length >= 5"
                             >
                             <button
                                 type="button"
                                 mat-stroked-button
                                 color="primary"
-                                [disabled]="uploadedFiles.length >= 5"
-                                (click)="document.getElementById('photo-upload').click()"
+                                [disabled]="uploadedFiles().length >= 5"
+                                (click)="documentInput.click()"
                                 class="w-full"
                             >
                                 <mat-icon svgIcon="mat_outline:camera_alt" class="mr-2"></mat-icon>
                                 Seleccionar imágenes
                             </button>
                             <p class="text-sm text-gray-500 mt-1">
-                                {{ uploadedFiles.length }}/5 imágenes - Haga clic para añadir más
+                                {{ uploadedFiles().length }}/5 imágenes - Haga clic para añadir más
                             </p>
                         </div>
 
                         <!-- Previsualización de imágenes -->
-                        @if (uploadedPhotoPreviews.length > 0) {
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mt-3">
-                                @for (preview of uploadedPhotoPreviews; track $index) {
-                                    <div class="relative">
-                                        <img
-                                            [src]="preview"
-                                            alt="Preview"
-                                            class="object-cover w-full h-24 rounded-lg"
-                                        >
-                                        <button
-                                            type="button"
-                                            mat-mini-fab
-                                            color="warn"
-                                            class="absolute -top-2 -right-2 !w-6 !h-6 !min-h-6 !p-0"
-                                            (click)="removeFile($index)"
-                                        >
-                                            <mat-icon svgIcon="mat_outline:close" class="!w-4 !h-4"></mat-icon>
-                                        </button>
-                                    </div>
-                                }
-                            </div>
-                        }
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mt-3">
+                            @for (preview of uploadedPreviews(); track preview) {
+                                <div class="relative">
+                                    <img
+                                        [src]="preview"
+                                        alt="Preview"
+                                        class="object-cover w-full h-24 rounded-lg"
+                                    >
+                                    <button
+                                        type="button"
+                                        mat-mini-fab
+                                        color="warn"
+                                        class="absolute -top-2 -right-2 !w-6 !h-6 !min-h-6 !p-0"
+                                        (click)="removeFile($index)"
+                                    >
+                                        <mat-icon svgIcon="mat_outline:close" class="!w-4 !h-4"></mat-icon>
+                                    </button>
+                                </div>
+                            }
+                        </div>
                     </div>
 
                     <!-- Botones de acción -->
@@ -217,10 +214,10 @@
                             type="submit"
                             mat-flat-button
                             color="primary"
-                            [disabled]="isSubmitting || form.invalid || !currentLocation"
+                            [disabled]="isSubmitting() || form.invalid || !currentLocation()"
                             class="min-w-[200px]"
                         >
-                            @if (isSubmitting) {
+                            @if (isSubmitting()) {
                                 <mat-spinner diameter="20" class="mr-2"></mat-spinner>
                                 Procesando...
                             } @else {
