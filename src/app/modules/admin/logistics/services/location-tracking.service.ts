@@ -99,6 +99,8 @@ export class LocationTrackingService implements OnDestroy {
      * Inicia el rastreo de ubicación para una sesión específica
      */
     public startTracking(sessionId: string): void {
+        console.log(`Iniciando rastreo de ubicación para la sesión ${ sessionId }`);
+
         // Si ya estamos rastreando, detener primero
         if (this.isTrackingSubject.value) {
             this.stopTracking();
@@ -133,6 +135,7 @@ export class LocationTrackingService implements OnDestroy {
      * Detiene el rastreo de ubicación
      */
     public stopTracking(): void {
+        console.log('Deteniendo rastreo de ubicación');
         this.destroy$.next();
         this.isTrackingSubject.next(false);
         this.activeSessionId = null;

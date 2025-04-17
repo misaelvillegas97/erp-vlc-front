@@ -109,7 +109,7 @@ export class DrivingModeComponent implements OnInit, OnDestroy {
             this.updateEstimatedDistance();
             this.updateMap();
 
-            if (this.currentSession().id) this.loadStoredLocationPoints(this.currentSession().id);
+            if (this.currentSession()?.id) this.loadStoredLocationPoints(this.currentSession().id);
         }, 1000);
     }
 

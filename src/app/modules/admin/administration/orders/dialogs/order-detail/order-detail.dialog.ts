@@ -1,14 +1,16 @@
 import { Component, computed, inject, resource, signal }                                       from '@angular/core';
-import { CurrencyPipe, DatePipe, TitleCasePipe }                                               from '@angular/common';
+import { CurrencyPipe, DatePipe, NgClass }                                                     from '@angular/common';
 import { MatButton }                                                                           from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { Order }                                                                               from '@modules/admin/administration/orders/domain/model/order';
 import { MatTableModule }                                                                      from '@angular/material/table';
+import { MatProgressSpinnerModule }                                                            from '@angular/material/progress-spinner';
+import { MatIconModule }                                                                       from '@angular/material/icon';
 import { TranslocoPipe }                                                                       from '@ngneat/transloco';
 import { OrdersService }                                                                       from '@modules/admin/administration/orders/orders.service';
 import { firstValueFrom }                                                                      from 'rxjs';
 import { Invoice }                                                                             from '@modules/admin/administration/invoices/domains/model/invoice';
-import { FuseAlertComponent }                                                                  from '../../../../../../../@fuse/components/alert';
+import { trackByFn }                                                                           from '@libs/ui/utils/utils';
 
 @Component({
     selector   : 'app-order-detail',
@@ -22,8 +24,9 @@ import { FuseAlertComponent }                                                   
         MatButton,
         TranslocoPipe,
         MatDialogClose,
-        TitleCasePipe,
-        FuseAlertComponent,
+        MatProgressSpinnerModule,
+        MatIconModule,
+        NgClass
     ],
     templateUrl: './order-detail.dialog.html'
 })
@@ -47,4 +50,6 @@ export class OrderDetailDialog {
     readonly productsTotal = computed(() => this.orderResource.value().products.reduce((acc, product) => acc + product.quantity * product.unitaryPrice, 0));
 
     findActiveInvoice = (invoices: Invoice[]) => invoices.find((invoice) => invoice.isActive);
+
+    protected readonly trackByFn = trackByFn;
 }

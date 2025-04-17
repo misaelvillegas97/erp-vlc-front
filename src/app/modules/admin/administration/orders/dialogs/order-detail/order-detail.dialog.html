@@ -1,229 +1,262 @@
-<h2 class="text-lg border-b pb-4" mat-dialog-title>Detalle de la orden</h2>
+<h2 class="text-xl font-bold" mat-dialog-title>
+    <div class="flex items-center gap-3">
+        <span class="text-primary">Orden #{{ orderResource.value()?.orderNumber }}</span>
+        @if (orderResource.value()?.status) {
+            <span class="px-3 py-1 text-xs rounded-full"
+                  [ngClass]="{
+                    'bg-green-100 text-green-800': orderResource.value()?.status === 'DELIVERED',
+                    'bg-yellow-100 text-yellow-800': orderResource.value()?.status === 'IN_PROGRESS',
+                    'bg-blue-100 text-blue-800': orderResource.value()?.status === 'PENDING',
+                    'bg-red-100 text-red-800': orderResource.value()?.status === 'CANCELLED'
+                  }">
+                {{ 'enums.order-status.' + orderResource.value()?.status | transloco }}
+            </span>
+        }
+    </div>
+</h2>
+
 <mat-dialog-content class="py-4">
+    @if (orderResource.isLoading()) {
+        <div class="flex justify-center items-center h-64">
+            <mat-spinner [diameter]="40"></mat-spinner>
+        </div>
+    }
+
     @if (!orderResource.isLoading() && orderResource.hasValue()) {
-        @let activeInvoice = orderResource.value().invoices?.length > 0 ? findActiveInvoice(orderResource.value().invoices) : undefined;
-        <div class="hidden sm:block">
-            <table class="w-full text-default sm:table-fixed">
-                <tbody>
-                <tr class="border-b">
-                    <td class="px-4 py-2 font-medium">Número de orden:</td>
-                    <td class="border-r px-4 py-2">{{ orderResource.value().orderNumber }}</td>
+        @let order = orderResource.value();
+        @let activeInvoice = order.invoices?.length > 0 ? findActiveInvoice(order.invoices) : undefined;
 
-                    <td class="px-4 py-2 font-medium">Cliente:</td>
-                    <td class="px-4 py-2">{{ orderResource.value().client?.fantasyName || 'Cliente eliminado' }}</td>
-                </tr>
-                <tr class="border-b">
-                    <td class="px-4 py-2 font-medium">Estado:</td>
-                    <td class="border-r px-4 py-2">{{ 'enums.order-status.' + orderResource.value().status | transloco }}</td>
-
-                    <td class="px-4 py-2 font-medium">Dirección de entrega:</td>
-                    <td class="px-4 py-2 ">{{ orderResource.value().deliveryLocation }}</td>
-                </tr>
-                <tr class="border-b">
-                    <td class="px-4 py-2 font-medium">Fecha de emisión:</td>
-                    <td class="border-r px-4 py-2">{{ orderResource.value().emissionDate | date:'dd/MM/yyyy' }}</td>
-
-                    <td class="px-4 py-2 font-medium">Factura:</td>
-                    <td class="px-4 py-2">{{ activeInvoice ? activeInvoice.invoiceNumber : 'Sin factura' }}</td>
-                </tr>
-                <tr>
-                    <td class="px-4 py-2 font-medium">Fecha de entrega:</td>
-                    <td class="border-r px-4 py-2">{{ orderResource.value().deliveryDate | date:'dd/MM/yyyy' }}</td>
-
-                    <td class="px-4 py-2 font-medium">Estado de factura:</td>
-                    <td class="px-4 py-2">{{ activeInvoice ? ('enums.invoice-status.' + activeInvoice.status | transloco) : 'Sin factura' }}</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- VERSIÓN MÓVIL -->
-        <div class="block sm:hidden">
-            <div class="rounded space-y-2 text-default">
-                <div class="font-normal text-sm">
-                    <span class="font-medium mr-1">Número de orden:</span>
-                    {{ orderResource.value().orderNumber }}
-                </div>
-                <div class="font-normal text-sm">
-                    <span class="font-medium mr-1">Estado:</span>
-                    {{ 'enums.order-status.' + orderResource.value().status | transloco }}
-                </div>
-                <div class="font-normal text-sm">
-                    <span class="font-medium mr-1">Cliente:</span>
-                    {{ orderResource.value().client?.fantasyName || 'Cliente eliminado' }}
-                </div>
-                <div class="font-normal text-sm">
-                    <span class="font-medium mr-1">Fecha de emisión:</span>
-                    <!-- Format: 25 de enero, 2021 -->
-                    {{ orderResource.value().emissionDate | date:'longDate' }}
-                </div>
-                <div class="font-normal text-sm">
-                    <span class="font-medium mr-1">Fecha de entrega:</span>
-                    {{ orderResource.value().deliveryDate | date:'longDate' }}
-                </div>
-                <div class="font-normal text-sm">
-                    <span class="font-medium mr-1">Dirección de entrega:</span>
-                    {{ orderResource.value().deliveryLocation }}
-                </div>
-                <div class="font-normal text-sm">
-                    <span class="font-medium mr-1">Factura:</span>
-                    {{ activeInvoice ? activeInvoice.invoiceNumber : 'Sin factura' }}
-                </div>
-                <div class="font-normal text-sm">
-                    <span class="font-medium mr-1">Estado de factura:</span>
-                    {{ activeInvoice ? ('enums.invoice-status.' + activeInvoice.status | transloco) : 'Sin factura' }}
-                </div>
-            </div>
-        </div>
-
-        <h3 class="text-lg text-default mt-4">Productos en la orden</h3>
-        <hr class="my-2">
-
-        <div class="hidden sm:block overflow-x-auto">
-            <table
-                [dataSource]="orderResource.value().products"
-                class="w-full overflow-y-visible"
-                mat-table
-            >
-                <ng-container matColumnDef="product">
-                    <th *matHeaderCellDef class="bg-hover" mat-header-cell>Producto</th>
-                    <td *matCellDef="let product" mat-cell>{{ product.description }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="quantity">
-                    <th *matHeaderCellDef class="bg-hover" mat-header-cell>Cantidad</th>
-                    <td *matCellDef="let product" mat-cell>{{ product.quantity }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="price">
-                    <th *matHeaderCellDef class="bg-hover" mat-header-cell>Precio unitario</th>
-                    <td *matCellDef="let product" mat-cell>{{ product.unitaryPrice | currency:'CLP':'symbol-narrow' }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="total">
-                    <th *matHeaderCellDef class="bg-hover" mat-header-cell>Total</th>
-                    <td *matCellDef="let product" mat-cell>{{ product.totalPrice | currency:'CLP':'symbol-narrow' }}</td>
-                </ng-container>
-
-                <!-- Footer columns: subtotal, iva and total amount -->
-                <ng-container matColumnDef="col1">
-                    <td *matFooterCellDef mat-footer-cell></td>
-                </ng-container>
-
-                <ng-container matColumnDef="col2">
-                    <td *matFooterCellDef mat-footer-cell></td>
-                </ng-container>
-
-                <ng-container matColumnDef="footerNetAmount">
-                    <td *matFooterCellDef class="text-right font-medium bg-hover" mat-footer-cell>Valor neto:</td>
-                </ng-container>
-
-                <ng-container matColumnDef="footerNetAmountValue">
-                    <td *matFooterCellDef class="bg-hover" mat-footer-cell>{{ productsTotal() | currency:'CLP':'symbol-narrow' }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="footerTaxAmount">
-                    <td *matFooterCellDef class="text-right font-medium bg-hover" mat-footer-cell>IVA:</td>
-                </ng-container>
-
-                <ng-container matColumnDef="footerTaxAmountValue">
-                    <td *matFooterCellDef class="bg-hover" mat-footer-cell>{{ productsTotal() * 0.19 | currency:'CLP':'symbol-narrow' }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="footerTotalAmount">
-                    <td *matFooterCellDef class="text-right font-medium bg-hover" mat-footer-cell>Valor bruto:</td>
-                </ng-container>
-
-                <ng-container matColumnDef="footerTotalAmountValue">
-                    <td *matFooterCellDef class="bg-hover" mat-footer-cell>{{ productsTotal() * 1.19 | currency:'CLP':'symbol-narrow' }}</td>
-                </ng-container>
-
-                <tr *matHeaderRowDef="['product', 'price', 'quantity', 'total']" mat-header-row></tr>
-                <tr *matRowDef="let row; columns: ['product', 'price', 'quantity', 'total']" class="bg-transparent" mat-row></tr>
-                <tr *matFooterRowDef="['col1', 'col2', 'footerNetAmount', 'footerNetAmountValue']" class="bg-transparent h-8" mat-footer-row></tr>
-                <tr *matFooterRowDef="['col1', 'col2', 'footerTaxAmount', 'footerTaxAmountValue']" class="bg-transparent h-8" mat-footer-row></tr>
-                <tr *matFooterRowDef="['col1', 'col2', 'footerTotalAmount', 'footerTotalAmountValue']" class="bg-transparent h-8" mat-footer-row></tr>
-            </table>
-        </div>
-
-        <!-- Versión Móvil -->
-        <div class="block sm:hidden space-y-4">
-            @for (product of orderResource.value().products; track product.id) {
-                <div class="bg-hover shadow rounded p-4 text-default">
-                    <h4 class="font-medium mb-1">
-                        {{ product.description }}
-                    </h4>
-                    <div class="text-sm text-secondary">
-                        <span class="font-semibold">Cantidad:</span> {{ product.quantity }}
+        <!-- Sección de información general -->
+        <div class="mb-6 bg-card rounded-lg shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+                <!-- Columna izquierda -->
+                <div class="space-y-4">
+                    <div class="flex flex-col">
+                        <span class="text-xs text-secondary">Número de orden</span>
+                        <span class="text-base font-medium">{{ order.orderNumber }}</span>
                     </div>
-                    <div class="text-sm text-secondary">
-                        <span class="font-semibold">Precio unitario:</span>
-                        {{ product.unitaryPrice | currency:'CLP':'symbol-narrow' }}
+
+                    <div class="flex flex-col">
+                        <span class="text-xs text-secondary">Cliente</span>
+                        <span class="text-base font-medium">{{ order.client?.fantasyName || 'Cliente eliminado' }}</span>
                     </div>
-                    <div class="text-sm text-secondary">
-                        <span class="font-semibold">Total:</span>
-                        {{ product.totalPrice | currency:'CLP':'symbol-narrow' }}
+
+                    <div class="flex flex-col">
+                        <span class="text-xs text-secondary">Estado de la orden</span>
+                        <span class="text-base font-medium">{{ 'enums.order-status.' + order.status | transloco }}</span>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <span class="text-xs text-secondary">Dirección de entrega</span>
+                        <span class="text-base font-medium">{{ order.deliveryLocation }}</span>
                     </div>
                 </div>
-            }
 
-            <!-- Totales (Net, IVA, Total) en móvil -->
-            <div class="">
-                <div class="flex justify-between text-sm mb-2 border-b">
-                    <span class="font-semibold">Valor neto:</span>
-                    <span>{{ productsTotal() | currency:'CLP':'symbol-narrow' }}</span>
-                </div>
-                <div class="flex justify-between text-sm mb-2 border-b">
-                    <span class="font-semibold">IVA:</span>
-                    <span>{{ productsTotal() * 0.19 | currency:'CLP':'symbol-narrow' }}</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                    <span class="font-semibold">Valor bruto:</span>
-                    <span>{{ productsTotal() * 1.19 | currency:'CLP':'symbol-narrow' }}</span>
-                </div>
-            </div>
-        </div>
-
-        <h3 class="text-lg text-default mt-4">Observaciones</h3>
-        <hr class="my-2">
-        <div class="flex flex-col gap-4">
-            @for (observation of orderResource.value().observations; track observation.id) {
-                <fuse-alert type="basic" appearance="border" showIcon="false" class="w-full">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="font-medium">Observación</span>
-                        <span class="text-xs text-secondary">
-                        {{ observation.createdAt | date:'dd/MM/yyyy HH:mm' }}
-                    </span>
+                <!-- Columna derecha -->
+                <div class="space-y-4">
+                    <div class="flex flex-col">
+                        <span class="text-xs text-secondary">Fecha de emisión</span>
+                        <span class="text-base font-medium">{{ order.emissionDate | date:'dd MMMM yyyy' }}</span>
                     </div>
-                    <!-- Texto de la observación -->
-                    <p class="whitespace-pre-wrap mb-2 prose">{{ observation.observation }}</p>
-                    <!-- Información adicional -->
-                    @if (observation.metadata) {
-                        <div class="text-sm text-secondary">
-                            <span class="font-medium">Origen:</span>
-                            {{ 'origins.' + observation.metadata.origin | transloco | titlecase }}
-                            @if (observation.metadata.origin === 'invoice' && observation.metadata.invoice) {
-                                <span class="mx-2">|</span>
-                                <span class="font-medium">Factura:</span>
-                                {{ observation.metadata.invoice.invoiceNumber }}
-                                <span class="mx-2">|</span>
-                                <span class="font-medium">Estado:</span>
-                                {{ 'enums.invoice-status.' + observation.metadata.invoice.status | transloco }}
-                                @if (observation.metadata.invoice.paymentDate) {
-                                    <span class="mx-2">|</span>
-                                    <span class="font-medium">Pago:</span>
-                                    {{ observation.metadata.invoice.paymentDate | date:'dd/MM/yyyy' }}
-                                }
+
+                    <div class="flex flex-col">
+                        <span class="text-xs text-secondary">Fecha de entrega</span>
+                        <span class="text-base font-medium">{{ order.deliveryDate | date:'dd MMMM yyyy' }}</span>
+                    </div>
+
+                    @if (activeInvoice) {
+                        <div class="mt-2 p-3 bg-primary/10 rounded-md">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs text-secondary">Factura asociada</span>
+                                <span class="px-2 py-1 text-xs rounded-full"
+                                      [ngClass]="{
+                                        'bg-green-100 text-green-800': activeInvoice.status === 'PAID',
+                                        'bg-yellow-100 text-yellow-800': activeInvoice.status === 'PARTIALLY_PAID',
+                                        'bg-red-100 text-red-800': activeInvoice.status === 'UNPAID',
+                                        'bg-blue-100 text-blue-800': activeInvoice.status === 'VOIDED'
+                                      }">
+                                    {{ 'enums.invoice-status.' + activeInvoice.status | transloco }}
+                                </span>
+                            </div>
+                            <div class="text-base font-medium">#{{ activeInvoice.invoiceNumber }}</div>
+
+                            @if (activeInvoice.paymentDate) {
+                                <div class="mt-1 text-xs text-secondary">
+                                    <span>Pagada el: {{ activeInvoice.paymentDate | date:'dd/MM/yyyy' }}</span>
+                                </div>
                             }
                         </div>
+                    } @else {
+                        <div class="mt-2 p-3 bg-hover rounded-md">
+                            <div class="flex items-center gap-2">
+                                <mat-icon class="text-secondary">receipt_long</mat-icon>
+                                <span class="text-secondary">Sin factura asociada</span>
+                            </div>
+                        </div>
                     }
-                </fuse-alert>
-            } @empty {
-                <p class="mat-hint italic">No hay observaciones</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de productos -->
+        <div class="mb-6">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-semibold text-default">Productos</h3>
+                <span class="text-xs text-secondary">{{ order.products.length }} ítem(s)</span>
+            </div>
+
+            <!-- Tabla de productos (vista escritorio) -->
+            <div class="hidden md:block overflow-hidden rounded-lg border shadow-sm">
+                <table
+                    [dataSource]="order.products"
+                    [trackBy]="trackByFn"
+                    class="w-full"
+                    mat-table
+                >
+                    <ng-container matColumnDef="product">
+                        <th *matHeaderCellDef mat-header-cell class="bg-hover">Producto</th>
+                        <td *matCellDef="let product" mat-cell class="py-3">{{ product.description }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="quantity">
+                        <th *matHeaderCellDef mat-header-cell class="bg-hover text-center">Cantidad</th>
+                        <td *matCellDef="let product" mat-cell class="text-center">{{ product.quantity }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="price">
+                        <th *matHeaderCellDef mat-header-cell class="bg-hover text-right">Precio unitario</th>
+                        <td *matCellDef="let product" mat-cell class="text-right">{{ product.unitaryPrice | currency:'CLP':'symbol-narrow' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="total">
+                        <th *matHeaderCellDef mat-header-cell class="bg-hover text-right">Total</th>
+                        <td *matCellDef="let product" mat-cell class="text-right font-medium">{{ product.totalPrice | currency:'CLP':'symbol-narrow' }}</td>
+                    </ng-container>
+
+                    <tr *matHeaderRowDef="['product', 'quantity', 'price', 'total']" mat-header-row></tr>
+                    <tr *matRowDef="let row; columns: ['product', 'quantity', 'price', 'total']" class="hover:bg-hover" mat-row></tr>
+                </table>
+            </div>
+
+            <!-- Productos (vista móvil) -->
+            <div class="md:hidden space-y-3">
+                @for (product of order.products; track product.id) {
+                    <div class="bg-card shadow-sm rounded-lg p-4 border-l-4 border-primary">
+                        <h4 class="font-medium mb-2 line-clamp-2">
+                            {{ product.description }}
+                        </h4>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                                <span class="text-secondary">Cantidad:</span>
+                                <span class="ml-1 font-medium">{{ product.quantity }}</span>
+                            </div>
+                            <div>
+                                <span class="text-secondary">Precio:</span>
+                                <span class="ml-1 font-medium">{{ product.unitaryPrice | currency:'CLP':'symbol-narrow' }}</span>
+                            </div>
+                            <div class="col-span-2">
+                                <span class="text-secondary">Total:</span>
+                                <span class="ml-1 font-medium">{{ product.totalPrice | currency:'CLP':'symbol-narrow' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Resumen de totales -->
+            <div class="mt-4 border-t pt-4">
+                <div class="flex flex-col gap-2 max-w-xs ml-auto">
+                    <div class="flex justify-between">
+                        <span class="text-secondary">Valor neto:</span>
+                        <span>{{ productsTotal() | currency:'CLP':'symbol-narrow' }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-secondary">IVA (19%):</span>
+                        <span>{{ productsTotal() * 0.19 | currency:'CLP':'symbol-narrow' }}</span>
+                    </div>
+                    <div class="flex justify-between font-medium border-t pt-1 mt-1">
+                        <span>Total:</span>
+                        <span class="text-primary">{{ productsTotal() * 1.19 | currency:'CLP':'symbol-narrow' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de observaciones -->
+        <div class="mb-6">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-semibold text-default">Observaciones</h3>
+                <span class="text-xs text-secondary">{{ order.observations.length }} registro(s)</span>
+            </div>
+
+            @if (order.observations.length > 0) {
+                <div class="space-y-4">
+                    @for (observation of order.observations; track observation.id) {
+                        <div class="bg-card rounded-lg shadow-sm overflow-hidden">
+                            <div class="bg-hover px-4 py-2 flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-secondary text-sm">comment</mat-icon>
+                                    <span class="font-medium">Observación</span>
+                                </div>
+                                <span class="text-xs text-secondary">
+                                    {{ observation.createdAt | date:'dd/MM/yyyy HH:mm' }}
+                                </span>
+                            </div>
+
+                            <div class="p-4">
+                                <!-- Texto de la observación -->
+                                <p class="whitespace-pre-wrap mb-4 prose">{{ observation.observation }}</p>
+
+                                <!-- Metadata -->
+                                @if (observation.metadata) {
+                                    <div class="bg-hover rounded p-3 text-sm flex flex-wrap gap-x-4 gap-y-2 text-secondary">
+                                        <div class="flex items-center gap-1">
+                                            <span class="font-medium">Origen:</span>
+                                            <span>{{ 'origins.' + observation.metadata.origin | transloco }}</span>
+                                        </div>
+
+                                        @if (observation.metadata.origin === 'invoice' && observation.metadata.invoice) {
+                                            <div class="flex items-center gap-1">
+                                                <span class="font-medium">Factura:</span>
+                                                <span>#{{ observation.metadata.invoice.invoiceNumber }}</span>
+                                            </div>
+
+                                            <div class="flex items-center gap-1">
+                                                <span class="font-medium">Estado:</span>
+                                                <span class="px-2 py-0.5 text-xs rounded-full"
+                                                      [ngClass]="{
+                                                        'bg-green-100 text-green-800': observation.metadata.invoice.status === 'PAID',
+                                                        'bg-yellow-100 text-yellow-800': observation.metadata.invoice.status === 'PARTIALLY_PAID',
+                                                        'bg-red-100 text-red-800': observation.metadata.invoice.status === 'UNPAID',
+                                                        'bg-blue-100 text-blue-800': observation.metadata.invoice.status === 'VOIDED'
+                                                      }">
+                                                    {{ 'enums.invoice-status.' + observation.metadata.invoice.status | transloco }}
+                                                </span>
+                                            </div>
+
+                                            @if (observation.metadata.invoice.paymentDate) {
+                                                <div class="flex items-center gap-1">
+                                                    <span class="font-medium">Fecha de pago:</span>
+                                                    <span>{{ observation.metadata.invoice.paymentDate | date:'dd/MM/yyyy' }}</span>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            } @else {
+                <div class="bg-hover rounded-lg p-6 text-center text-secondary">
+                    <mat-icon class="text-4xl mb-2 opacity-50">notes</mat-icon>
+                    <p>No hay observaciones registradas para esta orden</p>
+                </div>
             }
         </div>
     }
 </mat-dialog-content>
-<mat-dialog-actions align="end" class="">
-    <button color="default" mat-button mat-dialog-close>Cerrar</button>
+
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cerrar</button>
 </mat-dialog-actions>
