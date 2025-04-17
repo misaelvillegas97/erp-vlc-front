@@ -1,73 +1,99 @@
-import { Routes } from '@angular/router';
+import { Routes }              from '@angular/router';
+import { AccountingComponent } from './accounting.component';
 
 export default [
     {
-        path         : '',
-        loadComponent: () => import('./accounting.component').then(m => m.AccountingComponent),
-        children     : [
+        path     : '',
+        component: AccountingComponent,
+        children : [
+            {
+                path      : '',
+                pathMatch : 'full',
+                redirectTo: 'dashboard'
+            },
             {
                 path         : 'dashboard',
-                loadComponent: () =>
-                    import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
-                title        : 'Dashboard Principal'
+                loadComponent: () => import('./pages/dashboard/dashboard.component').then(c => c.DashboardComponent),
+                data         : {breadcrumb: 'Dashboard'}
             },
+            // Cuentas por Pagar (Payables)
             {
                 path    : 'payables',
                 children: [
                     {
+                        path      : '',
+                        pathMatch : 'full',
+                        redirectTo: 'list'
+                    },
+                    {
                         path         : 'list',
-                        loadComponent: () =>
-                            import('./pages/payables/list/list.component').then(m => m.ListComponent),
-                        title        : 'Listado de Facturas - Cuentas por Pagar'
+                        loadComponent: () => import('./pages/payables/list/list.component').then(c => c.ListComponent),
+                        data         : {breadcrumb: 'Cuentas por Pagar'}
                     },
                     {
                         path         : 'new',
-                        loadComponent: () =>
-                            import('./pages/payables/create/create.component').then(m => m.CreateComponent),
-                        title        : 'Registro de Nueva Factura - Cuentas por Pagar'
+                        loadComponent: () => import('./pages/payables/create/create.component').then(c => c.CreateComponent),
+                        data         : {breadcrumb: 'Crear Cuenta por Pagar'}
                     },
                     {
-                        path         : 'detail/:id',
-                        loadComponent: () =>
-                            import('./pages/payables/detail/detail.component').then(m => m.DetailComponent),
-                        title        : 'Detalle de Factura - Cuentas por Pagar'
+                        path         : ':id',
+                        loadComponent: () => import('./pages/payables/detail/detail.component').then(c => c.DetailComponent),
+                        data         : {breadcrumb: 'Detalle de Cuenta por Pagar'}
                     }
                 ]
             },
+            // Cuentas por Cobrar (Receivables)
             {
                 path    : 'receivables',
                 children: [
                     {
+                        path      : '',
+                        pathMatch : 'full',
+                        redirectTo: 'list'
+                    },
+                    {
                         path         : 'list',
-                        loadComponent: () =>
-                            import('./pages/receivables/list/list.component').then(m => m.ListComponent),
-                        title        : 'Listado de Facturas - Cuentas por Cobrar'
+                        loadComponent: () => import('./pages/receivables/list/list.component').then(c => c.ListComponent),
+                        data         : {breadcrumb: 'Cuentas por Cobrar'}
                     },
                     {
                         path         : 'new',
-                        loadComponent: () =>
-                            import('./pages/receivables/new/new.component').then(m => m.NewComponent),
-                        title        : 'Generar Factura - Cuentas por Cobrar'
+                        loadComponent: () => import('./pages/receivables/new/new.component').then(c => c.NewComponent),
+                        data         : {breadcrumb: 'Crear Cuenta por Cobrar'}
                     },
                     {
                         path         : 'detail/:id',
-                        loadComponent: () =>
-                            import('./pages/receivables/detail/detail.component').then(m => m.DetailComponent),
-                        title        : 'Detalle de Factura - Cuentas por Cobrar'
+                        loadComponent: () => import('./pages/receivables/detail/detail.component').then(c => c.DetailComponent),
+                        data         : {breadcrumb: 'Detalle de Cuenta por Cobrar'}
                     }
                 ]
             },
+            // Bancos y Transferencias (Banking)
             {
-                path    : 'bank',
+                path    : 'banking',
                 children: [
                     {
+                        path      : '',
+                        pathMatch : 'full',
+                        redirectTo: 'accounts'
+                    },
+                    {
+                        path         : 'accounts',
+                        loadComponent: () => import('./pages/bank/accounts/accounts.component').then(c => c.BankAccountsComponent),
+                        data         : {breadcrumb: 'Cuentas Bancarias'}
+                    },
+                    {
                         path         : 'transfers',
-                        loadComponent: () =>
-                            import('./pages/bank/transfers/transfers.component').then(m => m.TransfersComponent),
-                        title        : 'Transferencias'
+                        loadComponent: () => import('./pages/bank/transfers/transfers.component').then(c => c.TransfersComponent),
+                        data         : {breadcrumb: 'Transferencias'}
+                    },
+                    {
+                        path         : 'transactions',
+                        loadComponent: () => import('./pages/bank/transactions/transactions.component').then(c => c.TransactionsComponent),
+                        data         : {breadcrumb: 'Transacciones Bancarias'}
                     }
                 ]
             }
         ]
     }
-] satisfies Routes;
+] as Routes;

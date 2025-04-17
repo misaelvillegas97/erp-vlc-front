@@ -78,7 +78,13 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         link: '/operations/accounting/bank/list',
                         icon: 'heroicons_outline:banknotes'
-                    }
+                    },
+                    {
+                        id  : 'operations.accounting.reports',
+                        type: 'basic',
+                        link: '/operations/accounting/reports',
+                        icon: 'heroicons_outline:document-report'
+                    },
                 ]
             },
             {

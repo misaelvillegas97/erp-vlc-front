@@ -1,1 +1,163 @@
-<p>transfers works!</p>
+<div *transloco="let t; read: 'operations.accounting.banking'" class="flex flex-col min-w-0 w-full">
+    <page-detail-header
+        [subtitle]="'Gestione transferencias entre sus cuentas bancarias'"
+        [title]="'Transferencias Bancarias'"
+    ></page-detail-header>
+
+    <div class="flex-1 flex flex-col w-full max-w-7xl mx-auto py-8 px-4">
+        <!-- Formulario de transferencia -->
+        <mat-card class="mb-8">
+            <mat-card-header>
+                <mat-card-title>{{ isEditing ? 'Editar Transferencia' : 'Nueva Transferencia' }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <form (ngSubmit)="onSubmit()" [formGroup]="transferForm" class="mt-4">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                        <!-- Fecha de transferencia -->
+                        <mat-form-field class="w-full md:col-span-4 fuse-mat-dense">
+                            <mat-label>Fecha</mat-label>
+                            <input [matDatepicker]="datePicker" formControlName="date" matInput>
+                            <mat-datepicker-toggle [for]="datePicker" matSuffix></mat-datepicker-toggle>
+                            <mat-datepicker #datePicker></mat-datepicker>
+                            <mat-hint>Fecha de la transferencia</mat-hint>
+                        </mat-form-field>
+
+                        <!-- Cuenta de origen -->
+                        <mat-form-field class="w-full md:col-span-4 fuse-mat-dense">
+                            <mat-label>Cuenta de Origen</mat-label>
+                            <mat-select formControlName="fromAccountId">
+                                @for (account of accountsResource.value(); track account) {
+                                    <mat-option [value]="account.id">
+                                        {{ account.bankName }} - {{ account.accountNumber }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                            <mat-hint>Seleccione la cuenta de donde saldrán los fondos</mat-hint>
+                        </mat-form-field>
+
+                        <!-- Cuenta de destino -->
+                        <mat-form-field class="w-full md:col-span-4 fuse-mat-dense">
+                            <mat-label>Cuenta de Destino</mat-label>
+                            <mat-select formControlName="toAccountId">
+                                @for (account of accountsResource.value(); track account) {
+                                    <mat-option [value]="account.id">
+                                        {{ account.bankName }} - {{ account.accountNumber }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                            <mat-hint>Seleccione la cuenta que recibirá los fondos</mat-hint>
+                        </mat-form-field>
+
+                        <!-- Monto -->
+                        <mat-form-field class="w-full md:col-span-6 fuse-mat-dense">
+                            <mat-label>Monto</mat-label>
+                            <input formControlName="amount" matInput type="number" min="1">
+                            <mat-hint>Ingrese el monto a transferir</mat-hint>
+                        </mat-form-field>
+
+                        <!-- Estado -->
+                        <mat-form-field class="w-full md:col-span-6 fuse-mat-dense">
+                            <mat-label>Estado</mat-label>
+                            <mat-select formControlName="status">
+                                <mat-option value="scheduled">Programada</mat-option>
+                                <mat-option value="completed">Completada</mat-option>
+                                <mat-option value="failed">Fallida</mat-option>
+                            </mat-select>
+                            <mat-hint>Estado actual de la transferencia</mat-hint>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="flex justify-end gap-2 mt-4">
+                        <button *ngIf="isEditing"
+                                (click)="resetForm()"
+                                type="button"
+                                mat-button
+                                color="warn">
+                            Cancelar
+                        </button>
+                        <loader-button
+                            [buttonType]="'submit'"
+                            [disable]="transferForm.invalid"
+                            [loading]="false"
+                            [color]="'primary'"
+                            [label]="isEditing ? 'Actualizar Transferencia' : 'Crear Transferencia'"
+                        ></loader-button>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Lista de transferencias -->
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>Historial de Transferencias</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="overflow-auto">
+                    <table mat-table [dataSource]="transfers" class="w-full">
+                        <!-- Columna Fecha -->
+                        <ng-container matColumnDef="date">
+                            <th mat-header-cell *matHeaderCellDef> Fecha</th>
+                            <td mat-cell *matCellDef="let transfer"> {{ transfer.date | date:'dd/MM/yyyy' }}</td>
+                        </ng-container>
+
+                        <!-- Columna Cuenta Origen -->
+                        <ng-container matColumnDef="fromAccount">
+                            <th mat-header-cell *matHeaderCellDef> Origen</th>
+                            <td mat-cell *matCellDef="let transfer"> {{ transfer.fromAccount }}</td>
+                        </ng-container>
+
+                        <!-- Columna Cuenta Destino -->
+                        <ng-container matColumnDef="toAccount">
+                            <th mat-header-cell *matHeaderCellDef> Destino</th>
+                            <td mat-cell *matCellDef="let transfer"> {{ transfer.toAccount }}</td>
+                        </ng-container>
+
+                        <!-- Columna Monto -->
+                        <ng-container matColumnDef="amount">
+                            <th mat-header-cell *matHeaderCellDef> Monto</th>
+                            <td mat-cell *matCellDef="let transfer"> {{ transfer.amount | currency }}</td>
+                        </ng-container>
+
+                        <!-- Columna Estado -->
+                        <ng-container matColumnDef="status">
+                            <th mat-header-cell *matHeaderCellDef> Estado</th>
+                            <td mat-cell *matCellDef="let transfer"> 
+                                <span [ngClass]="{'text-green-600': transfer.status === 'completed', 
+                                                  'text-amber-600': transfer.status === 'scheduled',
+                                                  'text-red-600': transfer.status === 'failed'}">
+                                    <span *ngIf="transfer.status === 'completed'">Completada</span>
+                                    <span *ngIf="transfer.status === 'scheduled'">Programada</span>
+                                    <span *ngIf="transfer.status === 'failed'">Fallida</span>
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Columna Acciones -->
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef> Acciones</th>
+                            <td mat-cell *matCellDef="let transfer">
+                                <button mat-icon-button color="primary" (click)="editTransfer(transfer)">
+                                    <mat-icon svgIcon="heroicons_outline:pencil"></mat-icon>
+                                </button>
+                                <button mat-icon-button color="warn" (click)="deleteTransfer(transfer.id)">
+                                    <mat-icon svgIcon="heroicons_outline:trash"></mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                        <!-- Fila para cuando no hay datos -->
+                        <tr class="mat-row" *matNoDataRow>
+                            <td class="mat-cell text-center py-10" [attr.colspan]="displayedColumns.length">
+                                No hay transferencias registradas
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

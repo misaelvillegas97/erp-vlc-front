@@ -1,0 +1,141 @@
+<div *transloco="let t; read: 'operations.accounting.banking'" class="flex flex-col min-w-0 w-full">
+    <page-detail-header
+        [subtitle]="'Administre las cuentas bancarias de la empresa'"
+        [title]="'Gestión de Bancos'"
+    ></page-detail-header>
+
+    <div class="flex-1 flex flex-col w-full max-w-7xl mx-auto py-8 px-4">
+        <!-- Formulario de creación/edición de cuenta bancaria -->
+        <mat-card class="mb-8">
+            <mat-card-header>
+                <mat-card-title>{{ isEditing ? 'Editar Cuenta Bancaria' : 'Nueva Cuenta Bancaria' }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <form (ngSubmit)="onSubmit()" [formGroup]="accountForm" class="mt-4">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                        <!-- Nombre del Banco -->
+                        <mat-form-field class="w-full md:col-span-4 fuse-mat-dense">
+                            <mat-label>Nombre del Banco</mat-label>
+                            <input formControlName="bankName" matInput placeholder="Ej. Banco Santander">
+                            <mat-hint>Ingrese el nombre de la institución bancaria</mat-hint>
+                        </mat-form-field>
+
+                        <!-- Número de Cuenta -->
+                        <mat-form-field class="w-full md:col-span-4 fuse-mat-dense">
+                            <mat-label>Número de Cuenta</mat-label>
+                            <input formControlName="accountNumber" matInput placeholder="Ej. 1234-5678-9012">
+                            <mat-hint>Ingrese el número de la cuenta bancaria</mat-hint>
+                        </mat-form-field>
+
+                        <!-- Tipo de Cuenta -->
+                        <mat-form-field class="w-full md:col-span-4 fuse-mat-dense">
+                            <mat-label>Tipo de Cuenta</mat-label>
+                            <mat-select formControlName="accountType">
+                                @for (type of accountTypes; track type) {
+                                    <mat-option [value]="type.value">
+                                        {{ type.label }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                            <mat-hint>Seleccione el tipo de cuenta bancaria</mat-hint>
+                        </mat-form-field>
+
+                        <!-- Saldo -->
+                        <mat-form-field class="w-full md:col-span-4 fuse-mat-dense">
+                            <mat-label>Saldo Inicial</mat-label>
+                            <input formControlName="balance" matInput placeholder="Ej. 1000" type="number">
+                            <mat-hint>Ingrese el saldo inicial de la cuenta</mat-hint>
+                        </mat-form-field>
+
+                        <!-- Descripción -->
+                        <mat-form-field class="w-full md:col-span-8 fuse-mat-dense">
+                            <mat-label>Descripción</mat-label>
+                            <textarea formControlName="description" matInput placeholder="Notas adicionales sobre esta cuenta"></textarea>
+                            <mat-hint>Información adicional sobre la cuenta bancaria (opcional)</mat-hint>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="flex justify-end gap-2">
+                        <button *ngIf="isEditing"
+                                (click)="resetForm()"
+                                type="button"
+                                mat-button
+                                color="warn">
+                            Cancelar
+                        </button>
+                        <loader-button
+                            [buttonType]="'submit'"
+                            [disable]="accountForm.invalid"
+                            [loading]="accountForm.disabled"
+                            [color]="'primary'"
+                            [label]="isEditing ? 'Actualizar Cuenta' : 'Crear Cuenta'"
+                        ></loader-button>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Lista de cuentas bancarias -->
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>Cuentas Bancarias</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="overflow-auto">
+                    <table mat-table [dataSource]="dataSource" class="w-full">
+                        <!-- Columna Banco -->
+                        <ng-container matColumnDef="bankName">
+                            <th mat-header-cell *matHeaderCellDef> Banco</th>
+                            <td mat-cell *matCellDef="let account"> {{ account.bankName }}</td>
+                        </ng-container>
+
+                        <!-- Columna Número de cuenta -->
+                        <ng-container matColumnDef="accountNumber">
+                            <th mat-header-cell *matHeaderCellDef> Número de cuenta</th>
+                            <td mat-cell *matCellDef="let account"> {{ account.accountNumber }}</td>
+                        </ng-container>
+
+                        <!-- Columna Tipo -->
+                        <ng-container matColumnDef="accountType">
+                            <th mat-header-cell *matHeaderCellDef> Tipo</th>
+                            <td mat-cell *matCellDef="let account">
+                                <span *ngIf="account.accountType === 'checking'">Cuenta Corriente</span>
+                                <span *ngIf="account.accountType === 'savings'">Cuenta de Ahorro</span>
+                                <span *ngIf="account.accountType === 'investment'">Cuenta de Inversión</span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Columna Saldo -->
+                        <ng-container matColumnDef="balance">
+                            <th mat-header-cell *matHeaderCellDef> Saldo</th>
+                            <td mat-cell *matCellDef="let account"> {{ account.balance | currency }}</td>
+                        </ng-container>
+
+                        <!-- Columna Acciones -->
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef> Acciones</th>
+                            <td mat-cell *matCellDef="let account">
+                                <button mat-icon-button color="primary" (click)="editAccount(account)">
+                                    <mat-icon svgIcon="heroicons_outline:pencil"></mat-icon>
+                                </button>
+                                <button mat-icon-button color="warn" (click)="deleteAccount(account.id)">
+                                    <mat-icon svgIcon="heroicons_outline:trash"></mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                        <!-- Fila para cuando no hay datos -->
+                        <tr class="mat-row" *matNoDataRow>
+                            <td class="mat-cell text-center py-10" [attr.colspan]="displayedColumns.length">
+                                No hay cuentas bancarias registradas
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

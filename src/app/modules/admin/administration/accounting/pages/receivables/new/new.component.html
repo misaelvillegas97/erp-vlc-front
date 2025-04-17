@@ -1,1 +1,115 @@
-<p>new works!</p>
+<div *transloco="let t; read: 'operations.accounting.receivables.new'" class="flex flex-col min-w-0 w-full">
+    <page-detail-header
+        [subtitle]="'Registre facturas emitidas a clientes'"
+        [title]="'Nueva Cuenta por Cobrar'"
+    ></page-detail-header>
+
+    <div class="flex-1 flex flex-col w-full max-w-5xl mx-auto py-4 px-4">
+        <form (ngSubmit)="onSubmit()" [formGroup]="form" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <!-- Selector de Cliente -->
+                <mat-form-field class="w-full md:col-span-6 fuse-mat-dense" floatLabel="always">
+                    <mat-label>Cliente</mat-label>
+                    <mat-select formControlName="customerId" placeholder="Seleccione un cliente" (selectionChange)="onCustomerChange($event)">
+                        @for (customer of customersResource.value(); track customer) {
+                            <mat-option [value]="customer.id">
+                                {{ customer.businessName || customer.name }}
+                            </mat-option>
+                        }
+                    </mat-select>
+                    <mat-hint>Seleccione el cliente para la factura</mat-hint>
+                </mat-form-field>
+
+                <!-- Número de Factura -->
+                <mat-form-field class="w-full md:col-span-6 fuse-mat-dense">
+                    <mat-label>Número de Factura</mat-label>
+                    <input formControlName="invoiceNumber" matInput placeholder="Ej. FAC-001">
+                    <mat-hint>Ingrese un número único para la factura</mat-hint>
+                </mat-form-field>
+
+                <!-- Estado de la Factura -->
+                <mat-form-field class="w-full md:col-span-6 fuse-mat-dense">
+                    <mat-label>Estado</mat-label>
+                    <mat-select formControlName="status" placeholder="Seleccione un estado">
+                        @for (status of CustomerInvoiceStatusEnums; track status) {
+                            <mat-option [value]="status">
+                                {{ status }}
+                            </mat-option>
+                        }
+                    </mat-select>
+                    <mat-hint>Estado actual de la factura</mat-hint>
+                </mat-form-field>
+
+                <!-- Fecha de Emisión -->
+                <mat-form-field class="w-full md:col-span-6 fuse-mat-dense">
+                    <mat-label>Fecha de Emisión</mat-label>
+                    <input [matDatepicker]="picker1" formControlName="issueDate" matInput placeholder="Seleccione la fecha">
+                    <mat-datepicker-toggle [for]="picker1" matSuffix></mat-datepicker-toggle>
+                    <mat-datepicker #picker1></mat-datepicker>
+                    <mat-hint>La fecha de emisión de la factura</mat-hint>
+                </mat-form-field>
+
+                <!-- Fecha de Vencimiento -->
+                <mat-form-field class="w-full md:col-span-6 fuse-mat-dense">
+                    <mat-label>Fecha de Vencimiento</mat-label>
+                    <input [matDatepicker]="picker2" formControlName="dueDate" matInput placeholder="Seleccione la fecha de vencimiento">
+                    <mat-datepicker-toggle [for]="picker2" matSuffix></mat-datepicker-toggle>
+                    <mat-datepicker #picker2></mat-datepicker>
+                    <mat-hint>Ingrese la fecha en la que vence la factura</mat-hint>
+                </mat-form-field>
+
+                <!-- Monto Neto -->
+                <mat-form-field class="w-full md:col-span-3 fuse-mat-dense">
+                    <mat-label>Monto Neto</mat-label>
+                    <input formControlName="netAmount" matInput placeholder="Ej. 1000" type="number">
+                    <mat-hint>Ingrese el monto neto antes de impuestos</mat-hint>
+                </mat-form-field>
+
+                <!-- Exempt -->
+                <div class="w-full flex flex-col md:justify-end md:col-span-3">
+                    <mat-checkbox class="w-full" formControlName="isExempt">
+                        <span>Exento</span>
+                    </mat-checkbox>
+                    <mat-hint class="mat-hint">Factura excenta de impuestos</mat-hint>
+                </div>
+
+                <!-- Monto de Impuesto (IVA 19%) -->
+                <mat-form-field class="w-full md:col-span-3 fuse-mat-dense">
+                    <mat-label>Monto de Impuesto (IVA 19%)</mat-label>
+                    <input readonly matInput placeholder="Calculado automáticamente" type="number" [value]="amountCalc().taxAmount">
+                    <mat-hint>El monto del impuesto se calcula automáticamente</mat-hint>
+                </mat-form-field>
+
+                <!-- Monto Bruto -->
+                <mat-form-field class="w-full md:col-span-3 fuse-mat-dense">
+                    <mat-label>Monto Bruto</mat-label>
+                    <input readonly matInput placeholder="Calculado automáticamente" type="number" [value]="amountCalc().grossAmount">
+                    <mat-hint>El monto bruto se calcula automáticamente (neto + impuesto)</mat-hint>
+                </mat-form-field>
+
+                <!-- Descripción -->
+                <mat-form-field class="w-full md:col-span-12 fuse-mat-dense">
+                    <mat-label>Descripción</mat-label>
+                    <textarea formControlName="description" matInput placeholder="Ingrese una descripción breve"></textarea>
+                    <mat-hint>Información adicional sobre la factura</mat-hint>
+                </mat-form-field>
+
+                <!-- Observaciones -->
+                <mat-form-field class="w-full md:col-span-12 fuse-mat-dense">
+                    <mat-label>Observaciones</mat-label>
+                    <textarea formControlName="observations" matInput placeholder="Ingrese observaciones adicionales"></textarea>
+                    <mat-hint>Notas u observaciones pertinentes a la factura</mat-hint>
+                </mat-form-field>
+            </div>
+
+            <div class="flex justify-end">
+                <loader-button [buttonType]="'submit'"
+                               [disable]="form.invalid"
+                               [loading]="form.disabled"
+                               [color]="'primary'"
+                               [label]="'Crear Factura'"
+                ></loader-button>
+            </div>
+        </form>
+    </div>
+</div>

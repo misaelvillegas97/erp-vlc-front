@@ -1,0 +1,137 @@
+<div *transloco="let t; read: 'operations.accounting.banking'" class="flex flex-col min-w-0 w-full">
+    <page-detail-header
+        [subtitle]="'Registre y visualice los movimientos bancarios'"
+        [title]="'Transacciones Bancarias'"
+    ></page-detail-header>
+
+    <div class="flex-1 flex flex-col w-full max-w-7xl mx-auto py-8 px-4">
+        <!-- Formulario de registro de transacción -->
+        <mat-card class="mb-8">
+            <mat-card-header>
+                <mat-card-title>Registrar Nueva Transacción</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <form (ngSubmit)="onSubmit()" [formGroup]="transactionForm" class="mt-4">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                        <!-- Cuenta bancaria -->
+                        <mat-form-field class="w-full md:col-span-6 fuse-mat-dense">
+                            <mat-label>Cuenta Bancaria</mat-label>
+                            <mat-select formControlName="accountId">
+                                @for (account of accountsResource.value(); track account) {
+                                    <mat-option [value]="account.id">
+                                        {{ account.bankName }} - {{ account.accountNumber }} ({{ account.balance | currency }})
+                                    </mat-option>
+                                }
+                            </mat-select>
+                            <mat-hint>Seleccione la cuenta bancaria afectada</mat-hint>
+                        </mat-form-field>
+
+                        <!-- Fecha de la transacción -->
+                        <mat-form-field class="w-full md:col-span-6 fuse-mat-dense">
+                            <mat-label>Fecha</mat-label>
+                            <input [matDatepicker]="datePicker" formControlName="date" matInput>
+                            <mat-datepicker-toggle [for]="datePicker" matSuffix></mat-datepicker-toggle>
+                            <mat-datepicker #datePicker></mat-datepicker>
+                            <mat-hint>Fecha de la transacción</mat-hint>
+                        </mat-form-field>
+
+                        <!-- Descripción -->
+                        <mat-form-field class="w-full md:col-span-12 fuse-mat-dense">
+                            <mat-label>Descripción</mat-label>
+                            <input formControlName="description" matInput placeholder="Ej. Pago a proveedor XYZ">
+                            <mat-hint>Ingrese una descripción detallada de la transacción</mat-hint>
+                        </mat-form-field>
+
+                        <!-- Monto -->
+                        <mat-form-field class="w-full md:col-span-6 fuse-mat-dense">
+                            <mat-label>Monto</mat-label>
+                            <input formControlName="amount" matInput type="number" min="1">
+                            <mat-hint>Ingrese el monto de la transacción</mat-hint>
+                        </mat-form-field>
+
+                        <!-- Tipo de transacción -->
+                        <mat-form-field class="w-full md:col-span-6 fuse-mat-dense">
+                            <mat-label>Tipo</mat-label>
+                            <mat-select formControlName="type">
+                                <mat-option value="credit">Ingreso (Crédito)</mat-option>
+                                <mat-option value="debit">Egreso (Débito)</mat-option>
+                            </mat-select>
+                            <mat-hint>Seleccione si es un ingreso o egreso</mat-hint>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="flex justify-end mt-4">
+                        <loader-button
+                            [buttonType]="'submit'"
+                            [disable]="transactionForm.invalid"
+                            [loading]="false"
+                            [color]="'primary'"
+                            [label]="'Registrar Transacción'"
+                        ></loader-button>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Lista de transacciones -->
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>Historial de Transacciones</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="overflow-auto">
+                    <table mat-table [dataSource]="transactions" class="w-full">
+                        <!-- Columna Fecha -->
+                        <ng-container matColumnDef="date">
+                            <th mat-header-cell *matHeaderCellDef> Fecha</th>
+                            <td mat-cell *matCellDef="let transaction"> {{ transaction.date | date:'dd/MM/yyyy' }}</td>
+                        </ng-container>
+
+                        <!-- Columna Descripción -->
+                        <ng-container matColumnDef="description">
+                            <th mat-header-cell *matHeaderCellDef> Descripción</th>
+                            <td mat-cell *matCellDef="let transaction"> {{ transaction.description }}</td>
+                        </ng-container>
+
+                        <!-- Columna Monto -->
+                        <ng-container matColumnDef="amount">
+                            <th mat-header-cell *matHeaderCellDef> Monto</th>
+                            <td mat-cell *matCellDef="let transaction"> {{ transaction.amount | currency }}</td>
+                        </ng-container>
+
+                        <!-- Columna Tipo -->
+                        <ng-container matColumnDef="type">
+                            <th mat-header-cell *matHeaderCellDef> Tipo</th>
+                            <td mat-cell *matCellDef="let transaction"> 
+                                <span [ngClass]="{'text-green-600': transaction.type === 'credit', 'text-red-600': transaction.type === 'debit'}">
+                                    <span *ngIf="transaction.type === 'credit'">Ingreso</span>
+                                    <span *ngIf="transaction.type === 'debit'">Egreso</span>
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Columna Acciones -->
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef> Acciones</th>
+                            <td mat-cell *matCellDef="let transaction">
+                                <button mat-icon-button color="warn" (click)="deleteTransaction(transaction.id)">
+                                    <mat-icon svgIcon="heroicons_outline:trash"></mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                        <!-- Fila para cuando no hay datos -->
+                        <tr class="mat-row" *matNoDataRow>
+                            <td class="mat-cell text-center py-10" [attr.colspan]="displayedColumns.length">
+                                No hay transacciones registradas
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

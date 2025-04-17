@@ -1,21 +1,209 @@
-<div class="p-4">
-    <h1 class="text-2xl font-bold mb-4">Dashboard Principal</h1>
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <mat-card class="p-4">
-            <h2 class="text-xl font-semibold">Resumen Financiero</h2>
-            <p>Mostrar cuentas por pagar y por cobrar...</p>
-        </mat-card>
-        <mat-card class="p-4">
-            <h2 class="text-xl font-semibold">Gráficos Interactivos</h2>
-            <p>Gráficos de estado financiero y flujo de caja.</p>
-        </mat-card>
-        <mat-card class="p-4">
-            <h2 class="text-xl font-semibold">Notificaciones</h2>
-            <p>Listado de alertas y vencimientos.</p>
-        </mat-card>
-        <mat-card class="p-4">
-            <h2 class="text-xl font-semibold">Accesos Rápidos</h2>
-            <p>Botones o enlaces a secciones clave.</p>
-        </mat-card>
-    </section>
+<div *transloco="let t; read: 'operations.accounting.dashboard'" class="flex flex-col min-w-0 w-full">
+    <page-detail-header
+        [subtitle]="'Resumen financiero de la empresa'"
+        [title]="'Panel de Control Financiero'"
+    ></page-detail-header>
+
+    <div class="flex-1 flex flex-col w-full max-w-7xl mx-auto py-8 px-4">
+        <!-- Tarjetas de resumen principales -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
+            <!-- Balance bancario -->
+            <mat-card class="w-full md:col-span-3">
+                <mat-card-content>
+                    <div class="flex flex-col">
+                        <div class="text-secondary text-sm font-medium">BALANCE BANCARIO</div>
+                        <div class="text-3xl font-bold mt-2">{{ totalBankBalance | number:'1.0-0' }}</div>
+                        <div class="flex items-center mt-1 text-sm">
+                            <mat-icon class="text-green-600 mr-1" svgIcon="heroicons_outline:building-library"></mat-icon>
+                            <span>Saldo total en cuentas</span>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Cuentas por cobrar -->
+            <mat-card class="w-full md:col-span-3">
+                <mat-card-content>
+                    <div class="flex flex-col">
+                        <div class="text-secondary text-sm font-medium">POR COBRAR</div>
+                        <div class="text-3xl font-bold mt-2">{{ totalReceivables | number:'1.0-0' }}</div>
+                        <div class="flex items-center mt-1 text-sm">
+                            <mat-icon class="text-blue-600 mr-1" svgIcon="heroicons_outline:document-plus"></mat-icon>
+                            <span>Total a cobrar</span>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Cuentas por pagar -->
+            <mat-card class="w-full md:col-span-3">
+                <mat-card-content>
+                    <div class="flex flex-col">
+                        <div class="text-secondary text-sm font-medium">POR PAGAR</div>
+                        <div class="text-3xl font-bold mt-2">{{ totalPayables | number:'1.0-0' }}</div>
+                        <div class="flex items-center mt-1 text-sm">
+                            <mat-icon class="text-amber-600 mr-1" svgIcon="heroicons_outline:document-minus"></mat-icon>
+                            <span>Total a pagar</span>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Flujo de caja -->
+            <mat-card class="w-full md:col-span-3" [ngClass]="{'bg-green-50': cashFlow > 0, 'bg-red-50': cashFlow < 0}">
+                <mat-card-content>
+                    <div class="flex flex-col">
+                        <div class="text-secondary text-sm font-medium">FLUJO DE CAJA</div>
+                        <div class="text-3xl font-bold mt-2" [ngClass]="{'text-green-600': cashFlow > 0, 'text-red-600': cashFlow < 0}">
+                            {{ cashFlow | number:'1.0-0' }}
+                        </div>
+                        <div class="flex items-center mt-1 text-sm">
+                            <mat-icon [ngClass]="{'text-green-600': cashFlow > 0, 'text-red-600': cashFlow < 0}"
+                                      [svgIcon]="cashFlow > 0 ? 'heroicons_outline:arrow-trending-up' : 'heroicons_outline:arrow-trending-down'"
+                                      class="mr-1"></mat-icon>
+                            <span>Diferencia por cobrar/pagar</span>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Gráficos y tablas -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <!-- Gráfico de flujo de efectivo -->
+            <mat-card class="w-full md:col-span-8 mb-6">
+                <mat-card-header>
+                    <mat-card-title>Flujo de Efectivo</mat-card-title>
+                    <mat-card-subtitle>Evolución mensual</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="h-80">
+                        <canvas id="cashFlowChart"></canvas>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Tarjetas de alertas -->
+            <mat-card class="w-full md:col-span-4 mb-6">
+                <mat-card-header>
+                    <mat-card-title>Alertas de Vencimiento</mat-card-title>
+                    <mat-card-subtitle>Facturas próximas a vencer</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <div *ngIf="upcomingPayables.length > 0" class="mb-4">
+                        <div class="font-medium text-amber-600 mb-2">Por Pagar:</div>
+                        <div *ngFor="let invoice of upcomingPayables" class="mb-2 pb-2 border-b border-gray-100">
+                            <div class="flex justify-between">
+                                <span>{{ invoice.supplierName }}</span>
+                                <span class="font-bold">{{ invoice.amount | number:'1.0-0' }}</span>
+                            </div>
+                            <div class="text-xs text-gray-500">Vence: {{ invoice.dueDate | date:'dd/MM/yyyy' }}</div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="overdueReceivables.length > 0">
+                        <div class="font-medium text-red-600 mb-2">Vencidas por Cobrar:</div>
+                        <div *ngFor="let invoice of overdueReceivables" class="mb-2 pb-2 border-b border-gray-100">
+                            <div class="flex justify-between">
+                                <span>{{ invoice.customer?.name || 'Cliente' }}</span>
+                                <span class="font-bold">{{ invoice.grossAmount | number:'1.0-0' }}</span>
+                            </div>
+                            <div class="text-xs text-gray-500">Venció: {{ invoice.dueDate | date:'dd/MM/yyyy' }}</div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="upcomingPayables.length === 0 && overdueReceivables.length === 0"
+                         class="text-center text-gray-500 py-8">
+                        No hay alertas de vencimiento
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Gráficos de estado de cuentas -->
+            <mat-card class="w-full md:col-span-4 mb-6">
+                <mat-card-header>
+                    <mat-card-title>Cuentas por Cobrar</mat-card-title>
+                    <mat-card-subtitle>Distribución por estado</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="h-60">
+                        <canvas id="receivablesChart"></canvas>
+                    </div>
+                </mat-card-content>
+                <mat-divider></mat-divider>
+                <mat-card-actions>
+                    <a mat-button color="primary" routerLink="/operations/accounting/receivables/list">
+                        Ver todas
+                    </a>
+                </mat-card-actions>
+            </mat-card>
+
+            <mat-card class="w-full md:col-span-4 mb-6">
+                <mat-card-header>
+                    <mat-card-title>Cuentas por Pagar</mat-card-title>
+                    <mat-card-subtitle>Distribución por estado</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="h-60">
+                        <canvas id="payablesChart"></canvas>
+                    </div>
+                </mat-card-content>
+                <mat-divider></mat-divider>
+                <mat-card-actions>
+                    <a mat-button color="primary" routerLink="/operations/accounting/payables/list">
+                        Ver todas
+                    </a>
+                </mat-card-actions>
+            </mat-card>
+
+            <mat-card class="w-full md:col-span-4 mb-6">
+                <mat-card-header>
+                    <mat-card-title>Transacciones Recientes</mat-card-title>
+                    <mat-card-subtitle>Últimos movimientos bancarios</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <div *ngIf="recentTransactions.length > 0">
+                        <div *ngFor="let transaction of recentTransactions" class="mb-2 pb-2 border-b border-gray-100">
+                            <div class="flex justify-between">
+                                <span>{{ transaction.description }}</span>
+                                <span [ngClass]="{'text-green-600': transaction.type === 'credit', 'text-red-600': transaction.type === 'debit'}" class="font-bold">
+                                    {{ transaction.type === 'debit' ? '-' : '+' }}{{ transaction.amount | number:'1.0-0' }}
+                                </span>
+                            </div>
+                            <div class="text-xs text-gray-500">{{ transaction.date | date:'dd/MM/yyyy' }}</div>
+                        </div>
+                    </div>
+                    <div *ngIf="recentTransactions.length === 0" class="text-center text-gray-500 py-8">
+                        No hay transacciones recientes
+                    </div>
+                </mat-card-content>
+                <mat-divider></mat-divider>
+                <mat-card-actions>
+                    <a mat-button color="primary" routerLink="/operations/accounting/banking/transactions">
+                        Ver todas
+                    </a>
+                </mat-card-actions>
+            </mat-card>
+        </div>
+
+        <!-- Botones de acceso rápido -->
+        <div class="flex flex-wrap justify-center gap-4 mt-4">
+            <a mat-button color="primary" routerLink="/operations/accounting/receivables/new">
+                <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+                Nueva Cuenta por Cobrar
+            </a>
+            <a mat-button color="primary" routerLink="/operations/accounting/payables/create">
+                <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+                Nueva Cuenta por Pagar
+            </a>
+            <a mat-button color="primary" routerLink="/operations/accounting/banking/transactions">
+                <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+                Registrar Transacción
+            </a>
+            <a mat-button color="primary" routerLink="/operations/accounting/banking/transfers">
+                <mat-icon svgIcon="heroicons_outline:arrows-right-left"></mat-icon>
+                Nueva Transferencia
+            </a>
+        </div>
+    </div>
 </div>
