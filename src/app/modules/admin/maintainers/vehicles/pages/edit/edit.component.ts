@@ -1,4 +1,4 @@
-import { Component, inject, OnInit }                                          from '@angular/core';
+import { Component, inject, OnInit, signal }                                  from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink }                                 from '@angular/router';
 import { TranslocoDirective, TranslocoPipe, TranslocoService }                from '@ngneat/transloco';
@@ -12,10 +12,11 @@ import { VehiclesService }                                                    fr
 import { MatDatepickerModule }                                                from '@angular/material/datepicker';
 import { MatSelectModule }                                                    from '@angular/material/select';
 import { MatIconModule }                                                      from '@angular/material/icon';
-import { Vehicle, VehicleDocumentType }                                       from '../../domain/model/vehicle';
+import { FuelType, Vehicle, VehicleDocumentType, VehicleStatus, VehicleType } from '../../domain/model/vehicle';
 import { CommonModule }                                                       from '@angular/common';
 import { catchError, finalize, of }                                           from 'rxjs';
 import { DateTime }                                                           from 'luxon';
+import { MatTabsModule }                                                      from '@angular/material/tabs';
 
 @Component({
     selector   : 'app-edit',
@@ -33,7 +34,8 @@ import { DateTime }                                                           fr
         MatSelectModule,
         MatIconModule,
         CommonModule,
-        RouterLink
+        RouterLink,
+        MatTabsModule
     ],
     templateUrl: './edit.component.html'
 })
@@ -48,25 +50,58 @@ export class EditComponent implements OnInit {
     // Make window available for template
     readonly window = window;
 
-    // Enum for documents dropdown
-    documentTypes = Object.values(VehicleDocumentType);
+    // Make enums available to template
+    vehicleDocumentTypes = Object.values(VehicleDocumentType);
+    vehicleTypes = Object.values(VehicleType);
+    fuelTypes = Object.values(FuelType);
+    vehicleStatuses = Object.values(VehicleStatus);
 
     vehicleId: string;
-    isLoading = true;
+    isLoading = signal(true);
     vehicle: Vehicle;
 
     // Main form for vehicle data
     form: FormGroup = this.#fb.group({
-        brand       : [ '', [ Validators.required ] ],
-        model       : [ '', [ Validators.required ] ],
-        year        : [ '', [ Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear() + 1) ] ],
-        licensePlate: [ '', [ Validators.required, Validators.pattern(/^[A-Z0-9]{6}$/) ] ],
-        purchaseDate: [ '', [ Validators.required ] ],
-        documents   : this.#fb.array([])
+        // Basic info
+        brand            : [ '', [ Validators.required ] ],
+        model            : [ '', [ Validators.required ] ],
+        year             : [ '', [ Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear() + 1) ] ],
+        licensePlate     : [ '', [ Validators.required, Validators.pattern(/^[A-Z0-9]{6}$/) ] ],
+        vin              : [ '' ],
+        type             : [ VehicleType.SEDAN ],
+        color            : [ '' ],
+        fuelType         : [ FuelType.GASOLINE ],
+        tankCapacity     : [ '' ],
+        lastKnownOdometer: [ 0, [ Validators.required, Validators.min(0) ] ],
+        status           : [ VehicleStatus.AVAILABLE ],
+        departmentId     : [ '' ],
+        notes            : [ '' ],
+
+        // Dates and maintenance
+        purchaseDate       : [ '', [ Validators.required ] ],
+        lastMaintenanceDate: [ '' ],
+        nextMaintenanceDate: [ '' ],
+        nextMaintenanceKm  : [ '' ],
+
+        // Insurance and inspections
+        insuranceNumber          : [ '' ],
+        insuranceExpiry          : [ '' ],
+        technicalInspectionExpiry: [ '' ],
+
+        // Photos
+        photoUrl           : [ '' ],
+        additionalPhotoUrls: this.#fb.array([]),
+
+        // Documents
+        documents: this.#fb.array([])
     });
 
     get documents(): FormArray {
         return this.form.get('documents') as FormArray;
+    }
+
+    get additionalPhotoUrls(): FormArray {
+        return this.form.get('additionalPhotoUrls') as FormArray;
     }
 
     ngOnInit(): void {
@@ -80,7 +115,7 @@ export class EditComponent implements OnInit {
     }
 
     loadVehicle(): void {
-        this.isLoading = true;
+        this.isLoading.set(true);
 
         this.#service.findById(this.vehicleId)
             .pipe(
@@ -90,7 +125,7 @@ export class EditComponent implements OnInit {
                     return of(null);
                 }),
                 finalize(() => {
-                    this.isLoading = false;
+                    this.isLoading.set(false);
                 })
             )
             .subscribe(vehicle => {
@@ -100,12 +135,41 @@ export class EditComponent implements OnInit {
 
                 // Patch form with vehicle data
                 this.form.patchValue({
-                    brand       : vehicle.brand,
-                    model       : vehicle.model,
-                    year        : vehicle.year,
-                    licensePlate: vehicle.licensePlate,
-                    purchaseDate: vehicle.purchaseDate
+                    brand                    : vehicle.brand,
+                    model                    : vehicle.model,
+                    year                     : vehicle.year,
+                    licensePlate             : vehicle.licensePlate,
+                    purchaseDate             : vehicle.purchaseDate,
+                    vin                      : vehicle.vin,
+                    type                     : vehicle.type || VehicleType.SEDAN,
+                    color                    : vehicle.color,
+                    fuelType                 : vehicle.fuelType || FuelType.GASOLINE,
+                    tankCapacity             : vehicle.tankCapacity,
+                    lastKnownOdometer        : vehicle.lastKnownOdometer || 0,
+                    status                   : vehicle.status || VehicleStatus.AVAILABLE,
+                    departmentId             : vehicle.departmentId,
+                    notes                    : vehicle.notes,
+                    lastMaintenanceDate      : vehicle.lastMaintenanceDate,
+                    nextMaintenanceDate      : vehicle.nextMaintenanceDate,
+                    nextMaintenanceKm        : vehicle.nextMaintenanceKm,
+                    insuranceNumber          : vehicle.insuranceNumber,
+                    insuranceExpiry          : vehicle.insuranceExpiry,
+                    technicalInspectionExpiry: vehicle.technicalInspectionExpiry,
+                    photoUrl                 : vehicle.photoUrl
                 });
+
+                // Add photo URLs to form array
+                if (vehicle.additionalPhotoUrls && vehicle.additionalPhotoUrls.length > 0) {
+                    // Clear existing array
+                    while (this.additionalPhotoUrls.length !== 0) {
+                        this.additionalPhotoUrls.removeAt(0);
+                    }
+
+                    // Add each photo URL
+                    vehicle.additionalPhotoUrls.forEach(url => {
+                        this.additionalPhotoUrls.push(this.#fb.control(url));
+                    });
+                }
 
                 // Add documents to form array
                 if (vehicle.documents && vehicle.documents.length > 0) {
@@ -143,6 +207,14 @@ export class EditComponent implements OnInit {
         this.documents.removeAt(index);
     }
 
+    addPhotoUrl(): void {
+        this.additionalPhotoUrls.push(this.#fb.control('', [ Validators.required ]));
+    }
+
+    removePhotoUrl(index: number): void {
+        this.additionalPhotoUrls.removeAt(index);
+    }
+
     onFileSelected(event: Event, index: number): void {
         const file = (event.target as HTMLInputElement).files?.[0];
         if (file) {
@@ -155,6 +227,34 @@ export class EditComponent implements OnInit {
             // Simulate success notification
             this.#notyf.success({
                 message: `Documento "${ file.name }" cargado correctamente`
+            });
+        }
+    }
+
+    onMainPhotoSelected(event: Event): void {
+        const file = (event.target as HTMLInputElement).files?.[0];
+        if (file) {
+            // In a real implementation, this would upload the file and set the URL
+            this.form.patchValue({
+                photoUrl: 'http://example.com/photos/' + file.name
+            });
+
+            // Simulate success notification
+            this.#notyf.success({
+                message: `Foto principal "${ file.name }" cargada correctamente`
+            });
+        }
+    }
+
+    onAdditionalPhotoSelected(event: Event, index: number): void {
+        const file = (event.target as HTMLInputElement).files?.[0];
+        if (file) {
+            // In a real implementation, this would upload the file and set the URL
+            this.additionalPhotoUrls.at(index).setValue('http://example.com/photos/' + file.name);
+
+            // Simulate success notification
+            this.#notyf.success({
+                message: `Foto adicional "${ file.name }" cargada correctamente`
             });
         }
     }
@@ -188,7 +288,15 @@ export class EditComponent implements OnInit {
 
     documentFileInput(index: number) {
         const id = `document-file-${ index }`;
+        document.getElementById(id)?.click();
+    }
 
+    mainPhotoInput() {
+        document.getElementById('main-photo-input')?.click();
+    }
+
+    additionalPhotoInput(index: number) {
+        const id = `additional-photo-${ index }`;
         document.getElementById(id)?.click();
     }
 

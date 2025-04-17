@@ -1,6 +1,6 @@
 import { Component, inject }                                                  from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router }                                                             from '@angular/router';
+import { Router, RouterLink }                                                 from '@angular/router';
 import { TranslocoDirective, TranslocoPipe, TranslocoService }                from '@ngneat/transloco';
 import { Notyf }                                                              from 'notyf';
 import { PageDetailHeaderComponent }                                          from '@shared/components/page-detail-header/page-detail-header.component';
@@ -12,9 +12,10 @@ import { VehiclesService }                                                    fr
 import { MatDatepickerModule }                                                from '@angular/material/datepicker';
 import { MatSelectModule }                                                    from '@angular/material/select';
 import { MatIconModule }                                                      from '@angular/material/icon';
-import { VehicleDocumentType }                                                from '../../domain/model/vehicle';
+import { FuelType, VehicleDocumentType, VehicleStatus, VehicleType }          from '../../domain/model/vehicle';
 import { CommonModule }                                                       from '@angular/common';
 import { DateTime }                                                           from 'luxon';
+import { MatTabsModule }                                                      from '@angular/material/tabs';
 
 @Component({
     selector   : 'app-create',
@@ -31,7 +32,9 @@ import { DateTime }                                                           fr
         MatDatepickerModule,
         MatSelectModule,
         MatIconModule,
-        CommonModule
+        CommonModule,
+        MatTabsModule,
+        RouterLink
     ],
     templateUrl: './create.component.html'
 })
@@ -42,29 +45,62 @@ export class CreateComponent {
     readonly #ts = inject(TranslocoService);
     readonly #notyf = new Notyf();
 
-    // Enum for documents dropdown
-    documentTypes = Object.values(VehicleDocumentType);
+    // Make enums available to template
+    vehicleDocumentTypes = Object.values(VehicleDocumentType);
+    vehicleTypes = Object.values(VehicleType);
+    fuelTypes = Object.values(FuelType);
+    vehicleStatuses = Object.values(VehicleStatus);
 
     // Main form for vehicle data
     form: FormGroup = this.#fb.group({
-        brand       : [ '', [ Validators.required ] ],
-        model       : [ '', [ Validators.required ] ],
-        year        : [ '', [ Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear() + 1) ] ],
-        licensePlate: [ '', [ Validators.required, Validators.pattern(/^[A-Z0-9]{6}$/) ] ],
-        purchaseDate: [ '', [ Validators.required ] ],
-        documents   : this.#fb.array([])
+        // Basic info
+        brand            : [ undefined, [ Validators.required ] ],
+        model            : [ undefined, [ Validators.required ] ],
+        year             : [ undefined, [ Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear() + 1) ] ],
+        licensePlate     : [ undefined, [ Validators.required, Validators.pattern(/^[A-Z0-9]{6}$/) ] ],
+        vin              : [ undefined ],
+        type             : [ VehicleType.SEDAN ],
+        color            : [ undefined ],
+        fuelType         : [ FuelType.GASOLINE ],
+        tankCapacity     : [ undefined ],
+        lastKnownOdometer: [ 0, [ Validators.required, Validators.min(0) ] ],
+        status           : [ VehicleStatus.AVAILABLE ],
+        departmentId     : [ undefined ],
+        notes            : [ undefined ],
+
+        // Dates and maintenance
+        purchaseDate       : [ undefined, [ Validators.required ] ],
+        lastMaintenanceDate: [ undefined ],
+        nextMaintenanceDate: [ undefined ],
+        nextMaintenanceKm  : [ undefined ],
+
+        // Insurance and inspections
+        insuranceNumber          : [ undefined ],
+        insuranceExpiry          : [ undefined ],
+        technicalInspectionExpiry: [ undefined ],
+
+        // Photos
+        photoUrl           : [ undefined ],
+        additionalPhotoUrls: this.#fb.array([]),
+
+        // Documents
+        documents: this.#fb.array([])
     });
 
     get documents(): FormArray {
         return this.form.get('documents') as FormArray;
     }
 
+    get additionalPhotoUrls(): FormArray {
+        return this.form.get('additionalPhotoUrls') as FormArray;
+    }
+
     addDocument(): void {
         const documentForm = this.#fb.group({
-            name          : [ '', [ Validators.required ] ],
+            name          : [ undefined, [ Validators.required ] ],
             type          : [ null, [ Validators.required ] ],
-            fileUrl       : [ '', [ Validators.required ] ],
-            expirationDate: [ '' ]
+            fileUrl       : [ undefined, [ Validators.required ] ],
+            expirationDate: [ undefined ]
         });
 
         this.documents.push(documentForm);
@@ -72,6 +108,14 @@ export class CreateComponent {
 
     removeDocument(index: number): void {
         this.documents.removeAt(index);
+    }
+
+    addPhotoUrl(): void {
+        this.additionalPhotoUrls.push(this.#fb.control(undefined, [ Validators.required ]));
+    }
+
+    removePhotoUrl(index: number): void {
+        this.additionalPhotoUrls.removeAt(index);
     }
 
     onFileSelected(event: Event, index: number): void {
@@ -86,6 +130,34 @@ export class CreateComponent {
             // Simulate success notification
             this.#notyf.success({
                 message: `Documento "${ file.name }" cargado correctamente`
+            });
+        }
+    }
+
+    onMainPhotoSelected(event: Event): void {
+        const file = (event.target as HTMLInputElement).files?.[0];
+        if (file) {
+            // In a real implementation, this would upload the file and set the URL
+            this.form.patchValue({
+                photoUrl: 'http://example.com/photos/' + file.name
+            });
+
+            // Simulate success notification
+            this.#notyf.success({
+                message: `Foto principal "${ file.name }" cargada correctamente`
+            });
+        }
+    }
+
+    onAdditionalPhotoSelected(event: Event, index: number): void {
+        const file = (event.target as HTMLInputElement).files?.[0];
+        if (file) {
+            // In a real implementation, this would upload the file and set the URL
+            this.additionalPhotoUrls.at(index).setValue('http://example.com/photos/' + file.name);
+
+            // Simulate success notification
+            this.#notyf.success({
+                message: `Foto adicional "${ file.name }" cargada correctamente`
             });
         }
     }
@@ -119,7 +191,15 @@ export class CreateComponent {
 
     documentFileInput(index: number) {
         const id = `document-file-${ index }`;
+        document.getElementById(id)?.click();
+    }
 
+    mainPhotoInput() {
+        document.getElementById('main-photo-input')?.click();
+    }
+
+    additionalPhotoInput(index: number) {
+        const id = `additional-photo-${ index }`;
         document.getElementById(id)?.click();
     }
 

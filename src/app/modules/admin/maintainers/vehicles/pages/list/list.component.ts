@@ -14,7 +14,8 @@ import { MatInput }                                                             
 import { firstValueFrom }                                                                      from 'rxjs';
 import { VehiclesService }                                                                     from '@modules/admin/maintainers/vehicles/vehicles.service';
 import { MatDialog }                                                                           from '@angular/material/dialog';
-import { Vehicle }                                                                             from '../../domain/model/vehicle';
+import { Vehicle, VehicleStatus }                                                              from '../../domain/model/vehicle';
+import { CommonModule }                                                                        from '@angular/common';
 
 @Component({
     selector   : 'app-list',
@@ -31,7 +32,8 @@ import { Vehicle }                                                              
         TableBuilderComponent,
         MatInput,
         TranslocoPipe,
-        MatIconButton
+        MatIconButton,
+        CommonModule
     ],
     templateUrl: './list.component.html'
 })
@@ -43,6 +45,8 @@ export class ListComponent {
 
     searchControl = new FormControl('', [ Validators.minLength(3), Validators.maxLength(100) ]);
     actionsCell: Signal<TemplateRef<any>> = viewChild('actionsCell', {read: TemplateRef});
+    statusCell: Signal<TemplateRef<any>> = viewChild('statusCell', {read: TemplateRef});
+    photoCell: Signal<TemplateRef<any>> = viewChild('photoCell', {read: TemplateRef});
 
     // Recurso para cargar los vehículos
     vehiclesResource = resource({
@@ -69,7 +73,46 @@ export class ListComponent {
         // });
     }
 
+    getStatusColor(status: VehicleStatus): string {
+        switch (status) {
+            case VehicleStatus.AVAILABLE:
+                return 'bg-green-500';
+            case VehicleStatus.IN_USE:
+                return 'bg-blue-500';
+            case VehicleStatus.IN_MAINTENANCE:
+                return 'bg-amber-500';
+            case VehicleStatus.OUT_OF_SERVICE:
+                return 'bg-red-500';
+            default:
+                return 'bg-gray-500';
+        }
+    }
+
+    getStatusText(status: VehicleStatus): string {
+        switch (status) {
+            case VehicleStatus.AVAILABLE:
+                return 'Disponible';
+            case VehicleStatus.IN_USE:
+                return 'En uso';
+            case VehicleStatus.IN_MAINTENANCE:
+                return 'En mantenimiento';
+            case VehicleStatus.OUT_OF_SERVICE:
+                return 'Fuera de servicio';
+            default:
+                return 'Desconocido';
+        }
+    }
+
     buildColumnsConfig = (): ColumnConfig<any>[] => [
+        {
+            key    : 'photo',
+            header : '',
+            display: {
+                type          : 'custom',
+                customTemplate: this.photoCell()
+            },
+            visible: true,
+        },
         {
             key    : 'brand',
             header : this.#ts.translate('maintainers.vehicles.fields.brand'),
@@ -86,25 +129,74 @@ export class ListComponent {
             key    : 'year',
             header : this.#ts.translate('maintainers.vehicles.fields.year'),
             display: {type: 'text'},
-            visible: true
+            visible: true,
         },
         {
             key    : 'licensePlate',
-            header : this.#ts.translate('maintainers.vehicles.fields.licensePlate'),
+            header : this.#ts.translate('maintainers.vehicles.fields.license-plate'),
             display: {type: 'text'},
-            visible: true
+            visible: true,
         },
         {
-            key    : 'purchaseDate',
-            header : this.#ts.translate('maintainers.vehicles.fields.purchaseDate'),
+            key    : 'type',
+            header : 'Tipo',
             display: {
                 type     : 'custom',
                 formatter: (value: string) => {
+                    switch (value) {
+                        case 'SEDAN':
+                            return 'Sedán';
+                        case 'SUV':
+                            return 'SUV';
+                        case 'TRUCK':
+                            return 'Camión';
+                        case 'VAN':
+                            return 'Furgón';
+                        case 'PICKUP':
+                            return 'Camioneta';
+                        case 'MOTORCYCLE':
+                            return 'Motocicleta';
+                        case 'BUS':
+                            return 'Bus';
+                        default:
+                            return 'Otro';
+                    }
+                }
+            },
+            visible: true
+        },
+        {
+            key    : 'lastKnownOdometer',
+            header : 'Odómetro',
+            display: {
+                type     : 'custom',
+                formatter: (value: number) => {
+                    return value ? `${ value.toLocaleString() } km` : 'N/A';
+                }
+            },
+            visible: true,
+        },
+        {
+            key    : 'status',
+            header : 'Estado',
+            display: {
+                type          : 'custom',
+                customTemplate: this.statusCell()
+            },
+            visible: true,
+        },
+        {
+            key    : 'purchaseDate',
+            header : this.#ts.translate('maintainers.vehicles.fields.purchase-date'),
+            display: {
+                type     : 'custom',
+                formatter: (value: string) => {
+                    if (!value) return 'N/A';
                     const date = new Date(value);
                     return date.toLocaleDateString('es-CL');
                 }
             },
-            visible: true
+            visible: true,
         },
         {
             key    : 'actions',

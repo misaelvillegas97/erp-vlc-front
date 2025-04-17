@@ -30,7 +30,7 @@
             @if (columnsConfig()) {
                 <table-builder
                     [columns]="columnsConfig()"
-                    [data]="vehiclesResource.value()"
+                    [data]="vehiclesResource.value()?.items"
                     [itemsPerPageLabel]="'Registros por página'"
                     class="w-full"
                 ></table-builder>
@@ -39,6 +39,7 @@
     </div>
 </div>
 
+<!-- Template for action buttons -->
 <ng-template #actionsCell let-vehicle="row">
     <div class="flex gap-4">
         <a
@@ -54,4 +55,29 @@
             <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:document"></mat-icon>
         </button>
     </div>
+</ng-template>
+
+<!-- Template for status indicator -->
+<ng-template #statusCell let-vehicle="row">
+    @if (vehicle.status) {
+        <div class="flex items-center">
+            <span [class]="'w-3 h-3 rounded-full mr-2 ' + getStatusColor(vehicle.status)"></span>
+            <span>{{ getStatusText(vehicle.status) }}</span>
+        </div>
+    } @else {
+        <span class="text-gray-400">No definido</span>
+    }
+</ng-template>
+
+<!-- Template for vehicle photo -->
+<ng-template #photoCell let-vehicle="row">
+    @if (vehicle.photoUrl) {
+        <div class="w-10 h-10 rounded-full overflow-hidden border">
+            <img [src]="vehicle.photoUrl" alt="Foto del vehículo" class="w-full h-full object-cover">
+        </div>
+    } @else {
+        <div class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 text-gray-400">
+            <mat-icon svgIcon="heroicons_outline:truck"></mat-icon>
+        </div>
+    }
 </ng-template>
