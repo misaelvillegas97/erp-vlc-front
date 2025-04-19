@@ -60,6 +60,7 @@ export class HistoryComponent implements OnInit {
     // Estados manejados con Signals
     isLoading = signal(true);
     sessionsHistory = signal<VehicleSession[]>([]);
+    showAdvancedFilters = signal(false);
 
     // Señales para almacenar los valores actuales de cada filtro
     driverFilterSignal = signal<string>('');
@@ -258,6 +259,11 @@ export class HistoryComponent implements OnInit {
     viewDetails(session: VehicleSession): void {
         this.notyf.info('Vista de detalle no implementada aún');
         // this.router.navigate(['/logistics/session-details', session.id]);
+    }
+
+    // Alterna la visibilidad de los filtros avanzados
+    toggleAdvancedFilters(): void {
+        this.showAdvancedFilters.update(value => !value);
     }
 
     protected readonly SessionStatus = SessionStatus;

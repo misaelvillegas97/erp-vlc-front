@@ -17,7 +17,6 @@ import { debounceTime, distinctUntilChanged, startWith }                        
 import { VehicleSessionsService }                                                          from '../../services/vehicle-sessions.service';
 import { ActiveSessionView }                                                               from '../../domain/model/vehicle-session.model';
 import { ConfirmDialogComponent }                                                          from './confirm-dialog.component';
-import { LocationTrackingService }                                                         from '../../services/location-tracking.service';
 
 @Component({
     selector   : 'app-active-sessions',
@@ -43,11 +42,7 @@ export class ActiveSessionsComponent implements OnInit, OnDestroy {
     private readonly router = inject(Router);
     private readonly dialog = inject(MatDialog);
     private readonly sessionsService = inject(VehicleSessionsService);
-    private readonly locationTrackingService = inject(LocationTrackingService);
     private readonly notyf = new Notyf();
-
-    // Detectar si es un dispositivo móvil
-    readonly isMobileDevice = this.locationTrackingService.isMobileOrTablet();
 
     // Filtros
     searchControl = new FormControl('');

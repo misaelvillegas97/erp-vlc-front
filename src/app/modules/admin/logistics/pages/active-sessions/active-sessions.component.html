@@ -30,25 +30,22 @@
                 </div>
             </div>
 
-            <!-- Banner de Modo Conducción para dispositivos móviles -->
-            @if (isMobileDevice) {
-                <div class="mt-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-700 rounded-lg p-3">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <mat-icon class="text-blue-600 dark:text-blue-400 mr-3" svgIcon="heroicons_outline:map"></mat-icon>
-                            <div>
-                                <h3 class="font-medium">Modo Conducción Disponible</h3>
-                                <p class="text-sm text-blue-700 dark:text-blue-300">
-                                    Vista en tiempo real con métricas de viaje y mapa actualizado.
-                                </p>
-                            </div>
+            <div class="mt-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-700 rounded-lg p-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <mat-icon class="text-blue-600 dark:text-blue-400 mr-3" svgIcon="heroicons_outline:map"></mat-icon>
+                        <div>
+                            <h3 class="font-medium">Modo Conducción Disponible</h3>
+                            <p class="text-sm text-blue-700 dark:text-blue-300">
+                                Vista en tiempo real con métricas de viaje y mapa actualizado.
+                            </p>
                         </div>
-                        <a [routerLink]="['/logistics/driving-mode']" mat-flat-button color="primary">
-                            Ver Modo
-                        </a>
                     </div>
+                    <a [routerLink]="['/logistics/driving-mode']" mat-flat-button color="primary">
+                        Ver Modo
+                    </a>
                 </div>
-            }
+            </div>
         </div>
 
         <!-- Estado de carga -->
@@ -140,15 +137,13 @@
                                     </div>
                                 </div>
 
-                                <!-- Ubicación actual (mapa miniatura) -->
+                                <!-- Estado de ubicación simplificado -->
                                 @if (session.currentLocation) {
-                                    <div class="mt-4 rounded-lg overflow-hidden h-[120px] mb-3 bg-gray-200">
-                                        <!-- Aquí iría un componente de mapa, por ahora un placeholder -->
-                                        <div class="flex items-center justify-center h-full bg-gray-200 dark:bg-gray-600 text-sm">
-                                            <mat-icon class="mr-2" svgIcon="mat_outline:location_on"></mat-icon>
-                                            <span>
-                                                Lat: {{ session.currentLocation.latitude | number:'1.4-6' }}, 
-                                                Lon: {{ session.currentLocation.longitude | number:'1.4-6' }}
+                                    <div class="mt-4 rounded-lg p-3 mb-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800">
+                                        <div class="flex items-center">
+                                            <mat-icon class="text-green-600 mr-2" svgIcon="mat_outline:location_on"></mat-icon>
+                                            <span class="text-green-800 dark:text-green-200">
+                                                Ubicación GPS activa
                                             </span>
                                         </div>
                                     </div>
@@ -161,7 +156,6 @@
                                         mat-stroked-button
                                         [routerLink]="['/logistics/driving-mode']"
                                         class="flex items-center"
-                                        [class.hidden]="!isMobileDevice"
                                     >
                                         <mat-icon svgIcon="heroicons_outline:map" class="mr-1"></mat-icon>
                                         Modo Conducción

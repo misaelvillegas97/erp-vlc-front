@@ -8,7 +8,6 @@ import { VehicleSessionsService }                                               
 import { DriversService }                                                                  from '../../services/drivers.service';
 import { VehiclesService }                                                                 from '../../services/vehicles.service';
 import { GeolocationService }                                                              from '../../services/geolocation.service';
-import { LocationTrackingService, StoredLocationPoint }                                    from '../../services/location-tracking.service';
 import { FinishSessionDto, GeoLocation, VehicleSession }                                   from '../../domain/model/vehicle-session.model';
 import { Driver }                                                                          from '../../domain/model/driver.model';
 import { Vehicle }                                                                         from '../../domain/model/vehicle.model';
@@ -21,14 +20,13 @@ import { MatFormFieldModule }                                                   
 import { MatIconModule }                                                                   from '@angular/material/icon';
 import { MatInputModule }                                                                  from '@angular/material/input';
 import { MatProgressSpinnerModule }                                                        from '@angular/material/progress-spinner';
-import { environment }                                                                     from '../../../../../../environments/environment';
 import { NotyfService }                                                                    from '@shared/services/notyf.service';
 import { DateTime }                                                                        from 'luxon';
 
 @Component({
     selector       : 'app-finish-session',
     standalone     : true,
-    imports: [
+    imports    : [
         CommonModule,
         ReactiveFormsModule,
         MatButtonModule,
@@ -53,7 +51,6 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
     private readonly driversService = inject(DriversService);
     private readonly vehiclesService = inject(VehiclesService);
     private readonly geolocationService = inject(GeolocationService);
-    private readonly locationTrackingService = inject(LocationTrackingService);
 
     private destroy$ = new Subject<void>();
 
@@ -66,12 +63,6 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
     currentLocation = signal<GeoLocation | null>(null);
     uploadedFiles = signal<File[]>([]);
     uploadedPreviews = signal<string[]>([]);
-
-    storedLocationPoints = signal<StoredLocationPoint[]>([]);
-    isTrackingActive = signal(false);
-    trackingPointsCount = signal(0);
-    isMobileDevice = signal(false);
-    showTrackingDetails = signal(false);
 
     form: FormGroup = this.fb.group({
         finalOdometer: [ '', [ Validators.required, Validators.min(0) ] ],
@@ -92,7 +83,8 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
     });
 
     calculatedGpsDistance = computed(() => {
-        const points = this.storedLocationPoints();
+        const points = this.session()?.['locationPoints'];
+
         if (!points || points.length < 2) return 0;
 
         let totalDistance = 0;
@@ -109,8 +101,6 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
     });
 
     ngOnInit(): void {
-        this.isMobileDevice.set(this.locationTrackingService.isMobileOrTablet());
-        
         const id = this.route.snapshot.paramMap.get('id');
         if (!id) {
             this.notyf.error('ID de sesión no válido');
@@ -128,41 +118,11 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
                 return of(null);
             })
         ).subscribe(loc => loc && this.currentLocation.set(loc));
-
-        if (this.isMobileDevice()) {
-            this.locationTrackingService.isTracking$.pipe(
-                takeUntil(this.destroy$)
-            ).subscribe(isTracking => {
-                this.isTrackingActive.set(isTracking);
-            });
-
-            this.locationTrackingService.storedPointsCount$.pipe(
-                takeUntil(this.destroy$)
-            ).subscribe(count => {
-                this.trackingPointsCount.set(count);
-            });
-
-            this.loadStoredLocationPoints(id);
-        }
     }
 
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
-    }
-
-    private async loadStoredLocationPoints(sessionId: string): Promise<void> {
-        try {
-            const points = await this.locationTrackingService.getLocationPoints(sessionId);
-            this.storedLocationPoints.set(points);
-            this.showTrackingDetails.set(points.length > 0);
-
-            if (points.length > 0) {
-                this.notyf.success(`Se han recuperado ${ points.length } puntos de ubicación`);
-            }
-        } catch (error) {
-            console.error('Error al cargar puntos de ubicación:', error);
-        }
     }
 
     formatDuration(minutes: number): string {
@@ -256,29 +216,11 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
             photos       : this.uploadedFiles()
         };
 
-        if (this.storedLocationPoints().length > 0) {
-            data['locationHistory'] = this.storedLocationPoints().map(point => ({
-                latitude : point.latitude,
-                longitude: point.longitude,
-                accuracy : point.accuracy,
-                timestamp: point.timestamp
-            }));
-        }
-
-        console.log(data);
-        
         this.sessionsService.finishSession(this.sessionId(), data).pipe(
             takeUntil(this.destroy$),
             tap(() => {
                 this.notyf.success('Sesión finalizada');
 
-                if (this.isMobileDevice()) {
-                    this.locationTrackingService.stopTracking();
-                    this.locationTrackingService.clearLocationPoints(this.sessionId())
-                        .then(() => console.log('Datos de ubicación eliminados'))
-                        .catch(err => console.error('Error al limpiar datos de ubicación', err));
-                }
-                
                 this.router.navigate([ '/logistics/active-sessions' ]);
             }),
             catchError(err => {
@@ -288,69 +230,6 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
             }),
             finalize(() => this.isSubmitting.set(false))
         ).subscribe();
-    }
-
-    getStaticMapUrl(): string {
-        const s = this.session();
-        const loc = this.currentLocation();
-        if (!s || !loc) return '';
-
-        const start = s.initialLocation;
-        const end = loc;
-        if (!start || !end) return '';
-
-        const storedPoints = this.storedLocationPoints();
-        if (storedPoints.length > 0) {
-            const latitudes = storedPoints.map(p => p.latitude);
-            const longitudes = storedPoints.map(p => p.longitude);
-            latitudes.push(start.latitude, end.latitude);
-            longitudes.push(start.longitude, end.longitude);
-
-            const minLat = Math.min(...latitudes);
-            const maxLat = Math.max(...latitudes);
-            const minLng = Math.min(...longitudes);
-            const maxLng = Math.max(...longitudes);
-
-            const centerLat = (minLat + maxLat) / 2;
-            const centerLng = (minLng + maxLng) / 2;
-
-            const latSpan = maxLat - minLat;
-            const lngSpan = maxLng - minLng;
-            const maxSpan = Math.max(latSpan, lngSpan);
-            let zoom = 15;
-            if (maxSpan > 0.1) zoom = 11;
-            if (maxSpan > 0.5) zoom = 9;
-            if (maxSpan > 1) zoom = 7;
-            if (maxSpan > 2) zoom = 5;
-
-            const startMarker = `markers=label:I|${ start.latitude },${ start.longitude }`;
-            const endMarker = `markers=label:F|${ end.latitude },${ end.longitude }`;
-
-            const pathPoints = [
-                `${ start.latitude },${ start.longitude }`,
-                ...storedPoints.slice(0, 100).map(p => `${ p.latitude },${ p.longitude }`),
-                `${ end.latitude },${ end.longitude }`
-            ];
-
-            const path = `path=color:0x0000FF|weight:3|${ pathPoints.join('|') }`;
-
-            const apiKey = environment.GMAPS_API_KEY;
-            return `https://maps.googleapis.com/maps/api/staticmap?center=${ centerLat },${ centerLng }&zoom=${ zoom }&size=600x400&scale=2&${ startMarker }&${ endMarker }&${ path }&key=${ apiKey }`;
-        }
-        
-        const centerLat = (start.latitude + end.latitude) / 2;
-        const centerLng = (start.longitude + end.longitude) / 2;
-        const distance = this.calculateGeoDistance(start, end);
-        const zoom = distance > 1000 ? 3 : distance > 500 ? 5 : distance > 100 ? 7 : 10;
-        const startMarker = `markers=label:I|${ start.latitude },${ start.longitude }`;
-        const endMarker = `markers=label:F|${ end.latitude },${ end.longitude }`;
-        const path = distance > 0.05 ? `&path=${ start.latitude },${ start.longitude }|${ end.latitude },${ end.longitude }` : '';
-        const apiKey = environment.GMAPS_API_KEY;
-        return `https://maps.googleapis.com/maps/api/staticmap?center=${ centerLat },${ centerLng }&zoom=${ zoom }&size=600x300&scale=2&${ startMarker }&${ endMarker }${ path }&key=${ apiKey }`;
-    }
-
-    toggleTrackingDetails(): void {
-        this.showTrackingDetails.update(current => !current);
     }
 
     calculateGeoDistance(p1: GeoLocation, p2: GeoLocation): number {

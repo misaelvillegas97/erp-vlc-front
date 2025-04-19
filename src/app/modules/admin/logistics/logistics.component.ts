@@ -4,7 +4,6 @@ import { RouterOutlet }                              from '@angular/router';
 import { TranslocoPipe, TranslocoService }           from '@ngneat/transloco';
 import { PanelType }                                 from '@shared/components/drawer-listing/panel.type';
 import { DrawerContentComponent }                    from '@shared/components/drawer-listing/components/drawer-content.component';
-import { LocationTrackingService }                   from './services/location-tracking.service';
 
 @Component({
     selector  : 'app-logistics',
@@ -29,10 +28,6 @@ import { LocationTrackingService }                   from './services/location-t
 })
 export class LogisticsComponent {
     readonly #ts = inject(TranslocoService);
-    readonly #locationTrackingService = inject(LocationTrackingService);
-
-    // Verificar si es un dispositivo móvil para mostrar condicionalmente el panel de Modo Conducción
-    readonly isMobileDevice = this.#locationTrackingService.isMobileOrTablet();
 
     panels: WritableSignal<PanelType[]> = signal([
         {
@@ -58,7 +53,6 @@ export class LogisticsComponent {
             icon        : 'heroicons_outline:map',
             selectedIcon: 'heroicons_solid:map',
             link        : [ '/logistics', 'driving-mode' ],
-            highlighted : this.isMobileDevice // destacar en dispositivos móviles
         },
         {
             id          : 'history',

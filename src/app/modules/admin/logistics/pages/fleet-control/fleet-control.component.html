@@ -102,21 +102,9 @@
                                         Se requiere acceso a su ubicación para registrar correctamente la sesión. Por favor, habilite los permisos de ubicación.
                                     </p>
                                     <p class="text-sm" *ngIf="hasGeolocationPermission() && currentLocation()">
-                                        Lat: {{ currentLocation()?.latitude?.toFixed(6) }}, Lng: {{ currentLocation()?.longitude?.toFixed(6) }}
+                                        Ubicación GPS activada
                                     </p>
                                 </div>
-                            </div>
-
-                            <!-- Mapa estático cuando la ubicación está disponible -->
-                            <div *ngIf="hasGeolocationPermission() && currentLocation()" class="mt-4 w-full">
-                                <div class="rounded-lg overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700">
-                                    <img
-                                        [src]="getStaticMapUrl()"
-                                        alt="Ubicación actual en mapa"
-                                        class="w-full h-[180px] object-cover"
-                                        loading="lazy">
-                                </div>
-                                <p class="text-xs text-gray-500 mt-1 text-center">Ubicación actual (aproximada)</p>
                             </div>
                         </div>
 
@@ -174,10 +162,6 @@
                             <p class="text-sm text-gray-500 dark:text-gray-400">Categoría</p>
                             <p class="font-medium">{{ selectedDriver().licenseType }}</p>
                         </div>
-                        <!--                        <div>-->
-                        <!--                            <p class="text-sm text-gray-500 dark:text-gray-400">Contacto</p>-->
-                        <!--                            <p class="font-medium">{{ selectedDriver().phoneNumber }}</p>-->
-                        <!--                        </div>-->
                     </div>
                 </mat-card-content>
             </mat-card>
