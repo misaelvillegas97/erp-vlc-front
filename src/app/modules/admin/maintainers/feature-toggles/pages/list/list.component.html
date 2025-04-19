@@ -1,0 +1,115 @@
+<div *transloco="let t; read: 'maintainers.feature-toggles'" class="flex flex-col min-w-0 w-full">
+    <page-header [description]="t('list.subtitle')" [subtitle]="t('list.title')"></page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-10 gap-y-4 sm:px-4">
+        <!-- Header with title and new button -->
+        <div class="flex flex-row w-full">
+            <h2 class="flex-1 font-bold text-secondary text-xl self-center">{{ t('title') }}</h2>
+            <a
+                [matTooltip]="t('new.title')"
+                [routerLink]="['/maintainers', 'feature-toggles', 'new']"
+                class="flex-0 font-bold py-2 px-4 rounded"
+                color="primary"
+                mat-icon-button
+            >
+                <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+            </a>
+        </div>
+
+        <!-- Filters section -->
+        <div class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <mat-form-field class="fuse-mat-dense fuse-mat-rounded w-full">
+                <mat-label>Nombre</mat-label>
+                <mat-icon [svgIcon]="'heroicons_solid:magnifying-glass'" class="icon-size-5" matPrefix></mat-icon>
+                <input #searchBar [formControl]="searchControl" [placeholder]="'Nombre'" matInput type="search"/>
+                @if (searchControl.errors?.minlength) {
+                    <mat-error>{{ 'errors.form.min-length' | transloco:{length: 3} }}</mat-error>
+                }
+                <mat-hint class="ml-4">{{ searchBar.value?.length || 0 }}/100</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field class="fuse-mat-dense fuse-mat-rounded w-full">
+                <mat-label>Categoría</mat-label>
+                <mat-select [formControl]="categoryControl">
+                    <mat-option [value]="''">Todos</mat-option>
+                    @for (category of categoriesResource.value() || []; track category) {
+                        <mat-option [value]="category">{{ category }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="fuse-mat-dense fuse-mat-rounded w-full">
+                <mat-label>Padre</mat-label>
+                <mat-select [formControl]="parentIdControl">
+                    <mat-option [value]="''">Todos</mat-option>
+                    <mat-option [value]="null">Solo raíces</mat-option>
+                    @for (parent of parentsResource.value() || []; track parent.id) {
+                        <mat-option [value]="parent.id">{{ parent.displayName }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="fuse-mat-dense fuse-mat-rounded w-full">
+                <mat-label>Estado</mat-label>
+                <mat-select [formControl]="enabledControl">
+                    <mat-option [value]="''">Todos</mat-option>
+                    <mat-option [value]="'true'">Habilitados</mat-option>
+                    <mat-option [value]="'false'">Deshabilitados</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <!-- Filter buttons -->
+        <div class="flex flex-row gap-4 self-end">
+            <button mat-button color="accent" (click)="resetFilters()">
+                <mat-icon svgIcon="heroicons_outline:x-mark" class="mr-2"></mat-icon>
+                Limpiar
+            </button>
+            <button mat-flat-button color="primary" (click)="applyFilters()">
+                <mat-icon svgIcon="heroicons_outline:funnel" class="mr-2"></mat-icon>
+                Filtrar
+            </button>
+        </div>
+
+        <!-- Table with data -->
+        <div class="relative max-w-full overflow-auto w-full">
+            @if (columnsConfig()) {
+                <table-builder
+                    [columns]="columnsConfig()"
+                    [data]="featureTogglesResource.value() || []"
+                    [itemsPerPageLabel]="'Registros por página'"
+                    class="w-full"
+                ></table-builder>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Template for toggle switch column -->
+<ng-template #toggleCell let-feature="row">
+    <mat-slide-toggle
+        [checked]="feature.enabled"
+        (change)="toggleFeature(feature, $event)"
+        color="primary"
+    ></mat-slide-toggle>
+</ng-template>
+
+<!-- Template for actions column -->
+<ng-template #actionsCell let-feature="row">
+    <div class="flex gap-2">
+        <a
+            [routerLink]="['/maintainers', 'feature-toggles', 'edit', feature.id]"
+            mat-icon-button
+            [matTooltip]="'actions.edit' | transloco"
+        >
+            <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:pencil"></mat-icon>
+        </a>
+        <button
+            mat-icon-button
+            (click)="deleteFeature(feature)"
+            [matTooltip]="'actions.delete' | transloco"
+        >
+            <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:trash"></mat-icon>
+        </button>
+    </div>
+</ng-template>

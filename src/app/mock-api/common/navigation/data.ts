@@ -216,6 +216,19 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         icon: 'heroicons_outline:user-circle'
                     }
                 ]
+            },
+            {
+                id: 'maintainers.settings.title',
+                // icon    : 'heroicons_outline:cog',
+                type    : 'group',
+                children: [
+                    {
+                        id  : 'maintainers.settings.list.title',
+                        type: 'basic',
+                        link: '/maintainers/feature-toggles/list',
+                        icon: 'heroicons_outline:cog'
+                    },
+                ]
             }
         ]
     }

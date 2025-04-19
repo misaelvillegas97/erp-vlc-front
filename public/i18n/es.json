@@ -446,6 +446,29 @@
                 "year" : "Año",
                 "purchase-date" : "Fecha de compra"
             }
+        },
+        "feature-toggles" : {
+            "title" : "Mantenedor de características",
+            "list" : {
+                "title" : "Mantenedor de características",
+                "subtitle" : "Administra las características de la aplicación",
+                "description" : "Lista de características",
+                "no-data" : "No hay características disponibles"
+            },
+            "new" : {
+                "title" : "Nueva característica",
+                "subtitle" : "Crea una nueva característica",
+                "description" : "Crear una nueva característica",
+                "success" : "Característica creada exitosamente"
+            },
+            "fields" : {
+                "name" : "Nombre",
+                "display-name" : "Nombre para mostrar",
+                "category" : "Categoría",
+                "description" : "Descripción",
+                "enabled" : "Habilitado",
+                "parent" : "Categoría padre"
+            }
         }
     },
     "actions" : {

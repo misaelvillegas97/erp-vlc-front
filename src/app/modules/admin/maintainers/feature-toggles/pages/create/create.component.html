@@ -1,0 +1,142 @@
+<div *transloco="let t; read: 'maintainers.feature-toggles.new'" class="flex flex-col min-w-0 w-full">
+    <page-detail-header [subtitle]="t('description')" [title]="t('title')"></page-detail-header>
+
+    <!-- Content -->
+    <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-4 sm:px-4">
+        <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col items-start gap-y-4 w-full md:w-3/4 py-4">
+            <!-- Basic fields section -->
+            <div class="w-full">
+                <h3 class="text-lg font-medium mb-4">Información básica</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                    <!-- Name field -->
+                    <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
+                        <mat-label>{{ 'maintainers.feature-toggles.fields.name' | transloco }}</mat-label>
+                        <input
+                            [placeholder]="'maintainers.feature-toggles.fields.name' | transloco"
+                            formControlName="name"
+                            matInput
+                        />
+                        @if (form.controls.name.hasError('required')) {
+                            <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                        }
+                        @if (form.controls.name.hasError('pattern')) {
+                            <mat-error>{{ 'maintainers.feature-toggles.errors.invalidName' | transloco }}</mat-error>
+                        }
+                        <mat-hint>Identificador único del feature (sin espacios, solo letras, números, guiones y puntos)</mat-hint>
+                    </mat-form-field>
+
+                    <!-- Display Name field -->
+                    <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
+                        <mat-label>{{ 'maintainers.feature-toggles.fields.display-name' | transloco }}</mat-label>
+                        <input
+                            [placeholder]="'maintainers.feature-toggles.fields.display-name' | transloco"
+                            formControlName="displayName"
+                            matInput
+                        />
+                        @if (form.controls.displayName.hasError('required')) {
+                            <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+                        }
+                        <mat-hint>Nombre descriptivo para mostrar en la interfaz</mat-hint>
+                    </mat-form-field>
+                </div>
+
+                <!-- Description field -->
+                <mat-form-field class="w-full fuse-mat-dense mt-4" subscriptSizing="dynamic">
+                    <mat-label>{{ 'maintainers.feature-toggles.fields.description' | transloco }}</mat-label>
+                    <textarea
+                        [placeholder]="'maintainers.feature-toggles.fields.description' | transloco"
+                        formControlName="description"
+                        matInput
+                        rows="3"
+                    ></textarea>
+                    <mat-hint>Descripción detallada de la funcionalidad</mat-hint>
+                </mat-form-field>
+            </div>
+
+            <!-- Configuration section -->
+            <div class="w-full mt-2">
+                <h3 class="text-lg font-medium mb-4">Configuración</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                    <!-- Category field -->
+                    <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
+                        <mat-label>{{ 'maintainers.feature-toggles.fields.category' | transloco }}</mat-label>
+                        <input
+                            [placeholder]="'maintainers.feature-toggles.fields.category' | transloco"
+                            formControlName="category"
+                            matInput
+                        />
+                        <mat-hint>Categoría para agrupar features similares</mat-hint>
+                    </mat-form-field>
+
+                    <!-- Parent field -->
+                    <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
+                        <mat-label>{{ 'maintainers.feature-toggles.fields.parent' | transloco }}</mat-label>
+                        <mat-select formControlName="parentId">
+                            <mat-option [value]="''">Ninguno</mat-option>
+                            @for (parent of parentsResource.value() || []; track parent.id) {
+                                <mat-option [value]="parent.id">{{ parent.displayName }}</mat-option>
+                            }
+                        </mat-select>
+                        <mat-hint>Feature padre (opcional)</mat-hint>
+                    </mat-form-field>
+                </div>
+
+                <!-- Enabled toggle -->
+                <div class="mt-4 flex items-center">
+                    <mat-checkbox formControlName="enabled" color="primary">
+                        <span class="ml-2">{{ 'maintainers.feature-toggles.fields.enabled' | transloco }}</span>
+                    </mat-checkbox>
+                    <span class="ml-2 text-sm text-gray-500">Indica si el feature está habilitado inicialmente</span>
+                </div>
+            </div>
+
+            <!-- Metadata section -->
+            <div class="w-full mt-2">
+                <h3 class="text-lg font-medium mb-2">Metadatos (opcional)</h3>
+                <p class="text-sm text-gray-500 mb-4">Información adicional en formato JSON para configurar el comportamiento del feature</p>
+
+                <!-- JSON Textarea with validation -->
+                <div class="w-full">
+                    <div class="relative">
+                        <div class="absolute right-0 top-0 z-10">
+                            <button type="button" mat-icon-button (click)="formatJson()" matTooltip="Formatear JSON">
+                                <mat-icon>format_align_left</mat-icon>
+                            </button>
+                        </div>
+                        <mat-form-field class="w-full">
+                            <textarea
+                                matInput
+                                formControlName="metadataJson"
+                                rows="8"
+                                placeholder='{ "propiedad": "valor" }'
+                                spellcheck="false"
+                                class="font-mono text-sm"
+                            ></textarea>
+                            @if (form.get('metadataJson').hasError('invalidJson')) {
+                                <mat-error>
+                                    JSON inválido: {{ form.get('metadataJson').getError('invalidJson').message }}
+                                </mat-error>
+                            }
+                            <mat-hint>Ingrese un objeto JSON válido</mat-hint>
+                        </mat-form-field>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex-0 pt-4 w-full flex md:justify-end flex-col md:flex-row sm:items-center gap-6">
+                <button class="w-full md:w-30" color="secondary" mat-flat-button type="reset">
+                    <span [innerText]="'actions.reset' | transloco"></span>
+                </button>
+
+                <loader-button
+                    [disable]="form.disabled || form.invalid"
+                    [loading]="form.disabled"
+                    [label]="'actions.save' | transloco"
+                    buttonType="submit"
+                    class="w-full md:w-30"
+                ></loader-button>
+            </div>
+        </form>
+    </div>
+</div>

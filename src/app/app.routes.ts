@@ -100,6 +100,7 @@ export const appRoutes: Routes = [
                     {path: 'suppliers', loadChildren: () => import('app/modules/admin/maintainers/suppliers/suppliers.routes')},
                     {path: 'expense-types', loadChildren: () => import('app/modules/admin/maintainers/expense-types/expense-types.routes')},
                     {path: 'vehicles', loadChildren: () => import('app/modules/admin/maintainers/vehicles/vehicles.routes')},
+                    {path: 'feature-toggles', loadChildren: () => import('./modules/admin/maintainers/feature-toggles/feature-toggles.routes')}
                 ]
             }
         ]
