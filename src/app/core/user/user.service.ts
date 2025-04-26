@@ -4,6 +4,7 @@ import { inject, Injectable } from '@angular/core';
 import { map, Observable, ReplaySubject } from 'rxjs';
 import { User }                           from '@core/user/user.types';
 import { InfinityPagination }             from '@shared/domain/model/infinity-pagination';
+import { DriverLicenseDto }               from '@modules/admin/maintainers/users/models/driver-license.model';
 
 @Injectable({providedIn: 'root'})
 export class UserService {
@@ -37,5 +38,9 @@ export class UserService {
 
     remove(id: string) {
         return this._httpClient.delete('api/v1/users/' + id);
+    }
+
+    assignDriverLicense(userId: string, driverLicense: DriverLicenseDto): Observable<User> {
+        return this._httpClient.post<User>(`api/v1/users/${ userId }/driver-license`, driverLicense);
     }
 }

@@ -64,6 +64,10 @@
                 "title" : "Logística",
                 "vehicles" : "Vehículos",
                 "drivers" : "Conductores"
+            },
+            "settings" : {
+                "title" : "Configuración",
+                "feature-toggles" : "Características"
             }
         }
     },
@@ -319,7 +323,6 @@
                 "subtitle" : "Administra los productos de la aplicación",
                 "description" : "Lista de productos",
                 "no-data" : "No hay productos disponibles"
-
             },
             "new" : {
                 "title" : "Nuevo producto",
@@ -360,7 +363,24 @@
                 "created-at" : "Creado",
                 "actions" : "Acciones"
             },
-            "no-data" : "No hay usuarios disponibles"
+            "no-data" : "No hay usuarios disponibles",
+            "driver-license" : {
+                "title" : "Asignar licencia de conducir",
+                "assign" : "Asignar licencia de conducir",
+                "success" : "Licencia de conducir asignada correctamente",
+                "error" : "Error al asignar la licencia de conducir",
+                "fields" : {
+                    "licenseType" : "Tipo de licencia",
+                    "licenseValidFrom" : "Válida desde",
+                    "licenseValidTo" : "Válida hasta",
+                    "restrictions" : "Restricciones",
+                    "issuingAuthority" : "Autoridad emisora"
+                },
+                "placeholders" : {
+                    "restrictions" : "Restricciones de la licencia (opcional)",
+                    "issuingAuthority" : "Autoridad que emitió la licencia (opcional)"
+                }
+            }
         },
         "suppliers" : {
             "title" : "Proveedores",
@@ -605,6 +625,19 @@
             "next-page" : "Siguiente página",
             "previous-page" : "Página anterior",
             "range-label" : "{{startIndex}} - {{endIndex}} de {{length}}"
+        }
+    },
+    "customizations" : {
+        "jetbrains" : {
+            "settings" : {
+                "com.intellij:app:HttpConfigurable.use_proxy_pac" : true,
+                "com.intellij:app:Vcs-Log-App-Settings.show_changes_from_parents" : true,
+                "com.intellij:app:BaseRefactoringSettings.safe_delete_when_delete" : false,
+                "com.intellij:app:BaseRefactoringSettings.rename_search_in_comments_for_file" : false,
+                "com.intellij:app:BaseRefactoringSettings.rename_search_for_text_for_file" : false,
+                "com.intellij:app:BaseRefactoringSettings.rename_search_for_references_for_file" : false,
+                "com.intellij:app:BaseRefactoringSettings.rename_search_for_references_for_directory" : false
+            }
         }
     }
 }

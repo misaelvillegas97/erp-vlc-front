@@ -36,11 +36,14 @@ export interface Vehicle {
     type: VehicleType;            // Tipo de vehículo
     color: string;                // Color del vehículo
     fuelType: string;             // Tipo de combustible
-    lastKnownOdometer: number;    // Último odómetro registrado en km
     tankCapacity: number;         // Capacidad del tanque en litros
-    photoUrl?: string;            // URL de la foto del vehículo
+    lastKnownOdometer: number;    // Último odómetro registrado en km
     status: VehicleStatus;        // Estado actual del vehículo
-    currentSessionId?: string;    // ID de la sesión actual (si está en uso)
     lastMaintenanceDate?: string; // Fecha del último mantenimiento
     nextMaintenanceDate?: string; // Fecha programada para el próximo mantenimiento
+    nextMaintenanceKm?: number;     // Kilometraje programado para el próximo mantenimiento
+    insuranceExpiry?: string; // Fecha de expiración del seguro
+    technicalInspectionExpiry?: string; // Fecha de expiración de la revisión técnica
+    photoUrl?: string;            // URL de la foto del vehículo
+    currentSessionId?: string;    // ID de la sesión actual (si está en uso)
 }

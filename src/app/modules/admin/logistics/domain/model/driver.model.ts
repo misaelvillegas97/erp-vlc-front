@@ -27,10 +27,20 @@ export interface Driver {
     firstName: string;
     lastName: string;
     documentId: string;         // Número de identificación personal
-    licenseNumber: string;      // Número de licencia de conducir
-    licenseType: LicenseType;   // Tipo de licencia
-    licenseExpiryDate: string;  // Fecha de vencimiento de la licencia
     photoUrl?: string;          // URL de la foto del conductor
     status: DriverStatus;       // Estado actual del conductor
     currentSessionId?: string;  // ID de la sesión actual (si está en una)
+    driverLicense?: DriverLicense[]; // Información de licencia de conducir
+}
+
+/**
+ * Modelo que representa una licencia de conducir
+ */
+export interface DriverLicense {
+    id: string;
+    userId: string;            // ID del conductor al que pertenece la licencia
+    licenseType: LicenseType;  // Tipo de licencia
+    licenseValidFrom: string;    // Fecha de inicio de validez
+    licenseValidTo: string;      // Fecha de expiración de la licencia
+    restrictions: string; // Restricciones de la licencia (si las hay)
 }

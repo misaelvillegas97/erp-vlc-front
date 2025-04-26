@@ -27,7 +27,7 @@
                                 <mat-select formControlName="driverId" placeholder="Seleccione un conductor">
                                     @for (driver of availableDrivers(); track driver.id) {
                                         <mat-option [value]="driver.id">
-                                            {{ driver.firstName }} {{ driver.lastName }}
+                                            {{ driver.firstName }} {{ driver.lastName }} <span class="mat-hint">({{ driver.driverLicense[0].licenseType }})</span>
                                         </mat-option>
                                     } @empty {
                                         <mat-option disabled>
@@ -46,7 +46,7 @@
                                 <mat-select formControlName="vehicleId" placeholder="Seleccione un vehículo">
                                     @for (vehicle of availableVehicles(); track vehicle.id) {
                                         <mat-option [value]="vehicle.id">
-                                            {{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.licensePlate }})
+                                            {{ vehicle.brand }} {{ vehicle.model }} <span class="mat-hint">({{ vehicle.licensePlate }})</span>
                                         </mat-option>
                                     } @empty {
                                         <mat-option disabled>
@@ -155,12 +155,16 @@
                             <p class="font-medium">{{ selectedDriver().documentId }}</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Licencia</p>
-                            <p class="font-medium">{{ selectedDriver().licenseNumber }}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Categoría</p>
+                            <p class="font-medium">{{ selectedDriver().driverLicense[0].licenseType }}</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Categoría</p>
-                            <p class="font-medium">{{ selectedDriver().licenseType }}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Expiración de licencia</p>
+                            <p class="font-medium">{{ selectedDriver().driverLicense[0].licenseValidTo | date:'dd/MM/yyyy' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Restricciones</p>
+                            <p class="font-medium whitespace-pre-wrap">{{ selectedDriver().driverLicense[0].restrictions || 'Sin restricciones' }}</p>
                         </div>
                     </div>
                 </mat-card-content>
@@ -193,6 +197,11 @@
                         <div *ngIf="selectedVehicle().lastMaintenanceDate">
                             <p class="text-sm text-gray-500 dark:text-gray-400">Último mantenimiento</p>
                             <p class="font-medium">{{ selectedVehicle().lastMaintenanceDate | date:'dd/MM/yyyy' }}</p>
+                        </div>
+                        <!-- Last known odometer -->
+                        <div *ngIf="selectedVehicle().lastKnownOdometer">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Último odómetro conocido</p>
+                            <p class="font-medium">{{ selectedVehicle().lastKnownOdometer }} Kms</p>
                         </div>
                     </div>
                 </mat-card-content>

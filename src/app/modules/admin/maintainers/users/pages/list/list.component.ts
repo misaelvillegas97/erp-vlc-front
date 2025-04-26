@@ -16,6 +16,8 @@ import { debounceTime, firstValueFrom }                                         
 import { MatTableModule }                                                                      from '@angular/material/table';
 import { trackByFn }                                                                           from '@libs/ui/utils/utils';
 import { TableBuilderComponent }                                                               from '@shared/components/table-builder/table-builder.component';
+import { MatDialog }                                                                           from '@angular/material/dialog';
+import { DriverLicenseDialogComponent }                                                        from '../../dialog/driver-license/driver-license.component';
 import { ColumnConfig }                                                                        from '@shared/components/table-builder/column.type';
 
 @Component({
@@ -41,6 +43,7 @@ export class ListComponent {
     readonly #fuseConfirmationService = inject(FuseConfirmationService);
     readonly #userService = inject(UserService);
     readonly #ts = inject(TranslocoService);
+    readonly #dialog = inject(MatDialog);
 
     searchControl = new FormControl<string>(undefined);
     searchControlSignal = toSignal(this.searchControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
@@ -81,10 +84,31 @@ export class ListComponent {
             .subscribe((result) => result === 'confirmed' && this.#userService.remove(user.id).subscribe(() => this.usersResource.reload()));
     };
 
+    assignDriverLicense = (user: User) => {
+        const dialogRef = this.#dialog.open(DriverLicenseDialogComponent, {
+            width: '500px',
+            data : {user}
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                this.usersResource.reload();
+            }
+        });
+    };
+
     buildColumnsConfig = (): ColumnConfig<User>[] => [
         {key: 'name', header: this.#ts.translate('maintainers.users.fields.name'), visible: true, display: {type: 'text'}},
         {key: 'email', header: this.#ts.translate('maintainers.users.fields.email'), visible: true, display: {type: 'text'}},
-        {key: 'role', header: this.#ts.translate('maintainers.users.fields.role'), visible: true, display: {type: 'text'}},
+        {
+            key    : 'role',
+            header : this.#ts.translate('maintainers.users.fields.role'),
+            visible: true,
+            display: {
+                type     : 'text',
+                formatter: (value: User['role']) => value.name
+            }
+        },
         {key: 'createdAt', header: this.#ts.translate('maintainers.users.fields.created-at'), visible: true, display: {type: 'text'}},
         {
             key    : 'actions',

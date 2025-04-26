@@ -223,7 +223,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 type    : 'group',
                 children: [
                     {
-                        id  : 'maintainers.settings.list.title',
+                        id: 'maintainers.settings.feature-toggles',
                         type: 'basic',
                         link: '/maintainers/feature-toggles/list',
                         icon: 'heroicons_outline:cog'

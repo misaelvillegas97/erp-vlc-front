@@ -53,6 +53,9 @@
             <button mat-icon-button>
                 <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil"></mat-icon>
             </button>
+            <button (click)="assignDriverLicense(user)" mat-icon-button matTooltip="{{ 'maintainers.users.driver-license.assign' | transloco }}">
+                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:identification"></mat-icon>
+            </button>
             <button (click)="remove(user)" mat-icon-button>
                 <mat-icon class="icon-size-5" svgIcon="heroicons_outline:trash"></mat-icon>
             </button>

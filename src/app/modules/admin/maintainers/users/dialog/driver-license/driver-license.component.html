@@ -1,0 +1,71 @@
+<h2 class="text-lg border-b pb-2" mat-dialog-title>
+    {{ 'maintainers.users.driver-license.title' | transloco }}: {{ user.name }}
+</h2>
+
+<mat-dialog-content class="py-4">
+    <form [formGroup]="form" class="space-y-4">
+        <!-- License Type -->
+        <mat-form-field class="w-full" floatLabel="always">
+            <mat-label>{{ 'maintainers.users.driver-license.fields.licenseType' | transloco }}</mat-label>
+            <mat-select formControlName="licenseType" placeholder="Seleccione un tipo de licencia" required>
+                @for (type of licenseTypes; track type) {
+                    <mat-option [value]="type">{{ type }}</mat-option>
+                }
+            </mat-select>
+            @if (form.get('licenseType').hasError('required')) {
+                <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+            }
+        </mat-form-field>
+
+        <!-- Valid From Date -->
+        <mat-form-field class="w-full">
+            <mat-label>{{ 'maintainers.users.driver-license.fields.licenseValidFrom' | transloco }}</mat-label>
+            <input matInput [matDatepicker]="validFromPicker" formControlName="licenseValidFrom">
+            <mat-datepicker-toggle matIconSuffix [for]="validFromPicker"></mat-datepicker-toggle>
+            <mat-datepicker #validFromPicker disabled="false"></mat-datepicker>
+
+            @if (form.get('licenseValidFrom').hasError('required')) {
+                <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+            }
+        </mat-form-field>
+
+        <!-- Valid To Date -->
+        <mat-form-field class="w-full">
+            <mat-label>{{ 'maintainers.users.driver-license.fields.licenseValidTo' | transloco }}</mat-label>
+            <input matInput [matDatepicker]="validToPicker" formControlName="licenseValidTo">
+            <mat-datepicker-toggle matIconSuffix [for]="validToPicker"></mat-datepicker-toggle>
+            <mat-datepicker #validToPicker disabled="false"></mat-datepicker>
+            @if (form.get('licenseValidTo').hasError('required')) {
+                <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
+            }
+        </mat-form-field>
+
+        <!-- Restrictions (optional) -->
+        <mat-form-field class="w-full">
+            <mat-label>{{ 'maintainers.users.driver-license.fields.restrictions' | transloco }}</mat-label>
+            <textarea
+                formControlName="restrictions"
+                matInput
+                rows="3"
+                placeholder="{{ 'maintainers.users.driver-license.placeholders.restrictions' | transloco }}"
+            ></textarea>
+        </mat-form-field>
+
+        <!-- Issuing Authority (optional) -->
+        <mat-form-field class="w-full">
+            <mat-label>{{ 'maintainers.users.driver-license.fields.issuingAuthority' | transloco }}</mat-label>
+            <input
+                formControlName="issuingAuthority"
+                matInput
+                placeholder="{{ 'maintainers.users.driver-license.placeholders.issuingAuthority' | transloco }}"
+            >
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="pt-2">
+    <button color="warn" mat-button mat-dialog-close>{{ 'actions.cancel' | transloco }}</button>
+    <button (click)="submit()" color="primary" mat-raised-button [disabled]="form.invalid">
+        {{ 'actions.save' | transloco }}
+    </button>
+</mat-dialog-actions>
