@@ -1,3 +1,6 @@
+import { Driver }  from '@modules/admin/logistics/domain/model/driver.model';
+import { Vehicle } from '@modules/admin/logistics/domain/model/vehicle.model';
+
 /**
  * Representa una coordenada geográfica con datos adicionales
  */
@@ -26,10 +29,8 @@ export interface VehicleSession {
     driverId: string;               // ID del conductor
     vehicleId: string;              // ID del vehículo
     status: SessionStatus;          // Estado de la sesión
-    startTimestamp: string;         // Fecha y hora de inicio
-    startTime?: string;             // Alias para compatibilidad
-    endTimestamp?: string;          // Fecha y hora de finalización (si corresponde)
-    endTime?: string;               // Alias para compatibilidad
+    startTime: Date;         // Fecha y hora de inicio
+    endTime?: Date;          // Fecha y hora de finalización
     initialOdometer: number;        // Lectura del odómetro al inicio
     finalOdometer?: number;         // Lectura del odómetro al finalizar
     initialLocation: GeoLocation;   // Ubicación inicial
@@ -40,11 +41,9 @@ export interface VehicleSession {
     photoUrls?: string[];           // URLs de fotos tomadas durante la sesión
     purpose?: string;               // Propósito de la sesión
     notes?: string;                 // Notas adicionales
-    locationHistory?: GeoLocation[]; // Historial de ubicaciones
-
-    // Campos para integración con vistas
-    driverName?: string;            // Nombre del conductor (para vistas)
-    vehicleInfo?: string;           // Información del vehículo (para vistas)
+    locations?: GeoLocation[]; // Historial de ubicaciones
+    driver?: Driver;
+    vehicle?: Vehicle;
 }
 
 /**

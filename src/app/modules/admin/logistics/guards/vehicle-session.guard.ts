@@ -18,13 +18,13 @@ export class VehicleSessionGuard implements CanActivate {
         const sessionId = route.paramMap.get('id');
 
         if (!sessionId) {
+            console.warn('No se ha proporcionado un ID de sesión');
             this.#router.navigate([ '/logistics/active-sessions' ]);
             return of(false);
         }
 
         return this.#sessionsService.findById(sessionId).pipe(
             map(session => {
-                // Solo permitir acceso si la sesión está activa
                 if (session && session.status === SessionStatus.ACTIVE) {
                     return true;
                 }

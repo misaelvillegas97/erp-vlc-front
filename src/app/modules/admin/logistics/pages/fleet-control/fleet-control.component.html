@@ -27,7 +27,7 @@
                                 <mat-select formControlName="driverId" placeholder="Seleccione un conductor">
                                     @for (driver of availableDrivers(); track driver.id) {
                                         <mat-option [value]="driver.id">
-                                            {{ driver.firstName }} {{ driver.lastName }} <span class="mat-hint">({{ driver.driverLicense[0].licenseType }})</span>
+                                            {{ driver.firstName }} {{ driver.lastName }} <span class="mat-hint">(Clase: {{ driver.driverLicense[0].licenseType }})</span>
                                         </mat-option>
                                     } @empty {
                                         <mat-option disabled>
@@ -201,6 +201,7 @@
                         <!-- Last known odometer -->
                         <div *ngIf="selectedVehicle().lastKnownOdometer">
                             <p class="text-sm text-gray-500 dark:text-gray-400">Último odómetro conocido</p>
+
                             <p class="font-medium">{{ selectedVehicle().lastKnownOdometer }} Kms</p>
                         </div>
                     </div>

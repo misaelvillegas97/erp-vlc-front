@@ -198,6 +198,7 @@ export class FleetControlComponent implements OnInit, OnDestroy {
             )
             .subscribe(vehicle => {
                 this.selectedVehicle.set(vehicle);
+                this.form.patchValue({initialOdometer: vehicle.lastKnownOdometer || 0});
             });
     }
 

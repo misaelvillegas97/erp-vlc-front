@@ -15,8 +15,9 @@ import { Notyf }                                                                
 import { interval, Subscription }                                                          from 'rxjs';
 import { debounceTime, distinctUntilChanged, startWith }                                   from 'rxjs/operators';
 import { VehicleSessionsService }                                                          from '../../services/vehicle-sessions.service';
-import { ActiveSessionView }                                                               from '../../domain/model/vehicle-session.model';
+import { VehicleSession }                                                                  from '../../domain/model/vehicle-session.model';
 import { ConfirmDialogComponent }                                                          from './confirm-dialog.component';
+import { DateTime }                                                                        from 'luxon';
 
 @Component({
     selector   : 'app-active-sessions',
@@ -50,7 +51,7 @@ export class ActiveSessionsComponent implements OnInit, OnDestroy {
 
     // Signals para estado
     isLoading = signal(true);
-    activeSessions = signal<ActiveSessionView[]>([]);
+    activeSessions = signal<VehicleSession[]>([]);
     searchTerm = signal('');
     sortOption = signal('duration_desc');
 
@@ -71,10 +72,10 @@ export class ActiveSessionsComponent implements OnInit, OnDestroy {
 
         switch (this.sortOption()) {
             case 'duration_asc':
-                sessions.sort((a, b) => a.duration - b.duration);
+                sessions.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
                 break;
             case 'duration_desc':
-                sessions.sort((a, b) => b.duration - a.duration);
+                sessions.sort((a, b) => b.startTime.getTime() - a.startTime.getTime());
                 break;
             case 'name_asc':
                 sessions.sort((a, b) =>
@@ -156,31 +157,13 @@ export class ActiveSessionsComponent implements OnInit, OnDestroy {
         });
     }
 
-    formatDuration(minutes: number): string {
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        return `${ hours }h ${ mins }m`;
-    }
+    formatDuration(startTime: Date): string {
+        const timeDiff = DateTime.fromJSDate(new Date(startTime));
+        const now = DateTime.now();
+        const diff = now.diff(timeDiff, [ 'hours', 'minutes' ]);
+        const hours = Math.floor(diff.hours);
+        const minutes = Math.floor(diff.minutes);
 
-    getStatusColor(status: 'normal' | 'warning' | 'alert'): string {
-        switch (status) {
-            case 'normal':
-                return 'bg-green-600 hover:bg-green-700';
-            case 'warning':
-                return 'bg-amber-600 hover:bg-amber-700';
-            case 'alert':
-                return 'bg-red-600 hover:bg-red-700';
-        }
-    }
-
-    getStatusText(status: 'normal' | 'warning' | 'alert'): string {
-        switch (status) {
-            case 'normal':
-                return 'Normal';
-            case 'warning':
-                return 'Extendido';
-            case 'alert':
-                return 'Excedido';
-        }
+        return `${ hours }h ${ minutes }m`;
     }
 }

@@ -106,13 +106,13 @@ export class HistoryComponent implements OnInit {
         const dateFrom = this.dateFromSignal();
         if (dateFrom) {
             const fromDate = new Date(dateFrom);
-            filtered = filtered.filter(session => new Date(session.startTimestamp) >= fromDate);
+            filtered = filtered.filter(session => new Date(session.startTime) >= fromDate);
         }
         const dateTo = this.dateToSignal();
         if (dateTo) {
             const toDate = new Date(dateTo);
             toDate.setHours(23, 59, 59, 999);
-            filtered = filtered.filter(session => new Date(session.startTimestamp) <= toDate);
+            filtered = filtered.filter(session => new Date(session.startTime) <= toDate);
         }
         const statusValue = this.statusFilterSignal();
         if (statusValue) {

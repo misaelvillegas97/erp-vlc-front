@@ -13,7 +13,7 @@ import { VehiclesService }                                                      
 import { NotyfService }                                                          from '@shared/services/notyf.service';
 import { of, Subject }                                                           from 'rxjs';
 import { catchError, switchMap, takeUntil, tap }                                 from 'rxjs/operators';
-import { ActiveSessionView, GeoLocation, VehicleSession }                        from '../../domain/model/vehicle-session.model';
+import { GeoLocation, VehicleSession }                                           from '../../domain/model/vehicle-session.model';
 import { Driver }                                                                from '../../domain/model/driver.model';
 import { Vehicle }                                                               from '../../domain/model/vehicle.model';
 import { MatMenu, MatMenuItem, MatMenuTrigger }                                  from '@angular/material/menu';
@@ -49,7 +49,7 @@ export class DrivingModeComponent implements OnInit, OnDestroy {
 
     // Signals para estado reactivo
     isLoading = signal(true);
-    activeSessions = signal<ActiveSessionView[]>([]);
+    activeSessions = signal<VehicleSession[]>([]);
     currentSession = signal<VehicleSession | null>(null);
     driver = signal<Driver | null>(null);
     vehicle = signal<Vehicle | null>(null);
@@ -128,7 +128,7 @@ export class DrivingModeComponent implements OnInit, OnDestroy {
                 takeUntil(this.destroy$),
                 tap(session => {
                     this.currentSession.set(session);
-                    this.sessionStartTime.set(new Date(session.startTimestamp));
+                    this.sessionStartTime.set(new Date(session.startTime));
                     this.updateElapsedTime();
                 }),
                 switchMap(session => {

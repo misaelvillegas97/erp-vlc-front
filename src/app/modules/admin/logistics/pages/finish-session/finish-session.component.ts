@@ -72,7 +72,7 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
     elapsedMinutes = computed(() => {
         const s = this.session();
         if (!s) return 0;
-        const diff = Date.now() - new Date(s.startTimestamp).getTime();
+        const diff = Date.now() - new Date(s.startTime).getTime();
         return Math.floor(diff / 60000);
     });
 

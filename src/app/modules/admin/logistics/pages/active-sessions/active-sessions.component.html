@@ -73,11 +73,11 @@
             @for (session of filteredSessions(); track session.id) {
                     <mat-card class="relative overflow-hidden">
                         <!-- Indicador de estado -->
-                        <div class="absolute top-2 right-2">
-                            <div class="px-3 py-1 rounded-full text-xs font-medium text-white shadow-sm {{ getStatusColor(session.status) }}">
-                                {{ getStatusText(session.status) }}
-                            </div>
-                        </div>
+                        <!-- <div class="absolute top-2 right-2">-->
+                        <!--    <div class="px-3 py-1 rounded-full text-xs font-medium text-white shadow-sm {{ getStatusColor(session.status) }}">-->
+                        <!--        {{ getStatusText(session.status) }}-->
+                        <!--    </div>-->
+                        <!-- </div>-->
 
                         <mat-card-content class="p-4">
                             <div class="flex flex-col">
@@ -125,11 +125,11 @@
                                 <div class="flex flex-wrap gap-4">
                                     <div class="flex-1 min-w-[120px]">
                                         <p class="text-sm text-gray-500 dark:text-gray-400">Inicio</p>
-                                        <p class="font-medium">{{ session.startTimestamp | date:'dd/MM/yyyy HH:mm' }}</p>
+                                        <p class="font-medium">{{ session.startTime | date:'dd/MM/yyyy HH:mm' }}</p>
                                     </div>
                                     <div class="flex-1 min-w-[120px]">
                                         <p class="text-sm text-gray-500 dark:text-gray-400">Duración</p>
-                                        <p class="font-medium">{{ formatDuration(session.duration) }}</p>
+                                        <p class="font-medium">{{ formatDuration(session.startTime) }}</p>
                                     </div>
                                     <div class="flex-1 min-w-[120px]">
                                         <p class="text-sm text-gray-500 dark:text-gray-400">Odómetro inicial</p>
