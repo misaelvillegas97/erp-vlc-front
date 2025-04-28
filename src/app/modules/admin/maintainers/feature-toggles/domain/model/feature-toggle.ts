@@ -1,3 +1,5 @@
+import { RequiredMetadata } from '@modules/admin/maintainers/feature-toggles/domain/model/required-metadata';
+
 export interface FeatureToggleEntity {
     id?: string;
     name: string;
@@ -6,6 +8,7 @@ export interface FeatureToggleEntity {
     enabled: boolean;
     category?: string;
     metadata?: Record<string, any>;
+    requiredMetadata: RequiredMetadata[];
     parentId?: string;
     parent?: FeatureToggleEntity;
     children?: FeatureToggleEntity[];

@@ -51,7 +51,7 @@ export class SessionDetailsComponent implements OnInit {
 
     // Google Maps options
     mapOptions = signal({
-        center           : {lat: 0, lng: 0},
+        center        : {lat: 0, lng: 0},
         // zoom             : 14,
         mapTypeId        : 'roadmap',
         mapTypeControl: false,
@@ -97,7 +97,6 @@ export class SessionDetailsComponent implements OnInit {
         }
 
         this.loadSessionDetails();
-        this.interval = setInterval(() => this.loadSessionDetails(), 30000);
     }
 
     ngOnDestroy(): void {
@@ -107,6 +106,7 @@ export class SessionDetailsComponent implements OnInit {
     private loadSessionDetails(): void {
         console.log('Loading session details...');
         this.isLoading.set(true);
+        clearInterval(this.interval);
 
         this.sessionsService.findById(this.sessionId()).subscribe({
             next : (session) => {
@@ -116,6 +116,22 @@ export class SessionDetailsComponent implements OnInit {
 
                 if (session.gps && session.gps.length > 0) {
                     this.setupMapData(session.gps);
+                }
+
+                if (session.status === SessionStatus.ACTIVE) {
+                    this.interval = setInterval(() => {
+                        this.sessionsService.findById(this.sessionId()).subscribe({
+                            next : (session) => {
+                                this.session.set(session);
+                                if (session.gps && session.gps.length > 0) {
+                                    this.setupMapData(session.gps);
+                                }
+                            },
+                            error: (error) => {
+                                console.error('Error loading session details', error);
+                            }
+                        });
+                    }, 30000);
                 }
             },
             error: (error) => {

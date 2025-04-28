@@ -71,15 +71,137 @@
             </button>
         </div>
 
-        <!-- Table with data -->
-        <div class="relative max-w-full overflow-auto w-full">
-            @if (columnsConfig()) {
-                <table-builder
-                    [columns]="columnsConfig()"
-                    [data]="featureTogglesResource.value() || []"
-                    [itemsPerPageLabel]="'Registros por página'"
-                    class="w-full"
-                ></table-builder>
+        <!-- Feature toggles accordion view -->
+        <div class="relative max-w-full w-full">
+            @if (categorizedFeatures.size > 0) {
+                <div class="grid grid-cols-1 gap-4">
+                    @for (category of categorizedFeatures.keys(); track category) {
+                        <div class="bg-hover rounded-lg shadow-sm overflow-hidden">
+                            <!-- Category header -->
+                            <div
+                                class="p-4 flex items-center justify-between cursor-pointer hover:bg-hover transition-colors"
+                                (click)="toggleCategory(category)"
+                            >
+                                <h3 class="text-lg font-medium">{{ category }}</h3>
+                                <mat-icon class="text-gray-500 transition-transform duration-200"
+                                          [ngClass]="{'rotate-180': expandedCategories.has(category)}">
+                                    expand_more
+                                </mat-icon>
+                            </div>
+
+                            <!-- Category content -->
+                            <div class="overflow-hidden transition-all duration-300 ease-in-out"
+                                 [ngClass]="{'max-h-0': !expandedCategories.has(category), 'max-h-[5000px]': expandedCategories.has(category)}">
+                                <div class="p-4">
+                                    <mat-tree [dataSource]="categoryDataSources.get(category)" [treeControl]="treeControl" class="w-full">
+                                        <!-- Tree node template for leaf nodes -->
+                                        <mat-tree-node *matTreeNodeDef="let node">
+                                            <div class="flex flex-col md:flex-row items-start md:items-center w-full py-3 px-2 rounded-lg hover:bg-hover">
+                                                <div class="flex-1 flex flex-col mb-2 md:mb-0">
+                                                    <span class="font-medium">{{ node.displayName }}</span>
+                                                    <span class="text-sm text-gray-500">{{ node.name }}</span>
+                                                    @if (node.description) {
+                                                        <span class="text-xs text-gray-500 mt-1">{{ node.description }}</span>
+                                                    }
+                                                </div>
+                                                <div class="flex flex-row items-center gap-4 w-full md:w-auto">
+                                                    <span class="flex-0">
+                                                        <mat-slide-toggle
+                                                            [checked]="node.enabled"
+                                                            (change)="toggleFeature(node, $event)"
+                                                            color="primary"
+                                                        ></mat-slide-toggle>
+                                                    </span>
+                                                    <span class="flex-0">
+                                                        <div class="flex gap-2">
+                                                            <a
+                                                                [routerLink]="['/maintainers', 'feature-toggles', 'edit', node.id]"
+                                                                mat-icon-button
+                                                                [matTooltip]="'actions.edit' | transloco"
+                                                                class="text-blue-600"
+                                                            >
+                                                                <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:pencil"></mat-icon>
+                                                            </a>
+                                                            <button
+                                                                mat-icon-button
+                                                                (click)="deleteFeature(node)"
+                                                                [matTooltip]="'actions.delete' | transloco"
+                                                                class="text-red-600"
+                                                            >
+                                                                <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:trash"></mat-icon>
+                                                            </button>
+                                                        </div>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </mat-tree-node>
+
+                                        <!-- Tree node template for expandable nodes -->
+                                        <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+                                            <div class="mat-tree-node flex flex-col md:flex-row items-start md:items-center w-full py-3 px-2 rounded-lg bg-card hover:bg-hover">
+                                                <div class="flex items-center flex-1 mb-2 md:mb-0">
+                                                    <button mat-icon-button matTreeNodeToggle
+                                                            class="mr-2 flex-shrink-0"
+                                                            [attr.aria-label]="'Toggle ' + node.displayName">
+                                                        <mat-icon class="mat-icon-rtl-mirror">
+                                                            {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+                                                        </mat-icon>
+                                                    </button>
+                                                    <div class="flex flex-col">
+                                                        <span class="font-medium">{{ node.displayName }}</span>
+                                                        <span class="text-sm text-gray-500">{{ node.name }}</span>
+                                                        @if (node.description) {
+                                                            <span class="text-xs text-gray-500 mt-1">{{ node.description }}</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="flex flex-row items-center gap-4 w-full md:w-auto">
+                                                    <span class="flex-0">
+                                                        <mat-slide-toggle
+                                                            [checked]="node.enabled"
+                                                            (change)="toggleFeature(node, $event)"
+                                                            color="primary"
+                                                        ></mat-slide-toggle>
+                                                    </span>
+                                                    <span class="flex-0">
+                                                        <div class="flex gap-2">
+                                                            <a
+                                                                [routerLink]="['/maintainers', 'feature-toggles', 'edit', node.id]"
+                                                                mat-icon-button
+                                                                [matTooltip]="'actions.edit' | transloco"
+                                                                class="text-blue-600"
+                                                            >
+                                                                <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:pencil"></mat-icon>
+                                                            </a>
+                                                            <button
+                                                                mat-icon-button
+                                                                (click)="deleteFeature(node)"
+                                                                [matTooltip]="'actions.delete' | transloco"
+                                                                class="text-red-600"
+                                                            >
+                                                                <mat-icon class="icon-size-4.5" svgIcon="heroicons_outline:trash"></mat-icon>
+                                                            </button>
+                                                        </div>
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div [class.hidden]="!treeControl.isExpanded(node)"
+                                                 class="ml-4 pl-4 border-l-2 border-gray-200"
+                                                 role="group">
+                                                <ng-container matTreeNodeOutlet></ng-container>
+                                            </div>
+                                        </mat-nested-tree-node>
+                                    </mat-tree>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            } @else {
+                <div class="p-4 text-center text-gray-500  rounded-lg shadow-sm">
+                    No se encontraron feature toggles.
+                </div>
             }
         </div>
     </div>
