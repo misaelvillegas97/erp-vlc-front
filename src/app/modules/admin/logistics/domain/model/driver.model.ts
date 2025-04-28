@@ -24,11 +24,11 @@ export enum LicenseType {
  */
 export interface Driver {
     id: string;
+    name: string;
     firstName: string;
     lastName: string;
     documentId: string;         // Número de identificación personal
     photoUrl?: string;          // URL de la foto del conductor
-    status: DriverStatus;       // Estado actual del conductor
     currentSessionId?: string;  // ID de la sesión actual (si está en una)
     driverLicense?: DriverLicense[]; // Información de licencia de conducir
 }

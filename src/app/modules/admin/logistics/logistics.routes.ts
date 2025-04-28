@@ -33,6 +33,12 @@ export default [
                 title        : 'Finalizar Sesión'
             },
             {
+                path         : 'session-details/:id',
+                loadComponent: () =>
+                    import('./pages/session-details/session-details.component').then(m => m.SessionDetailsComponent),
+                title        : 'Detalles de Sesión'
+            },
+            {
                 path         : 'history',
                 loadComponent: () =>
                     import('./pages/history/history.component').then(m => m.HistoryComponent),

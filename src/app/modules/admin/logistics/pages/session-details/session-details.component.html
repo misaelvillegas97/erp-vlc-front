@@ -1,0 +1,318 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        title="Detalles de Sesión de Vehículo"
+        subtitle="Información detallada sobre la sesión de uso del vehículo">
+    </page-header>
+
+    <!-- Estado de carga -->
+    @if (isLoading()) {
+        <div class="flex justify-center items-center py-20">
+            <div class="text-center">
+                <mat-spinner diameter="48" color="primary"></mat-spinner>
+                <p class="mt-4 text-gray-600 dark:text-gray-300">Cargando detalles de la sesión...</p>
+            </div>
+        </div>
+    } @else if (!session()) {
+        <div class="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 shadow rounded-lg">
+            <mat-icon class="text-gray-400 icon-size-10 mb-4" svgIcon="mat_outline:error_outline"></mat-icon>
+            <h3 class="text-xl font-bold mb-2">Sesión no encontrada</h3>
+            <p class="text-center mb-6 max-w-lg text-gray-500 dark:text-gray-400">
+                No se pudo encontrar la sesión solicitada. Es posible que haya sido eliminada o que no tenga permisos para verla.
+            </p>
+            <button mat-flat-button color="primary" (click)="goBack()">
+                Volver
+            </button>
+        </div>
+    } @else {
+        <div class="flex-1 flex flex-col w-full max-w-7xl mx-auto py-6 px-4 sm:px-6">
+            <!-- Botón de volver -->
+            <div class="mb-4">
+                <button mat-button color="primary" (click)="goBack()">
+                    <mat-icon>arrow_back</mat-icon>
+                    Volver
+                </button>
+            </div>
+
+            <!-- Encabezado con estado -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                <h1 class="text-2xl font-bold">
+                    Sesión #{{ session()?.id.substring(0, 8) }}
+                </h1>
+                <div class="mt-2 sm:mt-0">
+                    <span class="px-4 py-2 rounded-full text-sm font-medium text-white shadow-sm"
+                          [ngClass]="getStatusClass(session()?.status || SessionStatus.ACTIVE)">
+                        {{ getStatusText(session()?.status || SessionStatus.ACTIVE) }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Información principal -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- Información del conductor -->
+                <mat-card>
+                    <mat-card-content>
+                        <div class="flex items-center mb-4">
+                            <mat-icon class="text-blue-500 mr-2" svgIcon="heroicons_outline:user"></mat-icon>
+                            <h2 class="text-xl font-semibold">Información del Conductor</h2>
+                        </div>
+
+                        @if (session()?.driver) {
+                            <div class="flex items-center mb-4">
+                                <div class="flex-shrink-0">
+                                    <img
+                                        [src]="session()?.driver?.photoUrl"
+                                        alt="Foto del conductor"
+                                        class="w-16 h-16 rounded-full object-cover"
+                                        onerror="this.src='images/avatars/male-01.jpg'"
+                                    >
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-lg font-semibold">
+                                        {{ session()?.driver?.firstName }} {{ session()?.driver?.lastName }}
+                                    </p>
+                                    <p class="text-sm text-gray-500">
+                                        ID: {{ session()?.driver?.documentId }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            @if (session()?.driver?.driverLicense && session()?.driver?.driverLicense.length > 0) {
+                                <div class="mt-4">
+                                    <p class="font-medium">Licencia de conducir:</p>
+                                    <p class="text-sm">
+                                        Tipo: {{ session()?.driver?.driverLicense[0].licenseType }}
+                                    </p>
+                                    <p class="text-sm">
+                                        Válida hasta: {{ session()?.driver?.driverLicense[0].licenseValidTo | date:'dd/MM/yyyy' }}
+                                    </p>
+                                </div>
+                            }
+                        } @else {
+                            <p class="text-gray-500">ID del conductor: {{ session()?.driverId }}</p>
+                        }
+                    </mat-card-content>
+                </mat-card>
+
+                <!-- Información del vehículo -->
+                <mat-card>
+                    <mat-card-content>
+                        <div class="flex items-center mb-4">
+                            <mat-icon class="text-blue-500 mr-2" svgIcon="heroicons_outline:truck"></mat-icon>
+                            <h2 class="text-xl font-semibold">Información del Vehículo</h2>
+                        </div>
+
+                        @if (session()?.vehicle) {
+                            <div class="flex items-center mb-4">
+                                <div class="flex-shrink-0">
+                                    <img
+                                        [src]="session()?.vehicle?.photoUrl"
+                                        alt="Foto del vehículo"
+                                        class="w-16 h-16 rounded object-cover"
+                                        onerror="this.src='images/placeholders/vehicle.png'"
+                                    >
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-lg font-semibold">
+                                        {{ session()?.vehicle?.brand }} {{ session()?.vehicle?.model }}
+                                    </p>
+                                    <p class="text-sm text-gray-500">
+                                        Placa: {{ session()?.vehicle?.licensePlate }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 mt-4">
+                                <div>
+                                    <p class="text-sm text-gray-500">Año:</p>
+                                    <p class="font-medium">{{ session()?.vehicle?.year }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Color:</p>
+                                    <p class="font-medium">{{ session()?.vehicle?.color }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Tipo:</p>
+                                    <p class="font-medium">{{ session()?.vehicle?.type }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Combustible:</p>
+                                    <p class="font-medium">{{ session()?.vehicle?.fuelType }}</p>
+                                </div>
+                            </div>
+                        } @else {
+                            <p class="text-gray-500">ID del vehículo: {{ session()?.vehicleId }}</p>
+                        }
+                    </mat-card-content>
+                </mat-card>
+
+                <!-- Información de la sesión -->
+                <mat-card>
+                    <mat-card-content>
+                        <div class="flex items-center mb-4">
+                            <mat-icon class="text-blue-500 mr-2" svgIcon="heroicons_outline:clock"></mat-icon>
+                            <h2 class="text-xl font-semibold">Detalles de la Sesión</h2>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-500">Inicio:</p>
+                                <p class="font-medium">{{ session()?.startTime | date:'dd-MM-yyyy HH:mm:ss' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Fin:</p>
+                                <p class="font-medium">{{ session()?.endTime ? (session().endTime | date:'dd-MM-yyyy HH:mm:ss') : 'En curso' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Duración:</p>
+                                <p class="font-medium">{{ formatDuration(session()?.startTime, session()?.endTime) }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Odómetro inicial:</p>
+                                <p class="font-medium">{{ session()?.initialOdometer }} km</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Odómetro final:</p>
+                                <p class="font-medium">{{ session()?.finalOdometer ? session()?.finalOdometer + ' km' : 'N/A' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Distancia recorrida:</p>
+                                <p class="font-medium">
+                                    @if (session()?.finalOdometer && session()?.initialOdometer) {
+                                        {{ (session()?.finalOdometer - session()?.initialOdometer).toFixed(1) }} km
+                                    } @else if (totalDistance()) {
+                                        {{ formatDistance(totalDistance()) }}
+                                    } @else {
+                                        N/A
+                                    }
+                                </p>
+                            </div>
+                        </div>
+
+                        @if (session()?.observations) {
+                            <div class="mt-4">
+                                <p class="text-sm text-gray-500">Observaciones:</p>
+                                <p class="font-medium">{{ session()?.observations }}</p>
+                            </div>
+                        }
+
+                        @if (session()?.incidents) {
+                            <div class="mt-4">
+                                <p class="text-sm text-gray-500">Incidentes:</p>
+                                <p class="font-medium">{{ session()?.incidents }}</p>
+                            </div>
+                        }
+                    </mat-card-content>
+                </mat-card>
+            </div>
+
+            <!-- Mapa y datos GPS -->
+            <mat-card class="mb-6">
+                <mat-card-content>
+                    <div class="flex items-center mb-4">
+                        <mat-icon class="text-blue-500 mr-2" svgIcon="heroicons_outline:map"></mat-icon>
+                        <h2 class="text-xl font-semibold">Ruta GPS</h2>
+                    </div>
+
+                    @if (!session()?.gps || session()?.gps.length === 0) {
+                        <div class="flex flex-col items-center justify-center py-10 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <mat-icon class="text-gray-400 icon-size-8 mb-4" svgIcon="mat_outline:location_off"></mat-icon>
+                            <p class="text-center text-gray-500 dark:text-gray-400">
+                                No hay datos GPS disponibles para esta sesión.
+                            </p>
+                        </div>
+                    } @else {
+                        <!-- Mapa de Google -->
+                        <div class="h-96 w-full mb-4">
+                            <google-map
+                                height="100%"
+                                width="100%"
+                                [options]="mapOptions()"
+                                [center]="mapCenter()">
+
+                                <!-- Marcadores de inicio y fin -->
+                                @for (marker of markers(); track marker.position) {
+                                    <map-marker [position]="marker.position" [title]="marker.title" [icon]="marker.icon"></map-marker>
+                                }
+
+                                <!-- Línea de ruta -->
+                                <map-polyline [path]="polylinePath()" [options]="{
+                                    strokeColor: '#4285F4',
+                                    strokeOpacity: 1.0,
+                                    strokeWeight: 3
+                                }"></map-polyline>
+                            </google-map>
+                        </div>
+
+                        <!-- Resumen de datos GPS -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Puntos GPS registrados</p>
+                                <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ session()?.gps?.length }}</p>
+                            </div>
+
+                            <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Velocidad máxima</p>
+                                <p class="text-2xl font-bold text-green-600 dark:text-green-400">
+                                    {{ formatSpeed(maxSpeed()) }}
+                                </p>
+                            </div>
+
+                            <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Distancia total GPS</p>
+                                <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                                    {{ formatDistance(totalDistance()) }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de puntos GPS -->
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Fecha y Hora
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Latitud
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Longitud
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Velocidad
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Distancia
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
+                                    @for (point of session()?.gps; track point.timestamp) {
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                                {{ formatDateTime(+point.timestamp) }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                {{ point.latitude.toFixed(6) }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                {{ point.longitude.toFixed(6) }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                {{ formatSpeed(point.speed) }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                {{ formatDistance(point.totalDistance) }}
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+        </div>
+    }
+</div>

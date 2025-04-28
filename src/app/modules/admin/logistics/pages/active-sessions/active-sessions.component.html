@@ -151,6 +151,16 @@
 
                                 <!-- Botones de acción -->
                                 <div class="mt-2 flex flex-col sm:flex-row gap-4 justify-between">
+                                    <!-- Botón para Ver Detalles -->
+                                    <button
+                                        mat-stroked-button
+                                        [routerLink]="['/logistics/session-details', session.id]"
+                                        class="flex items-center"
+                                    >
+                                        <mat-icon svgIcon="heroicons_outline:eye" class="mr-1"></mat-icon>
+                                        Ver Detalles
+                                    </button>
+
                                     <!-- Botón para Modo Conducción -->
                                     <button
                                         mat-stroked-button

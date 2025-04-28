@@ -75,14 +75,14 @@
                     <!-- Fecha de inicio -->
                     <ng-container matColumnDef="startTimestamp">
                         <th mat-header-cell *matHeaderCellDef> Fecha de inicio</th>
-                        <td mat-cell *matCellDef="let session"> {{ formatDateTime(session.startTimestamp) }}</td>
+                        <td mat-cell *matCellDef="let session"> {{ formatDateTime(session.startTime) }}</td>
                     </ng-container>
 
                     <!-- Fecha de finalización -->
                     <ng-container matColumnDef="endTimestamp">
                         <th mat-header-cell *matHeaderCellDef> Fecha de fin</th>
                         <td mat-cell *matCellDef="let session">
-                            {{ session.endTimestamp ? formatDateTime(session.endTimestamp) : 'En curso' }}
+                            {{ session.endTime ? formatDateTime(session.endTime) : 'En curso' }}
                         </td>
                     </ng-container>
 
@@ -90,7 +90,7 @@
                     <ng-container matColumnDef="driverName">
                         <th mat-header-cell *matHeaderCellDef> Conductor</th>
                         <td mat-cell *matCellDef="let session">
-                            {{ session.driverName || session.driverId }}
+                            {{ session.driver?.name || session.driverId }}
                         </td>
                     </ng-container>
 
@@ -98,7 +98,7 @@
                     <ng-container matColumnDef="vehicleInfo">
                         <th mat-header-cell *matHeaderCellDef> Vehículo</th>
                         <td mat-cell *matCellDef="let session">
-                            {{ session.vehicleInfo || session.vehicleId }}
+                            {{ session.vehicle?.displayName || session.vehicleId }}
                         </td>
                     </ng-container>
 

@@ -11,6 +11,15 @@ export interface GeoLocation {
     timestamp?: number;   // Timestamp de cuando se obtuvo la ubicación
 }
 
+export interface GpsGeneric {
+    latitude: number;         // Latitud en grados decimales
+    longitude: number;         // Longitud en grados decimales
+    timestamp: number;   // Timestamp de cuando se obtuvo la ubicación
+    speed?: number;     // Velocidad en km/h
+    totalDistance?: number; // Distancia total recorrida en km
+    lastLocations?: { lat: number, lng: number }[]; // Últimas ubicaciones registradas
+}
+
 /**
  * Estados posibles para una sesión de vehículo
  */
@@ -42,6 +51,7 @@ export interface VehicleSession {
     purpose?: string;               // Propósito de la sesión
     notes?: string;                 // Notas adicionales
     locations?: GeoLocation[]; // Historial de ubicaciones
+    gps?: GpsGeneric[];              // Datos GPS genéricos
     driver?: Driver;
     vehicle?: Vehicle;
 }

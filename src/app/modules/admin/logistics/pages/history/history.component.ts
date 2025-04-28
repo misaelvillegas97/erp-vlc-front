@@ -189,7 +189,7 @@ export class HistoryComponent implements OnInit {
         this.isLoading.set(true);
         this.sessionsService.getHistoricalSessions().subscribe({
             next : sessions => {
-                this.sessionsHistory.set(sessions);
+                this.sessionsHistory.set(sessions.items);
                 this.isLoading.set(false);
             },
             error: () => {
@@ -255,10 +255,9 @@ export class HistoryComponent implements OnInit {
         }
     }
 
-    // Navega o muestra detalles de la sesión (lógica pendiente de implementar)
+    // Navega a la vista de detalles de la sesión
     viewDetails(session: VehicleSession): void {
-        this.notyf.info('Vista de detalle no implementada aún');
-        // this.router.navigate(['/logistics/session-details', session.id]);
+        this.router.navigate([ '/logistics/session-details', session.id ]);
     }
 
     // Alterna la visibilidad de los filtros avanzados
