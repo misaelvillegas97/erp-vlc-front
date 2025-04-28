@@ -53,7 +53,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                     <div>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Fecha/hora de inicio</p>
-                        <p class="font-medium">{{ session()?.startTimestamp | date:'dd/MM/yyyy HH:mm' }}</p>
+                        <p class="font-medium">{{ session()?.startTime | date:'dd-MM-yyyy HH:mm' }}</p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Duración</p>
@@ -142,27 +142,14 @@
                     <!-- Ubicación final (automática) -->
                     <div class="mb-6">
                         <h3 class="mb-2 font-medium">Ubicación final (GPS)</h3>
-                        <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
+                        <div class="bg-gray-100 dark:bg-gray-700 rounded-lg">
                             @if (currentLocation()) {
-                                <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg text-center">
-                                    <mat-icon svgIcon="heroicons_outline:check-circle" class="text-green-600 mb-2" style="width: 36px; height: 36px;"></mat-icon>
-                                    <h3 class="text-lg font-medium mb-2">Ubicación GPS detectada correctamente</h3>
-                                    <p class="text-gray-700 dark:text-gray-300">
-                                        El sistema ha registrado su ubicación actual para finalizar la sesión.
-                                    </p>
-                                    <div class="mt-4 flex justify-center gap-6">
-                                        <div class="text-center">
-                                            <div class="inline-block w-3 h-3 bg-blue-500 rounded-full mb-1"></div>
-                                            <p class="text-sm">Inicio</p>
-                                        </div>
-                                        <div class="text-center">
-                                            <div class="inline-block w-3 h-3 bg-red-500 rounded-full mb-1"></div>
-                                            <p class="text-sm">Fin</p>
-                                        </div>
-                                    </div>
+                                <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg flex items-center">
+                                    <mat-icon svgIcon="heroicons_outline:check-circle" class="text-green-600 mr-2" style="width: 36px; height: 36px;"></mat-icon>
+                                    <h3 class="font-medium">Ubicación GPS registrada correctamente</h3>
                                 </div>
                             } @else {
-                                <p class="text-amber-500">
+                                <p class="text-amber-500 p-4 rounded-lg flex items-center">
                                     <mat-icon class="icon-size-4 align-middle" svgIcon="mat_outline:warning"></mat-icon>
                                     Obteniendo ubicación...
                                 </p>

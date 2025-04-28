@@ -22,6 +22,7 @@ import { MatInputModule }                                                       
 import { MatProgressSpinnerModule }                                                        from '@angular/material/progress-spinner';
 import { NotyfService }                                                                    from '@shared/services/notyf.service';
 import { DateTime }                                                                        from 'luxon';
+import { calculateDistance }                                                               from '@shared/utils/gps.utils';
 
 @Component({
     selector       : 'app-finish-session',
@@ -83,21 +84,11 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
     });
 
     calculatedGpsDistance = computed(() => {
-        const points = this.session()?.['locationPoints'];
-
+        const points = this.session()?.gps;
         if (!points || points.length < 2) return 0;
 
-        let totalDistance = 0;
-        for (let i = 1; i < points.length; i++) {
-            const prev = points[i - 1];
-            const curr = points[i];
-            totalDistance += this.calculateGeoDistance(
-                {latitude: prev.latitude, longitude: prev.longitude, accuracy: prev.accuracy, timestamp: prev.timestamp},
-                {latitude: curr.latitude, longitude: curr.longitude, accuracy: curr.accuracy, timestamp: curr.timestamp}
-            );
-        }
-
-        return parseFloat(totalDistance.toFixed(2));
+        const meters = calculateDistance(points);
+        return +(meters / 1000).toFixed(2);
     });
 
     ngOnInit(): void {
@@ -149,7 +140,7 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
             tap(({driver, vehicle}) => {
                 this.driver.set(driver);
                 this.vehicle.set(vehicle);
-                this.form.get('finalOdometer')!.setValue(vehicle.lastKnownOdometer, {emitEvent: false});
+                this.form.get('finalOdometer')!.setValue(vehicle.lastKnownOdometer + (this.calculatedGpsDistance() || 0), {emitEvent: false});
             }),
             catchError(err => {
                 console.error('Session load error', err);

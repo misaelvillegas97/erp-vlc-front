@@ -76,17 +76,18 @@
                                 </div>
                             </div>
 
-                            @if (session()?.driver?.driverLicense && session()?.driver?.driverLicense.length > 0) {
-                                <div class="mt-4">
-                                    <p class="font-medium">Licencia de conducir:</p>
-                                    <p class="text-sm">
-                                        Tipo: {{ session()?.driver?.driverLicense[0].licenseType }}
-                                    </p>
-                                    <p class="text-sm">
-                                        Válida hasta: {{ session()?.driver?.driverLicense[0].licenseValidTo | date:'dd/MM/yyyy' }}
-                                    </p>
-                                </div>
-                            }
+                            <div class="grid grid-cols-2 gap-2 mt-4">
+                                @if (session()?.driver?.driverLicense && session()?.driver?.driverLicense.length > 0) {
+                                    <div>
+                                        <p class="text-sm text-gray-500">Licencia tipo:</p>
+                                        <p class="font-medium">{{ session()?.driver?.driverLicense[0].licenseType }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Licencia expiración:</p>
+                                        <p class="font-medium">{{ session()?.driver?.driverLicense[0].licenseValidTo | date:'dd-MM-yyyy' }}</p>
+                                    </div>
+                                }
+                            </div>
                         } @else {
                             <p class="text-gray-500">ID del conductor: {{ session()?.driverId }}</p>
                         }
@@ -260,7 +261,7 @@
                             <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Distancia total GPS</p>
                                 <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                                    {{ formatDistance(totalDistance()) }}
+                                    {{ formatDistance(totalDistance()) }} <span class="mat-hint">* aprox</span>
                                 </p>
                             </div>
                         </div>
