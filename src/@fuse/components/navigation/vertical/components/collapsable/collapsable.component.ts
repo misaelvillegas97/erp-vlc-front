@@ -1,32 +1,22 @@
-import { BooleanInput }                               from '@angular/cdk/coercion';
-import { NgClass }                                    from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  forwardRef,
-  HostBinding,
-  inject,
-  Input,
-  OnDestroy,
-  OnInit,
-}                                                     from '@angular/core';
-import { MatIconModule }                              from '@angular/material/icon';
-import { MatTooltipModule }                           from '@angular/material/tooltip';
-import {
-  NavigationEnd,
-  Router
-}                                                     from '@angular/router';
-import { fuseAnimations }                             from '@fuse/animations';
-import { FuseNavigationService }                      from '@fuse/components/navigation/navigation.service';
-import { FuseNavigationItem }                         from '@fuse/components/navigation/navigation.types';
-import { FuseVerticalNavigationBasicItemComponent }   from '@fuse/components/navigation/vertical/components/basic/basic.component';
-import { FuseVerticalNavigationDividerItemComponent } from '@fuse/components/navigation/vertical/components/divider/divider.component';
-import { FuseVerticalNavigationGroupItemComponent }   from '@fuse/components/navigation/vertical/components/group/group.component';
-import { FuseVerticalNavigationSpacerItemComponent }  from '@fuse/components/navigation/vertical/components/spacer/spacer.component';
-import { FuseVerticalNavigationComponent }            from '@fuse/components/navigation/vertical/vertical.component';
-import { filter, Subject, takeUntil }                 from 'rxjs';
-import { TranslocoDirective }                         from '@ngneat/transloco';
+import { BooleanInput }                                                                                                      from '@angular/cdk/coercion';
+import { NgClass }                                                                                                           from '@angular/common';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, HostBinding, inject, Input, OnDestroy, OnInit, } from '@angular/core';
+import { MatIconModule }                                                                                                     from '@angular/material/icon';
+import { MatTooltipModule }                                                                                                  from '@angular/material/tooltip';
+import { NavigationEnd, Router }                                                                                             from '@angular/router';
+import { fuseAnimations }                                                                                                    from '@fuse/animations';
+import { FuseNavigationService }                                                                                             from '@fuse/components/navigation/navigation.service';
+import { FuseNavigationItem }                                                                                                from '@fuse/components/navigation/navigation.types';
+import { FuseVerticalNavigationBasicItemComponent }                                                                          from '@fuse/components/navigation/vertical/components/basic/basic.component';
+import { FuseVerticalNavigationDividerItemComponent }                                                                        from '@fuse/components/navigation/vertical/components/divider/divider.component';
+import { FuseVerticalNavigationGroupItemComponent }                                                                          from '@fuse/components/navigation/vertical/components/group/group.component';
+import { FuseVerticalNavigationSpacerItemComponent }                                                                         from '@fuse/components/navigation/vertical/components/spacer/spacer.component';
+import { FuseVerticalNavigationComponent }                                                                                   from '@fuse/components/navigation/vertical/vertical.component';
+import { filter, Subject, takeUntil }                                                                                        from 'rxjs';
+import { TranslocoDirective }                                                                                                from '@ngneat/transloco';
+import { UserService }                                                                                                       from '@core/user/user.service';
+import { User }                                                                                                              from '@core/user/user.types';
+import { canAccess }                                                                                                         from '../../../navigation.utils';
 
 @Component({
   selector   : 'fuse-vertical-navigation-collapsable-item',
@@ -55,6 +45,7 @@ export class FuseVerticalNavigationCollapsableItemComponent
   private _changeDetectorRef = inject(ChangeDetectorRef);
   private _router = inject(Router);
   private _fuseNavigationService = inject(FuseNavigationService);
+    private _userService = inject(UserService);
 
   @Input() autoCollapse: boolean;
   @Input() item: FuseNavigationItem;
@@ -62,6 +53,7 @@ export class FuseVerticalNavigationCollapsableItemComponent
 
   isCollapsed: boolean = true;
   isExpanded: boolean = false;
+    currentUser: User | null = null;
   private _fuseVerticalNavigationComponent: FuseVerticalNavigationComponent;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -180,6 +172,15 @@ export class FuseVerticalNavigationCollapsableItemComponent
         // Mark for check
         this._changeDetectorRef.markForCheck();
       });
+
+      // Subscribe to user changes
+      this._userService.user$
+          .pipe(takeUntil(this._unsubscribeAll))
+          .subscribe((user: User) => {
+              this.currentUser = user;
+              // Mark for check to update the view
+              this._changeDetectorRef.markForCheck();
+          });
   }
 
   /**
@@ -344,4 +345,6 @@ export class FuseVerticalNavigationCollapsableItemComponent
 
     return false;
   }
+
+    protected readonly canAccess = canAccess;
 }

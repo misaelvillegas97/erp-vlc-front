@@ -57,8 +57,8 @@
 @if (!isCollapsed) {
   <div class="fuse-vertical-navigation-item-children" @expandCollapse>
     @for (item of item.children; track trackByFn($index, item)) {
-      <!-- Skip the hidden items -->
-      @if ((item.hidden && !item.hidden(item)) || !item.hidden) {
+        <!-- Skip the hidden items and items the user doesn't have access to -->
+        @if (((item.hidden && !item.hidden(item)) || !item.hidden) && canAccess(item, currentUser)) {
         <!-- Basic -->
         @if (item.type === 'basic') {
           <fuse-vertical-navigation-basic-item

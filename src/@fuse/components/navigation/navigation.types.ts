@@ -1,4 +1,5 @@
 import { IsActiveMatchOptions, Params, QueryParamsHandling, } from '@angular/router';
+import { RoleEnum }                                           from '@core/user/role.type';
 
 export interface FuseNavigationItem {
   id?: string;
@@ -32,6 +33,7 @@ export interface FuseNavigationItem {
   };
   children?: FuseNavigationItem[];
   meta?: any;
+    requiredRoles?: RoleEnum[];
 }
 
 export type FuseVerticalNavigationAppearance =

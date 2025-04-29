@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { FuseNavigationItem } from '@fuse/components/navigation';
+import { RoleEnum }           from '@core/user/role.type';
 
 export const defaultNavigation: FuseNavigationItem[] = [
     {
@@ -9,52 +10,55 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon : 'heroicons_outline:home',
         link: '/home'
     },
-    {
-        id: 'dashboards.title',
-        title: 'Dashboards',
-        type : 'collapsable',
-        icon : 'heroicons_outline:chart-pie',
-        children: [
-            {
-                id   : 'dashboards.analytics',
-                title: 'All News',
-                type : 'basic',
-                link : '/dashboards/analytics',
-                icon : 'heroicons_outline:globe-asia-australia'
-            },
-            {
-                id   : 'dashboards.projects',
-                title: 'All News',
-                type : 'basic',
-                link : '/dashboards/project',
-                icon : 'heroicons_outline:queue-list'
-            },
-            {
-                id   : 'dashboards.finance',
-                title: 'All News',
-                type : 'basic',
-                link : '/dashboards/finance',
-                icon : 'heroicons_outline:currency-dollar'
-            },
-            {
-                id   : 'dashboards.crypto',
-                title: 'All News',
-                type : 'basic',
-                link : '/dashboards/crypto',
-                icon : 'heroicons_outline:currency-dollar'
-            }
-        ]
-    },
+    // {
+    //     id: 'dashboards.title',
+    //     title: 'dashboards.title',
+    //     type : 'collapsable',
+    //     icon : 'heroicons_outline:chart-pie',
+    //     children: [
+    //         {
+    //             id   : 'dashboards.analytics',
+    //             title: 'dashboards.analytics',
+    //             type : 'basic',
+    //             link : '/dashboards/analytics',
+    //             icon : 'heroicons_outline:globe-asia-australia'
+    //         },
+    //         {
+    //             id   : 'dashboards.projects',
+    //             title: 'dashboards.projects',
+    //             type : 'basic',
+    //             link : '/dashboards/project',
+    //             icon : 'heroicons_outline:queue-list'
+    //         },
+    //         {
+    //             id   : 'dashboards.finance',
+    //             title: 'dashboards.finance',
+    //             type : 'basic',
+    //             link : '/dashboards/finance',
+    //             icon : 'heroicons_outline:currency-dollar'
+    //         },
+    //         {
+    //             id   : 'dashboards.crypto',
+    //             title: 'dashboards.crypto',
+    //             type : 'basic',
+    //             link : '/dashboards/crypto',
+    //             icon : 'heroicons_outline:currency-dollar'
+    //         }
+    //     ]
+    // },
     {
         id      : 'operations.title',
-        title   : 'Operations',
-        type    : 'collapsable',
+        title        : 'operations.title',
+        type         : 'group',
         icon    : 'heroicons_outline:briefcase',
+        requiredRoles: [ RoleEnum.accountant, RoleEnum.dispatcher ],
         children: [
             {
-                id      : 'operations.accounting.title',
-                type: 'collapsable',
-                children: [
+                id           : 'operations.accounting.title',
+                type         : 'collapsable',
+                icon         : 'heroicons_outline:calculator',
+                requiredRoles: [ RoleEnum.accountant ],
+                children     : [
                     {
                         id  : 'operations.accounting.dashboard',
                         type: 'basic',
@@ -88,9 +92,11 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 ]
             },
             {
-                id      : 'operations.orders.title',
-                type: 'collapsable',
-                children: [
+                id           : 'operations.orders.title',
+                type         : 'collapsable',
+                icon         : 'heroicons_outline:paper-airplane',
+                requiredRoles: [ RoleEnum.dispatcher ],
+                children     : [
                     {
                         id  : 'operations.orders.dashboard',
                         type: 'basic',
@@ -112,9 +118,11 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 ]
             },
             {
-                id      : 'operations.invoices.title',
-                type: 'collapsable',
-                children: [
+                id           : 'operations.invoices.title',
+                type         : 'collapsable',
+                icon         : 'heroicons_outline:banknotes',
+                requiredRoles: [ RoleEnum.accountant ],
+                children     : [
                     {
                         id  : 'operations.invoices.dashboard',
                         type: 'basic',
@@ -132,10 +140,11 @@ export const defaultNavigation: FuseNavigationItem[] = [
         ]
     },
     {
-        id      : 'logistics.title',
-        type    : 'collapsable',
-        icon    : 'heroicons_outline:truck',
-        children: [
+        id           : 'logistics.title',
+        type         : 'group',
+        icon         : 'heroicons_outline:truck',
+        requiredRoles: [ RoleEnum.driver ],
+        children     : [
             {
                 id  : 'logistics.fleet-control',
                 type: 'basic',
@@ -149,21 +158,23 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 icon: 'heroicons_outline:user-circle'
             },
             {
-                id  : 'logistics.history',
-                type: 'basic',
-                link: '/logistics/history',
-                icon: 'heroicons_outline:clock'
+                id           : 'logistics.history',
+                type         : 'basic',
+                link         : '/logistics/history',
+                icon         : 'heroicons_outline:clock',
+                requiredRoles: [ RoleEnum.admin ]
             }
         ]
     },
     {
-        id: 'maintainers.title',
-        type    : 'collapsable',
-        icon    : 'heroicons_outline:cog',
-        children: [
+        id           : 'maintainers.title',
+        type         : 'group',
+        icon         : 'heroicons_outline:cog',
+        requiredRoles: [ RoleEnum.admin ],
+        children     : [
             {
                 id  : 'maintainers.clients',
-                type : 'basic',
+                type: 'basic',
                 link: '/maintainers/clients',
                 icon: 'heroicons_outline:building-storefront'
             },
@@ -186,7 +197,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 icon: 'heroicons_outline:user-group'
             },
             {
-                id      : 'maintainers.payables.title',
+                id: 'maintainers.payables.title',
                 // icon    : 'mat_outline:attach_money',
                 type    : 'group',
                 children: [
@@ -228,6 +239,12 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         link: '/maintainers/feature-toggles/list',
                         icon: 'heroicons_outline:cog'
                     },
+                    {
+                        id  : 'maintainers.settings.navigation',
+                        type: 'basic',
+                        link: '/maintainers/navigation/list',
+                        icon: 'heroicons_outline:menu'
+                    },
                 ]
             }
         ]
@@ -241,66 +258,4 @@ export const compactNavigation: FuseNavigationItem[] = [
         icon : 'heroicons_outline:home',
         link : '/example'
     }
-];
-export const futuristicNavigation: FuseNavigationItem[] = [
-    {
-        id   : 'home',
-        title: 'Home',
-        type : 'basic',
-        icon : 'heroicons_outline:home',
-        link : '/example'
-    }
-];
-export const horizontalNavigation: FuseNavigationItem[] = [
-    {
-        id   : 'home',
-        title: 'Home',
-        type : 'basic',
-        icon : 'heroicons_outline:home',
-        link : '/home'
-    },
-    // news
-    {
-        id      : 'news',
-        title   : 'News',
-        type    : 'collapsable',
-        icon    : 'heroicons_outline:newspaper',
-        link    : '/news',
-        children: [
-            {
-                id   : 'allNews',
-                title: 'All News',
-                type : 'basic',
-                link : '/news/all'
-            },
-            {
-                id   : 'newsByCategory',
-                title: 'News By Category',
-                type : 'basic',
-                link : '/news/category'
-            },
-        ]
-    },
-    // Multimedia (gallery and videos)
-    {
-        id      : 'multimedia',
-        title   : 'Multimedia',
-        type    : 'collapsable',
-        icon    : 'heroicons_outline:photo',
-        link    : '/multimedia',
-        children: [
-            {
-                id   : 'gallery',
-                title: 'Gallery',
-                type : 'basic',
-                link : '/multimedia/gallery'
-            },
-            {
-                id   : 'videos',
-                title: 'Videos',
-                type : 'basic',
-                link : '/multimedia/videos'
-            },
-        ]
-    },
 ];

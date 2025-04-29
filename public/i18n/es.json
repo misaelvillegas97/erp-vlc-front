@@ -489,6 +489,42 @@
                 "enabled" : "Habilitado",
                 "parent" : "Categoría padre"
             }
+        },
+        "navigation" : {
+            "fields" : {
+                "title" : "Título",
+                "subtitle" : "Subtítulo",
+                "type" : "Tipo",
+                "icon" : "Ícono",
+                "link" : "Enlace",
+                "fragment" : "Fragmento",
+                "target" : "Destino",
+                "queryParamsHandling" : "Manejo de parámetros de consulta",
+                "parent" : "Padre",
+                "active" : "Activo",
+                "disabled" : "Deshabilitado",
+                "preserveFragment" : "Preservar fragmento",
+                "externalLink" : "Enlace externo",
+                "exactMatch" : "Coincidencia exacta",
+                "tooltip" : "Texto de ayuda"
+            },
+            "new" : {
+                "title" : "Nuevo elemento de navegación",
+                "description" : "Crea un nuevo elemento de navegación"
+            },
+            "edit" : {
+                "title" : "Editar elemento de navegación",
+                "description" : "Modifica los detalles del elemento de navegación"
+            },
+            "list" : {
+                "title" : "Lista de elementos de navegación",
+                "subtitle" : "Gestiona los elementos de navegación"
+            },
+            "messages" : {
+                "created" : "Elemento de navegación creado con éxito",
+                "updated" : "Elemento de navegación actualizado con éxito",
+                "deleted" : "Elemento de navegación eliminado con éxito"
+            }
         }
     },
     "actions" : {

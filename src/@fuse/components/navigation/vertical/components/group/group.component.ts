@@ -11,6 +11,9 @@ import { FuseVerticalNavigationSpacerItemComponent }                            
 import { FuseVerticalNavigationComponent }                                                                      from '@fuse/components/navigation/vertical/vertical.component';
 import { Subject, takeUntil }                                                                                   from 'rxjs';
 import { TranslocoDirective }                                                                                   from '@ngneat/transloco';
+import { UserService }                                                                                          from '@core/user/user.service';
+import { User }                                                                                                 from '@core/user/user.types';
+import { RoleEnum }                                                                                             from '@core/user/role.type';
 
 @Component({
   selector   : 'fuse-vertical-navigation-group-item',
@@ -36,6 +39,7 @@ export class FuseVerticalNavigationGroupItemComponent
 
   private _changeDetectorRef = inject(ChangeDetectorRef);
   private _fuseNavigationService = inject(FuseNavigationService);
+    private _userService = inject(UserService);
 
   @Input() autoCollapse: boolean;
   @Input() item: FuseNavigationItem;
@@ -43,6 +47,7 @@ export class FuseVerticalNavigationGroupItemComponent
 
   private _fuseVerticalNavigationComponent: FuseVerticalNavigationComponent;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
+    private _currentUser: User | null = null;
 
   // -----------------------------------------------------------------------------------------------------
   // @ Lifecycle hooks
@@ -63,6 +68,15 @@ export class FuseVerticalNavigationGroupItemComponent
         // Mark for check
         this._changeDetectorRef.markForCheck();
       });
+
+      // Subscribe to user changes
+      this._userService.user$
+          .pipe(takeUntil(this._unsubscribeAll))
+          .subscribe((user: User) => {
+              this._currentUser = user;
+              // Mark for check to update the view
+              this._changeDetectorRef.markForCheck();
+          });
   }
 
   /**
@@ -87,4 +101,29 @@ export class FuseVerticalNavigationGroupItemComponent
   trackByFn(index: number, item: any): any {
     return item.id || index;
   }
+
+    /**
+     * Check if the user has access to the navigation item
+     *
+     * @param item
+     */
+    canAccess(item: FuseNavigationItem): boolean {
+        // If there's no user, deny access
+        if (!this._currentUser || !this._currentUser.role) {
+            return false;
+        }
+
+        // If the user is an admin, allow access to everything
+        if (this._currentUser.role.id === RoleEnum.admin) {
+            return true;
+        }
+
+        // If the item doesn't have requiredRoles or it's an empty array, allow access
+        if (!item.requiredRoles || item.requiredRoles.length === 0) {
+            return true;
+        }
+
+        // Check if the user's role is in the requiredRoles array
+        return item.requiredRoles.includes(this._currentUser.role.id);
+    }
 }

@@ -23,8 +23,8 @@
 
     <!-- Items -->
     @for (item of navigation; track trackByFn($index, item)) {
-      <!-- Skip the hidden items -->
-      @if ((item.hidden && !item.hidden(item)) || !item.hidden) {
+        <!-- Skip the hidden items and items the user doesn't have access to -->
+        @if (((item.hidden && !item.hidden(item)) || !item.hidden) && canAccess(item, currentUser)) {
         <!-- Aside -->
         @if (item.type === 'aside') {
           <fuse-vertical-navigation-aside-item
@@ -111,8 +111,8 @@ suppressScrollX: true,
   >
     <!-- Items -->
     @for (item of navigation; track trackByFn($index, item)) {
-      <!-- Skip the hidden items -->
-      @if ((item.hidden && !item.hidden(item)) || !item.hidden) {
+        <!-- Skip the hidden items and items the user doesn't have access to -->
+        @if (((item.hidden && !item.hidden(item)) || !item.hidden) && canAccess(item, currentUser)) {
         <!-- Aside -->
         @if (item.type === 'aside' && item.id === activeAsideItemId) {
           <fuse-vertical-navigation-aside-item
