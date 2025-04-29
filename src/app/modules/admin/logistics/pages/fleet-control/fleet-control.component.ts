@@ -46,7 +46,6 @@ import { Vehicle }                                           from '@modules/admi
     templateUrl: './fleet-control.component.html'
 })
 export class FleetControlComponent implements OnInit, AfterViewInit {
-    // Inyecciones
     private driversService = inject(DriversService);
     private vehiclesService = inject(VehiclesService);
     private sessionsService = inject(VehicleSessionsService);
@@ -69,7 +68,6 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
     selectedDriver = signal<Driver | null>(null);
     selectedVehicle = signal<Vehicle | null>(null);
 
-    // Formulario
     form: FormGroup = this.fb.group({
         driverId       : [ '', [ Validators.required ] ],
         vehicleId      : [ '', [ Validators.required ] ],
@@ -132,6 +130,8 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit() {
+        // Check if gps permissions it is granted
+        if (this.hasGeolocationPermission()) return;
         setTimeout(() => {
             this.dialog.open(GpsWarningDialogComponent, {
                 width       : '400px',
@@ -146,11 +146,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
         const drivers$ = firstValueFrom(this.driversService.findAll()).then(
             result => {
                 this.availableDrivers.set(result.items);
-                if (result.total === 0)
-                    this.notyf.error({
-                        message : 'No hay conductores disponibles actualmente',
-                        duration: 5000
-                    });
+                if (result.total === 0) this.notyf.error({message: 'No hay conductores disponibles actualmente', duration: 5000});
             }
         );
         const vehicles$ = firstValueFrom(
@@ -258,7 +254,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
                     });
                 }
 
-                this.router.navigate([ '/logistics/active-sessions' ]);
+                void this.router.navigate([ '/logistics/active-sessions' ]);
             }
         } catch (err: any) {
             this.notyf.error({
