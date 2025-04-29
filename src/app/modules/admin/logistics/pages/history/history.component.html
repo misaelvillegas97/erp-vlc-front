@@ -75,14 +75,14 @@
                     <!-- Fecha de inicio -->
                     <ng-container matColumnDef="startTimestamp">
                         <th mat-header-cell *matHeaderCellDef> Fecha de inicio</th>
-                        <td mat-cell *matCellDef="let session"> {{ formatDateTime(session.startTime) }}</td>
+                        <td mat-cell *matCellDef="let session"> {{ session.startTime | date:'dd-MM-yyyy HH:mm' }}</td>
                     </ng-container>
 
                     <!-- Fecha de finalización -->
                     <ng-container matColumnDef="endTimestamp">
                         <th mat-header-cell *matHeaderCellDef> Fecha de fin</th>
                         <td mat-cell *matCellDef="let session">
-                            {{ session.endTime ? formatDateTime(session.endTime) : 'En curso' }}
+                            {{ session.endTime ? (session.endTime | date:'dd-MM-yyyy HH:mm') : 'En curso' }}
                         </td>
                     </ng-container>
 

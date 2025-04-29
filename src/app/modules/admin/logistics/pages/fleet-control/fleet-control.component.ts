@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule }                                             
 import { MatSelectModule }                                                       from '@angular/material/select';
 import { PageHeaderComponent }                                                   from '@layout/components/page-header/page-header.component';
 import { Notyf }                                                                 from 'notyf';
-import { forkJoin, of }                                                          from 'rxjs';
+import { firstValueFrom, of }                                                    from 'rxjs';
 import { catchError, finalize, switchMap, take }                                 from 'rxjs/operators';
 
 import { DriversService }                                    from '../../services/drivers.service';
@@ -23,7 +23,6 @@ import { Driver }                                            from '../../domain/
 import { Vehicle }                                           from '../../domain/model/vehicle.model';
 import { GeoLocation, NewVehicleSessionDto, VehicleSession } from '../../domain/model/vehicle-session.model';
 import { GpsWarningDialogComponent }                         from './gps-warning-dialog.component';
-import { FindCount }                                         from '@shared/domain/model/find-count';
 
 @Component({
     selector   : 'app-fleet-control',
@@ -100,7 +99,7 @@ export class FleetControlComponent implements OnInit, OnDestroy {
         this.cleanupCallbacks.push(() => clearInterval(intervalId));
 
         // Obtener la ubicación inicial
-        this.geolocationService.getCurrentPosition().pipe(
+        const locationSub = this.geolocationService.getCurrentPosition().pipe(
             catchError(error => {
                 this.notyf.error({message: 'No se pudo acceder a la ubicación GPS. Por favor, asegúrese de que está habilitada.'});
                 this.hasGeolocationPermission.set(false);
@@ -112,6 +111,7 @@ export class FleetControlComponent implements OnInit, OnDestroy {
                 this.hasGeolocationPermission.set(true);
             }
         });
+        this.cleanupCallbacks.push(() => locationSub.unsubscribe());
 
         // Cargar datos iniciales de conductores y vehículos
         this.loadData();
@@ -149,57 +149,39 @@ export class FleetControlComponent implements OnInit, OnDestroy {
 
     private loadData(): void {
         this.isLoading.set(true);
-        forkJoin({
-            drivers : this.driversService.findAll().pipe(
-                catchError(() => {
-                    this.notyf.error({message: 'Error al cargar conductores'});
-                    return of(new FindCount([], 0));
-                })
-            ),
-            vehicles: this.vehiclesService.findAvailableVehicles().pipe(
-                catchError(() => {
-                    this.notyf.error({message: 'Error al cargar vehículos'});
-                    return of(new FindCount([], 0));
-                })
-            )
-        })
-            .pipe(finalize(() => {
-                this.isLoading.set(false);
-            }))
-            .subscribe(({drivers, vehicles}) => {
+
+        const driversPromise = firstValueFrom(this.driversService.findAll())
+            .then(drivers => {
                 this.availableDrivers.set(drivers.items);
+                if (drivers.total === 0) this.notyf.error({message: 'No hay conductores disponibles actualmente', duration: 5000});
+            })
+            .catch(error => {})
+
+        const vehiclesPromise = firstValueFrom(this.vehiclesService.findAvailableVehicles())
+            .then(vehicles => {
                 this.availableVehicles.set(vehicles.items);
-                if (vehicles.total === 0) {
-                    this.notyf.error({message: 'No hay vehículos disponibles actualmente', duration: 5000});
-                }
-            });
+                if (vehicles.total === 0) this.notyf.error({message: 'No hay vehículos disponibles actualmente', duration: 5000});
+            })
+            .catch(error => {});
+
+        Promise.all([ driversPromise, vehiclesPromise ]).then(() => {
+            this.isLoading.set(false);
+        });
     }
 
     private fetchDriverDetails(id: string): void {
-        this.driversService.findById(id)
-            .pipe(
-                catchError(() => {
-                    this.notyf.error({message: 'Error al cargar detalles del conductor'});
-                    return of(null);
-                })
-            )
-            .subscribe(driver => {
-                this.selectedDriver.set(driver);
-            });
+        firstValueFrom(this.driversService.findById(id))
+            .then(driver => this.selectedDriver.set(driver))
+            .catch(() => this.notyf.error({message: 'Error al cargar detalles del conductor'}));
     }
 
     private fetchVehicleDetails(id: string): void {
-        this.vehiclesService.findById(id)
-            .pipe(
-                catchError(() => {
-                    this.notyf.error({message: 'Error al cargar detalles del vehículo'});
-                    return of(null);
-                })
-            )
-            .subscribe(vehicle => {
+        firstValueFrom(this.vehiclesService.findById(id))
+            .then(vehicle => {
                 this.selectedVehicle.set(vehicle);
                 this.form.patchValue({initialOdometer: vehicle.lastKnownOdometer || 0});
-            });
+            })
+            .catch(() => this.notyf.error({message: 'Error al cargar detalles del vehículo'}));
     }
 
     startVehicleSession(): void {
@@ -216,7 +198,6 @@ export class FleetControlComponent implements OnInit, OnDestroy {
 
         this.isSubmitting.set(true);
 
-        // Obtener una ubicación actualizada antes de enviar la solicitud y continuar con la creación de la sesión
         this.geolocationService.getCurrentPosition().pipe(
             take(1),
             catchError(() => of(null)),
@@ -233,24 +214,22 @@ export class FleetControlComponent implements OnInit, OnDestroy {
                     observations   : formValue.observations || null
                 };
                 return this.sessionsService.startSession(newSession).pipe(
+                    take(1),
                     catchError(error => {
                         this.notyf.error({message: 'Error al iniciar la sesión: ' + error.message});
                         return of(null);
                     })
                 );
             }),
-            finalize(() => {
-                this.isSubmitting.set(false);
-            })
+            finalize(() => this.isSubmitting.set(false))
         ).subscribe((session: VehicleSession | null) => {
             if (session) {
                 this.notyf.success({message: 'Sesión de vehículo iniciada correctamente'});
                 this.resetForm();
 
-                // Actualizar la lista de vehículos disponibles luego de iniciar la sesión
-                this.vehiclesService.findAvailableVehicles().subscribe(vehicles => {
-                    this.availableVehicles.set(vehicles.items);
-                });
+                firstValueFrom(this.vehiclesService.findAvailableVehicles())
+                    .then(vehicles => this.availableVehicles.set(vehicles.items))
+                    .catch(error => this.notyf.error({message: 'Error al cargar vehículos disponibles'}));
 
                 // Redirigir a la página de sesiones activas
                 this.router.navigate([ '/logistics/active-sessions' ]);

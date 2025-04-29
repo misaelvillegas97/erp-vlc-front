@@ -163,10 +163,21 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
             }
             this.uploadedFiles.set([ ...this.uploadedFiles(), file ]);
             const reader = new FileReader();
-            reader.onload = e => {
+
+            // Store a reference to the onload function to be able to remove it later
+            const onLoadHandler = (e: ProgressEvent<FileReader>) => {
                 this.uploadedPreviews.set([ ...this.uploadedPreviews(), e.target!.result as string ]);
             };
+
+            reader.onload = onLoadHandler;
             reader.readAsDataURL(file);
+
+            // Add cleanup for the FileReader
+            this.destroy$.subscribe(() => {
+                reader.onload = null;
+                reader.onerror = null;
+                reader.onabort = null;
+            });
         });
         (evt.target as HTMLInputElement).value = '';
     }

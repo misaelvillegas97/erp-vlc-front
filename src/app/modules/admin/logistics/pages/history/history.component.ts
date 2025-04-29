@@ -1,25 +1,27 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { CommonModule }                                                         from '@angular/common';
-import { FormControl, ReactiveFormsModule }                                     from '@angular/forms';
-import { MatButtonModule }                                                      from '@angular/material/button';
-import { MatCardModule }                                                        from '@angular/material/card';
-import { MatDatepickerModule }                                                  from '@angular/material/datepicker';
-import { MatNativeDateModule }                                                  from '@angular/material/core';
-import { MatFormFieldModule }                                                   from '@angular/material/form-field';
-import { MatIconModule }                                                        from '@angular/material/icon';
-import { MatInputModule }                                                       from '@angular/material/input';
-import { MatProgressSpinnerModule }                                             from '@angular/material/progress-spinner';
-import { MatSelectModule }                                                      from '@angular/material/select';
-import { MatTableModule }                                                       from '@angular/material/table';
-import { MatPaginatorModule, PageEvent }                                        from '@angular/material/paginator';
-import { TranslocoService }                                                     from '@ngneat/transloco';
-import { PageHeaderComponent }                                                  from '@layout/components/page-header/page-header.component';
-import { debounceTime, distinctUntilChanged, startWith }                        from 'rxjs/operators';
-import { VehicleSessionsService }                                               from '../../services/vehicle-sessions.service';
-import { SessionStatus, VehicleSession }                                        from '../../domain/model/vehicle-session.model';
-import { Router }                                                               from '@angular/router';
-import { MatTooltip }                                                           from '@angular/material/tooltip';
-import { NotyfService }                                                         from '@shared/services/notyf.service';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnDestroy, resource, signal } from '@angular/core';
+import { CommonModule }                                                                                  from '@angular/common';
+import { FormControl, ReactiveFormsModule }                                                              from '@angular/forms';
+import { MatButtonModule }                                                                               from '@angular/material/button';
+import { MatCardModule }                                                                                 from '@angular/material/card';
+import { MatDatepickerModule }                                                                           from '@angular/material/datepicker';
+import { MatNativeDateModule }                                                                           from '@angular/material/core';
+import { MatFormFieldModule }                                                                            from '@angular/material/form-field';
+import { MatIconModule }                                                                                 from '@angular/material/icon';
+import { MatInputModule }                                                                                from '@angular/material/input';
+import { MatProgressSpinnerModule }                                                                      from '@angular/material/progress-spinner';
+import { MatSelectModule }                                                                               from '@angular/material/select';
+import { MatTableModule }                                                                                from '@angular/material/table';
+import { MatPaginatorModule, PageEvent }                                                                 from '@angular/material/paginator';
+import { TranslocoService }                                                                              from '@ngneat/transloco';
+import { PageHeaderComponent }                                                                           from '@layout/components/page-header/page-header.component';
+import { debounceTime, distinctUntilChanged, startWith }                                                 from 'rxjs/operators';
+import { VehicleSessionsService }                                                                        from '../../services/vehicle-sessions.service';
+import { SessionStatus, VehicleSession }                                                                 from '../../domain/model/vehicle-session.model';
+import { Router }                                                                                        from '@angular/router';
+import { MatTooltip }                                                                                    from '@angular/material/tooltip';
+import { NotyfService }                                                                                  from '@shared/services/notyf.service';
+import { firstValueFrom, Subscription }                                                                  from 'rxjs';
+import { toSignal }                                                                                      from '@angular/core/rxjs-interop';
 
 @Component({
     selector   : 'app-history',
@@ -44,11 +46,13 @@ import { NotyfService }                                                         
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './history.component.html'
 })
-export class HistoryComponent implements OnInit {
+export class HistoryComponent implements OnDestroy {
+    private subscriptions = new Subscription();
     private readonly router = inject(Router);
     private readonly translocoService = inject(TranslocoService);
     private readonly sessionsService = inject(VehicleSessionsService);
     private readonly notyf = inject(NotyfService);
+    readonly #destroyRef = inject(DestroyRef);
 
     // Controles de filtro (se mantienen para los inputs, pero se sincronizan con señales)
     driverFilter = new FormControl('');
@@ -63,11 +67,11 @@ export class HistoryComponent implements OnInit {
     showAdvancedFilters = signal(false);
 
     // Señales para almacenar los valores actuales de cada filtro
-    driverFilterSignal = signal<string>('');
-    vehicleFilterSignal = signal<string>('');
-    dateFromSignal = signal<string>('');
-    dateToSignal = signal<string>('');
-    statusFilterSignal = signal<string>('');
+    driverFilterSignal = toSignal(this.driverFilter.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()));
+    vehicleFilterSignal = toSignal(this.vehicleFilter.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()));
+    dateFromSignal = toSignal(this.dateFromFilter.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()));
+    dateToSignal = toSignal(this.dateToFilter.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()));
+    statusFilterSignal = toSignal(this.statusFilter.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()));
 
     // Paginación con Signals
     pageSize = signal(10);
@@ -90,18 +94,11 @@ export class HistoryComponent implements OnInit {
         let filtered = [ ...this.sessionsHistory() ];
         const driverSearch = this.driverFilterSignal().toLowerCase();
         if (driverSearch) {
-            filtered = filtered.filter(session =>
-                    session.driverId.toLowerCase().includes(driverSearch)
-                // Si tu sesión dispone de más información del conductor,
-                // se puede extender el filtro (ej. session.driverName)
-            );
+            filtered = filtered.filter(session => session.driver?.name.toLowerCase().includes(driverSearch));
         }
         const vehicleSearch = this.vehicleFilterSignal().toLowerCase();
         if (vehicleSearch) {
-            filtered = filtered.filter(session =>
-                    session.vehicleId.toLowerCase().includes(vehicleSearch)
-                // Se podría ampliar si se cuenta con otros datos (ej. licensePlate)
-            );
+            filtered = filtered.filter(session => session.vehicleId.toLowerCase().includes(vehicleSearch));
         }
         const dateFrom = this.dateFromSignal();
         if (dateFrom) {
@@ -128,96 +125,40 @@ export class HistoryComponent implements OnInit {
         return filtered.slice(start, start + this.pageSize());
     });
 
-    // Signal computada para mostrar el total de sesiones filtradas
     totalSessions = computed(() => this.filteredFullSessions().length);
 
-    ngOnInit(): void {
-        this.loadSessionsHistory();
-        this.setupFilters();
-    }
-
-    // Configurar la sincronización de cada control de filtro con sus respectivas señales
-    setupFilters(): void {
-        this.driverFilter.valueChanges.pipe(
-            startWith(''),
-            debounceTime(300),
-            distinctUntilChanged()
-        ).subscribe(value => {
-            this.driverFilterSignal.set(value || '');
+    historyResource = resource({
+        request: () => ({
+            driver  : this.driverFilterSignal(),
+            vehicle : this.vehicleFilterSignal(),
+            dateFrom: this.dateFromSignal(),
+            dateTo  : this.dateToSignal(),
+            status  : this.statusFilterSignal()
+        }),
+        loader : async ({request}) => {
             this.currentPage.set(0);
-        });
+            this.isLoading.set(true);
 
-        this.vehicleFilter.valueChanges.pipe(
-            startWith(''),
-            debounceTime(300),
-            distinctUntilChanged()
-        ).subscribe(value => {
-            this.vehicleFilterSignal.set(value || '');
-            this.currentPage.set(0);
-        });
-
-        this.dateFromFilter.valueChanges.pipe(
-            startWith(''),
-            debounceTime(300),
-            distinctUntilChanged()
-        ).subscribe(value => {
-            this.dateFromSignal.set(value || '');
-            this.currentPage.set(0);
-        });
-
-        this.dateToFilter.valueChanges.pipe(
-            startWith(''),
-            debounceTime(300),
-            distinctUntilChanged()
-        ).subscribe(value => {
-            this.dateToSignal.set(value || '');
-            this.currentPage.set(0);
-        });
-
-        this.statusFilter.valueChanges.pipe(
-            startWith(''),
-            debounceTime(300),
-            distinctUntilChanged()
-        ).subscribe(value => {
-            this.statusFilterSignal.set(value || '');
-            this.currentPage.set(0);
-        });
-    }
-
-    // Carga el historial de sesiones y actualiza la señal correspondiente
-    loadSessionsHistory(): void {
-        this.isLoading.set(true);
-        this.sessionsService.getHistoricalSessions().subscribe({
-            next : sessions => {
+            try {
+                const sessions = await firstValueFrom(this.sessionsService.getHistoricalSessions());
                 this.sessionsHistory.set(sessions.items);
-                this.isLoading.set(false);
-            },
-            error: () => {
+                return this.isLoading.set(false);
+            } catch {
                 this.notyf.error('Error al cargar el historial de sesiones');
                 this.isLoading.set(false);
             }
-        });
+        }
+    })
+
+    ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
     }
 
-    // Actualiza la paginación al cambiar página o tamaño de página
     onPageChange(event: PageEvent): void {
         this.pageSize.set(event.pageSize);
         this.currentPage.set(event.pageIndex);
     }
 
-    // Formatea la fecha/hora para mostrarla en la tabla
-    formatDateTime(dateStr: string): string {
-        const date = new Date(dateStr);
-        return date.toLocaleString('es-CL', {
-            year  : 'numeric',
-            month : '2-digit',
-            day   : '2-digit',
-            hour  : '2-digit',
-            minute: '2-digit'
-        });
-    }
-
-    // Calcula la distancia recorrida a partir del odómetro final e inicial
     calculateDistance(session: VehicleSession): number {
         if (session.finalOdometer && session.initialOdometer) {
             return session.finalOdometer - session.initialOdometer;
@@ -225,7 +166,6 @@ export class HistoryComponent implements OnInit {
         return 0;
     }
 
-    // Determina la clase de estilo según el estado de la sesión
     getStatusClass(status: SessionStatus): string {
         switch (status) {
             case SessionStatus.COMPLETED:
@@ -239,7 +179,6 @@ export class HistoryComponent implements OnInit {
         }
     }
 
-    // Devuelve un texto descriptivo del estado de la sesión
     getStatusText(status: SessionStatus): string {
         switch (status) {
             case SessionStatus.ACTIVE:
@@ -255,12 +194,10 @@ export class HistoryComponent implements OnInit {
         }
     }
 
-    // Navega a la vista de detalles de la sesión
     viewDetails(session: VehicleSession): void {
         this.router.navigate([ '/logistics/session-details', session.id ]);
     }
 
-    // Alterna la visibilidad de los filtros avanzados
     toggleAdvancedFilters(): void {
         this.showAdvancedFilters.update(value => !value);
     }

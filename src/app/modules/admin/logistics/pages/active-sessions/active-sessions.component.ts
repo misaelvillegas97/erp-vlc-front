@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule }                                             
 import { MatSelectModule }                                                                 from '@angular/material/select';
 import { PageHeaderComponent }                                                             from '@layout/components/page-header/page-header.component';
 import { Notyf }                                                                           from 'notyf';
-import { interval, Subscription }                                                          from 'rxjs';
+import { firstValueFrom, interval, Subscription }                                          from 'rxjs';
 import { debounceTime, distinctUntilChanged, startWith }                                   from 'rxjs/operators';
 import { VehicleSessionsService }                                                          from '../../services/vehicle-sessions.service';
 import { VehicleSession }                                                                  from '../../domain/model/vehicle-session.model';
@@ -129,16 +129,15 @@ export class ActiveSessionsComponent implements OnInit, OnDestroy {
     private loadActiveSessions(): void {
         this.isLoading.set(true);
 
-        this.sessionsService.getActiveSessions().subscribe({
-            next : sessions => {
+        firstValueFrom(this.sessionsService.getActiveSessions())
+            .then(sessions => {
                 this.activeSessions.set(sessions);
                 this.isLoading.set(false);
-            },
-            error: () => {
+            })
+            .catch(() => {
                 this.notyf.error({message: 'Error al cargar sesiones activas'});
                 this.isLoading.set(false);
-            }
-        });
+            });
     }
 
     finishSession(sessionId: string): void {
@@ -150,11 +149,12 @@ export class ActiveSessionsComponent implements OnInit, OnDestroy {
             }
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        const dialogSub = dialogRef.afterClosed().subscribe(result => {
             if (result) {
                 this.router.navigate([ '/logistics/finish-session', sessionId ]);
             }
         });
+        this.subscriptions.push(dialogSub);
     }
 
     formatDuration(startTime: Date): string {
