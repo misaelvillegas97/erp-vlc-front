@@ -239,12 +239,6 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         link: '/maintainers/feature-toggles/list',
                         icon: 'heroicons_outline:cog'
                     },
-                    {
-                        id  : 'maintainers.settings.navigation',
-                        type: 'basic',
-                        link: '/maintainers/navigation/list',
-                        icon: 'heroicons_outline:menu'
-                    },
                 ]
             }
         ]

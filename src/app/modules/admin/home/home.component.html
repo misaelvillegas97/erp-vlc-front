@@ -1,0 +1,56 @@
+<div class="flex flex-col min-h-screen p-6 w-full max-w-screen-lg mx-auto">
+    @let user = user$ | async;
+
+    @if (user) {
+        <mat-card class="p-6 shadow-md rounded-xl bg-card mb-8">
+            <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+                <!-- User avatar -->
+                <div class="flex-shrink-0">
+                    <div class="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+                        @if (user.avatar) {
+                            <img [src]="user.avatar" alt="Avatar de usuario" class="w-full h-full object-cover">
+                        } @else {
+                            <mat-icon class="icon-size-24">account_circle</mat-icon>
+                        }
+                    </div>
+                </div>
+
+                <!-- User info -->
+                <div class="flex-grow text-center md:text-left">
+                    <h1 class="text-3xl font-bold mb-2">¡Bienvenido, {{ user.firstName || user.name || 'Usuario' }}!</h1>
+                    <p class="text-xl mb-4">
+                        Acceso como: <span class="font-medium">{{ user.role?.name || 'Usuario' }}</span>
+                    </p>
+                    <p class="text-lg text-gray-500">
+                        Aquí encontrarás accesos directos a las funciones más importantes según tu rol.
+                    </p>
+                </div>
+            </div>
+        </mat-card>
+    }
+
+    <!-- Shortcuts section -->
+    @if (user) {
+        <h2 class="text-2xl font-bold mb-6">Accesos Directos</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Shortcut cards -->
+            @for (shortcut of shortcuts; track trackByFn($index, shortcut)) {
+                @if (isShortcutVisible(shortcut, user)) {
+                    <a [routerLink]="shortcut.route"
+                       class="block transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <mat-card [ngClass]="[shortcut.color, 'h-full shadow-md rounded-xl overflow-hidden']">
+                            <div class="p-6">
+                                <div class="flex items-center mb-4">
+                                    <mat-icon class="text-4xl text-gray-700">{{ shortcut.icon }}</mat-icon>
+                                    <h3 class="text-xl font-bold text-gray-800 ml-4">{{ shortcut.title }}</h3>
+                                </div>
+                                <p class="text-gray-600">{{ shortcut.description }}</p>
+                            </div>
+                        </mat-card>
+                    </a>
+                }
+            }
+        </div>
+    }
+</div>
