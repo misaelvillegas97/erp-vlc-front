@@ -107,7 +107,6 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
     }
 
     private loadSessionDetails(): void {
-        console.log('Loading session details...');
         this.isLoading.set(true);
         clearInterval(this.interval);
 
