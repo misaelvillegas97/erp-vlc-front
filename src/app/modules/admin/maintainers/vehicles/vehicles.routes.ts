@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 export default [
     {
         path         : '',
+        title: 'Mantenedor de Vehículos',
         loadComponent: () =>
             import('./vehicles.component').then(m => m.VehiclesComponent),
         children     : [

@@ -44,7 +44,7 @@ export class HomeComponent implements OnInit {
             icon       : 'shopping_cart',
             route      : '/operations/orders',
             roles      : [ RoleEnum.admin, RoleEnum.dispatcher ],
-            color      : 'bg-blue-100'
+            color: 'blue'
         },
         {
             title      : 'Facturas',
@@ -52,7 +52,7 @@ export class HomeComponent implements OnInit {
             icon       : 'receipt',
             route      : '/operations/invoices',
             roles      : [ RoleEnum.admin, RoleEnum.accountant ],
-            color      : 'bg-green-100'
+            color: 'green'
         },
         {
             title      : 'Contabilidad',
@@ -60,7 +60,7 @@ export class HomeComponent implements OnInit {
             icon       : 'account_balance',
             route      : '/operations/accounting',
             roles      : [ RoleEnum.admin, RoleEnum.accountant ],
-            color      : 'bg-yellow-100'
+            color: 'yellow'
         },
         {
             title      : 'Logística',
@@ -68,7 +68,7 @@ export class HomeComponent implements OnInit {
             icon       : 'local_shipping',
             route      : '/logistics',
             roles      : [ RoleEnum.admin, RoleEnum.dispatcher, RoleEnum.driver ],
-            color      : 'bg-purple-100'
+            color: 'purple'
         },
         {
             title      : 'Clientes',
@@ -76,7 +76,7 @@ export class HomeComponent implements OnInit {
             icon       : 'people',
             route      : '/maintainers/clients',
             roles      : [ RoleEnum.admin, RoleEnum.dispatcher ],
-            color      : 'bg-pink-100'
+            color: 'pink'
         },
         {
             title      : 'Productos',
@@ -84,7 +84,7 @@ export class HomeComponent implements OnInit {
             icon       : 'inventory_2',
             route      : '/maintainers/products',
             roles      : [ RoleEnum.admin, RoleEnum.dispatcher ],
-            color      : 'bg-indigo-100'
+            color: 'indigo'
         },
         {
             title      : 'Vehículos',
@@ -92,7 +92,7 @@ export class HomeComponent implements OnInit {
             icon       : 'directions_car',
             route      : '/maintainers/vehicles',
             roles      : [ RoleEnum.admin, RoleEnum.dispatcher, RoleEnum.driver ],
-            color      : 'bg-teal-100'
+            color: 'teal'
         },
         {
             title      : 'Usuarios',
@@ -100,7 +100,7 @@ export class HomeComponent implements OnInit {
             icon       : 'manage_accounts',
             route      : '/maintainers/users',
             roles      : [ RoleEnum.admin ],
-            color      : 'bg-orange-100'
+            color: 'orange'
         }
     ];
 

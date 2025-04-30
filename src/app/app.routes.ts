@@ -3,6 +3,8 @@ import { initialDataResolver } from 'app/app.resolvers';
 import { AuthGuard }           from 'app/core/auth/guards/auth.guard';
 import { NoAuthGuard }         from 'app/core/auth/guards/noAuth.guard';
 import { LayoutComponent }     from 'app/layout/layout.component';
+import { rolesGuard }          from '@core/guards/roles.guard';
+import { RoleEnum }            from '@core/user/role.type';
 
 export const appRoutes: Routes = [
 
@@ -72,35 +74,96 @@ export const appRoutes: Routes = [
         children        : [
             {path: 'home', loadChildren: () => import('app/modules/admin/home/home.routes')},
             {
-                path: 'dashboards', children: [
-                    {path: 'project', loadChildren: () => import('app/modules/admin/dashboards/project/project.routes')},
-                    {path: 'analytics', loadChildren: () => import('app/modules/admin/dashboards/analytics/analytics.routes')},
-                    {path: 'finance', loadChildren: () => import('app/modules/admin/dashboards/finance/finance.routes')},
-                    {path: 'crypto', loadChildren: () => import('app/modules/admin/dashboards/crypto/crypto.routes')},
-                ]
-            },
-            {
                 path    : 'operations',
                 children: [
-                    {path: 'accounting', loadChildren: () => import('app/modules/admin/administration/accounting/accounting.routes')},
-                    {path: 'orders', loadChildren: () => import('app/modules/admin/administration/orders/orders.routes')},
-                    {path: 'invoices', loadChildren: () => import('app/modules/admin/administration/invoices/invoices.routes')},
+                    {
+                        path        : 'accounting',
+                        loadChildren: () => import('app/modules/admin/administration/accounting/accounting.routes')
+                    },
+                    {
+                        path        : 'orders',
+                        loadChildren: () => import('app/modules/admin/administration/orders/orders.routes')
+                    },
+                    {
+                        path        : 'invoices',
+                        loadChildren: () => import('app/modules/admin/administration/invoices/invoices.routes')
+                    },
                 ]
             },
             {
                 path        : 'logistics',
+                canActivate: [ rolesGuard ],
+                data       : {
+                    roles: [ RoleEnum.admin, RoleEnum.driver ]
+                },
                 loadChildren: () => import('app/modules/admin/logistics/logistics.routes'),
             },
             {
                 path    : 'maintainers',
                 children: [
-                    {path: 'clients', loadChildren: () => import('app/modules/admin/maintainers/clients/client.routes')},
-                    {path: 'products', loadChildren: () => import('app/modules/admin/maintainers/products/products.routes')},
-                    {path: 'users', loadChildren: () => import('app/modules/admin/maintainers/users/users.routes')},
-                    {path: 'suppliers', loadChildren: () => import('app/modules/admin/maintainers/suppliers/suppliers.routes')},
-                    {path: 'expense-types', loadChildren: () => import('app/modules/admin/maintainers/expense-types/expense-types.routes')},
-                    {path: 'vehicles', loadChildren: () => import('app/modules/admin/maintainers/vehicles/vehicles.routes')},
-                    {path: 'feature-toggles', loadChildren: () => import('app/modules/admin/maintainers/feature-toggles/feature-toggles.routes')},
+                    {
+                        path        : 'clients',
+                        title       : 'Mantenedor de Clientes',
+                        canActivate : [ rolesGuard ],
+                        data        : {
+                            roles: [ RoleEnum.admin ]
+                        },
+                        loadChildren: () => import('app/modules/admin/maintainers/clients/client.routes')
+                    },
+                    {
+                        path        : 'products',
+                        title       : 'Mantenedor de Productos',
+                        canActivate : [ rolesGuard ],
+                        data        : {
+                            roles: [ RoleEnum.admin ]
+                        },
+                        loadChildren: () => import('app/modules/admin/maintainers/products/products.routes')
+                    },
+                    {
+                        path        : 'users',
+                        title       : 'Mantenedor de Usuarios',
+                        canActivate : [ rolesGuard ],
+                        data        : {
+                            roles: [ RoleEnum.admin ]
+                        },
+                        loadChildren: () => import('app/modules/admin/maintainers/users/users.routes')
+                    },
+                    {
+                        path        : 'suppliers',
+                        title       : 'Mantenedor de Proveedores',
+                        canActivate : [ rolesGuard ],
+                        data        : {
+                            roles: [ RoleEnum.admin ]
+                        },
+                        loadChildren: () => import('app/modules/admin/maintainers/suppliers/suppliers.routes')
+                    },
+                    {
+                        path        : 'expense-types',
+                        title       : 'Mantenedor de Tipos de Gastos',
+                        canActivate : [ rolesGuard ],
+                        data        : {
+                            roles: [ RoleEnum.admin ]
+                        },
+                        loadChildren: () => import('app/modules/admin/maintainers/expense-types/expense-types.routes')
+                    },
+                    {
+                        path        : 'vehicles',
+                        title       : 'Mantenedor de Vehículos',
+                        canActivate : [ rolesGuard ],
+                        data        : {
+                            roles: [ RoleEnum.admin ]
+                        },
+                        loadChildren: () => import('app/modules/admin/maintainers/vehicles/vehicles.routes')
+                    },
+                    {
+                        path        : 'feature-toggles',
+                        title       : 'Mantenedor de características',
+                        canActivate : [ rolesGuard ],
+                        data        : {
+                            roles: [ RoleEnum.admin ]
+                        },
+                        loadChildren: () => import('app/modules/admin/maintainers/feature-toggles/feature-toggles.routes')
+                    },
                 ]
             }
         ]

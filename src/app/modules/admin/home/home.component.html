@@ -2,28 +2,23 @@
     @let user = user$ | async;
 
     @if (user) {
-        <mat-card class="p-6 shadow-md rounded-xl bg-card mb-8">
-            <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
-                <!-- User avatar -->
+        <mat-card class="bg-card shadow-sm rounded-lg p-8 mb-12">
+            <div class="flex flex-col md:flex-row items-center gap-6">
                 <div class="flex-shrink-0">
-                    <div class="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+                    <div class="w-28 h-28 rounded-full bg-hover flex items-center justify-center overflow-hidden">
                         @if (user.avatar) {
                             <img [src]="user.avatar" alt="Avatar de usuario" class="w-full h-full object-cover">
                         } @else {
-                            <mat-icon class="icon-size-24">account_circle</mat-icon>
+                            <mat-icon class="icon-size-24 text-blue-300">account_circle</mat-icon>
                         }
                     </div>
                 </div>
 
                 <!-- User info -->
-                <div class="flex-grow text-center md:text-left">
-                    <h1 class="text-3xl font-bold mb-2">¡Bienvenido, {{ user.firstName || user.name || 'Usuario' }}!</h1>
-                    <p class="text-xl mb-4">
-                        Acceso como: <span class="font-medium">{{ user.role?.name || 'Usuario' }}</span>
-                    </p>
-                    <p class="text-lg text-gray-500">
-                        Aquí encontrarás accesos directos a las funciones más importantes según tu rol.
-                    </p>
+                <div class="text-center md:text-left">
+                    <h1 class="text-4xl font-bold mb-2">¡Bienvenido, {{ user.name || user.firstName || 'Usuario' }}!</h1>
+                    <p class="text-xl text-gray-400 mb-4">Acceso como: <span class="font-semibold">{{ user.role?.name }}</span></p>
+                    <p class="text-lg text-gray-400 leading-relaxed">Aquí encontrarás accesos directos a las funciones más importantes según tu rol.</p>
                 </div>
             </div>
         </mat-card>
@@ -38,14 +33,30 @@
             @for (shortcut of shortcuts; track trackByFn($index, shortcut)) {
                 @if (isShortcutVisible(shortcut, user)) {
                     <a [routerLink]="shortcut.route"
-                       class="block transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <mat-card [ngClass]="[shortcut.color, 'h-full shadow-md rounded-xl overflow-hidden']">
+                       class="block transform hover:scale-105 transition focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-lg group">
+                        <mat-card class="h-full bg-card shadow-sm rounded-lg overflow-hidden border-t-4"
+                                  [ngClass]="{
+                                    'border-blue-500': shortcut.color==='blue',
+                                    'border-green-500': shortcut.color==='green',
+                                    'border-yellow-500': shortcut.color==='yellow',
+                                    'border-purple-500': shortcut.color==='purple',
+                                    'border-red-500': shortcut.color==='red',
+                                    'border-gray-500': shortcut.color==='gray',
+                                    'border-pink-500': shortcut.color==='pink',
+                                    'border-orange-500': shortcut.color==='orange',
+                                    'border-teal-500': shortcut.color==='teal',
+                                    'border-indigo-500': shortcut.color==='indigo',
+                                  }">
                             <div class="p-6">
                                 <div class="flex items-center mb-4">
-                                    <mat-icon class="text-4xl text-gray-700">{{ shortcut.icon }}</mat-icon>
-                                    <h3 class="text-xl font-bold text-gray-800 ml-4">{{ shortcut.title }}</h3>
+                                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-50 group-hover:bg-blue-400 transition-all">
+                                        <mat-icon class="text-3xl text-blue-500 group-hover:text-white transition-all">
+                                            {{ shortcut.icon }}
+                                        </mat-icon>
+                                    </div>
+                                    <h3 class="ml-4 text-xl font-semibold">{{ shortcut.title }}</h3>
                                 </div>
-                                <p class="text-gray-600">{{ shortcut.description }}</p>
+                                <p class="leading-relaxed text-gray-400">{{ shortcut.description }}</p>
                             </div>
                         </mat-card>
                     </a>

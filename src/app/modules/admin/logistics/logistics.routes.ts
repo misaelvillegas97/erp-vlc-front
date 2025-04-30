@@ -1,5 +1,7 @@
 import { Routes }              from '@angular/router';
 import { VehicleSessionGuard } from './guards/vehicle-session.guard';
+import { rolesGuard }          from '@core/guards/roles.guard';
+import { RoleEnum }            from '@core/user/role.type';
 
 export default [
     {
@@ -40,9 +42,13 @@ export default [
             },
             {
                 path         : 'history',
+                title        : 'Historial de Sesiones',
+                canActivate  : [ rolesGuard ],
+                data         : {
+                    roles: [ RoleEnum.admin ]
+                },
                 loadComponent: () =>
                     import('./pages/history/history.component').then(m => m.HistoryComponent),
-                title        : 'Historial de Sesiones'
             },
             {
                 path      : '',

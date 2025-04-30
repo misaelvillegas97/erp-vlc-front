@@ -146,7 +146,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
         const drivers$ = firstValueFrom(this.driversService.findAll()).then(
             result => {
                 this.availableDrivers.set(result.items);
-                if (result.total === 0) this.notyf.error({message: 'No hay conductores disponibles actualmente', duration: 5000});
+                if (result.total === 0) this.notyf.error({message: 'No hay conductores disponibles actualmente', duration: 5_000, ripple: true});
             }
         );
         const vehicles$ = firstValueFrom(
@@ -156,7 +156,8 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
             if (result.total === 0)
                 this.notyf.error({
                     message : 'No hay vehículos disponibles actualmente',
-                    duration: 5000
+                    duration: 5_000,
+                    ripple  : false
                 });
         });
 
