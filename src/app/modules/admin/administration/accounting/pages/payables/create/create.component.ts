@@ -100,8 +100,6 @@ export class CreateComponent {
 
         const form = SupplierInvoiceMapper.toCreateDto(this.form.getRawValue());
 
-        console.log('form', form);
-
         firstValueFrom(this.#service.createPayable(form))
             .then(() => this.#notyfService.success('Factura agregada correctamente'))
             .then(() => this.#router.navigate([ '/operations/accounting/payables/list' ]))

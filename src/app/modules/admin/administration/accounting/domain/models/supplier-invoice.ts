@@ -21,7 +21,6 @@ export interface SupplierInvoice {
 
 export class SupplierInvoiceMapper {
     static toCreateDto(data: any): SupplierInvoice {
-        console.log('toCreateDto', data);
         return {
             id           : data.id,
             supplierId   : data.supplierId,

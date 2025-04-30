@@ -41,7 +41,6 @@ export class ListComponent implements AfterViewInit {
     columnsConfig: WritableSignal<ColumnConfig<SupplierInvoice>[]> = signal([]);
 
     ngAfterViewInit() {
-        console.log('building columns config', this.buildColumnsConfig());
         this.columnsConfig.set(this.buildColumnsConfig());
     }
 

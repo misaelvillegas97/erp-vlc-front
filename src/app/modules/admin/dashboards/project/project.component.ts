@@ -75,8 +75,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
         this._projectService.orders$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((data) => {
-                console.log(data);
-
                 // Store the data
                 this.orders = data;
 

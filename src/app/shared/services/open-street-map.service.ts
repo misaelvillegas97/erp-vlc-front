@@ -17,7 +17,6 @@ export class OpenStreetMapService {
             if ('geolocation' in navigator) {
                 const position: GeolocationPosition = await this.getCurrentPosition({enableHighAccuracy: true});
 
-                console.log('position', position);
                 lat = position.coords.latitude;
                 lon = position.coords.longitude;
             }

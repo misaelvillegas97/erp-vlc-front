@@ -42,7 +42,6 @@ export function formDataFromObject<T>(object: T): FormData {
 
     Object.keys(object).forEach((key) => {
         if (object[key] !== undefined && object[key] !== null) {
-            console.log(object[key]);
             if (object[key] instanceof File) {
                 formData.append(key, object[key], object[key].name);
             } else if (object[key] instanceof Object) {

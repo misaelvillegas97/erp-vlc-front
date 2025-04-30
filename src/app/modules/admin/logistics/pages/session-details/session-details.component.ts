@@ -113,7 +113,6 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
 
         const subscription = this.sessionsService.findById(this.sessionId()).subscribe({
             next : (session) => {
-                console.log('session', session);
                 this.session.set(session);
                 this.isLoading.set(false);
 
@@ -183,7 +182,6 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
 
         // Push current location to markers with a standard icon instead of large base64
         if (path[path.length - 1]) {
-            console.log('Ubicación actual', path[path.length - 1]);
             markers.push({
                 position: path[path.length - 1],
                 title   : 'Ubicación actual',

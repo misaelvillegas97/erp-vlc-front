@@ -101,8 +101,6 @@ export class AuthSignInComponent implements OnInit {
                     this._router.navigateByUrl(redirectURL).then();
                 },
                 error: (response) => {
-                    console.log(response);
-
                     // Re-enable the form
                     this.signInForm.enable();
 

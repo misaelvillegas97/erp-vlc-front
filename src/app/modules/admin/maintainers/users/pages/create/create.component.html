@@ -1,1 +1,286 @@
-<p>create works!</p>
+<div class="flex flex-col min-w-0 w-full">
+    <page-detail-header
+        subtitle="Completa el formulario para crear un nuevo usuario"
+        title="Crea un nuevo usuario"
+    ></page-detail-header>
+
+    <!-- Contenedor principal -->
+    <div class="flex-1 flex flex-col w-full max-w-5xl mx-auto py-4 px-4">
+        <!-- Formulario con Grid -->
+        <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full py-4">
+
+            <!-- Sección: Basic Information -->
+            <div class="col-span-1 md:col-span-2">
+                <h3 class="text-lg font-semibold mb-2">
+                    Information Básica
+                </h3>
+            </div>
+
+            <!-- Email -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                <mat-label>Correo</mat-label>
+                <input
+                    placeholder="Ej: correo@ejemplo.cl"
+                    formControlName="email"
+                    type="email"
+                    matInput
+                    required
+                >
+                <mat-error *ngIf="userForm.get('email').hasError('required')">Campo requerido</mat-error>
+                <mat-error *ngIf="userForm.get('email').hasError('email')">Correo inválido</mat-error>
+            </mat-form-field>
+
+            <!-- Password -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                <mat-label>Password</mat-label>
+                <input
+                    placeholder="Password"
+                    formControlName="password"
+                    type="password"
+                    matInput
+                    required
+                >
+                <mat-error *ngIf="userForm.get('password').hasError('required')">Campo requerido</mat-error>
+                <mat-error *ngIf="userForm.get('password').hasError('minlength')">Contraseña debe tener al menos 6 caracteres</mat-error>
+            </mat-form-field>
+
+            <!-- First Name -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                <mat-label>Nombres</mat-label>
+                <input
+                    placeholder="Nombres"
+                    formControlName="firstName"
+                    matInput
+                    required
+                >
+                <mat-error *ngIf="userForm.get('firstName').hasError('required')">Campo requerido</mat-error>
+            </mat-form-field>
+
+            <!-- Last Name -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                <mat-label>Apellidos</mat-label>
+                <input
+                    placeholder="Apellidos"
+                    formControlName="lastName"
+                    matInput
+                    required
+                >
+                <mat-error *ngIf="userForm.get('lastName').hasError('required')">Campo requerido</mat-error>
+            </mat-form-field>
+
+            <!-- Role -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed" floatLabel="always">
+                <mat-label>Rol</mat-label>
+                <mat-select formControlName="role" required placeholder="Rol">
+                    <mat-option *ngFor="let roleId of roles" [value]="roleId">
+                        {{ roleNames[roleId] | titlecase }}
+                    </mat-option>
+                </mat-select>
+                <mat-error *ngIf="userForm.get('role').hasError('required')">Campo requerido</mat-error>
+            </mat-form-field>
+
+            <!-- Status -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed" floatLabel="always">
+                <mat-label>Estado</mat-label>
+                <mat-select formControlName="status" required placeholder="Estado">
+                    <mat-option *ngFor="let statusId of statuses" [value]="{ id: statusId }">
+                        {{ statusNames[statusId] | titlecase }}
+                    </mat-option>
+                </mat-select>
+                <mat-error *ngIf="userForm.get('status').hasError('required')">Campo requerido</mat-error>
+            </mat-form-field>
+
+            <!-- Sección: Contact Information -->
+            <div class="col-span-1 md:col-span-2">
+                <h3 class="text-lg font-semibold mt-2 mb-2">
+                    Información de Contacto
+                </h3>
+            </div>
+
+            <!-- Phone Number -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                <mat-label>Número de Teléfono</mat-label>
+                <input
+                    placeholder="Ej: +56912345678"
+                    formControlName="phoneNumber"
+                    matInput
+                >
+            </mat-form-field>
+
+            <!-- Address -->
+            <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                <mat-label>Dirección</mat-label>
+                <input
+                    placeholder="Ej: Calle 123, Ciudad"
+                    formControlName="address"
+                    matInput
+                >
+            </mat-form-field>
+
+            <!-- Driver-specific fields (shown only when role is driver) -->
+            <div *ngIf="isDriver" class="col-span-1 md:col-span-2">
+                <h3 class="text-lg font-semibold mt-2 mb-2">
+                    Información del Conductor
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                    <!-- Document ID -->
+                    <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                        <mat-label>RUT</mat-label>
+                        <input
+                            placeholder="Ej: 12345678-9"
+                            formControlName="documentId"
+                            matInput
+                        >
+                        <mat-error *ngIf="userForm.get('documentId').hasError('required')">Campo requerido</mat-error>
+                    </mat-form-field>
+
+                    <!-- Emergency Contact Name -->
+                    <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                        <mat-label>Nombre de Contacto de Emergencia</mat-label>
+                        <input
+                            placeholder="Nombre de Contacto de Emergencia"
+                            formControlName="emergencyContactName"
+                            matInput
+                        >
+                    </mat-form-field>
+
+                    <!-- Emergency Contact Phone -->
+                    <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                        <mat-label>Teléfono de Contacto de Emergencia</mat-label>
+                        <input
+                            placeholder="Ej: +56912345678"
+                            formControlName="emergencyContactPhone"
+                            matInput
+                        >
+                    </mat-form-field>
+                </div>
+
+                <!-- Notes -->
+                <mat-form-field class="col-span-1 md:col-span-2 fuse-mat-dense w-full" subscriptSizing="fixed">
+                    <mat-label>Notas</mat-label>
+                    <textarea
+                        placeholder="Notas"
+                        formControlName="notes"
+                        matInput
+                        cdkTextareaAutosize
+                    ></textarea>
+                </mat-form-field>
+
+                <!-- Driver License Information -->
+                <div class="mt-4">
+                    <h3 class="text-lg font-semibold mb-2">Información de Licencia de Conducir</h3>
+
+                    <!-- Driver License Validation Errors -->
+                    <div *ngIf="userForm.get('driverLicense').errors && userForm.get('driverLicense').touched" class="text-red-500 mb-2">
+                        <div *ngIf="userForm.get('driverLicense').errors?.driverLicenseRequired">
+                            Para conductores, se requiere al menos una licencia de conducir
+                        </div>
+                        <div *ngIf="userForm.get('driverLicense').errors?.driverLicenseInvalid">
+                            Todos los campos de licencia de conducir son obligatorios
+                        </div>
+                    </div>
+
+                    <div formArrayName="driverLicense">
+                        <div *ngFor="let license of driverLicenses.controls; let i = index" [formGroupName]="i" class="border p-3 rounded-md mb-3">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-medium">Licencia #{{ i + 1 }}</h4>
+                                <button type="button" mat-icon-button color="warn" (click)="removeDriverLicense(i)" *ngIf="driverLicenses.length > 1">
+                                    <span class="material-icons">delete</span>
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- License Type -->
+                                <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed" floatLabel="always">
+                                    <mat-label>Clase de licencia</mat-label>
+                                    <mat-select formControlName="licenseType" required placeholder="Seleccione una clase">
+                                        <mat-option *ngFor="let type of licenseTypes" [value]="type">
+                                            {{ type }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error *ngIf="license.get('licenseType').hasError('required')">Campo requerido</mat-error>
+                                </mat-form-field>
+
+                                <!-- Issuing Authority -->
+                                <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                                    <mat-label>Autoridad de emisión</mat-label>
+                                    <input
+                                        placeholder="Ej: Dirección de Tránsito"
+                                        formControlName="issuingAuthority"
+                                        matInput
+                                    >
+                                </mat-form-field>
+
+                                <!-- Valid From -->
+                                <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                                    <mat-label>Válido Desde</mat-label>
+                                    <input
+                                        matInput
+                                        [matDatepicker]="pickerFrom"
+                                        formControlName="licenseValidFrom"
+                                        required
+                                        placeholder="Ej: 01-01-2023"
+                                    >
+                                    <mat-datepicker-toggle matSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+                                    <mat-datepicker #pickerFrom></mat-datepicker>
+                                    <mat-error *ngIf="license.get('licenseValidFrom').hasError('required')">Campo requerido</mat-error>
+                                </mat-form-field>
+
+                                <!-- Valid To -->
+                                <mat-form-field class="col-span-1 fuse-mat-dense w-full" subscriptSizing="fixed">
+                                    <mat-label>Válido Hasta</mat-label>
+                                    <input
+                                        matInput
+                                        [matDatepicker]="pickerTo"
+                                        formControlName="licenseValidTo"
+                                        required
+                                        placeholder="Ej: 01-01-2025"
+                                    >
+                                    <mat-datepicker-toggle matSuffix [for]="pickerTo"></mat-datepicker-toggle>
+                                    <mat-datepicker #pickerTo></mat-datepicker>
+                                    <mat-error *ngIf="license.get('licenseValidTo').hasError('required')">Campo requerido</mat-error>
+                                </mat-form-field>
+
+                                <!-- Restrictions -->
+                                <mat-form-field class="col-span-2 fuse-mat-dense w-full" subscriptSizing="fixed">
+                                    <mat-label>Restricciones</mat-label>
+                                    <input
+                                        placeholder="Ej: Únicamente vehículos automáticos"
+                                        formControlName="restrictions"
+                                        matInput
+                                    >
+                                </mat-form-field>
+                            </div>
+                        </div>
+
+                        <button type="button" mat-stroked-button color="primary" (click)="addDriverLicense()" class="mt-2">
+                            <span class="material-icons mr-2">add</span> Agregar Licencia
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="w-full flex flex-col-reverse md:flex-row justify-end col-span-1 md:col-span-2 gap-4">
+                <button
+                    color="warn"
+                    mat-button
+                    type="button"
+                    [routerLink]="['/maintainers/users']"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    [disabled]="userForm.invalid"
+                    color="primary"
+                    mat-raised-button
+                    type="submit"
+                >
+                    Crear
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

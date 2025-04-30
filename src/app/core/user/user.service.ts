@@ -5,6 +5,7 @@ import { map, Observable, ReplaySubject } from 'rxjs';
 import { User }                           from '@core/user/user.types';
 import { InfinityPagination }             from '@shared/domain/model/infinity-pagination';
 import { DriverLicenseDto }               from '@modules/admin/maintainers/users/models/driver-license.model';
+import { CreateUserDto }                  from '@modules/admin/maintainers/users/models/create-user.dto';
 
 @Injectable({providedIn: 'root'})
 export class UserService {
@@ -42,5 +43,9 @@ export class UserService {
 
     assignDriverLicense(userId: string, driverLicense: DriverLicenseDto): Observable<User> {
         return this._httpClient.post<User>(`api/v1/users/${ userId }/driver-license`, driverLicense);
+    }
+
+    create(user: CreateUserDto): Observable<User> {
+        return this._httpClient.post<User>('api/v1/auth/email/register', user);
     }
 }

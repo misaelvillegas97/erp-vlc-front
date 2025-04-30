@@ -20,7 +20,7 @@ import { Commune }                                                              
 import { firstValueFrom }                                                       from 'rxjs';
 import { SuppliersService }                                                     from '@modules/admin/maintainers/suppliers/suppliers.service';
 import { UpperCasePipe }                                                        from '@angular/common';
-import { fuseAnimations }                                                       from '../../../../../../../@fuse/animations';
+import { fuseAnimations }                                                       from '@fuse/animations';
 
 @Component({
     selector   : 'app-create',
