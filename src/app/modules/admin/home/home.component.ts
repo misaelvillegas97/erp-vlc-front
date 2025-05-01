@@ -115,12 +115,10 @@ export class HomeComponent implements OnInit {
      * @returns True if the shortcut should be visible
      */
     isShortcutVisible(shortcut: Shortcut, user: User): boolean {
-        // Admin can see all shortcuts
         if (user?.role?.id === RoleEnum.admin) {
             return true;
         }
 
-        // Check if the user's role is in the shortcut's roles
         return shortcut.roles.includes(user?.role?.id);
     }
 
