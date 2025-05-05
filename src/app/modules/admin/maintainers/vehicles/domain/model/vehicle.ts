@@ -21,8 +21,8 @@ export interface Vehicle {
     insuranceExpiry?: string;
     technicalInspectionExpiry?: string;
     notes?: string;
-    photoUrl?: string;
-    additionalPhotoUrls?: string[];
+    photo?: string;
+    additionalPhotos?: string[];
     // Existing fields
     documents?: VehicleDocument[];
     createdAt: string;
@@ -34,7 +34,7 @@ export interface VehicleDocument {
     id: string;
     name: string;
     type: VehicleDocumentType;
-    fileUrl: string;
+    file: string;
     expirationDate?: string;
     createdAt: string;
 }

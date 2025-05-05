@@ -17,6 +17,7 @@ import { CommonModule }                                                       fr
 import { catchError, finalize, of }                                           from 'rxjs';
 import { DateTime }                                                           from 'luxon';
 import { MatTabsModule }                                                      from '@angular/material/tabs';
+import { FileUploadComponent }                                                from '@shared/components/file-upload';
 
 @Component({
     selector   : 'app-edit',
@@ -35,7 +36,8 @@ import { MatTabsModule }                                                      fr
         MatIconModule,
         CommonModule,
         RouterLink,
-        MatTabsModule
+        MatTabsModule,
+        FileUploadComponent
     ],
     templateUrl: './edit.component.html'
 })
@@ -89,8 +91,8 @@ export class EditComponent implements OnInit {
         technicalInspectionExpiry: [ '' ],
 
         // Photos
-        photoUrl           : [ '' ],
-        additionalPhotoUrls: this.#fb.array([]),
+        photo           : [ null ],
+        additionalPhotos: this.#fb.array([]),
 
         // Documents
         documents: this.#fb.array([])
@@ -100,8 +102,8 @@ export class EditComponent implements OnInit {
         return this.form.get('documents') as FormArray;
     }
 
-    get additionalPhotoUrls(): FormArray {
-        return this.form.get('additionalPhotoUrls') as FormArray;
+    get additionalPhotos(): FormArray {
+        return this.form.get('additionalPhotos') as FormArray;
     }
 
     ngOnInit(): void {
@@ -155,19 +157,19 @@ export class EditComponent implements OnInit {
                     insuranceNumber          : vehicle.insuranceNumber,
                     insuranceExpiry          : vehicle.insuranceExpiry,
                     technicalInspectionExpiry: vehicle.technicalInspectionExpiry,
-                    photoUrl                 : vehicle.photoUrl
+                    photo: vehicle.photo
                 });
 
-                // Add photo URLs to form array
-                if (vehicle.additionalPhotoUrls && vehicle.additionalPhotoUrls.length > 0) {
+                // Add photos to form array
+                if (vehicle.additionalPhotos && vehicle.additionalPhotos.length > 0) {
                     // Clear existing array
-                    while (this.additionalPhotoUrls.length !== 0) {
-                        this.additionalPhotoUrls.removeAt(0);
+                    while (this.additionalPhotos.length !== 0) {
+                        this.additionalPhotos.removeAt(0);
                     }
 
-                    // Add each photo URL
-                    vehicle.additionalPhotoUrls.forEach(url => {
-                        this.additionalPhotoUrls.push(this.#fb.control(url));
+                    // Add each photo
+                    vehicle.additionalPhotos.forEach(photo => {
+                        this.additionalPhotos.push(this.#fb.control(photo));
                     });
                 }
 
@@ -184,7 +186,7 @@ export class EditComponent implements OnInit {
                             id            : [ doc.id ],
                             name          : [ doc.name, [ Validators.required ] ],
                             type          : [ doc.type, [ Validators.required ] ],
-                            fileUrl       : [ doc.fileUrl, [ Validators.required ] ],
+                            file: [ doc.file, [ Validators.required ] ],
                             expirationDate: [ doc.expirationDate || '' ]
                         }));
                     });
@@ -196,7 +198,7 @@ export class EditComponent implements OnInit {
         const documentForm = this.#fb.group({
             name          : [ '', [ Validators.required ] ],
             type          : [ null, [ Validators.required ] ],
-            fileUrl       : [ '', [ Validators.required ] ],
+            file: [ null, [ Validators.required ] ],
             expirationDate: [ '' ]
         });
 
@@ -207,57 +209,16 @@ export class EditComponent implements OnInit {
         this.documents.removeAt(index);
     }
 
-    addPhotoUrl(): void {
-        this.additionalPhotoUrls.push(this.#fb.control('', [ Validators.required ]));
+    addPhoto(): void {
+        this.additionalPhotos.push(this.#fb.control(null, [ Validators.required ]));
     }
 
-    removePhotoUrl(index: number): void {
-        this.additionalPhotoUrls.removeAt(index);
+    removePhoto(index: number): void {
+        this.additionalPhotos.removeAt(index);
     }
 
-    onFileSelected(event: Event, index: number): void {
-        const file = (event.target as HTMLInputElement).files?.[0];
-        if (file) {
-            // In a real implementation, this would upload the file and set the URL
-            const documentForm = this.documents.at(index);
-            documentForm.patchValue({
-                fileUrl: 'http://example.com/document/' + file.name
-            });
-
-            // Simulate success notification
-            this.#notyf.success({
-                message: `Documento "${ file.name }" cargado correctamente`
-            });
-        }
-    }
-
-    onMainPhotoSelected(event: Event): void {
-        const file = (event.target as HTMLInputElement).files?.[0];
-        if (file) {
-            // In a real implementation, this would upload the file and set the URL
-            this.form.patchValue({
-                photoUrl: 'http://example.com/photos/' + file.name
-            });
-
-            // Simulate success notification
-            this.#notyf.success({
-                message: `Foto principal "${ file.name }" cargada correctamente`
-            });
-        }
-    }
-
-    onAdditionalPhotoSelected(event: Event, index: number): void {
-        const file = (event.target as HTMLInputElement).files?.[0];
-        if (file) {
-            // In a real implementation, this would upload the file and set the URL
-            this.additionalPhotoUrls.at(index).setValue('http://example.com/photos/' + file.name);
-
-            // Simulate success notification
-            this.#notyf.success({
-                message: `Foto adicional "${ file.name }" cargada correctamente`
-            });
-        }
-    }
+    // These methods are no longer needed as we're using the FileUploadComponent
+    // which handles file uploads internally
 
     submit(): void {
         if (this.form.invalid) {
@@ -286,19 +247,8 @@ export class EditComponent implements OnInit {
         });
     }
 
-    documentFileInput(index: number) {
-        const id = `document-file-${ index }`;
-        document.getElementById(id)?.click();
-    }
-
-    mainPhotoInput() {
-        document.getElementById('main-photo-input')?.click();
-    }
-
-    additionalPhotoInput(index: number) {
-        const id = `additional-photo-${ index }`;
-        document.getElementById(id)?.click();
-    }
+    // These methods are no longer needed as we're using the FileUploadComponent
+    // which handles file input clicks internally
 
     protected readonly DateTime = DateTime;
 }
