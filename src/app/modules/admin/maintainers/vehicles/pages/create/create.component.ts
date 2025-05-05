@@ -16,6 +16,7 @@ import { FuelType, VehicleDocumentType, VehicleStatus, VehicleType }          fr
 import { CommonModule }                                                       from '@angular/common';
 import { DateTime }                                                           from 'luxon';
 import { MatTabsModule }                                                      from '@angular/material/tabs';
+import { FileUploadComponent }                                                from '@shared/components/file-upload';
 
 @Component({
     selector   : 'app-create',
@@ -34,7 +35,8 @@ import { MatTabsModule }                                                      fr
         MatIconModule,
         CommonModule,
         MatTabsModule,
-        RouterLink
+        RouterLink,
+        FileUploadComponent
     ],
     templateUrl: './create.component.html'
 })
@@ -80,8 +82,8 @@ export class CreateComponent {
         technicalInspectionExpiry: [ undefined ],
 
         // Photos
-        photoUrl           : [ undefined ],
-        additionalPhotoUrls: this.#fb.array([]),
+        photo           : [ undefined ],
+        additionalPhotos: this.#fb.array([]),
 
         // Documents
         documents: this.#fb.array([])
@@ -91,16 +93,16 @@ export class CreateComponent {
         return this.form.get('documents') as FormArray;
     }
 
-    get additionalPhotoUrls(): FormArray {
-        return this.form.get('additionalPhotoUrls') as FormArray;
+    get additionalPhotos(): FormArray {
+        return this.form.get('additionalPhotos') as FormArray;
     }
 
     addDocument(): void {
         const documentForm = this.#fb.group({
             name          : [ undefined, [ Validators.required ] ],
             type          : [ null, [ Validators.required ] ],
-            fileUrl       : [ undefined, [ Validators.required ] ],
-            expirationDate: [ undefined ]
+            file      : [ undefined, [ Validators.required ] ],
+            expiryDate: [ undefined ]
         });
 
         this.documents.push(documentForm);
@@ -110,57 +112,16 @@ export class CreateComponent {
         this.documents.removeAt(index);
     }
 
-    addPhotoUrl(): void {
-        this.additionalPhotoUrls.push(this.#fb.control(undefined, [ Validators.required ]));
+    addPhoto(): void {
+        this.additionalPhotos.push(this.#fb.control(undefined, [ Validators.required ]));
     }
 
-    removePhotoUrl(index: number): void {
-        this.additionalPhotoUrls.removeAt(index);
+    removePhoto(index: number): void {
+        this.additionalPhotos.removeAt(index);
     }
 
-    onFileSelected(event: Event, index: number): void {
-        const file = (event.target as HTMLInputElement).files?.[0];
-        if (file) {
-            // In a real implementation, this would upload the file and set the URL
-            const documentForm = this.documents.at(index);
-            documentForm.patchValue({
-                fileUrl: 'http://example.com/document/' + file.name
-            });
-
-            // Simulate success notification
-            this.#notyf.success({
-                message: `Documento "${ file.name }" cargado correctamente`
-            });
-        }
-    }
-
-    onMainPhotoSelected(event: Event): void {
-        const file = (event.target as HTMLInputElement).files?.[0];
-        if (file) {
-            // In a real implementation, this would upload the file and set the URL
-            this.form.patchValue({
-                photoUrl: 'http://example.com/photos/' + file.name
-            });
-
-            // Simulate success notification
-            this.#notyf.success({
-                message: `Foto principal "${ file.name }" cargada correctamente`
-            });
-        }
-    }
-
-    onAdditionalPhotoSelected(event: Event, index: number): void {
-        const file = (event.target as HTMLInputElement).files?.[0];
-        if (file) {
-            // In a real implementation, this would upload the file and set the URL
-            this.additionalPhotoUrls.at(index).setValue('http://example.com/photos/' + file.name);
-
-            // Simulate success notification
-            this.#notyf.success({
-                message: `Foto adicional "${ file.name }" cargada correctamente`
-            });
-        }
-    }
+    // These methods are no longer needed as we're using the FileUploadComponent
+    // which handles file uploads internally
 
     submit(): void {
         if (this.form.invalid) {
@@ -189,19 +150,8 @@ export class CreateComponent {
         });
     }
 
-    documentFileInput(index: number) {
-        const id = `document-file-${ index }`;
-        document.getElementById(id)?.click();
-    }
-
-    mainPhotoInput() {
-        document.getElementById('main-photo-input')?.click();
-    }
-
-    additionalPhotoInput(index: number) {
-        const id = `additional-photo-${ index }`;
-        document.getElementById(id)?.click();
-    }
+    // These methods are no longer needed as we're using the FileUploadComponent
+    // which handles file input clicks internally
 
     protected readonly DateTime = DateTime;
 }
