@@ -1,7 +1,7 @@
-import { Injectable }                                      from '@angular/core';
-import { BehaviorSubject, Observable, from, interval, of } from 'rxjs';
-import { catchError, map, switchMap, tap }                 from 'rxjs/operators';
-import { GeoLocation }                                     from '../domain/model/vehicle-session.model';
+import { Injectable }                            from '@angular/core';
+import { BehaviorSubject, from, Observable, of } from 'rxjs';
+import { catchError, map, tap }                  from 'rxjs/operators';
+import { GeoLocation }                           from '../domain/model/vehicle-session.model';
 
 @Injectable({
     providedIn: 'root'
@@ -63,53 +63,6 @@ export class GeolocationService {
                 return of(null);
             })
         );
-    }
-
-    /**
-     * Inicia el seguimiento de la ubicación
-     * @returns Observable<GeoLocation> - emite la posición cada vez que cambia significativamente
-     */
-    public startTracking(): Observable<GeoLocation> {
-        if (!this.isGeolocationAvailable()) {
-            return of(null);
-        }
-
-        // Detener cualquier tracking previo
-        this.stopTracking();
-
-        // Comenzar con un valor inicial
-        return this.getCurrentPosition().pipe(
-            switchMap(() => {
-                // Devolver un observable que emite cada vez que la posición cambia
-                return new Observable<GeoLocation>(observer => {
-                    this.watchId = navigator.geolocation.watchPosition(
-                        position => {
-                            const location = this.mapToGeoLocation(position);
-                            this._lastKnownPosition.next(location);
-                            observer.next(location);
-                        },
-                        error => {
-                            console.error('Error tracking position:', error);
-                            observer.error(error);
-                        },
-                        this.geoOptions
-                    );
-
-                    // Función de limpieza cuando se desuscriben
-                    return () => this.stopTracking();
-                });
-            })
-        );
-    }
-
-    /**
-     * Detiene el seguimiento de la ubicación
-     */
-    public stopTracking(): void {
-        if (this.watchId !== null) {
-            navigator.geolocation.clearWatch(this.watchId);
-            this.watchId = null;
-        }
     }
 
     /**

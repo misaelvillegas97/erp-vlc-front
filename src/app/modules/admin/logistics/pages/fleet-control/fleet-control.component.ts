@@ -26,9 +26,9 @@ import { Driver }                                            from '@modules/admi
 import { Vehicle }                                           from '@modules/admin/logistics/domain/model/vehicle.model';
 
 @Component({
-    selector  : 'app-fleet-control',
-    standalone: true,
-    imports   : [
+    selector   : 'app-fleet-control',
+    standalone : true,
+    imports    : [
         CommonModule,
         MatButtonModule,
         MatCardModule,
@@ -132,11 +132,18 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
     ngAfterViewInit() {
         // Check if gps permissions it is granted
         if (this.hasGeolocationPermission()) return;
+
+        // Check if we've already shown the dialog in this session
+        const hasShownGpsWarning = localStorage.getItem('hasShownGpsWarning');
+        if (hasShownGpsWarning) return;
+
         setTimeout(() => {
             this.dialog.open(GpsWarningDialogComponent, {
                 width       : '400px',
                 disableClose: true
             });
+            // Mark that we've shown the dialog in this session
+            localStorage.setItem('hasShownGpsWarning', 'true');
         });
     }
 
