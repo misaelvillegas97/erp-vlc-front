@@ -3,7 +3,7 @@ import { TemplateRef }            from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DateTime }               from 'luxon';
 
-export type ColumnType = 'text' | 'date' | 'currency' | 'badge' | 'actions' | 'custom';
+export type ColumnType = 'text' | 'date' | 'currency' | 'number' | 'badge' | 'actions' | 'custom' | 'icon' | 'button' | 'progress' | 'toggle' | 'checkbox' | 'link' | 'image';
 
 interface BaseFilterConfig {
     placeholder?: string;
@@ -78,8 +78,46 @@ export interface ColumnDisplayConfig<T> {
     customTemplate?: TemplateRef<any>;
     pipeOptions?: any; // TODO: Define available types
     onClick?: (row: T) => void;
-    actions?: { icon: string; action: string; }[];
+
+    // For actions column
+    actions?: { icon: string; action: string; label?: string; tooltip?: string; color?: string; }[];
     action?: (action: string, row: T) => void;
+
+    // For icon column
+    icon?: string | ((value: any, row?: T) => string);
+    iconColor?: string | ((value: any, row?: T) => string);
+    iconSize?: string;
+
+    // For tooltip
+    tooltip?: string | ((value: any, row?: T) => string);
+
+    // For button column
+    buttonLabel?: string | ((value: any, row?: T) => string);
+    buttonIcon?: string | ((value: any, row?: T) => string);
+    buttonColor?: 'primary' | 'accent' | 'warn' | ((value: any, row?: T) => 'primary' | 'accent' | 'warn');
+    buttonType?: 'basic' | 'raised' | 'stroked' | 'flat' | 'icon' | 'fab' | 'mini-fab';
+
+    // For progress column
+    progressColor?: 'primary' | 'accent' | 'warn' | ((value: any, row?: T) => 'primary' | 'accent' | 'warn');
+    progressMode?: 'determinate' | 'indeterminate' | 'buffer' | 'query';
+
+    // For toggle column
+    toggleChange?: (checked: boolean, row: T) => void;
+    toggleDisabled?: boolean | ((row: T) => boolean);
+
+    // For checkbox column
+    checkboxChange?: (checked: boolean, row: T) => void;
+    checkboxDisabled?: boolean | ((row: T) => boolean);
+
+    // For link column
+    linkUrl?: string | ((value: any, row?: T) => string);
+    linkTarget?: string | ((value: any, row?: T) => string);
+
+    // For image column
+    imageAlt?: string | ((value: any, row?: T) => string);
+    imageFallback?: string;
+    imageWidth?: string;
+    imageHeight?: string;
 
     alignment?: 'left' | 'center' | 'right';
     width?: string;
