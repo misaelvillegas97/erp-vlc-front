@@ -141,7 +141,8 @@ export class CreateComponent implements OnInit {
         if (this.userForm.invalid)
             this.markFormGroupTouched(this.userForm);
 
-        const userData = this.userForm.value;
+        // Deep clones the form value to avoid modifying the original object
+        const userData = {...this.userForm.value};
 
         // Format role and status as objects
         userData.role = {id: userData.role};
