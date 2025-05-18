@@ -19,6 +19,7 @@ import { TableBuilderComponent }                                                
 import { MatDialog }                                                                           from '@angular/material/dialog';
 import { DriverLicenseDialogComponent }                                                        from '../../dialog/driver-license/driver-license.component';
 import { ColumnConfig }                                                                        from '@shared/components/table-builder/column.type';
+import { MatMenuModule }                                                                       from '@angular/material/menu';
 
 @Component({
     selector   : 'app-list',
@@ -35,7 +36,8 @@ import { ColumnConfig }                                                         
         MatTableModule,
         MatIconButton,
         TranslocoPipe,
-        TableBuilderComponent
+        TableBuilderComponent,
+        MatMenuModule
     ],
     templateUrl: './list.component.html'
 })

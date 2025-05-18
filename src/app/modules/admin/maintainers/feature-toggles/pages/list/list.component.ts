@@ -239,15 +239,18 @@ export class ListComponent {
     ];
 
     toggleFeature(feature: any, event: any) {
+        console.log('Toggle feature:', feature, event);
         const enabled = event.checked;
 
         // Store the expanded state of tree nodes
         const expandedNodes = new Set<string>();
-        this.treeControl.dataNodes.forEach(node => {
-            if (this.treeControl.isExpanded(node)) {
-                expandedNodes.add(node.id);
-            }
-        });
+        if (this.treeControl.dataNodes) {
+            this.treeControl.dataNodes.forEach(node => {
+                if (this.treeControl.isExpanded(node)) {
+                    expandedNodes.add(node.id);
+                }
+            });
+        }
 
         this.#service.toggle(feature.id, enabled).pipe(
             // Update the feature in-place without reloading the entire data
@@ -267,11 +270,13 @@ export class ListComponent {
 
                 // Restore the expanded state of tree nodes
                 setTimeout(() => {
-                    this.treeControl.dataNodes.forEach(node => {
-                        if (expandedNodes.has(node.id)) {
-                            this.treeControl.expand(node);
-                        }
-                    });
+                    if (this.treeControl.dataNodes) {
+                        this.treeControl.dataNodes.forEach(node => {
+                            if (expandedNodes.has(node.id)) {
+                                this.treeControl.expand(node);
+                            }
+                        });
+                    }
                 }, 0);
             })
         ).subscribe({
@@ -324,11 +329,13 @@ export class ListComponent {
         if (confirm(this.#ts.translate('maintainers.feature-toggles.messages.confirmDelete'))) {
             // Store the expanded state of tree nodes
             const expandedNodes = new Set<string>();
-            this.treeControl.dataNodes.forEach(node => {
-                if (this.treeControl.isExpanded(node)) {
-                    expandedNodes.add(node.id);
-                }
-            });
+            if (this.treeControl.dataNodes) {
+                this.treeControl.dataNodes.forEach(node => {
+                    if (this.treeControl.isExpanded(node)) {
+                        expandedNodes.add(node.id);
+                    }
+                });
+            }
 
             this.#service.delete(feature.id).pipe(
                 // Remove the feature from our data without reloading
@@ -348,11 +355,13 @@ export class ListComponent {
 
                     // Restore the expanded state of tree nodes
                     setTimeout(() => {
-                        this.treeControl.dataNodes.forEach(node => {
-                            if (expandedNodes.has(node.id)) {
-                                this.treeControl.expand(node);
-                            }
-                        });
+                        if (this.treeControl.dataNodes) {
+                            this.treeControl.dataNodes.forEach(node => {
+                                if (expandedNodes.has(node.id)) {
+                                    this.treeControl.expand(node);
+                                }
+                            });
+                        }
                     }, 0);
                 })
             ).subscribe({

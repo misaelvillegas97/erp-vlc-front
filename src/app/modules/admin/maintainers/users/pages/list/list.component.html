@@ -50,15 +50,23 @@
 
     <ng-template #actionsCell let-user="row">
         <div class="flex gap-2">
-            <button mat-icon-button>
-                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil"></mat-icon>
+            <button mat-icon-button [matMenuTriggerFor]="menu">
+                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:ellipsis-vertical"></mat-icon>
             </button>
-            <button (click)="assignDriverLicense(user)" mat-icon-button matTooltip="{{ 'maintainers.users.driver-license.assign' | transloco }}">
-                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:identification"></mat-icon>
-            </button>
-            <button (click)="remove(user)" mat-icon-button>
-                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:trash"></mat-icon>
-            </button>
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item>
+                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil"></mat-icon>
+                    <span>{{ 'actions.edit' | transloco }}</span>
+                </button>
+                <button mat-menu-item (click)="assignDriverLicense(user)">
+                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:identification"></mat-icon>
+                    <span>{{ 'maintainers.users.driver-license.assign' | transloco }}</span>
+                </button>
+                <button mat-menu-item (click)="remove(user)">
+                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:trash"></mat-icon>
+                    <span>{{ 'actions.delete' | transloco }}</span>
+                </button>
+            </mat-menu>
         </div>
     </ng-template>
 </div>
