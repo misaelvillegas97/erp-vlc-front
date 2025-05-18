@@ -90,7 +90,11 @@
                     <ng-container matColumnDef="driverName">
                         <th mat-header-cell *matHeaderCellDef> Conductor</th>
                         <td mat-cell *matCellDef="let session">
-                            {{ session.driver?.name || session.driverId }}
+                            @if (session.driver?.name) {
+                                {{ session.driver.name }}
+                            } @else {
+                                <span class="text-secondary italic">Conductor eliminado</span>
+                            }
                         </td>
                     </ng-container>
 

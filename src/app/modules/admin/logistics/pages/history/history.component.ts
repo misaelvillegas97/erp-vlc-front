@@ -22,6 +22,7 @@ import { MatTooltip }                                                           
 import { NotyfService }                                                                                  from '@shared/services/notyf.service';
 import { firstValueFrom, Subscription }                                                                  from 'rxjs';
 import { toSignal }                                                                                      from '@angular/core/rxjs-interop';
+import BigNumber                                                                                         from 'bignumber.js';
 
 @Component({
     selector   : 'app-history',
@@ -159,11 +160,11 @@ export class HistoryComponent implements OnDestroy {
         this.currentPage.set(event.pageIndex);
     }
 
-    calculateDistance(session: VehicleSession): number {
+    calculateDistance(session: VehicleSession): string {
         if (session.finalOdometer && session.initialOdometer) {
-            return session.finalOdometer - session.initialOdometer;
+            return (new BigNumber(session.finalOdometer)).minus(new BigNumber(session.initialOdometer)).toFixed(2);
         }
-        return 0;
+        return '0.00';
     }
 
     getStatusClass(status: SessionStatus): string {

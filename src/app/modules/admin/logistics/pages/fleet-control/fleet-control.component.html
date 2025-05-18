@@ -116,14 +116,16 @@
                                 color="primary"
                                 class="min-w-[200px]"
                                 [disabled]="isSubmitting() || !hasGeolocationPermission() || form.invalid || form.disabled">
-                                <mat-icon svgIcon="heroicons_outline:play" class="mr-2"></mat-icon>
-                                <span>Iniciar Sesión de Vehículo</span>
-                                <mat-progress-spinner
-                                    *ngIf="isSubmitting()"
-                                    [diameter]="24"
-                                    [mode]="'indeterminate'"
-                                    class="ml-2">
-                                </mat-progress-spinner>
+                                <div class="inline-flex items-center">
+                                    <mat-icon svgIcon="heroicons_outline:play" class="mr-2"></mat-icon>
+                                    <span>Iniciar Sesión de Vehículo</span>
+                                    <mat-progress-spinner
+                                        *ngIf="isSubmitting()"
+                                        [diameter]="24"
+                                        [mode]="'indeterminate'"
+                                        class="ml-2">
+                                    </mat-progress-spinner>
+                                </div>
                             </button>
                             @if (!hasGeolocationPermission()) {
                                 <span class="text-red-500 text-sm ml-2">

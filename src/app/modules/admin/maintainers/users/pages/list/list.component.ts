@@ -109,7 +109,15 @@ export class ListComponent {
                 formatter: (value: User['role']) => value.name
             }
         },
-        {key: 'createdAt', header: this.#ts.translate('maintainers.users.fields.created-at'), visible: true, display: {type: 'text'}},
+        {
+            key    : 'createdAt',
+            header : this.#ts.translate('maintainers.users.fields.created-at'),
+            visible: true,
+            display: {
+                type       : 'date',
+                pipeOptions: {format: 'dd-MM-yyyy HH:mm:ss'},
+            }
+        },
         {
             key    : 'actions',
             header : this.#ts.translate('maintainers.users.fields.actions'),

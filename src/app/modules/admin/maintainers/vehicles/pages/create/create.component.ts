@@ -71,7 +71,7 @@ export class CreateComponent {
         notes            : [ undefined ],
 
         // Dates and maintenance
-        purchaseDate       : [ undefined, [ Validators.required ] ],
+        purchaseDate: [ undefined ],
         lastMaintenanceDate: [ undefined ],
         nextMaintenanceDate: [ undefined ],
         nextMaintenanceKm  : [ undefined ],
