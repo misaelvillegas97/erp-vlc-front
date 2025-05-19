@@ -1,20 +1,20 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { CommonModule }                                                                          from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators }                  from '@angular/forms';
-import { Router }                                                                                from '@angular/router';
-import { MatButtonModule }                                                                       from '@angular/material/button';
-import { MatCardModule }                                                                         from '@angular/material/card';
-import { MatDialog, MatDialogModule }                                                            from '@angular/material/dialog';
-import { MatFormFieldModule }                                                                    from '@angular/material/form-field';
-import { MatIconModule }                                                                         from '@angular/material/icon';
-import { MatInputModule }                                                                        from '@angular/material/input';
-import { MatProgressSpinnerModule }                                                              from '@angular/material/progress-spinner';
-import { MatSelectModule }                                                                       from '@angular/material/select';
-import { PageHeaderComponent }                                                                   from '@layout/components/page-header/page-header.component';
-import { Notyf }                                                                                 from 'notyf';
-import { firstValueFrom, of }                                                                    from 'rxjs';
-import { catchError, take }                                                                      from 'rxjs/operators';
-import { takeUntilDestroyed }                                                                    from '@angular/core/rxjs-interop';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { CommonModule }                                                                                    from '@angular/common';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators }                            from '@angular/forms';
+import { Router }                                                                                          from '@angular/router';
+import { MatButtonModule }                                                                                 from '@angular/material/button';
+import { MatCardModule }                                                                                   from '@angular/material/card';
+import { MatDialog, MatDialogModule }                                                                      from '@angular/material/dialog';
+import { MatFormFieldModule }                                                                              from '@angular/material/form-field';
+import { MatIconModule }                                                                                   from '@angular/material/icon';
+import { MatInputModule }                                                                                  from '@angular/material/input';
+import { MatProgressSpinnerModule }                                                                        from '@angular/material/progress-spinner';
+import { MatSelectModule }                                                                                 from '@angular/material/select';
+import { PageHeaderComponent }                                                                             from '@layout/components/page-header/page-header.component';
+import { Notyf }                                                                                           from 'notyf';
+import { firstValueFrom, of }                                                                              from 'rxjs';
+import { catchError, take }                                                                                from 'rxjs/operators';
+import { takeUntilDestroyed, toSignal }                                                                    from '@angular/core/rxjs-interop';
 
 import { DriversService }                                    from '@modules/admin/logistics/fleet-management/services/drivers.service';
 import { VehiclesService }                                   from '@modules/admin/logistics/fleet-management/services/vehicles.service';
@@ -24,6 +24,8 @@ import { GeoLocation, NewVehicleSessionDto, VehicleSession } from '@modules/admi
 import { GpsWarningDialogComponent }                         from './gps-warning-dialog.component';
 import { Driver }                                            from '@modules/admin/logistics/fleet-management/domain/model/driver.model';
 import { Vehicle }                                           from '@modules/admin/logistics/fleet-management/domain/model/vehicle.model';
+import { UserService }                                       from '@core/user/user.service';
+import { RoleEnum }                                          from '@core/user/role.type';
 
 @Component({
     selector   : 'app-fleet-control',
@@ -46,14 +48,16 @@ import { Vehicle }                                           from '@modules/admi
     templateUrl: './fleet-control.component.html'
 })
 export class FleetControlComponent implements OnInit, AfterViewInit {
-    private driversService = inject(DriversService);
-    private vehiclesService = inject(VehiclesService);
-    private sessionsService = inject(VehicleSessionsService);
-    private geolocationService = inject(GeolocationService);
-    private fb = inject(FormBuilder);
-    private router = inject(Router);
-    private dialog = inject(MatDialog);
-    private destroyRef = inject(DestroyRef);
+    readonly #driversService = inject(DriversService);
+    readonly #vehiclesService = inject(VehiclesService);
+    readonly #sessionsService = inject(VehicleSessionsService);
+    readonly #geolocationService = inject(GeolocationService);
+    readonly #userService = inject(UserService);
+
+    readonly #fb = inject(FormBuilder);
+    readonly #router = inject(Router);
+    readonly #dialog = inject(MatDialog);
+    readonly #destroyRef = inject(DestroyRef);
     private notyf = new Notyf();
 
     // Signals
@@ -68,23 +72,24 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
     selectedDriver = signal<Driver | null>(null);
     selectedVehicle = signal<Vehicle | null>(null);
 
-    form: FormGroup = this.fb.group({
-        driverId       : [ '', [ Validators.required ] ],
+    currentUser = toSignal(this.#userService.user$);
+    currentUserIsDriver = computed(() => this.currentUser()?.role.id === RoleEnum.driver);
+
+    form: FormGroup = this.#fb.group({
+        driverId: [ this.currentUserIsDriver() ? {value: this.currentUser().id, disabled: true} : undefined, [ Validators.required ] ],
         vehicleId      : [ '', [ Validators.required ] ],
         initialOdometer: [ '', [ Validators.required, Validators.min(0) ] ],
         observations   : [ '', [ Validators.maxLength(500) ] ]
     });
 
     ngOnInit() {
-        const intervalId = window.setInterval(() => {
-            this.currentDateTime.set(new Date());
-        }, 1000);
+        const intervalId = window.setInterval(() => this.currentDateTime.set(new Date()), 1000);
 
-        this.geolocationService
+        this.#geolocationService
             .getCurrentPosition()
             .pipe(
                 take(1),
-                takeUntilDestroyed(this.destroyRef),
+                takeUntilDestroyed(this.#destroyRef),
                 catchError(() => {
                     this.notyf.error({
                         message:
@@ -102,13 +107,13 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
             });
 
         // this.destroyRef.onDestroy(() => dialogRef && dialogRef.close());
-        this.destroyRef.onDestroy(() => clearInterval(intervalId));
+        this.#destroyRef.onDestroy(() => clearInterval(intervalId));
 
         this.loadData();
 
         this.form
             .get('driverId')!
-            .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+            .valueChanges.pipe(takeUntilDestroyed(this.#destroyRef))
             .subscribe(id => {
                 if (!id) {
                     this.selectedDriver.set(null);
@@ -119,7 +124,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
 
         this.form
             .get('vehicleId')!
-            .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+            .valueChanges.pipe(takeUntilDestroyed(this.#destroyRef))
             .subscribe(id => {
                 if (!id) {
                     this.selectedVehicle.set(null);
@@ -138,7 +143,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
         if (hasShownGpsWarning) return;
 
         setTimeout(() => {
-            this.dialog.open(GpsWarningDialogComponent, {
+            this.#dialog.open(GpsWarningDialogComponent, {
                 width       : '400px',
                 disableClose: true
             });
@@ -150,14 +155,14 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
     private loadData(): void {
         this.isLoading.set(true);
 
-        const drivers$ = firstValueFrom(this.driversService.findAll()).then(
+        const drivers$ = firstValueFrom(this.#driversService.findAll()).then(
             result => {
                 this.availableDrivers.set(result.items);
                 if (result.total === 0) this.notyf.error({message: 'No hay conductores disponibles actualmente', duration: 5_000, ripple: true});
             }
         );
         const vehicles$ = firstValueFrom(
-            this.vehiclesService.findAvailableVehicles()
+            this.#vehiclesService.findAvailableVehicles()
         ).then(result => {
             this.availableVehicles.set(result.items);
             if (result.total === 0)
@@ -174,7 +179,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
     }
 
     private fetchDriverDetails(id: string): void {
-        firstValueFrom(this.driversService.findById(id))
+        firstValueFrom(this.#driversService.findById(id))
             .then(driver => this.selectedDriver.set(driver))
             .catch(() =>
                 this.notyf.error({message: 'Error al cargar detalles del conductor'})
@@ -182,7 +187,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
     }
 
     private fetchVehicleDetails(id: string): void {
-        firstValueFrom(this.vehiclesService.findById(id))
+        firstValueFrom(this.#vehiclesService.findById(id))
             .then(vehicle => {
                 this.selectedVehicle.set(vehicle);
                 this.form.patchValue({
@@ -215,8 +220,8 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
 
         try {
             const location = await firstValueFrom(
-                this.geolocationService.getCurrentPosition().pipe(
-                    takeUntilDestroyed(this.destroyRef),
+                this.#geolocationService.getCurrentPosition().pipe(
+                    takeUntilDestroyed(this.#destroyRef),
                     catchError((error) => {
                         console.error('Error getting current position:', error);
                         return of(null);
@@ -235,7 +240,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
             };
 
             const session = await firstValueFrom(
-                this.sessionsService.startSession(newSession).pipe(
+                this.#sessionsService.startSession(newSession).pipe(
                     catchError(err => {
                         this.notyf.error({
                             message: 'Error al iniciar la sesión: ' + err.message
@@ -253,7 +258,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
 
                 try {
                     const vehicles = await firstValueFrom(
-                        this.vehiclesService.findAvailableVehicles()
+                        this.#vehiclesService.findAvailableVehicles()
                     );
                     this.availableVehicles.set(vehicles.items);
                 } catch {
@@ -262,7 +267,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
                     });
                 }
 
-                void this.router.navigate([ '/logistics/active-sessions' ]);
+                void this.#router.navigate([ '/logistics/active-sessions' ]);
             }
         } catch (err: any) {
             this.notyf.error({
