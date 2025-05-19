@@ -51,6 +51,11 @@ export default [
                     import('./pages/history/history.component').then(m => m.HistoryComponent),
             },
             {
+                path        : 'fuel-management',
+                title       : 'Gestión de Combustible',
+                loadChildren: () => import('./pages/fuel-management/fuel-management.routes'),
+            },
+            {
                 path      : '',
                 redirectTo: 'fleet-control',
                 pathMatch : 'full'

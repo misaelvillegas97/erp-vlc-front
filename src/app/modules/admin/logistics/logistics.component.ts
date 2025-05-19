@@ -61,6 +61,14 @@ export class LogisticsComponent {
             icon        : 'mat_outline:history',
             selectedIcon: 'mat_solid:history',
             link        : [ '/logistics', 'history' ]
-        }
+        },
+        // {
+        //     id          : 'fuel-management',
+        //     title       : 'Gestión de Combustible',
+        //     description : 'Registro, listado y análisis de consumo de combustible',
+        //     icon        : 'heroicons_outline:fire',
+        //     selectedIcon: 'heroicons_solid:fire',
+        //     link        : [ '/logistics', 'fuel-management' ]
+        // }
     ]);
 }

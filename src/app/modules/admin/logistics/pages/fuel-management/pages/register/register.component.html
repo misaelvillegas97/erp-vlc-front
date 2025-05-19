@@ -1,0 +1,150 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        title="Registro de Combustible"
+        subtitle="Registrar una nueva carga de combustible">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-3xl mx-auto py-10 gap-y-4 sm:px-4">
+        <mat-card class="w-full">
+            <mat-card-content>
+                <form [formGroup]="fuelForm" (ngSubmit)="onSubmit()">
+                    <!-- Selección de vehículo -->
+                    <div class="mb-6">
+                        <h2 class="text-xl font-medium mb-4">Selección de Vehículo</h2>
+                        <mat-form-field class="w-full">
+                            <mat-label>Vehículo</mat-label>
+                            <mat-select formControlName="vehicleId" (selectionChange)="onVehicleChange($event.value)">
+                                <mat-option *ngFor="let vehicle of vehicles()" [value]="vehicle.id">
+                                    {{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.licensePlate }})
+                                </mat-option>
+                            </mat-select>
+                            <mat-error *ngIf="fuelForm.get('vehicleId').hasError('required')">
+                                Debe seleccionar un vehículo
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Información de la carga -->
+                    <div class="mb-6">
+                        <h2 class="text-xl font-medium mb-4">Información de la Carga</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Fecha -->
+                            <mat-form-field>
+                                <mat-label>Fecha</mat-label>
+                                <input matInput [matDatepicker]="picker" formControlName="date">
+                                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                                <mat-datepicker #picker></mat-datepicker>
+                                <mat-error *ngIf="fuelForm.get('date').hasError('required')">
+                                    La fecha es requerida
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Kilometraje inicial -->
+                            <mat-form-field>
+                                <mat-label>Kilometraje Inicial (km)</mat-label>
+                                <input matInput type="number" formControlName="initialOdometer">
+                                <mat-hint>Último kilometraje registrado</mat-hint>
+                                <mat-error *ngIf="fuelForm.get('initialOdometer').hasError('required')">
+                                    El kilometraje inicial es requerido
+                                </mat-error>
+                                <mat-error *ngIf="fuelForm.get('initialOdometer').hasError('min')">
+                                    El kilometraje inicial debe ser mayor o igual a 0
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Kilometraje final -->
+                            <mat-form-field>
+                                <mat-label>Kilometraje Final (km)</mat-label>
+                                <input matInput type="number" formControlName="finalOdometer">
+                                <mat-hint>Kilometraje actual del vehículo</mat-hint>
+                                <mat-error *ngIf="fuelForm.get('finalOdometer').hasError('required')">
+                                    El kilometraje final es requerido
+                                </mat-error>
+                                <mat-error *ngIf="fuelForm.get('finalOdometer').hasError('min')">
+                                    El kilometraje final debe ser mayor o igual a 0
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Litros -->
+                            <mat-form-field>
+                                <mat-label>Litros</mat-label>
+                                <input matInput type="number" formControlName="liters">
+                                <mat-hint>Cantidad de combustible en litros</mat-hint>
+                                <mat-error *ngIf="fuelForm.get('liters').hasError('required')">
+                                    La cantidad de litros es requerida
+                                </mat-error>
+                                <mat-error *ngIf="fuelForm.get('liters').hasError('min')">
+                                    La cantidad de litros debe ser mayor a 0
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Costo -->
+                            <mat-form-field>
+                                <mat-label>Costo ($)</mat-label>
+                                <input matInput type="number" formControlName="cost">
+                                <mat-hint>Costo total en pesos</mat-hint>
+                                <mat-error *ngIf="fuelForm.get('cost').hasError('required')">
+                                    El costo es requerido
+                                </mat-error>
+                                <mat-error *ngIf="fuelForm.get('cost').hasError('min')">
+                                    El costo debe ser mayor a 0
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Notas -->
+                            <mat-form-field class="sm:col-span-2">
+                                <mat-label>Notas</mat-label>
+                                <textarea matInput formControlName="notes" rows="3"></textarea>
+                                <mat-hint>Información adicional (opcional)</mat-hint>
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <!-- Resumen -->
+                    <div class="mb-6 bg-hover p-4 rounded-md">
+                        <h2 class="text-xl font-medium pb-2 border-b">Resumen</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+                            <div class="p-4 rounded-md shadow-sm bg-hover">
+                                <div class="text-sm">Distancia recorrida</div>
+                                <div class="text-2xl font-bold">{{ distance() | number:'1.0-1' }} km</div>
+                            </div>
+                            <div class="p-4 rounded-md shadow-sm bg-hover">
+                                <div class="text-sm">Rendimiento</div>
+                                <div class="text-2xl font-bold">{{ efficiency() | number:'1.0-2' }} km/l</div>
+                            </div>
+                            <div class="p-4 rounded-md shadow-sm bg-hover">
+                                <div class="text-sm">Costo por kilómetro</div>
+                                <div class="text-2xl font-bold">${{ costPerKm() | number:'1.0-2' }}/km</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="flex justify-end gap-4">
+                        <button
+                            type="button"
+                            mat-stroked-button
+                            color="warn"
+                            (click)="resetForm()"
+                            [disabled]="isLoading()">
+                            Cancelar
+                        </button>
+                        <button
+                            type="submit"
+                            mat-raised-button
+                            color="primary"
+                            [disabled]="fuelForm.invalid || isLoading()">
+                            <mat-icon *ngIf="isLoading()">
+                                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </mat-icon>
+                            <span>Guardar</span>
+                        </button>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

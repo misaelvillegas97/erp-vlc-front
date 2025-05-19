@@ -1,0 +1,194 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        title="Análisis de Consumo de Combustible"
+        subtitle="Estadísticas y gráficos de consumo de combustible">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-full mx-auto py-10 gap-y-4 sm:px-4">
+        <!-- Panel de filtros -->
+        <div class="w-full bg-card rounded-md shadow p-4 mb-4">
+            <h2 class="text-xl font-medium mb-4">Filtros</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <!-- Filtro por vehículo -->
+                <mat-form-field class="w-full">
+                    <mat-label>Vehículo</mat-label>
+                    <mat-select [formControl]="vehicleControl">
+                        <mat-option value="">Todos los vehículos</mat-option>
+                        <mat-option *ngFor="let vehicle of vehicles()" [value]="vehicle.id">
+                            {{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.licensePlate }})
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- Filtro por fecha desde -->
+                <mat-form-field class="w-full">
+                    <mat-label>Desde</mat-label>
+                    <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFromControl" placeholder="Desde">
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerFrom></mat-datepicker>
+                </mat-form-field>
+
+                <!-- Filtro por fecha hasta -->
+                <mat-form-field class="w-full">
+                    <mat-label>Hasta</mat-label>
+                    <input matInput [matDatepicker]="pickerTo" [formControl]="dateToControl" placeholder="Hasta">
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerTo></mat-datepicker>
+                </mat-form-field>
+            </div>
+            <div class="flex justify-end">
+                <button mat-raised-button color="primary" (click)="analysisResource.reload()">
+                    <mat-icon>search</mat-icon>
+                    Aplicar filtros
+                </button>
+                <button mat-button color="warn" class="ml-2" (click)="clearFilters()">
+                    Limpiar filtros
+                </button>
+            </div>
+        </div>
+
+        <!-- Estado de carga -->
+        <div *ngIf="isLoading()" class="flex justify-center items-center p-8 w-full">
+            <mat-spinner diameter="40"></mat-spinner>
+            <span class="ml-4 text-secondary">Cargando datos...</span>
+        </div>
+
+        <!-- Gráficos -->
+        <div *ngIf="!isLoading()" class="grid w-full min-w-0 grid-cols-1 gap-6 sm:grid-cols-12">
+            <!-- Consumo por período (línea) -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Consumo por período</h3>
+                <div class="flex flex-auto flex-col">
+                    @let consumptionByPeriod = chartConsumptionByPeriod();
+                    @if (consumptionByPeriod) {
+                        <apx-chart
+                            [chart]="consumptionByPeriod.chart"
+                            [colors]="consumptionByPeriod.colors"
+                            [grid]="consumptionByPeriod.grid"
+                            [markers]="consumptionByPeriod.markers"
+                            [noData]="consumptionByPeriod.noData"
+                            [series]="consumptionByPeriod.series"
+                            [stroke]="consumptionByPeriod.stroke"
+                            [tooltip]="consumptionByPeriod.tooltip"
+                            [xaxis]="consumptionByPeriod.xaxis"
+                            [yaxis]="consumptionByPeriod.yaxis"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
+            <!-- Eficiencia por período (línea) -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Rendimiento por período</h3>
+                <div class="flex flex-auto flex-col">
+                    @let efficiencyByPeriod = chartEfficiencyByPeriod();
+                    @if (efficiencyByPeriod) {
+                        <apx-chart
+                            [chart]="efficiencyByPeriod.chart"
+                            [colors]="efficiencyByPeriod.colors"
+                            [grid]="efficiencyByPeriod.grid"
+                            [markers]="efficiencyByPeriod.markers"
+                            [noData]="efficiencyByPeriod.noData"
+                            [series]="efficiencyByPeriod.series"
+                            [stroke]="efficiencyByPeriod.stroke"
+                            [tooltip]="efficiencyByPeriod.tooltip"
+                            [xaxis]="efficiencyByPeriod.xaxis"
+                            [yaxis]="efficiencyByPeriod.yaxis"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
+            <!-- Costo por período (línea) -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-12">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Costo por período</h3>
+                <div class="flex flex-auto flex-col">
+                    @let costByPeriod = chartCostByPeriod();
+                    @if (costByPeriod) {
+                        <apx-chart
+                            [chart]="costByPeriod.chart"
+                            [colors]="costByPeriod.colors"
+                            [grid]="costByPeriod.grid"
+                            [markers]="costByPeriod.markers"
+                            [noData]="costByPeriod.noData"
+                            [series]="costByPeriod.series"
+                            [stroke]="costByPeriod.stroke"
+                            [tooltip]="costByPeriod.tooltip"
+                            [xaxis]="costByPeriod.xaxis"
+                            [yaxis]="costByPeriod.yaxis"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
+            <!-- Consumo por vehículo (barras) -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Consumo por vehículo</h3>
+                <div class="flex flex-auto flex-col">
+                    @let consumptionByVehicle = chartConsumptionByVehicle();
+                    @if (consumptionByVehicle) {
+                        <apx-chart
+                            [chart]="consumptionByVehicle.chart"
+                            [colors]="consumptionByVehicle.colors"
+                            [dataLabels]="consumptionByVehicle.dataLabels"
+                            [grid]="consumptionByVehicle.grid"
+                            [noData]="consumptionByVehicle.noData"
+                            [plotOptions]="consumptionByVehicle.plotOptions"
+                            [series]="consumptionByVehicle.series"
+                            [tooltip]="consumptionByVehicle.tooltip"
+                            [xaxis]="consumptionByVehicle.xaxis"
+                            [yaxis]="consumptionByVehicle.yaxis"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
+            <!-- Eficiencia por vehículo (donut) -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Rendimiento por vehículo</h3>
+                <div class="flex flex-auto flex-col">
+                    @let efficiencyByVehicle = chartEfficiencyByVehicle();
+                    @if (efficiencyByVehicle) {
+                        <apx-chart
+                            [chart]="efficiencyByVehicle.chart"
+                            [colors]="efficiencyByVehicle.colors"
+                            [labels]="efficiencyByVehicle.labels"
+                            [legend]="efficiencyByVehicle.legend"
+                            [noData]="efficiencyByVehicle.noData"
+                            [series]="efficiencyByVehicle.series"
+                            [tooltip]="efficiencyByVehicle.tooltip"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+
+            <!-- Costo por km por vehículo (barras horizontales) -->
+            <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-12">
+                <h3 class="truncate text-lg font-medium leading-6 tracking-light">Costo por kilómetro por vehículo</h3>
+                <div class="flex flex-auto flex-col">
+                    @let costPerKmByVehicle = chartCostPerKmByVehicle();
+                    @if (costPerKmByVehicle) {
+                        <apx-chart
+                            [chart]="costPerKmByVehicle.chart"
+                            [colors]="costPerKmByVehicle.colors"
+                            [dataLabels]="costPerKmByVehicle.dataLabels"
+                            [grid]="costPerKmByVehicle.grid"
+                            [noData]="costPerKmByVehicle.noData"
+                            [plotOptions]="costPerKmByVehicle.plotOptions"
+                            [series]="costPerKmByVehicle.series"
+                            [tooltip]="costPerKmByVehicle.tooltip"
+                            [xaxis]="costPerKmByVehicle.xaxis"
+                            [yaxis]="costPerKmByVehicle.yaxis"
+                            class="w-full flex-auto h-64"
+                        ></apx-chart>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
