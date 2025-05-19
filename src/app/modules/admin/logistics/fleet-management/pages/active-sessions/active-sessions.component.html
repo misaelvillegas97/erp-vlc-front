@@ -1,0 +1,190 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header subtitle="Monitoreo de sesiones en curso" title="Sesiones Activas"></page-header>
+
+    <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-6 sm:px-6">
+        <!-- Barra de filtros -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Búsqueda -->
+                <div class="w-full">
+                    <mat-form-field class="w-full">
+                        <mat-label>Buscar por conductor o vehículo</mat-label>
+                        <input matInput [formControl]="searchControl" placeholder="Nombre, apellido, placa, marca o modelo">
+                        <mat-icon matSuffix svgIcon="mat_outline:search"></mat-icon>
+                    </mat-form-field>
+                </div>
+
+                <!-- Ordenamiento -->
+                <div class="w-full">
+                    <mat-form-field class="w-full">
+                        <mat-label>Ordenar por</mat-label>
+                        <mat-select [formControl]="sortControl">
+                            <mat-option value="duration_desc">Duración (mayor a menor)</mat-option>
+                            <mat-option value="duration_asc">Duración (menor a mayor)</mat-option>
+                            <mat-option value="name_asc">Conductor (A-Z)</mat-option>
+                            <mat-option value="name_desc">Conductor (Z-A)</mat-option>
+                            <mat-option value="plate_asc">Placa (A-Z)</mat-option>
+                            <mat-option value="plate_desc">Placa (Z-A)</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <div class="mt-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-700 rounded-lg p-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <mat-icon class="text-blue-600 dark:text-blue-400 mr-3" svgIcon="heroicons_outline:map"></mat-icon>
+                        <div>
+                            <h3 class="font-medium">Modo Conducción Disponible</h3>
+                            <p class="text-sm text-blue-700 dark:text-blue-300">
+                                Vista en tiempo real con métricas de viaje y mapa actualizado.
+                            </p>
+                        </div>
+                    </div>
+                    <a [routerLink]="['/logistics/driving-mode']" mat-flat-button color="primary">
+                        Ver Modo
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estado de carga -->
+        @if (isLoading()) {
+            <div class="flex justify-center items-center py-20">
+                <div class="text-center">
+                    <mat-spinner diameter="48" color="primary"></mat-spinner>
+                    <p class="mt-4 text-gray-600 dark:text-gray-300">Cargando sesiones activas...</p>
+                </div>
+            </div>
+        } @else if (filteredSessions().length === 0) {
+            <div class="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 shadow rounded-lg">
+                <mat-icon class="text-gray-400 icon-size-10 mb-4" svgIcon="mat_outline:directions_car_off"></mat-icon>
+                <h3 class="text-xl font-bold mb-2">No hay sesiones activas</h3>
+                <p class="text-center mb-6 max-w-lg text-gray-500 dark:text-gray-400">
+                    Actualmente no hay vehículos en uso. Puede iniciar una nueva sesión desde el panel de Control de Flota.
+                </p>
+                <button mat-flat-button color="primary" [routerLink]="['/logistics/fleet-management']">
+                    Iniciar Nueva Sesión
+                </button>
+            </div>
+        } @else {
+            <!-- Lista de sesiones -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            @for (session of filteredSessions(); track session.id) {
+                    <mat-card class="relative overflow-hidden">
+                        <!-- Indicador de estado -->
+                        <!-- <div class="absolute top-2 right-2">-->
+                        <!--    <div class="px-3 py-1 rounded-full text-xs font-medium text-white shadow-sm {{ getStatusColor(session.status) }}">-->
+                        <!--        {{ getStatusText(session.status) }}-->
+                        <!--    </div>-->
+                        <!-- </div>-->
+
+                        <mat-card-content class="p-4">
+                            <div class="flex flex-col">
+                                <!-- Info del conductor -->
+                                <div class="flex items-center mb-4">
+                                    <div class="flex-shrink-0">
+                                        <img
+                                            [src]="session.driver.photoUrl"
+                                            alt="Foto del conductor"
+                                            class="w-14 h-14 rounded-full object-cover"
+                                            onerror="this.src='images/avatars/male-01.jpg'"
+                                        >
+                                    </div>
+                                    <div class="ml-4 flex-1">
+                                        <p class="text-lg font-semibold">
+                                            {{ session.driver.firstName }} {{ session.driver.lastName }}
+                                        </p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                            Conductor
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Info del vehículo -->
+                                <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 mb-4 flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <img
+                                            [src]="session.vehicle.photoUrl"
+                                            alt="Foto del vehículo"
+                                            class="w-14 h-14 rounded object-cover"
+                                            onerror="this.src='images/placeholders/vehicle.png'"
+                                        >
+                                    </div>
+                                    <div class="ml-3 flex-1">
+                                        <p class="font-medium">
+                                            {{ session.vehicle.brand }} {{ session.vehicle.model }}
+                                        </p>
+                                        <p class="text-sm font-semibold">
+                                            Placa: {{ session.vehicle.licensePlate }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Información de la sesión -->
+                                <div class="flex flex-wrap gap-4">
+                                    <div class="flex-1 min-w-[120px]">
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Inicio</p>
+                                        <p class="font-medium">{{ session.startTime | date:'dd/MM/yyyy HH:mm' }}</p>
+                                    </div>
+                                    <div class="flex-1 min-w-[120px]">
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Duración</p>
+                                        <p class="font-medium">{{ formatDuration(session.startTime) }}</p>
+                                    </div>
+                                    <div class="flex-1 min-w-[120px]">
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Odómetro inicial</p>
+                                        <p class="font-medium">{{ session.initialOdometer | number:'1.0-0' }} km</p>
+                                    </div>
+                                </div>
+
+                                <!-- Estado de ubicación simplificado -->
+                                @if (session.currentLocation) {
+                                    <div class="mt-4 rounded-lg p-3 mb-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800">
+                                        <div class="flex items-center">
+                                            <mat-icon class="text-green-600 mr-2" svgIcon="mat_outline:location_on"></mat-icon>
+                                            <span class="text-green-800 dark:text-green-200">
+                                                Ubicación GPS activa
+                                            </span>
+                                        </div>
+                                    </div>
+                                }
+
+                                <!-- Botones de acción -->
+                                <div class="mt-2 flex flex-col sm:flex-row gap-4 justify-between">
+                                    <!-- Botón para Ver Detalles -->
+                                    <button
+                                        mat-stroked-button
+                                        [routerLink]="['/logistics/session-details', session.id]"
+                                        class="flex items-center"
+                                    >
+                                        <mat-icon svgIcon="heroicons_outline:eye" class="mr-1"></mat-icon>
+                                        Ver Detalles
+                                    </button>
+
+                                    <!-- Botón para Modo Conducción -->
+                                    <button
+                                        mat-stroked-button
+                                        [routerLink]="['/logistics/driving-mode']"
+                                        class="flex items-center"
+                                    >
+                                        <mat-icon svgIcon="heroicons_outline:map" class="mr-1"></mat-icon>
+                                        Modo Conducción
+                                    </button>
+
+                                    <!-- Botón para finalizar sesión -->
+                                    <button
+                                        mat-flat-button
+                                        color="primary"
+                                        (click)="finishSession(session.id)"
+                                    >
+                                        Finalizar Sesión
+                                    </button>
+                                </div>
+                            </div>
+                        </mat-card-content>
+                    </mat-card>
+                }
+            </div>
+        }
+    </div>
+</div>

@@ -1,3 +1,5 @@
+import { RoleEnum } from '@core/user/role.type';
+
 export interface PanelType {
     id?: string,
     icon?: string,
@@ -6,5 +8,6 @@ export interface PanelType {
     description?: string,
     link?: string | Array<string>,
     disabled?: boolean,
-    children?: PanelType[]
+    children?: PanelType[],
+    requiredRoles?: RoleEnum[]
 }

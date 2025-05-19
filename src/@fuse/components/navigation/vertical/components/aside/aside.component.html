@@ -26,7 +26,11 @@
     <div class="fuse-vertical-navigation-item-title-wrapper">
       <div *transloco="let t; read: 'menu'" class="fuse-vertical-navigation-item-title">
                 <span [ngClass]="item.classes?.title">
-                    {{ t(item.id) }}
+                    @if (item.title) {
+                        {{ item.title }}
+                    } @else {
+                        {{ t(item.id) }}
+                    }
                 </span>
       </div>
       @if (item.subtitle) {

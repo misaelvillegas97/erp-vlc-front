@@ -3,6 +3,12 @@ import { ApplicationConfig, importProvidersFrom, inject, LOCALE_ID, provideAppIn
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE }                                                                               from '@angular/material/core';
 import { LuxonDateAdapter }                                                                                                             from '@angular/material-luxon-adapter';
 import { PreloadAllModules, provideRouter, withComponentInputBinding, withInMemoryScrolling, withPreloading, withViewTransitions }      from '@angular/router';
+import { provideModulePermissions }   from '@core/permissions/permissions.providers';
+import { fleetManagementPermissions } from '@modules/admin/logistics/fleet-management/fleet-management.permissions';
+import { homePermissions }            from '@modules/admin/home/home.permissions';
+import { administrationPermissions }  from '@modules/admin/administration/administration.permissions';
+import { dashboardsPermissions }      from '@modules/admin/dashboards/dashboards.permissions';
+import { maintainersPermissions }     from '@modules/admin/maintainers/maintainers.permissions';
 
 import { IonicStorageModule }                 from '@ionic/storage-angular';
 import { provideTransloco, TranslocoService } from '@ngneat/transloco';
@@ -18,6 +24,8 @@ import { StorageService }         from '@fuse/services/storage';
 import { appRoutes }              from 'app/app.routes';
 import { mockApiServices }        from 'app/mock-api';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { fuelManagementPermissions }  from '@modules/admin/logistics/fuel-management/fuel-management.permissions';
+import { logisticsPermissions }       from '@modules/admin/logistics/logistics.permissions';
 
 const config: SocketIoConfig = {
     url    : 'localhost:5000/ws/board',
@@ -112,6 +120,19 @@ export const appConfig: ApplicationConfig = {
                 return firstValueFrom(translocoService.load(defaultLang));
             });
         }),
+        // Register module permissions
+        provideModulePermissions(homePermissions),
+        // Administration
+        provideModulePermissions(administrationPermissions),
+        // Dashboards
+        provideModulePermissions(dashboardsPermissions),
+        // Logistics
+        // provideModulePermissions(fleetManagementPermissions),
+        // provideModulePermissions(fuelManagementPermissions),
+        provideModulePermissions(logisticsPermissions),
+        // Maintainers
+        provideModulePermissions(maintainersPermissions),
+
         // Fuse
         provideAuth(),
         provideIcons(),

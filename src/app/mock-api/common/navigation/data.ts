@@ -1,7 +1,17 @@
 /* eslint-disable */
 import { FuseNavigationItem } from '@fuse/components/navigation';
 import { RoleEnum }           from '@core/user/role.type';
+import { PermissionsService } from '@core/permissions/permissions.service';
 
+export function getNavigation(permissionsService: PermissionsService): FuseNavigationItem[] {
+    // Get the base navigation from the permissions service
+    const baseNavigation = permissionsService.getNavigationConfig();
+
+    // Add home item which is always visible
+    return [ ...baseNavigation ];
+}
+
+// For backward compatibility, keep the static arrays but they should be replaced with the function
 export const defaultNavigation: FuseNavigationItem[] = [
     {
         id   : 'home',
@@ -10,45 +20,9 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon : 'heroicons_outline:home',
         link: '/home'
     },
-    // {
-    //     id: 'dashboards.title',
-    //     title: 'dashboards.title',
-    //     type : 'collapsable',
-    //     icon : 'heroicons_outline:chart-pie',
-    //     children: [
-    //         {
-    //             id   : 'dashboards.analytics',
-    //             title: 'dashboards.analytics',
-    //             type : 'basic',
-    //             link : '/dashboards/analytics',
-    //             icon : 'heroicons_outline:globe-asia-australia'
-    //         },
-    //         {
-    //             id   : 'dashboards.projects',
-    //             title: 'dashboards.projects',
-    //             type : 'basic',
-    //             link : '/dashboards/project',
-    //             icon : 'heroicons_outline:queue-list'
-    //         },
-    //         {
-    //             id   : 'dashboards.finance',
-    //             title: 'dashboards.finance',
-    //             type : 'basic',
-    //             link : '/dashboards/finance',
-    //             icon : 'heroicons_outline:currency-dollar'
-    //         },
-    //         {
-    //             id   : 'dashboards.crypto',
-    //             title: 'dashboards.crypto',
-    //             type : 'basic',
-    //             link : '/dashboards/crypto',
-    //             icon : 'heroicons_outline:currency-dollar'
-    //         }
-    //     ]
-    // },
     {
         id      : 'operations.title',
-        title        : 'operations.title',
+        title   : 'Operaciones',
         type         : 'group',
         icon    : 'heroicons_outline:briefcase',
         requiredRoles: [ RoleEnum.accountant, RoleEnum.dispatcher ],
@@ -146,23 +120,60 @@ export const defaultNavigation: FuseNavigationItem[] = [
         requiredRoles: [ RoleEnum.driver ],
         children     : [
             {
-                id  : 'logistics.fleet-control',
-                type: 'basic',
-                link: '/logistics/fleet-control',
-                icon: 'heroicons_outline:truck'
+                title   : 'Control de Flota',
+                type    : 'collapsable',
+                icon    : 'heroicons_outline:truck',
+                children: [
+                    {
+                        id           : 'logistics.fleet-management.fleet-control',
+                        title        : 'Control de Flota',
+                        type         : 'basic',
+                        link         : '/logistics/fleet-management/fleet-control',
+                        icon         : 'heroicons_outline:truck',
+                        requiredRoles: [ RoleEnum.driver ]
+                    },
+                    {
+                        id  : 'logistics.active-sessions',
+                        type: 'basic',
+                        link: '/logistics/fleet-management/active-sessions',
+                        icon: 'heroicons_outline:user-circle'
+                    },
+                    {
+                        id           : 'logistics.history',
+                        type         : 'basic',
+                        link         : '/logistics/fleet-management/history',
+                        icon         : 'heroicons_outline:clock',
+                        requiredRoles: [ RoleEnum.admin ]
+                    }
+                ]
             },
             {
-                id  : 'logistics.active-sessions',
-                type: 'basic',
-                link: '/logistics/active-sessions',
-                icon: 'heroicons_outline:user-circle'
-            },
-            {
-                id           : 'logistics.history',
-                type         : 'basic',
-                link         : '/logistics/history',
-                icon         : 'heroicons_outline:clock',
-                requiredRoles: [ RoleEnum.admin ]
+                title   : 'Gestión de Combustible',
+                type    : 'collapsable',
+                icon    : 'heroicons_outline:fire',
+                children: [
+                    {
+                        id   : 'logistics.fuel-management.analysis',
+                        title: 'Análisis de Consumo',
+                        type : 'basic',
+                        link : '/logistics/fuel-management/analysis',
+                        icon : 'heroicons_outline:chart-bar'
+                    },
+                    {
+                        id   : 'logistics.fuel-management.list',
+                        title: 'Listado de Registros',
+                        type : 'basic',
+                        link : '/logistics/fuel-management/list',
+                        icon : 'heroicons_outline:table-cells'
+                    },
+                    {
+                        id   : 'logistics.fuel-management.register',
+                        title: 'Registro de Combustible',
+                        type : 'basic',
+                        link : '/logistics/fuel-management/register',
+                        icon : 'heroicons_outline:plus-circle'
+                    }
+                ]
             }
         ]
     },

@@ -25,7 +25,7 @@
             }
             <!-- Panel links -->
             <div class="flex flex-col divide-y border-b">
-                @for (panel of panels; track trackByFn($index, panel)) {
+                @for (panel of visiblePanels; track trackByFn($index, panel)) {
                     @if (panel.children && panel.children.length) {
                         <div class="py-5 px-8 flex">
                             @if (panel.icon) {

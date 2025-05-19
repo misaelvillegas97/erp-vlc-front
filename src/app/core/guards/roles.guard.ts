@@ -4,14 +4,16 @@ import { map }                                           from 'rxjs/operators';
 import { RoleEnum }                                      from '@core/user/role.type';
 import { UserService }                                   from '@core/user/user.service';
 import { MatSnackBar }                                   from '@angular/material/snack-bar';
+import { PermissionsService } from '@core/permissions/permissions.service';
 
 export const rolesGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state) => {
     const userService = inject(UserService);
+    const permissionsService = inject(PermissionsService);
     const router = inject(Router);
     const snackbar = inject(MatSnackBar);
 
-    // Lee los roles permitidos desde los data de la ruta
-    const allowedRoles: RoleEnum[] = route.data['roles'] ?? [];
+    // Get the path from the route
+    const path = route.routeConfig.path;
 
     return userService.user$.pipe(
         map(user => {
@@ -20,10 +22,8 @@ export const rolesGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state) 
 
             const userRoleId = user.role.id;
 
-            if (userRoleId === RoleEnum.admin)
-                return true;
-
-            if (allowedRoles.includes(userRoleId))
+            // Use the permissions service to check if the user has permission to access the route
+            if (permissionsService.hasPermission(path, userRoleId))
                 return true;
 
             snackbar.open(

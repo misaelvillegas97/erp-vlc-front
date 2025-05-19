@@ -91,7 +91,7 @@ export class HomeComponent implements OnInit {
             description: 'Gestionar vehículos',
             icon       : 'directions_car',
             route      : '/maintainers/vehicles',
-            roles      : [ RoleEnum.admin, RoleEnum.dispatcher, RoleEnum.driver ],
+            roles: [ RoleEnum.admin ],
             color: 'teal'
         },
         {

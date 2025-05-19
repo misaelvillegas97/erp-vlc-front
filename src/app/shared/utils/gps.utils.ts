@@ -1,4 +1,4 @@
-import { GpsGeneric } from '@modules/admin/logistics/domain/model/vehicle-session.model';
+import { GpsGeneric } from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
 
 /**
  * Calculates the distance between a series of GPS points using the Haversine formula.
