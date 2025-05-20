@@ -11,10 +11,10 @@ import { MatTabsModule }                                                        
 import { MatTooltipModule }                                                                from '@angular/material/tooltip';
 import { PageHeaderComponent }                                                             from '@layout/components/page-header/page-header.component';
 import { Notyf }                                                                           from 'notyf';
-import { GoogleMapsModule }                          from '@angular/google-maps';
-import { VehicleSessionsService }                    from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
-import { GpsGeneric, SessionStatus, VehicleSession } from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
-import { DateTime }                                  from 'luxon';
+import { GoogleMapsModule }                                                                from '@angular/google-maps';
+import { VehicleSessionsService }                                                          from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
+import { GpsGeneric, SessionStatus, VehicleSession }                                       from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
+import { DateTime }                                                                        from 'luxon';
 import { calculateDistance }                                                               from '@shared/utils/gps.utils';
 import { Subscription }                                                                    from 'rxjs';
 
@@ -94,7 +94,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
 
         if (!this.sessionId()) {
             this.notyf.error('ID de sesión no válido');
-            this.router.navigate([ '/logistics/active-sessions' ]);
+            this.router.navigate([ '/logistics/fleet-management/active-sessions' ]);
             return;
         }
 
@@ -282,9 +282,9 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
     goBack(): void {
         const session = this.session();
         if (session?.status === SessionStatus.ACTIVE) {
-            this.router.navigate([ '/logistics/active-sessions' ]);
+            this.router.navigate([ '/logistics/fleet-management/active-sessions' ]);
         } else {
-            this.router.navigate([ '/logistics/history' ]);
+            this.router.navigate([ '/logistics/fleet-management/history' ]);
         }
     }
 }

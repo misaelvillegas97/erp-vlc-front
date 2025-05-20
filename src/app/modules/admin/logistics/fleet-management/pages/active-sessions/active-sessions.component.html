@@ -41,7 +41,7 @@
                             </p>
                         </div>
                     </div>
-                    <a [routerLink]="['/logistics/driving-mode']" mat-flat-button color="primary">
+                    <a [routerLink]="['/logistics/fleet-management/driving-mode']" mat-flat-button color="primary">
                         Ver Modo
                     </a>
                 </div>
@@ -63,7 +63,7 @@
                 <p class="text-center mb-6 max-w-lg text-gray-500 dark:text-gray-400">
                     Actualmente no hay vehículos en uso. Puede iniciar una nueva sesión desde el panel de Control de Flota.
                 </p>
-                <button mat-flat-button color="primary" [routerLink]="['/logistics/fleet-management']">
+                <button mat-flat-button color="primary" [routerLink]="['/logistics/fleet-management/fleet-control']">
                     Iniciar Nueva Sesión
                 </button>
             </div>
@@ -154,7 +154,7 @@
                                     <!-- Botón para Ver Detalles -->
                                     <button
                                         mat-stroked-button
-                                        [routerLink]="['/logistics/session-details', session.id]"
+                                        [routerLink]="['/logistics/fleet-management/session-details', session.id]"
                                         class="flex items-center"
                                     >
                                         <mat-icon svgIcon="heroicons_outline:eye" class="mr-1"></mat-icon>
@@ -164,7 +164,7 @@
                                     <!-- Botón para Modo Conducción -->
                                     <button
                                         mat-stroked-button
-                                        [routerLink]="['/logistics/driving-mode']"
+                                        [routerLink]="['/logistics/fleet-management/driving-mode']"
                                         class="flex items-center"
                                     >
                                         <mat-icon svgIcon="heroicons_outline:map" class="mr-1"></mat-icon>

@@ -22,7 +22,7 @@
                 <p class="text-gray-600 dark:text-gray-300 text-center mb-6">
                     No se encontraron sesiones de vehículos activas en este momento.
                 </p>
-                <a [routerLink]="['/logistics/fleet-management']" mat-flat-button color="primary">
+                <a [routerLink]="['/logistics/fleet-management/fleet-control']" mat-flat-button color="primary">
                     Iniciar nueva sesión
                 </a>
             </div>
@@ -179,7 +179,7 @@
                             <button
                                 mat-stroked-button
                                 color="primary"
-                                [routerLink]="['/logistics/active-sessions']">
+                                [routerLink]="['/logistics/fleet-management/active-sessions']">
                                 <mat-icon svgIcon="heroicons_outline:arrow-left" class="mr-1"></mat-icon>
                                 Volver
                             </button>
@@ -187,7 +187,7 @@
                             <button
                                 mat-flat-button
                                 color="warn"
-                                [routerLink]="['/logistics/finish-session', currentSession()?.id]">
+                                [routerLink]="['/logistics/fleet-management/finish-session', currentSession()?.id]">
                                 <mat-icon svgIcon="heroicons_outline:flag" class="mr-1"></mat-icon>
                                 Finalizar sesión
                             </button>

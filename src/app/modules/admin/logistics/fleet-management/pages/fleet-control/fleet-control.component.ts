@@ -267,7 +267,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
                     });
                 }
 
-                void this.#router.navigate([ '/logistics/active-sessions' ]);
+                void this.#router.navigate([ '/logistics/fleet-management/active-sessions' ]);
             }
         } catch (err: any) {
             this.notyf.error({

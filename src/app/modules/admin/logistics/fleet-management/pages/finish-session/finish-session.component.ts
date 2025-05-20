@@ -3,15 +3,15 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators }              
 import { ActivatedRoute, Router, RouterLink }                                              from '@angular/router';
 import { MatDialog }                                                                       from '@angular/material/dialog';
 import { forkJoin, of, Subject }                                                           from 'rxjs';
-import { catchError, finalize, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { VehicleSessionsService }                          from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
-import { DriversService }                                  from '@modules/admin/logistics/fleet-management/services/drivers.service';
-import { VehiclesService }                                 from '@modules/admin/logistics/fleet-management/services/vehicles.service';
-import { GeolocationService }                              from '@modules/admin/logistics/fleet-management/services/geolocation.service';
-import { FinishSessionDto, GeoLocation, VehicleSession }   from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
-import { Driver }                                          from '@modules/admin/logistics/fleet-management/domain/model/driver.model';
-import { Vehicle }                                         from '@modules/admin/logistics/fleet-management/domain/model/vehicle.model';
-import { ConfirmDialogComponent }                          from '../active-sessions/confirm-dialog.component';
+import { catchError, finalize, switchMap, takeUntil, tap }                                 from 'rxjs/operators';
+import { VehicleSessionsService }                                                          from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
+import { DriversService }                                                                  from '@modules/admin/logistics/fleet-management/services/drivers.service';
+import { VehiclesService }                                                                 from '@modules/admin/logistics/fleet-management/services/vehicles.service';
+import { GeolocationService }                                                              from '@modules/admin/logistics/fleet-management/services/geolocation.service';
+import { FinishSessionDto, GeoLocation, VehicleSession }                                   from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
+import { Driver }                                                                          from '@modules/admin/logistics/fleet-management/domain/model/driver.model';
+import { Vehicle }                                                                         from '@modules/admin/logistics/fleet-management/domain/model/vehicle.model';
+import { ConfirmDialogComponent }                                                          from '../active-sessions/confirm-dialog.component';
 import { PageHeaderComponent }                                                             from '@layout/components/page-header/page-header.component';
 import { CommonModule }                                                                    from '@angular/common';
 import { MatButtonModule }                                                                 from '@angular/material/button';
@@ -95,7 +95,7 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
         const id = this.route.snapshot.paramMap.get('id');
         if (!id) {
             this.notyf.error('ID de sesión no válido');
-            this.router.navigate([ '/logistics/active-sessions' ]);
+            this.router.navigate([ '/logistics/fleet-management/active-sessions' ]);
             return;
         }
         this.sessionId.set(id);
@@ -145,7 +145,7 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
             catchError(err => {
                 console.error('Session load error', err);
                 this.notyf.error('Error al cargar datos de sesión');
-                this.router.navigate([ '/logistics/active-sessions' ]);
+                this.router.navigate([ '/logistics/fleet-management/active-sessions' ]);
                 return of(null);
             }),
             finalize(() => this.isLoading.set(false))
@@ -223,7 +223,7 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
             tap(() => {
                 this.notyf.success('Sesión finalizada');
 
-                this.router.navigate([ '/logistics/active-sessions' ]);
+                this.router.navigate([ '/logistics/fleet-management/active-sessions' ]);
             }),
             catchError(err => {
                 console.error('Finish session error', err);

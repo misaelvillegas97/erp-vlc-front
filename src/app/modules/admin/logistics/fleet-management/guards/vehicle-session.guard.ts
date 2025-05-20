@@ -19,7 +19,7 @@ export class VehicleSessionGuard implements CanActivate {
 
         if (!sessionId) {
             console.warn('No se ha proporcionado un ID de sesión');
-            this.#router.navigate([ '/logistics/active-sessions' ]);
+            this.#router.navigate([ '/logistics/fleet-management/active-sessions' ]);
             return of(false);
         }
 
@@ -29,11 +29,11 @@ export class VehicleSessionGuard implements CanActivate {
                     return true;
                 }
 
-                this.#router.navigate([ '/logistics/active-sessions' ]);
+                this.#router.navigate([ '/logistics/fleet-management/active-sessions' ]);
                 return false;
             }),
             catchError(() => {
-                this.#router.navigate([ '/logistics/active-sessions' ]);
+                this.#router.navigate([ '/logistics/fleet-management/active-sessions' ]);
                 return of(false);
             }),
         );

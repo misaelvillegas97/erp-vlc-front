@@ -13,10 +13,10 @@ import { MatSelectModule }                                                      
 import { PageHeaderComponent }                                                             from '@layout/components/page-header/page-header.component';
 import { Notyf }                                                                           from 'notyf';
 import { firstValueFrom, interval, Subscription }                                          from 'rxjs';
-import { debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators';
-import { VehicleSessionsService }                        from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
-import { VehicleSession }                                from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
-import { ConfirmDialogComponent }                        from './confirm-dialog.component';
+import { debounceTime, distinctUntilChanged, startWith }                                   from 'rxjs/operators';
+import { VehicleSessionsService }                                                          from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
+import { VehicleSession }                                                                  from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
+import { ConfirmDialogComponent }                                                          from './confirm-dialog.component';
 import { DateTime }                                                                        from 'luxon';
 
 @Component({
@@ -151,7 +151,7 @@ export class ActiveSessionsComponent implements OnInit, OnDestroy {
 
         const dialogSub = dialogRef.afterClosed().subscribe(result => {
             if (result) {
-                this.router.navigate([ '/logistics/finish-session', sessionId ]);
+                this.router.navigate([ '/logistics/fleet-management/finish-session', sessionId ]);
             }
         });
         this.subscriptions.push(dialogSub);

@@ -14,10 +14,10 @@ import { MatTableModule }                                                       
 import { MatPaginatorModule, PageEvent }                                                                 from '@angular/material/paginator';
 import { TranslocoService }                                                                              from '@ngneat/transloco';
 import { PageHeaderComponent }                                                                           from '@layout/components/page-header/page-header.component';
-import { debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators';
-import { VehicleSessionsService }                        from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
-import { SessionStatus, VehicleSession }                 from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
-import { Router }                                        from '@angular/router';
+import { debounceTime, distinctUntilChanged, startWith }                                                 from 'rxjs/operators';
+import { VehicleSessionsService }                                                                        from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
+import { SessionStatus, VehicleSession }                                                                 from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
+import { Router }                                                                                        from '@angular/router';
 import { MatTooltip }                                                                                    from '@angular/material/tooltip';
 import { NotyfService }                                                                                  from '@shared/services/notyf.service';
 import { firstValueFrom, Subscription }                                                                  from 'rxjs';
@@ -93,11 +93,11 @@ export class HistoryComponent implements OnDestroy {
     // Signal computada: sesiones filtradas sin paginación
     private filteredFullSessions = computed(() => {
         let filtered = [ ...this.sessionsHistory() ];
-        const driverSearch = this.driverFilterSignal().toLowerCase();
+        const driverSearch = this.driverFilterSignal()?.toLowerCase();
         if (driverSearch) {
             filtered = filtered.filter(session => session.driver?.name.toLowerCase().includes(driverSearch));
         }
-        const vehicleSearch = this.vehicleFilterSignal().toLowerCase();
+        const vehicleSearch = this.vehicleFilterSignal()?.toLowerCase();
         if (vehicleSearch) {
             filtered = filtered.filter(session => session.vehicleId.toLowerCase().includes(vehicleSearch));
         }
