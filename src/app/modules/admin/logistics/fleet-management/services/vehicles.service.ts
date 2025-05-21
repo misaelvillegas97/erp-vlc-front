@@ -18,8 +18,8 @@ export class VehiclesService {
     /**
      * Obtiene la lista de todos los vehículos
      */
-    public findAll(): Observable<Vehicle[]> {
-        return this.http.get<Vehicle[]>(this.apiUrl);
+    public findAll(): Observable<FindCount<Vehicle>> {
+        return this.http.get<FindCount<Vehicle>>(this.apiUrl);
     }
 
     /**

@@ -1,35 +1,69 @@
 <div class="flex flex-col min-w-0 w-full">
     <page-header
         title="Registro de Combustible"
-        subtitle="Registrar una nueva carga de combustible">
+        subtitle="Registrar una nueva carga de combustible"
+        icon="heroicons_outline:fuel-pump">
     </page-header>
 
-    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-3xl mx-auto py-10 gap-y-4 sm:px-4">
-        <mat-card class="w-full">
-            <mat-card-content>
-                <form [formGroup]="fuelForm" (ngSubmit)="onSubmit()">
-                    <!-- Selección de vehículo -->
-                    <div class="mb-6">
-                        <h2 class="text-xl font-medium mb-4">Selección de Vehículo</h2>
-                        <mat-form-field class="w-full">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full p-6">
+        <!-- Formulario de registro de combustible -->
+        <div class="md:col-span-8">
+            <mat-card class="rounded-md shadow">
+                <mat-card-content>
+                    <form [formGroup]="fuelForm" (ngSubmit)="onSubmit()" class="flex flex-col space-y-4">
+                        <!-- Selección de vehículo -->
+                        <mat-form-field class="w-full" floatLabel="always">
                             <mat-label>Vehículo</mat-label>
-                            <mat-select formControlName="vehicleId" (selectionChange)="onVehicleChange($event.value)">
-                                <mat-option *ngFor="let vehicle of vehicles()" [value]="vehicle.id">
-                                    {{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.licensePlate }})
-                                </mat-option>
+                            <mat-select formControlName="vehicleId" (selectionChange)="onVehicleChange($event.value)" placeholder="Seleccione un vehículo">
+                                @for (vehicle of vehicles(); track vehicle.id) {
+                                    <mat-option [value]="vehicle.id">
+                                        {{ vehicle.brand }} {{ vehicle.model }} <span class="mat-hint">({{ vehicle.licensePlate }})</span>
+                                    </mat-option>
+                                } @empty {
+                                    <mat-option disabled>
+                                        No hay vehículos disponibles
+                                    </mat-option>
+                                }
                             </mat-select>
                             <mat-error *ngIf="fuelForm.get('vehicleId').hasError('required')">
                                 Debe seleccionar un vehículo
                             </mat-error>
                         </mat-form-field>
-                    </div>
 
-                    <!-- Información de la carga -->
-                    <div class="mb-6">
-                        <h2 class="text-xl font-medium mb-4">Información de la Carga</h2>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <!-- Fecha -->
-                            <mat-form-field>
+                        <!-- Estación y tipo de combustible -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <mat-form-field class="w-full" floatLabel="always">
+                                <mat-label>Estación</mat-label>
+                                <mat-select formControlName="station" placeholder="Seleccione una estación">
+                                    @for (station of fuelStations; track station) {
+                                        <mat-option [value]="station">
+                                            {{ station }}
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                                <mat-error *ngIf="fuelForm.get('station').hasError('required')">
+                                    Debe seleccionar una estación
+                                </mat-error>
+                            </mat-form-field>
+
+                            <mat-form-field class="w-full" floatLabel="always">
+                                <mat-label>Tipo de Combustible</mat-label>
+                                <mat-select formControlName="fuelType" placeholder="Seleccione un tipo de combustible">
+                                    @for (type of fuelTypes; track type) {
+                                        <mat-option [value]="type">
+                                            {{ type }}
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                                <mat-error *ngIf="fuelForm.get('fuelType').hasError('required')">
+                                    Debe seleccionar un tipo de combustible
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <!-- Fecha y usuario -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <mat-form-field class="w-full" floatLabel="always">
                                 <mat-label>Fecha</mat-label>
                                 <input matInput [matDatepicker]="picker" formControlName="date">
                                 <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
@@ -39,8 +73,28 @@
                                 </mat-error>
                             </mat-form-field>
 
-                            <!-- Kilometraje inicial -->
-                            <mat-form-field>
+                            <mat-form-field class="w-full" floatLabel="always">
+                                <mat-label>Quien Carga</mat-label>
+                                <mat-select formControlName="userId" placeholder="Seleccione un usuario">
+                                    @for (user of users(); track user.id) {
+                                        <mat-option [value]="user.id">
+                                            {{ user.firstName }} {{ user.lastName }} <span class="mat-hint">({{ user.email }})</span>
+                                        </mat-option>
+                                    } @empty {
+                                        <mat-option [value]="currentUser()?.id">
+                                            {{ currentUser()?.firstName }} {{ currentUser()?.lastName }}
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                                <mat-error *ngIf="fuelForm.get('userId').hasError('required')">
+                                    Debe seleccionar un usuario
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <!-- Kilometraje inicial y final -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <mat-form-field class="w-full" floatLabel="always">
                                 <mat-label>Kilometraje Inicial (km)</mat-label>
                                 <input matInput type="number" formControlName="initialOdometer">
                                 <mat-hint>Último kilometraje registrado</mat-hint>
@@ -52,8 +106,7 @@
                                 </mat-error>
                             </mat-form-field>
 
-                            <!-- Kilometraje final -->
-                            <mat-form-field>
+                            <mat-form-field class="w-full" floatLabel="always">
                                 <mat-label>Kilometraje Final (km)</mat-label>
                                 <input matInput type="number" formControlName="finalOdometer">
                                 <mat-hint>Kilometraje actual del vehículo</mat-hint>
@@ -64,9 +117,11 @@
                                     El kilometraje final debe ser mayor o igual a 0
                                 </mat-error>
                             </mat-form-field>
+                        </div>
 
-                            <!-- Litros -->
-                            <mat-form-field>
+                        <!-- Litros y costo -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <mat-form-field class="w-full" floatLabel="always">
                                 <mat-label>Litros</mat-label>
                                 <input matInput type="number" formControlName="liters">
                                 <mat-hint>Cantidad de combustible en litros</mat-hint>
@@ -78,8 +133,7 @@
                                 </mat-error>
                             </mat-form-field>
 
-                            <!-- Costo -->
-                            <mat-form-field>
+                            <mat-form-field class="w-full" floatLabel="always">
                                 <mat-label>Costo ($)</mat-label>
                                 <input matInput type="number" formControlName="cost">
                                 <mat-hint>Costo total en pesos</mat-hint>
@@ -90,61 +144,121 @@
                                     El costo debe ser mayor a 0
                                 </mat-error>
                             </mat-form-field>
+                        </div>
 
-                            <!-- Notas -->
-                            <mat-form-field class="sm:col-span-2">
-                                <mat-label>Notas</mat-label>
-                                <textarea matInput formControlName="notes" rows="3"></textarea>
-                                <mat-hint>Información adicional (opcional)</mat-hint>
-                            </mat-form-field>
+                        <!-- Notas -->
+                        <mat-form-field class="w-full" floatLabel="always">
+                            <mat-label>Notas</mat-label>
+                            <textarea matInput formControlName="notes" rows="3" placeholder="Información adicional (opcional)"></textarea>
+                        </mat-form-field>
+
+                        <mat-hint class="mat-hint">* Campos requeridos</mat-hint>
+
+                        <!-- Botones -->
+                        <div class="flex justify-end gap-4 mt-4">
+                            <button
+                                type="button"
+                                mat-stroked-button
+                                color="warn"
+                                (click)="resetForm()"
+                                [disabled]="isLoading()">
+                                Cancelar
+                            </button>
+                            <button
+                                type="submit"
+                                mat-flat-button
+                                color="primary"
+                                [disabled]="fuelForm.invalid || isLoading()">
+                                <div class="inline-flex items-center">
+                                    <mat-icon *ngIf="!isLoading()">save</mat-icon>
+                                    <mat-progress-spinner
+                                        *ngIf="isLoading()"
+                                        [diameter]="24"
+                                        [mode]="'indeterminate'"
+                                        class="mr-2">
+                                    </mat-progress-spinner>
+                                    <span>Guardar</span>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Tarjetas de información y resumen -->
+        <div class="md:col-span-4 flex flex-col gap-6">
+            <!-- Resumen de la carga -->
+            <mat-card class="rounded-md shadow">
+                <mat-card-content>
+                    <h2 class="text-xl font-medium mb-4 flex items-center">
+                        <mat-icon>analytics</mat-icon>
+                        <span class="ml-2">Resumen de la Carga</span>
+                    </h2>
+                    <div class="flex flex-col space-y-4">
+                        <div class="p-4 rounded-md bg-gray-100 dark:bg-gray-800">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Distancia recorrida</p>
+                            <p class="text-2xl font-bold">{{ distance() | number:'1.0-1' }} km</p>
+                        </div>
+                        <div class="p-4 rounded-md bg-gray-100 dark:bg-gray-800">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Rendimiento</p>
+                            <p class="text-2xl font-bold">{{ efficiency() | number:'1.0-2' }} km/l</p>
+                        </div>
+                        <div class="p-4 rounded-md bg-gray-100 dark:bg-gray-800">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Costo por kilómetro</p>
+                            <p class="text-2xl font-bold">${{ costPerKm() | number:'1.0-2' }}/km</p>
                         </div>
                     </div>
+                </mat-card-content>
+            </mat-card>
 
-                    <!-- Resumen -->
-                    <div class="mb-6 bg-hover p-4 rounded-md">
-                        <h2 class="text-xl font-medium pb-2 border-b">Resumen</h2>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-                            <div class="p-4 rounded-md shadow-sm bg-hover">
-                                <div class="text-sm">Distancia recorrida</div>
-                                <div class="text-2xl font-bold">{{ distance() | number:'1.0-1' }} km</div>
-                            </div>
-                            <div class="p-4 rounded-md shadow-sm bg-hover">
-                                <div class="text-sm">Rendimiento</div>
-                                <div class="text-2xl font-bold">{{ efficiency() | number:'1.0-2' }} km/l</div>
-                            </div>
-                            <div class="p-4 rounded-md shadow-sm bg-hover">
-                                <div class="text-sm">Costo por kilómetro</div>
-                                <div class="text-2xl font-bold">${{ costPerKm() | number:'1.0-2' }}/km</div>
-                            </div>
+            <!-- Detalles del vehículo -->
+            <mat-card class="rounded-md shadow" *ngIf="selectedVehicle()">
+                <mat-card-content>
+                    <h2 class="text-xl font-medium mb-4 flex items-center">
+                        <mat-icon>directions_car</mat-icon>
+                        <span class="ml-2">Detalles del Vehículo</span>
+                    </h2>
+                    <div class="flex flex-col space-y-3">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Vehículo</p>
+                            <p class="font-medium">{{ selectedVehicle().brand }} {{ selectedVehicle().model }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Placa</p>
+                            <p class="font-medium">{{ selectedVehicle().licensePlate }}</p>
+                        </div>
+                        <div *ngIf="selectedVehicle().lastKnownOdometer">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Último odómetro conocido</p>
+                            <p class="font-medium">{{ selectedVehicle().lastKnownOdometer }} Kms</p>
                         </div>
                     </div>
+                </mat-card-content>
+            </mat-card>
 
-                    <!-- Botones -->
-                    <div class="flex justify-end gap-4">
-                        <button
-                            type="button"
-                            mat-stroked-button
-                            color="warn"
-                            (click)="resetForm()"
-                            [disabled]="isLoading()">
-                            Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            mat-raised-button
-                            color="primary"
-                            [disabled]="fuelForm.invalid || isLoading()">
-                            <mat-icon *ngIf="isLoading()">
-                                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                            </mat-icon>
-                            <span>Guardar</span>
-                        </button>
+            <!-- Instrucciones -->
+            <mat-card class="rounded-md shadow" *ngIf="!selectedVehicle()">
+                <mat-card-content>
+                    <h2 class="text-xl font-medium mb-4 flex items-center">
+                        <mat-icon>info</mat-icon>
+                        <span class="ml-2">Instrucciones</span>
+                    </h2>
+                    <div class="text-gray-700 dark:text-gray-300 space-y-3">
+                        <p>
+                            Bienvenido al sistema de registro de combustible. Utilice este formulario para registrar una nueva carga de combustible.
+                        </p>
+                        <p>
+                            Para comenzar, seleccione un vehículo, la estación de servicio, el tipo de combustible, y complete los demás campos requeridos.
+                        </p>
+                        <div class="mt-4 text-amber-600 dark:text-amber-400">
+                            <p class="flex items-start">
+                                <mat-icon class="mr-2 flex-shrink-0">warning</mat-icon>
+                                <span>Asegúrese de ingresar correctamente el kilometraje final para calcular adecuadamente el rendimiento del vehículo.</span>
+                            </p>
+                        </div>
                     </div>
-                </form>
-            </mat-card-content>
-        </mat-card>
+                </mat-card-content>
+            </mat-card>
+        </div>
     </div>
 </div>

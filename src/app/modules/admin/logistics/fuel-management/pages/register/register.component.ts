@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal }                     from '@angular/core';
+import { Component, computed, inject, OnInit, resource, signal }   from '@angular/core';
 import { CommonModule }                                            from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule }                                         from '@angular/material/button';
@@ -15,37 +15,14 @@ import { PageHeaderComponent }                                     from '@layout
 import { FuelRecordsService }                                      from '@modules/admin/logistics/fuel-management/services/fuel-records.service';
 import { Router }                                                  from '@angular/router';
 import { NotyfService }                                            from '@shared/services/notyf.service';
-import { debounceTime, firstValueFrom }                            from 'rxjs';
+import { debounceTime, firstValueFrom, take }                      from 'rxjs';
 import { Vehicle }                                                 from '@modules/admin/logistics/fleet-management/domain/model/vehicle.model';
-import { FuelRecord }                                              from '@modules/admin/logistics/fuel-management/domain/model/fuel-record.model';
+import { FuelRecord, FuelStation, FuelType }                       from '@modules/admin/logistics/fuel-management/domain/model/fuel-record.model';
 import BigNumber                                                   from 'bignumber.js';
 import { toSignal }                                                from '@angular/core/rxjs-interop';
-
-// Mock service for vehicles - replace with actual service when available
-class VehicleService {
-    getVehicles() {
-        return Promise.resolve({
-            items: [
-                {
-                    id               : 'v1',
-                    brand            : 'Toyota',
-                    model            : 'Corolla',
-                    licensePlate     : 'ABC-123',
-                    fuelType         : 'Gasolina',
-                    lastKnownOdometer: 11000
-                },
-                {
-                    id               : 'v2',
-                    brand            : 'Honda',
-                    model            : 'Civic',
-                    licensePlate     : 'XYZ-789',
-                    fuelType         : 'Gasolina',
-                    lastKnownOdometer: 5400
-                }
-            ] as Vehicle[]
-        });
-    }
-}
+import { UserService }                                             from '@core/user/user.service';
+import { User }                                                    from '@core/user/user.types';
+import { VehiclesService }                                         from '@modules/admin/logistics/fleet-management/services/vehicles.service';
 
 @Component({
     selector   : 'app-register',
@@ -65,22 +42,27 @@ class VehicleService {
         MatTooltipModule,
         PageHeaderComponent
     ],
-    providers  : [
-        {provide: VehicleService, useClass: VehicleService} // Replace with actual service
-    ],
     templateUrl: './register.component.html'
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
     private readonly fb = inject(FormBuilder);
     private readonly fuelRecordsService = inject(FuelRecordsService);
-    private readonly vehicleService = inject(VehicleService);
+    private readonly vehicleService = inject(VehiclesService);
+    private readonly userService = inject(UserService);
     private readonly router = inject(Router);
     private readonly notyf = inject(NotyfService);
+
+    // Enums for template
+    fuelStations = Object.values(FuelStation);
+    fuelTypes = Object.values(FuelType);
 
     // Form
     fuelForm: FormGroup = this.fb.group({
         vehicleId      : [ '', Validators.required ],
+        station : [ FuelStation.COPEC, Validators.required ],
+        fuelType: [ FuelType.GASOLINE, Validators.required ],
         date           : [ new Date(), Validators.required ],
+        userId  : [ '', Validators.required ],
         initialOdometer: [ {value: 0, disabled: true}, [ Validators.required, Validators.min(0) ] ],
         finalOdometer  : [ 0, [ Validators.required, Validators.min(0) ] ],
         liters         : [ 0, [ Validators.required, Validators.min(0.1) ] ],
@@ -92,6 +74,8 @@ export class RegisterComponent {
     isLoading = signal(false);
     vehicles = signal<Vehicle[]>([]);
     selectedVehicle = signal<Vehicle | null>(null);
+    currentUser = signal<User | null>(null);
+    users = signal<User[]>([]);
 
     // Control signals
     initialOdometerSignal = toSignal(this.fuelForm.get('initialOdometer')?.valueChanges.pipe(debounceTime(300)), {initialValue: 0});
@@ -120,20 +104,39 @@ export class RegisterComponent {
         return new BigNumber(cost).dividedBy(distance).toNumber();
     });
 
-    constructor() {
-        this.loadVehicles();
+    vehiclesResource = resource({
+        loader: async () => {
+            const {items: vehicles, total} = await firstValueFrom(this.vehicleService.findAll());
+
+            this.vehicles.set(vehicles);
+
+            return vehicles;
+        }
+    });
+
+    ngOnInit(): void {
+        // Load current user
+        this.userService.user$.pipe(take(1)).subscribe(user => {
+            if (user) {
+                this.currentUser.set(user);
+                this.fuelForm.get('userId').setValue(user.id);
+            }
+        });
+
+        // Load users for dropdown (if needed)
+        this.loadUsers();
     }
 
-    async loadVehicles(): Promise<void> {
-        try {
-            this.isLoading.set(true);
-            const result = await this.vehicleService.getVehicles();
-            this.vehicles.set(result.items);
-            this.isLoading.set(false);
-        } catch (error) {
-            this.notyf.error('Error al cargar los vehículos');
-            this.isLoading.set(false);
-        }
+    loadUsers(): void {
+        // Use the UserService.findAll() method directly with the Observable pattern
+        this.userService.findAll().subscribe({
+            next : (result) => {
+                this.users.set(result.data);
+            },
+            error: (error) => {
+                this.notyf.error('Error al cargar los usuarios');
+            }
+        });
     }
 
     async onVehicleChange(vehicleId: string): Promise<void> {
@@ -177,6 +180,8 @@ export class RegisterComponent {
             this.isLoading.set(true);
 
             const formValue = this.fuelForm.getRawValue();
+            const user = this.currentUser();
+
             const newRecord: Omit<FuelRecord, 'id' | 'createdAt'> = {
                 vehicleId      : formValue.vehicleId,
                 vehicleInfo    : {
@@ -184,7 +189,14 @@ export class RegisterComponent {
                     model       : vehicle.model,
                     licensePlate: vehicle.licensePlate
                 },
+                station : formValue.station,
+                fuelType: formValue.fuelType,
                 date           : formValue.date.toISOString(),
+                userId  : formValue.userId,
+                userInfo: user ? {
+                    name : user.firstName && user.lastName ? `${ user.firstName } ${ user.lastName }` : user.name,
+                    email: user.email
+                } : undefined,
                 initialOdometer: formValue.initialOdometer,
                 finalOdometer  : formValue.finalOdometer,
                 liters         : formValue.liters,
@@ -205,9 +217,14 @@ export class RegisterComponent {
     }
 
     resetForm(): void {
+        const currentUserId = this.currentUser()?.id || '';
+
         this.fuelForm.reset({
             vehicleId      : '',
+            station : FuelStation.COPEC,
+            fuelType: FuelType.GASOLINE,
             date           : new Date(),
+            userId  : currentUserId,
             initialOdometer: 0,
             finalOdometer  : 0,
             liters         : 0,

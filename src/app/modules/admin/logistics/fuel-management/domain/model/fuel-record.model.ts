@@ -1,4 +1,30 @@
 /**
+ * Enumeración de estaciones de servicio
+ */
+export enum FuelStation {
+    COPEC = 'COPEC',
+    ARAMCO = 'ARAMCO',
+    SHELL = 'SHELL',
+    YPF = 'YPF',
+    TERPEL = 'TERPEL',
+    OTHER = 'OTHER'
+}
+
+/**
+ * Enumeración de tipos de combustible
+ */
+export enum FuelType {
+    GASOLINE = 'GASOLINE',
+    DIESEL = 'DIESEL',
+    ELECTRIC = 'ELECTRIC',
+    HYDROGEN = 'HYDROGEN',
+    GAS = 'GAS',
+    ETHANOL = 'ETHANOL',
+    BIOFUEL = 'BIOFUEL',
+    OTHER = 'OTHER'
+}
+
+/**
  * Modelo que representa un registro de carga de combustible
  */
 export interface FuelRecord {
@@ -9,7 +35,14 @@ export interface FuelRecord {
         model: string;
         licensePlate: string;
     };
+    station: FuelStation;        // Estación de servicio
+    fuelType: FuelType;          // Tipo de combustible
     date: string;                // Fecha de la carga de combustible
+    userId: string;              // ID del usuario que realizó la carga
+    userInfo?: {                 // Información del usuario (para mostrar en listados)
+        name: string;
+        email: string;
+    };
     initialOdometer: number;     // Kilometraje inicial (desde)
     finalOdometer: number;       // Kilometraje final (hasta)
     liters: number;              // Cantidad de combustible en litros
