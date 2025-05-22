@@ -23,11 +23,12 @@ import { toSignal }                                                from '@angula
 import { UserService }                                             from '@core/user/user.service';
 import { User }                                                    from '@core/user/user.types';
 import { VehiclesService }                                         from '@modules/admin/logistics/fleet-management/services/vehicles.service';
+import { MatProgressSpinner }                                      from '@angular/material/progress-spinner';
 
 @Component({
     selector   : 'app-register',
     standalone : true,
-    imports    : [
+    imports: [
         CommonModule,
         ReactiveFormsModule,
         MatButtonModule,
@@ -40,7 +41,8 @@ import { VehiclesService }                                         from '@module
         MatSelectModule,
         MatStepperModule,
         MatTooltipModule,
-        PageHeaderComponent
+        PageHeaderComponent,
+        MatProgressSpinner
     ],
     templateUrl: './register.component.html'
 })
@@ -59,11 +61,11 @@ export class RegisterComponent implements OnInit {
     // Form
     fuelForm: FormGroup = this.fb.group({
         vehicleId      : [ '', Validators.required ],
-        station : [ FuelStation.COPEC, Validators.required ],
-        fuelType: [ FuelType.GASOLINE, Validators.required ],
+        station        : [ FuelStation.COPEC, Validators.required ],
+        fuelType       : [ FuelType.GASOLINE, Validators.required ],
         date           : [ new Date(), Validators.required ],
-        userId  : [ '', Validators.required ],
-        initialOdometer: [ {value: 0, disabled: true}, [ Validators.required, Validators.min(0) ] ],
+        userId         : [ '', Validators.required ],
+        initialOdometer: [ 0, [ Validators.required, Validators.min(0) ] ],
         finalOdometer  : [ 0, [ Validators.required, Validators.min(0) ] ],
         liters         : [ 0, [ Validators.required, Validators.min(0.1) ] ],
         cost           : [ 0, [ Validators.required, Validators.min(1) ] ],
@@ -150,17 +152,10 @@ export class RegisterComponent implements OnInit {
         this.selectedVehicle.set(vehicle || null);
 
         if (vehicle) {
-            try {
-                // Get the last odometer reading from fuel records or use the vehicle's lastKnownOdometer
-                const lastOdometer = await firstValueFrom(this.fuelRecordsService.getVehicleLastOdometer(vehicleId));
-                const initialOdometer = lastOdometer > 0 ? lastOdometer : vehicle.lastKnownOdometer;
-
-                this.fuelForm.get('initialOdometer')?.setValue(initialOdometer);
-                // Set final odometer to initial + 1 as a starting point
-                this.fuelForm.get('finalOdometer')?.setValue(initialOdometer + 1);
-            } catch (error) {
-                this.notyf.error('Error al obtener el último kilometraje');
-            }
+            const lastRefuelingOdometer = vehicle.lastRefuelingOdometer || 0;
+            this.fuelForm.get('initialOdometer')?.setValue(lastRefuelingOdometer);
+            this.fuelForm.get('finalOdometer')?.setValue(lastRefuelingOdometer + 1);
+            this.fuelForm.get('fuelType')?.setValue(vehicle.fuelType);
         }
     }
 
@@ -189,11 +184,11 @@ export class RegisterComponent implements OnInit {
                     model       : vehicle.model,
                     licensePlate: vehicle.licensePlate
                 },
-                station : formValue.station,
-                fuelType: formValue.fuelType,
+                station   : formValue.station,
+                fuelType  : formValue.fuelType,
                 date           : formValue.date.toISOString(),
-                userId  : formValue.userId,
-                userInfo: user ? {
+                userId    : formValue.userId,
+                userInfo  : user ? {
                     name : user.firstName && user.lastName ? `${ user.firstName } ${ user.lastName }` : user.name,
                     email: user.email
                 } : undefined,
@@ -201,8 +196,8 @@ export class RegisterComponent implements OnInit {
                 finalOdometer  : formValue.finalOdometer,
                 liters         : formValue.liters,
                 cost           : formValue.cost,
-                efficiency     : this.efficiency(),
-                costPerKm      : this.costPerKm(),
+                efficiency: +this.efficiency().toFixed(2),
+                costPerKm : +this.costPerKm().toFixed(2),
                 notes          : formValue.notes
             };
 

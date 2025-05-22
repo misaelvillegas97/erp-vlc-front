@@ -38,6 +38,7 @@ export interface Vehicle {
     fuelType: string;             // Tipo de combustible
     tankCapacity: number;         // Capacidad del tanque en litros
     lastKnownOdometer: number;    // Último odómetro registrado en km
+    lastRefuelingOdometer: number;// Último odómetro registrado al repostar en km
     status: VehicleStatus;        // Estado actual del vehículo
     lastMaintenanceDate?: string; // Fecha del último mantenimiento
     nextMaintenanceDate?: string; // Fecha programada para el próximo mantenimiento

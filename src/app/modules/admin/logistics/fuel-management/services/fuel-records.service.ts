@@ -72,12 +72,6 @@ export class FuelRecordsService {
         return of(this.getMockConsumptionByPeriod());
     }
 
-    getVehicleLastOdometer(vehicleId: string): Observable<number> {
-
-        // If no records found, return 0 or fetch from vehicle service
-        return of(0);
-    }
-
     private getMockConsumptionSummary(): FuelConsumptionSummary[] {
         return [
             {

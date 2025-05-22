@@ -170,13 +170,15 @@
                                 color="primary"
                                 [disabled]="fuelForm.invalid || isLoading()">
                                 <div class="inline-flex items-center">
-                                    <mat-icon *ngIf="!isLoading()">save</mat-icon>
-                                    <mat-progress-spinner
-                                        *ngIf="isLoading()"
-                                        [diameter]="24"
-                                        [mode]="'indeterminate'"
-                                        class="mr-2">
-                                    </mat-progress-spinner>
+                                    @if (!isLoading()) {
+                                        <mat-icon class="mr-2">save</mat-icon>
+                                    } @else {
+                                        <mat-progress-spinner
+                                            [diameter]="24"
+                                            [mode]="'indeterminate'"
+                                            class="mr-2">
+                                        </mat-progress-spinner>
+                                    }
                                     <span>Guardar</span>
                                 </div>
                             </button>
