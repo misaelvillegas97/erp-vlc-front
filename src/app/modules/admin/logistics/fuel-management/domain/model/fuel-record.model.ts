@@ -30,7 +30,7 @@ export enum FuelType {
 export interface FuelRecord {
     id: string;
     vehicleId: string;           // ID del vehículo
-    vehicleInfo?: {              // Información del vehículo (para mostrar en listados)
+    vehicle?: {              // Información del vehículo (para mostrar en listados)
         brand: string;
         model: string;
         licensePlate: string;
@@ -59,7 +59,7 @@ export interface FuelRecord {
  */
 export interface FuelConsumptionSummary {
     vehicleId: string;
-    vehicleInfo: {
+    vehicle: {
         brand: string;
         model: string;
         licensePlate: string;

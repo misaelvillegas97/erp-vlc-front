@@ -76,7 +76,7 @@ export class FuelRecordsService {
         return [
             {
                 vehicleId        : 'v1',
-                vehicleInfo      : {
+                vehicle: {
                     brand       : 'Toyota',
                     model       : 'Corolla',
                     licensePlate: 'ABC-123'
@@ -90,7 +90,7 @@ export class FuelRecordsService {
             },
             {
                 vehicleId        : 'v2',
-                vehicleInfo      : {
+                vehicle: {
                     brand       : 'Honda',
                     model       : 'Civic',
                     licensePlate: 'XYZ-789'

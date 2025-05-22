@@ -179,7 +179,7 @@ export class RegisterComponent implements OnInit {
 
             const newRecord: Omit<FuelRecord, 'id' | 'createdAt'> = {
                 vehicleId      : formValue.vehicleId,
-                vehicleInfo    : {
+                vehicle: {
                     brand       : vehicle.brand,
                     model       : vehicle.model,
                     licensePlate: vehicle.licensePlate

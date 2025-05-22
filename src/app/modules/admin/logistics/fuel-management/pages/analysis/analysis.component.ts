@@ -317,7 +317,7 @@ export class AnalysisComponent {
     }
 
     setChartConsumptionByVehicle(data: FuelConsumptionSummary[]): void {
-        const labels = data.map(item => `${ item.vehicleInfo.brand } ${ item.vehicleInfo.model } (${ item.vehicleInfo.licensePlate })`);
+        const labels = data.map(item => `${ item.vehicle.brand } ${ item.vehicle.model } (${ item.vehicle.licensePlate })`);
         const series = [ {
             name: 'Litros',
             data: data.map(item => item.totalLiters)
@@ -357,7 +357,7 @@ export class AnalysisComponent {
     }
 
     setChartEfficiencyByVehicle(data: FuelConsumptionSummary[]): void {
-        const labels = data.map(item => `${ item.vehicleInfo.brand } ${ item.vehicleInfo.model } (${ item.vehicleInfo.licensePlate })`);
+        const labels = data.map(item => `${ item.vehicle.brand } ${ item.vehicle.model } (${ item.vehicle.licensePlate })`);
         const series = data.map(item => item.averageEfficiency);
 
         this.chartEfficiencyByVehicle.set({
@@ -383,7 +383,7 @@ export class AnalysisComponent {
     }
 
     setChartCostPerKmByVehicle(data: FuelConsumptionSummary[]): void {
-        const labels = data.map(item => `${ item.vehicleInfo.brand } ${ item.vehicleInfo.model } (${ item.vehicleInfo.licensePlate })`);
+        const labels = data.map(item => `${ item.vehicle.brand } ${ item.vehicle.model } (${ item.vehicle.licensePlate })`);
         const series = [ {
             name: 'Costo por km',
             data: data.map(item => item.averageCostPerKm)

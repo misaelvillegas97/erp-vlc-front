@@ -168,12 +168,12 @@ export class ListComponent {
                 }
             },
             {
-                key    : 'vehicleInfo',
+                key    : 'vehicle',
                 header : 'Vehículo',
                 visible: true,
                 display: {
                     type     : 'text',
-                    formatter: (value: FuelRecord['vehicleInfo']) =>
+                    formatter: (value: FuelRecord['vehicle']) =>
                         value ? `${ value.brand } ${ value.model } (${ value.licensePlate })` : 'N/A'
                 }
             },
