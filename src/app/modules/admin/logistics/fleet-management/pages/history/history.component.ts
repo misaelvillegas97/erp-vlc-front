@@ -196,7 +196,7 @@ export class HistoryComponent implements OnDestroy {
     }
 
     viewDetails(session: VehicleSession): void {
-        this.router.navigate([ '/logistics/session-details', session.id ]);
+        this.router.navigate([ '/logistics/fleet-management/session-details', session.id ]);
     }
 
     toggleAdvancedFilters(): void {

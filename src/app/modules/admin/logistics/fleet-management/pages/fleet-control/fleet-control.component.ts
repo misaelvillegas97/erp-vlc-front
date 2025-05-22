@@ -230,7 +230,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
             );
             if (location) this.currentLocation.set(location);
 
-            const fv = this.form.value;
+            const fv = this.form.getRawValue();
             const newSession: NewVehicleSessionDto = {
                 driverId       : fv.driverId,
                 vehicleId      : fv.vehicleId,
