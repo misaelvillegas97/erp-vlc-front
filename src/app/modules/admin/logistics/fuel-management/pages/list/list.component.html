@@ -53,7 +53,17 @@
                 <!-- Filtro por vehículo -->
                 <mat-form-field class="w-full">
                     <mat-label>Vehículo</mat-label>
-                    <input matInput [formControl]="vehicleControl" placeholder="Buscar por vehículo">
+                    <mat-select [formControl]="vehicleControl" placeholder="Seleccionar vehículo">
+                        <mat-option>Todos</mat-option>
+
+                        @for (vehicle of vehiclesResource.value(); track vehicle.id) {
+                            <mat-option [value]="vehicle.id">
+                                {{ vehicle.displayName }}
+                            </mat-option>
+                        } @empty {
+                            <mat-option disabled>Sin vehículos disponibles</mat-option>
+                        }
+                    </mat-select>
                     <mat-icon matSuffix>directions_car</mat-icon>
                 </mat-form-field>
 

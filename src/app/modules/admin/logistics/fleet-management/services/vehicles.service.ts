@@ -18,8 +18,8 @@ export class VehiclesService {
     /**
      * Obtiene la lista de todos los vehículos
      */
-    public findAll(): Observable<FindCount<Vehicle>> {
-        return this.http.get<FindCount<Vehicle>>(this.apiUrl);
+    public findAll(filters?: { sortBy?: keyof Vehicle, sortOrder?: 'ASC' | 'DESC' }): Observable<FindCount<Vehicle>> {
+        return this.http.get<FindCount<Vehicle>>(this.apiUrl, {params: filters});
     }
 
     /**

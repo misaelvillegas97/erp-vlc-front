@@ -21,6 +21,7 @@ import { MatSelectModule }                                                      
 import { NotyfService }                                                                        from '@shared/services/notyf.service';
 import BigNumber                                                                               from 'bignumber.js';
 import { FuseConfirmationService }                                                             from '@fuse/services/confirmation';
+import { VehiclesService }                                                                     from '@modules/admin/logistics/fleet-management/services/vehicles.service';
 
 @Component({
     selector   : 'app-list',
@@ -44,9 +45,10 @@ import { FuseConfirmationService }                                              
     templateUrl: './list.component.html'
 })
 export class ListComponent {
-    private readonly fuelRecordsService = inject(FuelRecordsService);
-    private readonly notyf = inject(NotyfService);
-    private readonly confirmationService = inject(FuseConfirmationService);
+    readonly #fuelRecordsService = inject(FuelRecordsService);
+    readonly #vehiclesService = inject(VehiclesService);
+    readonly #notyf = inject(NotyfService);
+    readonly #confirmationService = inject(FuseConfirmationService);
 
     // Filters
     searchControl = new FormControl<string>('');
@@ -66,6 +68,19 @@ export class ListComponent {
     // Table
     readonly actionsCell: Signal<TemplateRef<any>> = viewChild('actionsCell');
     columnsConfig: WritableSignal<ColumnConfig<FuelRecord>[]> = signal(undefined);
+
+    vehiclesResource = resource({
+        request: () => ({}),
+        loader : async () => {
+            try {
+                const vehicles = await firstValueFrom(this.#vehiclesService.findAll({sortBy: 'licensePlate', sortOrder: 'ASC'}));
+                return vehicles.items;
+            } catch (error) {
+                this.#notyf.error('Error al cargar los vehículos');
+                return [];
+            }
+        }
+    });
 
     // Data
     fuelRecordsResource = resource({
@@ -96,9 +111,9 @@ export class ListComponent {
                     params.vehicleId = request.vehicle.trim();
                 }
 
-                return await firstValueFrom(this.fuelRecordsService.getFuelRecords(params));
+                return await firstValueFrom(this.#fuelRecordsService.getFuelRecords(params));
             } catch (error) {
-                this.notyf.error('Error al cargar los registros de combustible');
+                this.#notyf.error('Error al cargar los registros de combustible');
                 return {items: [], total: 0};
             }
         }
@@ -132,7 +147,7 @@ export class ListComponent {
     }
 
     deleteFuelRecord(record: FuelRecord): void {
-        const dialog = this.confirmationService.open({
+        const dialog = this.#confirmationService.open({
             title  : 'Eliminar registro',
             message: '¿Está seguro que desea eliminar este registro de combustible?',
             actions: {
@@ -143,13 +158,13 @@ export class ListComponent {
 
         dialog.afterClosed().subscribe(result => {
             if (result === 'confirmed') {
-                this.fuelRecordsService.deleteFuelRecord(record.id).subscribe({
+                this.#fuelRecordsService.deleteFuelRecord(record.id).subscribe({
                     next : () => {
-                        this.notyf.success('Registro eliminado correctamente');
+                        this.#notyf.success('Registro eliminado correctamente');
                         this.fuelRecordsResource.reload();
                     },
                     error: () => {
-                        this.notyf.error('Error al eliminar el registro');
+                        this.#notyf.error('Error al eliminar el registro');
                     }
                 });
             }
