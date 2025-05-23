@@ -23,6 +23,7 @@ import { MatProgressSpinnerModule }                                             
 import { NotyfService }                                                                    from '@shared/services/notyf.service';
 import { DateTime }                                                                        from 'luxon';
 import { calculateDistance }                                                               from '@shared/utils/gps.utils';
+import { toSignal }                                                                        from '@angular/core/rxjs-interop';
 
 @Component({
     selector       : 'app-finish-session',
@@ -55,6 +56,11 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
 
     private destroy$ = new Subject<void>();
 
+    form: FormGroup = this.fb.group({
+        finalOdometer: [ '', [ Validators.required, Validators.min(0) ] ],
+        incidents    : [ '', [ Validators.maxLength(500) ] ]
+    });
+
     isLoading = signal(true);
     isSubmitting = signal(false);
     sessionId = signal<string>('');
@@ -65,10 +71,8 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
     uploadedFiles = signal<File[]>([]);
     uploadedPreviews = signal<string[]>([]);
 
-    form: FormGroup = this.fb.group({
-        finalOdometer: [ '', [ Validators.required, Validators.min(0) ] ],
-        incidents    : [ '', [ Validators.maxLength(500) ] ]
-    });
+    // Form control signals
+    finalOdometer = toSignal(this.form.get('finalOdometer')!.valueChanges, {initialValue: 0});
 
     elapsedMinutes = computed(() => {
         const s = this.session();
@@ -78,7 +82,7 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
     });
 
     calculatedDistance = computed(() => {
-        const final = this.form.get('finalOdometer')!.value;
+        const final = this.finalOdometer();
         const initial = this.session()?.initialOdometer ?? 0;
         return final > initial ? final - initial : 0;
     });
@@ -128,7 +132,7 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
             takeUntil(this.destroy$),
             tap(session => {
                 this.session.set(session);
-                const min = session.initialOdometer + 1;
+                const min = session.initialOdometer;
                 this.form.get('finalOdometer')!
                     .setValidators([ Validators.required, Validators.min(min) ]);
                 this.form.get('finalOdometer')!.updateValueAndValidity({emitEvent: false});
