@@ -19,14 +19,14 @@ export const preventiveMaintenancePermissions: RoutePermission[] = [
                 selectedIcon: 'heroicons_solid:chart-bar',
                 allowedRoles: [ RoleEnum.admin, RoleEnum.dispatcher ]
             },
-            {
-                path        : 'alerts',
-                title       : 'Alertas',
-                description : 'Gestión de alertas de mantenimiento',
-                icon        : 'heroicons_outline:bell',
-                selectedIcon: 'heroicons_solid:bell',
-                allowedRoles: [ RoleEnum.admin, RoleEnum.dispatcher ]
-            },
+            // {
+            //     path        : 'alerts',
+            //     title       : 'Alertas',
+            //     description : 'Gestión de alertas de mantenimiento',
+            //     icon        : 'heroicons_outline:bell',
+            //     selectedIcon: 'heroicons_solid:bell',
+            //     allowedRoles: [ RoleEnum.admin, RoleEnum.dispatcher ]
+            // },
             {
                 path        : 'list',
                 title       : 'Registros de Mantenimiento',

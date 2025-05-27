@@ -16,7 +16,7 @@ export const fuelManagementPermissions: RoutePermission[] = [
         children    : [
             {
                 path        : 'analysis',
-                title       : 'Análisis de Consumo de Combustible',
+                title: 'Análisis de Consumo',
                 description : 'Consulta el análisis de consumo de combustible',
                 icon        : 'heroicons_outline:chart-bar',
                 selectedIcon: 'heroicons_solid:chart-bar',
@@ -24,7 +24,7 @@ export const fuelManagementPermissions: RoutePermission[] = [
             },
             {
                 path        : 'list',
-                title       : 'Listado de Registros de Combustible',
+                title: 'Listado de Registros',
                 description : 'Consulta el listado de registros de combustible',
                 icon        : 'heroicons_outline:table-cells',
                 selectedIcon: 'heroicons_solid:table-cells',
@@ -32,7 +32,7 @@ export const fuelManagementPermissions: RoutePermission[] = [
             },
             {
                 path        : 'register',
-                title       : 'Registro de Combustible',
+                title: 'Crear Registro',
                 description : 'Registra el consumo de combustible',
                 icon        : 'heroicons_outline:plus-circle',
                 selectedIcon: 'heroicons_solid:plus-circle',
