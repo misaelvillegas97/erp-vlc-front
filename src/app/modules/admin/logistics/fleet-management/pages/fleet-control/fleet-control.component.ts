@@ -26,11 +26,12 @@ import { Driver }                                            from '@modules/admi
 import { Vehicle }                                           from '@modules/admin/logistics/fleet-management/domain/model/vehicle.model';
 import { UserService }                                       from '@core/user/user.service';
 import { RoleEnum }                                          from '@core/user/role.type';
+import { VehicleSelectorComponent }                          from '@shared/controls/components/vehicle-selector/vehicle-selector.component';
 
 @Component({
     selector   : 'app-fleet-control',
     standalone : true,
-    imports    : [
+    imports: [
         CommonModule,
         MatButtonModule,
         MatCardModule,
@@ -42,7 +43,8 @@ import { RoleEnum }                                          from '@core/user/ro
         MatSelectModule,
         ReactiveFormsModule,
         FormsModule,
-        PageHeaderComponent
+        PageHeaderComponent,
+        VehicleSelectorComponent
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './fleet-control.component.html'

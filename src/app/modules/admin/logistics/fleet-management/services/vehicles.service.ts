@@ -4,6 +4,7 @@ import { Observable }             from 'rxjs';
 import { map }                    from 'rxjs/operators';
 import { Vehicle, VehicleStatus } from '@modules/admin/logistics/fleet-management/domain/model/vehicle.model';
 import { FindCount }              from '@shared/domain/model/find-count';
+import { QueryVehicleDto }        from '@modules/admin/logistics/fleet-management/domain/dtos/query-vehicle.dto';
 
 @Injectable({
     providedIn: 'root'
@@ -18,8 +19,8 @@ export class VehiclesService {
     /**
      * Obtiene la lista de todos los vehículos
      */
-    public findAll(filters?: { sortBy?: keyof Vehicle, sortOrder?: 'ASC' | 'DESC' }): Observable<FindCount<Vehicle>> {
-        return this.http.get<FindCount<Vehicle>>(this.apiUrl, {params: filters});
+    public findAll(filters?: QueryVehicleDto): Observable<FindCount<Vehicle>> {
+        return this.http.get<FindCount<Vehicle>>(this.apiUrl, {params: filters as any});
     }
 
     /**

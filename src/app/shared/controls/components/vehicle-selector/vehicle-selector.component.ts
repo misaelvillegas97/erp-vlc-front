@@ -1,12 +1,12 @@
-import { Component, forwardRef, inject, Input, OnDestroy, OnInit, signal }                        from '@angular/core';
-import { CommonModule }                                                                           from '@angular/common';
-import { ControlValueAccessor, FormControl, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
-import { FloatLabelType, MatFormFieldModule, SubscriptSizing }                                    from '@angular/material/form-field';
-import { MatSelectModule }                                                                        from '@angular/material/select';
-import { MatIconModule }                                                                          from '@angular/material/icon';
-import { Subject, takeUntil }                                                                     from 'rxjs';
-import { VehiclesService }                                                                        from '@modules/admin/logistics/fleet-management/services/vehicles.service';
-import { Vehicle }                                                                                from '@modules/admin/logistics/fleet-management/domain/model/vehicle.model';
+import { Component, forwardRef, inject, Input, OnDestroy, OnInit, signal }                                    from '@angular/core';
+import { CommonModule }                                                                                       from '@angular/common';
+import { ControlValueAccessor, FormControl, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FloatLabelType, MatFormFieldModule, SubscriptSizing }                                                from '@angular/material/form-field';
+import { MatSelectModule }                                                                                    from '@angular/material/select';
+import { MatIconModule }                                                                                      from '@angular/material/icon';
+import { Subject, takeUntil }                                                                                 from 'rxjs';
+import { VehiclesService }                                                                                    from '@modules/admin/logistics/fleet-management/services/vehicles.service';
+import { Vehicle }                                                                                            from '@modules/admin/logistics/fleet-management/domain/model/vehicle.model';
 
 @Component({
     selector   : 'vehicle-selector',
@@ -41,6 +41,7 @@ export class VehicleSelectorComponent implements ControlValueAccessor, OnInit, O
     @Input() subscriptSizing: SubscriptSizing = 'fixed';
     @Input() controlClasses: string;
     @Input() required = false;
+    @Input() onlyAvailable = false;
 
     vehicles = signal<Vehicle[]>([]);
     loading = signal<boolean>(false);
@@ -60,6 +61,10 @@ export class VehicleSelectorComponent implements ControlValueAccessor, OnInit, O
 
         // Load vehicles
         this.loadVehicles();
+
+        if (this.required) {
+            this.vehicleControl.setValidators([ Validators.required ]);
+        }
     }
 
     ngOnDestroy(): void {
@@ -70,7 +75,7 @@ export class VehicleSelectorComponent implements ControlValueAccessor, OnInit, O
     // Load vehicles from service
     private loadVehicles(): void {
         this.loading.set(true);
-        this.vehiclesService.findAll({sortBy: 'licensePlate', sortOrder: 'ASC'})
+        this.vehiclesService.findAll({sortBy: 'licensePlate', sortOrder: 'ASC', available: true})
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next : (response) => {

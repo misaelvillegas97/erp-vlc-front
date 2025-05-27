@@ -66,7 +66,7 @@ export class HomeComponent implements OnInit {
             title      : 'Logística',
             description: 'Control de flota',
             icon       : 'local_shipping',
-            route      : '/logistics',
+            route: '/logistics/fleet-management/fleet-control',
             roles      : [ RoleEnum.admin, RoleEnum.dispatcher, RoleEnum.driver ],
             color: 'purple'
         },

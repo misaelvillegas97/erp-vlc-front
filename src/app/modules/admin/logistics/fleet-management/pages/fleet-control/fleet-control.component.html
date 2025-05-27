@@ -41,23 +41,11 @@
                             </mat-form-field>
 
                             <!-- Selección de vehículo -->
-                            <mat-form-field class="w-full" floatLabel="always">
-                                <mat-label>Vehículo</mat-label>
-                                <mat-select formControlName="vehicleId" placeholder="Seleccione un vehículo">
-                                    @for (vehicle of availableVehicles(); track vehicle.id) {
-                                        <mat-option [value]="vehicle.id">
-                                            {{ vehicle.displayName }}
-                                        </mat-option>
-                                    } @empty {
-                                        <mat-option disabled>
-                                            No hay vehículos disponibles
-                                        </mat-option>
-                                    }
-                                </mat-select>
-                                <mat-error *ngIf="form.get('vehicleId').hasError('required')">
-                                    El vehículo es requerido
-                                </mat-error>
-                            </mat-form-field>
+                            <vehicle-selector formControlName="vehicleId"
+                                              [onlyAvailable]="true"
+                                              [required]="true"
+                                              allOptionLabel="Seleccione un vehículo"
+                            ></vehicle-selector>
                         </div>
 
                         <!-- Odómetro inicial -->
