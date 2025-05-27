@@ -1,0 +1,257 @@
+<div class="flex flex-col w-full">
+    <page-detail-header
+        title="Dashboard de Mantenimiento Preventivo"
+        subtitle="Resumen de mantenimientos y alertas"
+    >
+        <button mat-flat-button color="primary" (click)="createNewMaintenanceRecord()">
+            <mat-icon>add</mat-icon>
+            Nuevo Mantenimiento
+        </button>
+    </page-detail-header>
+
+    <div class="p-6">
+        <!-- Tarjetas de estadísticas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <!-- Mantenimientos pendientes -->
+            <mat-card class="flex flex-col h-full">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar svgIcon="mat_solid:pending_actions" class="text-amber-500 icon-size-5"></mat-icon>
+                    <mat-card-title>Mantenimientos Pendientes</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="flex-1 flex items-center justify-center">
+                    <span class="text-5xl font-bold">{{ pendingMaintenanceCount() }}</span>
+                </mat-card-content>
+                <mat-card-actions align="end">
+                    <button mat-button color="primary" (click)="goToMaintenanceRecords()">VER TODOS</button>
+                </mat-card-actions>
+            </mat-card>
+
+            <!-- Mantenimientos completados -->
+            <mat-card class="flex flex-col h-full">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar svgIcon="mat_solid:task_alt" class="text-green-500 icon-size-5"></mat-icon>
+                    <mat-card-title>Mantenimientos Completados</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="flex-1 flex items-center justify-center">
+                    <span class="text-5xl font-bold">{{ completedMaintenanceCount() }}</span>
+                </mat-card-content>
+                <mat-card-actions align="end">
+                    <button mat-button color="primary" (click)="goToMaintenanceRecords()">VER TODOS</button>
+                </mat-card-actions>
+            </mat-card>
+
+            <!-- Alertas activas -->
+            <mat-card class="flex flex-col h-full">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar svgIcon="mat_solid:warning" class="text-red-500 icon-size-5"></mat-icon>
+                    <mat-card-title>Alertas Activas</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="flex-1 flex items-center justify-center">
+                    <span class="text-5xl font-bold">{{ activeAlertsCount() }}</span>
+                </mat-card-content>
+                <mat-card-actions align="end">
+                    <button mat-button color="primary" (click)="goToMaintenanceRecords()">VER TODOS</button>
+                </mat-card-actions>
+            </mat-card>
+
+            <!-- Mantenimientos próximos -->
+            <mat-card class="flex flex-col h-full">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar svgIcon="mat_solid:event_available" class="text-blue-500 icon-size-5"></mat-icon>
+                    <mat-card-title>Mantenimientos Próximos</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="flex-1 flex items-center justify-center">
+                    <span class="text-5xl font-bold">{{ upcomingMaintenanceCount() }}</span>
+                </mat-card-content>
+                <mat-card-actions align="end">
+                    <button mat-button color="primary" (click)="goToMaintenanceRecords()">VER TODOS</button>
+                </mat-card-actions>
+            </mat-card>
+        </div>
+
+        <!-- Gráficos de análisis -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Gráfico de mantenimientos por estado -->
+            <mat-card class="h-80">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar svgIcon="mat_solid:pie_chart" class="text-blue-500 icon-size-5"></mat-icon>
+                    <mat-card-title>Mantenimientos por Estado</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="h-64">
+                    @if (chartMaintenanceByStatus()) {
+                        <apx-chart
+                            [series]="chartMaintenanceByStatus().series"
+                            [chart]="chartMaintenanceByStatus().chart"
+                            [labels]="chartMaintenanceByStatus().labels"
+                            [colors]="chartMaintenanceByStatus().colors"
+                            [legend]="chartMaintenanceByStatus().legend"
+                            [tooltip]="chartMaintenanceByStatus().tooltip"
+                            [noData]="chartMaintenanceByStatus().noData"
+                            class="w-full flex-auto h-64 block"
+                        ></apx-chart>
+                    }
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Gráfico de mantenimientos por mes -->
+            <mat-card class="h-80">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar svgIcon="mat_solid:timeline" class="text-green-500 icon-size-5"></mat-icon>
+                    <mat-card-title>Mantenimientos por Mes</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="h-64">
+                    @if (chartMaintenanceByMonth()) {
+                        <apx-chart
+                            [series]="chartMaintenanceByMonth()?.series"
+                            [chart]="chartMaintenanceByMonth()?.chart"
+                            [xaxis]="chartMaintenanceByMonth()?.xaxis"
+                            [yaxis]="chartMaintenanceByMonth()?.yaxis"
+                            [colors]="chartMaintenanceByMonth()?.colors"
+                            [grid]="chartMaintenanceByMonth()?.grid"
+                            [markers]="chartMaintenanceByMonth()?.markers"
+                            [stroke]="chartMaintenanceByMonth()?.stroke"
+                            [tooltip]="chartMaintenanceByMonth()?.tooltip"
+                            [noData]="chartMaintenanceByMonth()?.noData"
+                            class="w-full flex-auto h-64 block"
+                        ></apx-chart>
+                    }
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Gráfico de mantenimientos por tipo -->
+            <mat-card class="h-80">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar svgIcon="mat_solid:category" class="text-amber-500 icon-size-5"></mat-icon>
+                    <mat-card-title>Mantenimientos por Tipo</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="h-64">
+                    @if (chartMaintenanceByType()) {
+                        <apx-chart
+                            [series]="chartMaintenanceByType()?.series"
+                            [chart]="chartMaintenanceByType()?.chart"
+                            [labels]="chartMaintenanceByType()?.labels"
+                            [colors]="chartMaintenanceByType()?.colors"
+                            [legend]="chartMaintenanceByType()?.legend"
+                            [tooltip]="chartMaintenanceByType()?.tooltip"
+                            [noData]="chartMaintenanceByType()?.noData"
+                            class="w-full flex-auto h-64 block"
+                        ></apx-chart>
+                    }
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Gráfico de mantenimientos próximos por vehículo -->
+            <mat-card class="h-80">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar svgIcon="mat_solid:directions_car" class="text-blue-500 icon-size-5"></mat-icon>
+                    <mat-card-title>Mantenimientos Próximos por Vehículo</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="h-64">
+                    @if (chartUpcomingMaintenance()) {
+                        <apx-chart
+                            [series]="chartUpcomingMaintenance()?.series"
+                            [chart]="chartUpcomingMaintenance()?.chart"
+                            [xaxis]="chartUpcomingMaintenance()?.xaxis"
+                            [colors]="chartUpcomingMaintenance()?.colors"
+                            [dataLabels]="chartUpcomingMaintenance()?.dataLabels"
+                            [grid]="chartUpcomingMaintenance()?.grid"
+                            [plotOptions]="chartUpcomingMaintenance()?.plotOptions"
+                            [tooltip]="chartUpcomingMaintenance()?.tooltip"
+                            [noData]="chartUpcomingMaintenance()?.noData"
+                            class="w-full flex-auto h-64 block"
+                        ></apx-chart>
+                    }
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Sección de alertas activas -->
+        <div class="mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Alertas Activas</h2>
+            </div>
+
+            <div *ngIf="activeAlerts().length === 0" class="p-6 text-center text-gray-500">
+                No hay alertas activas en este momento.
+            </div>
+
+            <div *ngIf="activeAlerts().length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @for (alert of activeAlerts().slice(0, 4); track alert) {
+                    <mat-card class="border-l-4"
+                              [ngClass]="{
+                      'border-red-500': alert.priority === 5,
+                      'border-orange-500': alert.priority === 4,
+                      'border-amber-500': alert.priority === 3,
+                      'border-yellow-500': alert.priority === 2,
+                      'border-blue-500': alert.priority === 1 || !alert.priority
+                    }">
+                        <mat-card-header>
+                            <mat-icon mat-card-avatar
+                                      [ngClass]="{
+                                          'text-red-500': alert.priority === 5,
+                                          'text-orange-500': alert.priority === 4,
+                                          'text-amber-500': alert.priority === 3,
+                                          'text-yellow-500': alert.priority === 2,
+                                          'text-blue-500': alert.priority === 1 || !alert.priority
+                                      }">
+                                {{
+                                    alert.type === 'ODOMETER' ? 'speed' :
+                                        alert.type === 'DATE' ? 'event' :
+                                            alert.type === 'INSPECTION' ? 'fact_check' :
+                                                alert.type === 'INSURANCE' ? 'policy' :
+                                                    alert.type === 'CIRCULATION_PERMIT' ? 'card_membership' : 'warning'
+                                }}
+                            </mat-icon>
+                            <mat-card-title>{{ alert.title }}</mat-card-title>
+                            <mat-card-subtitle>
+                                <span *ngIf="alert.dueDate">Fecha límite: {{ alert.dueDate | date:'dd/MM/yyyy' }}</span>
+                                <span *ngIf="alert.thresholdKm">Kilometraje límite: {{ alert.thresholdKm | number }} km</span>
+                            </mat-card-subtitle>
+                        </mat-card-header>
+                        <mat-card-content>
+                            <p>{{ alert.description }}</p>
+                        </mat-card-content>
+                    </mat-card>
+                }
+
+            </div>
+        </div>
+
+        <!-- Accesos rápidos -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <mat-card class="cursor-pointer hover:bg-hover" (click)="goToMaintenanceRecords()">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar>build</mat-icon>
+                    <mat-card-title>Registros de Mantenimiento</mat-card-title>
+                    <mat-card-subtitle>Gestiona los mantenimientos de la flota</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <p>Accede al listado completo de mantenimientos, crea nuevos registros y gestiona los existentes.</p>
+                </mat-card-content>
+            </mat-card>
+
+            <mat-card class="cursor-pointer hover:bg-hover" (click)="goToVehicleDocuments()">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar>description</mat-icon>
+                    <mat-card-title>Documentos de Vehículos</mat-card-title>
+                    <mat-card-subtitle>Gestiona los documentos y fechas de vencimiento</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <p>Revisa el estado de los documentos de los vehículos, fechas de vencimiento y recibe alertas de renovación.</p>
+                </mat-card-content>
+            </mat-card>
+
+            <mat-card class="cursor-pointer hover:bg-hover" (click)="createNewMaintenanceRecord()">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar>add_circle</mat-icon>
+                    <mat-card-title>Nuevo Mantenimiento</mat-card-title>
+                    <mat-card-subtitle>Registra un nuevo mantenimiento</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <p>Crea un nuevo registro de mantenimiento para un vehículo de la flota.</p>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+
+</div>

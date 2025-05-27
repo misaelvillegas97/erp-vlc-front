@@ -1,0 +1,80 @@
+<div class="flex flex-col min-w-0 w-full">
+    <!-- Encabezado de la página -->
+    <page-header
+        description="Gestión de mantenimientos preventivos y correctivos"
+        subtitle="Registros de Mantenimiento">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-full mx-auto py-10 gap-y-4 sm:px-4">
+
+        <div class="flex flex-row w-full gap-x-2">
+            <h2 class="flex-1 font-bold text-secondary text-xl self-center">
+                Mantenimientos
+            </h2>
+            <button
+                #columnsOverlayButton
+                (click)="openColumnsOverlay($event)"
+                [class.open]="showColumnsOverlay()"
+                mat-icon-button
+                matTooltip="Configurar columnas"
+            >
+                <mat-icon>checklist</mat-icon>
+            </button>
+
+            <!-- Clean filters -->
+            <!--            <button-->
+            <!--                (click)="clearFilters()"-->
+            <!--                matTooltip="Limpiar filtros"-->
+            <!--                mat-icon-button-->
+            <!--            >-->
+            <!--                <mat-icon>filter_alt_off</mat-icon>-->
+            <!--            </button>-->
+            <button
+                (click)="maintenanceResource.reload()"
+                matTooltip="Recargar"
+                mat-icon-button
+            >
+                <mat-icon>refresh</mat-icon>
+            </button>
+            <button
+                matTooltip="Nuevo mantenimiento"
+                (click)="createNewMaintenanceRecord()"
+                color="primary"
+                mat-icon-button
+            >
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+
+        <!-- TABLA -->
+        @defer (on immediate) {
+            <table-builder class="w-full"
+                           [columns]="columnsConfig()"
+                           [data]="maintenanceResource.value()"
+                           [pagination]="pagination()"
+                           [itemsPerPageLabel]="'Registros por página'"
+                           (paginationChange)="handlePagination($event)"
+            ></table-builder>
+        }
+    </div>
+
+    <ng-template #columnsOverlay>
+        <div class="bg-card rounded-lg shadow-lg p-4">
+            <div class="flex flex-col gap-2">
+                <div class="flex flex-col justify-between gap-4">
+                    <h3 class="font-bold text-lg">Columnas</h3>
+
+                    @for (column of columnsConfig(); track column) {
+                        <div class="flex items-center gap-2">
+                            <mat-slide-toggle
+                                [checked]="column.visible"
+                                (change)="toggleColumn(column.key)"
+                            ></mat-slide-toggle>
+                            <span>{{ column.header }}</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </ng-template>
+</div>

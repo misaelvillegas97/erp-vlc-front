@@ -1,0 +1,17 @@
+<mat-form-field class="w-full {{ controlClasses }}" [floatLabel]="floatLabel" [subscriptSizing]="subscriptSizing">
+    @if (!hideLabel) {
+        <mat-label>{{ label }}</mat-label>
+    }
+    <mat-select [formControl]="vehicleControl" [placeholder]="placeholder" (blur)="onBlur()">
+        <mat-option *ngIf="includeAllOption">{{ allOptionLabel }}</mat-option>
+
+        @for (vehicle of vehicles(); track vehicle.id) {
+            <mat-option [value]="vehicle.id">
+                {{ vehicle.displayName }}
+            </mat-option>
+        } @empty {
+            <mat-option disabled>Sin vehículos disponibles</mat-option>
+        }
+    </mat-select>
+    <mat-icon matSuffix>directions_car</mat-icon>
+</mat-form-field>

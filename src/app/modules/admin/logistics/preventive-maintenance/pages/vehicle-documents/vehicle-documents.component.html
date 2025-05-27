@@ -1,0 +1,176 @@
+<div class="flex flex-col min-w-0 w-full">
+    <!-- Encabezado de la página -->
+    <page-header
+        description="Gestión de documentos y fechas de vencimiento"
+        subtitle="Documentos de Vehículos">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-full mx-auto py-10 gap-y-4 sm:px-4">
+        <!-- Leyenda de estados (hint style) -->
+        <div class="rounded-lg border bg-card py-1 px-2 mb-4 w-full text-sm">
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+                <span class="text-xs font-medium text-gray-500">Estados:</span>
+                <div class="flex items-center gap-1">
+                    <mat-icon class="text-red-500 text-base">error</mat-icon>
+                    <span>Vencido</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <mat-icon class="text-amber-500 text-base">warning</mat-icon>
+                    <span>Por vencer</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <mat-icon class="text-green-500 text-base">check_circle</mat-icon>
+                    <span>Al día</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-row w-full gap-x-2">
+            <h2 class="flex-1 font-bold text-secondary text-xl self-center">
+                Vehículos
+            </h2>
+            <button
+                #columnsOverlayButton
+                (click)="openColumnsOverlay($event)"
+                [class.open]="showColumnsOverlay()"
+                mat-icon-button
+                matTooltip="Configurar columnas"
+            >
+                <mat-icon>checklist</mat-icon>
+            </button>
+
+            <!-- Clean filters -->
+            <button
+                (click)="clearFilters()"
+                matTooltip="Limpiar filtros"
+                mat-icon-button
+            >
+                <mat-icon>filter_alt_off</mat-icon>
+            </button>
+            <button
+                (click)="vehiclesResource.reload()"
+                matTooltip="Recargar"
+                mat-icon-button
+            >
+                <mat-icon>refresh</mat-icon>
+            </button>
+        </div>
+
+        <!-- TABLA -->
+        @defer (on immediate) {
+            <table-builder class="w-full"
+                           [columns]="columnsConfig()"
+                           [data]="vehiclesResource.value()"
+                           [pagination]="pagination()"
+                           [itemsPerPageLabel]="'Vehículos por página'"
+                           (paginationChange)="handlePagination($event)"
+            ></table-builder>
+        }
+    </div>
+
+    <ng-template #columnsOverlay>
+        <div class="bg-card rounded-lg shadow-lg p-4">
+            <div class="flex flex-col gap-2">
+                <div class="flex flex-col justify-between gap-4">
+                    <h3 class="font-bold text-lg">Columnas</h3>
+
+                    @for (column of columnsConfig(); track column) {
+                        <div class="flex items-center gap-2">
+                            <mat-slide-toggle
+                                [checked]="column.visible"
+                                (change)="toggleColumn(column.key)"
+                            ></mat-slide-toggle>
+                            <span>{{ column.header }}</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+    <!-- Resumen de documentos por vencer -->
+    <div class="mt-6 px-4 w-full">
+        <h2 class="text-xl font-bold mb-4">Documentos por Vencer</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Documentos vencidos -->
+            <mat-card>
+                <mat-card-header>
+                    <mat-icon mat-card-avatar class="text-red-500">error</mat-icon>
+                    <mat-card-title>Documentos Vencidos</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-4">
+                    <ng-container *ngIf="documentExpiryMap() | keyvalue as expiryEntries">
+                        <ng-container *ngIf="getExpiredDocuments(expiryEntries).length > 0; else noExpiredDocs">
+                            <div *ngFor="let doc of getExpiredDocuments(expiryEntries)" class="mb-2 pb-2 border-b last:border-b-0">
+                                <div class="font-medium">{{ getVehicleById(doc.vehicleId)?.licensePlate }} - {{ getDocumentTypeName(doc.documentType) }}</div>
+                                <div class="text-sm text-red-600">Vencido el {{ doc.expiryDate | date:'dd/MM/yyyy' }} ({{ doc.daysRemaining * -1 }} días atrás)</div>
+                            </div>
+                        </ng-container>
+                        <ng-template #noExpiredDocs>
+                            <div class="text-center text-gray-500 py-4">
+                                No hay documentos vencidos
+                            </div>
+                        </ng-template>
+                    </ng-container>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Documentos por vencer -->
+            <mat-card>
+                <mat-card-header>
+                    <mat-icon mat-card-avatar class="text-amber-500">warning</mat-icon>
+                    <mat-card-title>Documentos por Vencer</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-4">
+                    <ng-container *ngIf="documentExpiryMap() | keyvalue as expiryEntries">
+                        <ng-container *ngIf="getWarningDocuments(expiryEntries).length > 0; else noWarningDocs">
+                            <div *ngFor="let doc of getWarningDocuments(expiryEntries)" class="mb-2 pb-2 border-b last:border-b-0">
+                                <div class="font-medium">{{ getVehicleById(doc.vehicleId)?.licensePlate }} - {{ getDocumentTypeName(doc.documentType) }}</div>
+                                <div class="text-sm text-amber-600">Vence el {{ doc.expiryDate | date:'dd/MM/yyyy' }} (en {{ doc.daysRemaining }} días)</div>
+                            </div>
+                        </ng-container>
+                        <ng-template #noWarningDocs>
+                            <div class="text-center text-gray-500 py-4">
+                                No hay documentos por vencer en los próximos 30 días
+                            </div>
+                        </ng-template>
+                    </ng-container>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Próximos mantenimientos -->
+            <mat-card>
+                <mat-card-header>
+                    <mat-icon mat-card-avatar class="text-blue-500">build</mat-icon>
+                    <mat-card-title>Próximos Mantenimientos</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-4">
+                    <ng-container *ngIf="getUpcomingMaintenances().length > 0; else noMaintenances">
+                        <div *ngFor="let maintenance of getUpcomingMaintenances()" class="mb-2 pb-2 border-b last:border-b-0">
+                            <div class="font-medium">{{ maintenance.licensePlate }} - {{ maintenance.brand }} {{ maintenance.model }}</div>
+                            <div class="text-sm" [ngClass]="{
+                                'text-red-600': getExpiryStatus(calculateDaysRemaining(maintenance.nextMaintenanceDate!)) === 'expired',
+                                'text-amber-600': getExpiryStatus(calculateDaysRemaining(maintenance.nextMaintenanceDate!)) === 'warning',
+                                'text-blue-600': getExpiryStatus(calculateDaysRemaining(maintenance.nextMaintenanceDate!)) === 'ok'
+                            }">
+                                Mantenimiento: {{ maintenance.nextMaintenanceDate | date:'dd/MM/yyyy' }}
+                                <span *ngIf="calculateDaysRemaining(maintenance.nextMaintenanceDate!) < 0">
+                                    ({{ calculateDaysRemaining(maintenance.nextMaintenanceDate!) * -1 }} días atrás)
+                                </span>
+                                <span *ngIf="calculateDaysRemaining(maintenance.nextMaintenanceDate!) >= 0">
+                                    (en {{ calculateDaysRemaining(maintenance.nextMaintenanceDate!) }} días)
+                                </span>
+                            </div>
+                        </div>
+                    </ng-container>
+                    <ng-template #noMaintenances>
+                        <div class="text-center text-gray-500 py-4">
+                            No hay mantenimientos programados
+                        </div>
+                    </ng-template>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+</div>
