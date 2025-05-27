@@ -12,6 +12,7 @@ export interface Vehicle {
     fuelType?: FuelType;
     tankCapacity?: number;
     lastKnownOdometer: number;
+    lastRefuelingOdometer: number;
     status?: VehicleStatus;
     departmentId?: string;
     lastMaintenanceDate?: string;

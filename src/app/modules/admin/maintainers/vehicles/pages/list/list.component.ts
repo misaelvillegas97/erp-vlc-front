@@ -142,7 +142,7 @@ export class ListComponent {
             header : 'Tipo',
             display: {
                 type     : 'custom',
-                formatter: (value: string) => {
+                label: (value: string) => {
                     switch (value) {
                         case 'SEDAN':
                             return 'Sedán';
@@ -170,7 +170,7 @@ export class ListComponent {
             header : 'Odómetro',
             display: {
                 type     : 'custom',
-                formatter: (value: number) => {
+                label: (value: number) => {
                     return value ? `${ value.toLocaleString() } km` : 'N/A';
                 }
             },
@@ -190,7 +190,7 @@ export class ListComponent {
             header : this.#ts.translate('maintainers.vehicles.fields.purchase-date'),
             display: {
                 type     : 'custom',
-                formatter: (value: string) => {
+                label: (value: string) => {
                     if (!value) return 'N/A';
                     const date = new Date(value);
                     return date.toLocaleDateString('es-CL');

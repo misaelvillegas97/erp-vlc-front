@@ -258,10 +258,10 @@ export class ListComponent implements OnDestroy {
             header : this.#ts.translate('operations.invoices.fields.order-number'),
             visible: true,
             display: {
-                type     : 'text',
-                classes  : 'text-sm text-blue-500 cursor-pointer hover:underline',
-                formatter: (order: Order) => order.orderNumber,
-                onClick  : (row) => this.viewOrderDetail(row)
+                type   : 'text',
+                classes: 'text-sm text-blue-500 cursor-pointer hover:underline',
+                label  : (order: Order) => order.orderNumber,
+                onClick: (row) => this.viewOrderDetail(row)
             },
             filter : {
                 type   : 'text',
@@ -275,7 +275,7 @@ export class ListComponent implements OnDestroy {
             display: {
                 type     : 'text',
                 classes  : 'text-sm',
-                formatter: (client: Client) => client.fantasyName
+                label: (client: Client) => client.fantasyName
             },
             filter : {
                 type    : 'select',
@@ -292,8 +292,8 @@ export class ListComponent implements OnDestroy {
                 type            : 'badge',
                 containerClasses: 'block min-w-36',
                 classes: 'text-sm cursor-pointer',
-                formatter       : (status: InvoiceStatusEnum) => this.#ts.translate(`enums.invoice-status.${ status }`),
-                pipeOptions     : {color: (status: InvoiceStatusEnum) => InvoiceStatusConfig[status].color},
+                label  : (status: InvoiceStatusEnum) => this.#ts.translate(`enums.invoice-status.${ status }`),
+                color  : (status: InvoiceStatusEnum) => InvoiceStatusConfig[status].color,
                 onClick         : (invoice: Invoice) => this.updateStatusInvoice(invoice)
             },
             filter : {
@@ -403,8 +403,10 @@ export class ListComponent implements OnDestroy {
         }
     ]);
 
+    defaultColumns: Signal<ColumnConfig<Invoice>[]> = computed(() => this.buildColumnsConfig());
+
     columnsConfig: WritableSignal<ColumnConfig<Invoice>[]> = linkedSignal(() => {
-        const persistedInvoicesColumn: string[] = localStorage.getItem('invoiceListColumnsConfig') && JSON.parse(localStorage.getItem('ordersListColumnsConfig'));
+        let persistedInvoicesColumn: string[] = localStorage.getItem('invoiceListColumnsConfig') && JSON.parse(localStorage.getItem('ordersListColumnsConfig'));
 
         const columns: ColumnConfig<Invoice>[] = this.buildColumnsConfig();
 
@@ -414,6 +416,7 @@ export class ListComponent implements OnDestroy {
             for (const column of persistedInvoicesColumn) {
                 if (!columnKeys.includes(column)) {
                     localStorage.removeItem('invoiceListColumnsConfig');
+                    persistedInvoicesColumn = null;
                     break;
                 }
             }

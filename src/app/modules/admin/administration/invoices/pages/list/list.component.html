@@ -52,13 +52,13 @@
                 <div class="flex flex-col justify-between gap-4">
                     <h3 class="font-bold text-lg">{{ t('fields.invoice-number') }}</h3>
 
-                    @for (column of displayedColumns; track column) {
+                    @for (column of defaultColumns(); track column) {
                         <div class="flex items-center gap-2">
                             <mat-slide-toggle
-                                [checked]="columns().includes(column)"
-                                (change)="toggleColumn(column)"
+                                [checked]="columns().includes(column.key)"
+                                (change)="toggleColumn(column.key)"
                             ></mat-slide-toggle>
-                            <span>{{ t('fields.' + column) }}</span>
+                            <span>{{ column.header }}</span>
                         </div>
                     }
                 </div>

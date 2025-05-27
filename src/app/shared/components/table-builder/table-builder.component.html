@@ -25,7 +25,7 @@
         @for (column of columns(); track column.key) {
             <ng-container [matColumnDef]="column.key + 'Filter'">
                 <th *matHeaderCellDef mat-header-cell>
-                    @if (column.filter?.control || column.filter?.group) {
+                    @if (column.filter?.['control'] || column.filter?.['group']) {
                         @switch (column.filter.type) {
                             @case ('autocomplete') {
                                 <autocomplete-filter-field
@@ -70,6 +70,14 @@
                                     [header]="column.header"
                                     [filterGroup]="column.filter.group"
                                 ></number-range-filter-field>
+                            }
+                            @case ('vehicle') {
+                                <vehicle-selector
+                                    [controlClasses]="column.filter?.controlClasses"
+                                    [hideLabel]="column.filter?.hideLabel"
+                                    [formControl]="column.filter.control"
+                                    [subscriptSizing]="'dynamic'"
+                                ></vehicle-selector>
                             }
                             @default {
                                 <mat-form-field class="fuse-mat-dense w-full" subscriptSizing="dynamic">

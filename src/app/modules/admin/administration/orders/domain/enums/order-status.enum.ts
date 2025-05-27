@@ -1,3 +1,5 @@
+import { Color } from '@shared/components/badge/domain/model/badge.type';
+
 export enum OrderStatusEnum {
     CREATED = 'CREATED',
     IN_PROGRESS = 'IN_PROGRESS',
@@ -6,7 +8,7 @@ export enum OrderStatusEnum {
     CANCELED = 'CANCELED',
 }
 
-export const OrderStatusConfig: Record<OrderStatusEnum, Record<string, any>> = {
+export const OrderStatusConfig: Record<OrderStatusEnum, Record<string, Color>> = {
     [OrderStatusEnum.CREATED]         : {color: 'yellow'},
     [OrderStatusEnum.IN_PROGRESS]     : {color: 'blue'},
     [OrderStatusEnum.PENDING_DELIVERY]: {color: 'yellow'},

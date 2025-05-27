@@ -22,6 +22,7 @@ import { NotyfService }                                                         
 import BigNumber                                                                               from 'bignumber.js';
 import { FuseConfirmationService }                                                             from '@fuse/services/confirmation';
 import { VehiclesService }                                                                     from '@modules/admin/logistics/fleet-management/services/vehicles.service';
+import { VehicleSelectorComponent }                                                            from '@shared/controls/components/vehicle-selector/vehicle-selector.component';
 
 @Component({
     selector   : 'app-list',
@@ -40,7 +41,8 @@ import { VehiclesService }                                                      
         MatMenuModule,
         MatDatepickerModule,
         MatNativeDateModule,
-        MatSelectModule
+        MatSelectModule,
+        VehicleSelectorComponent
     ],
     templateUrl: './list.component.html'
 })
@@ -188,7 +190,7 @@ export class ListComponent {
                 visible: true,
                 display: {
                     type     : 'text',
-                    formatter: (value: FuelRecord['vehicle']) =>
+                    label: (value: FuelRecord['vehicle']) =>
                         value ? `${ value.brand } ${ value.model } (${ value.licensePlate })` : 'N/A'
                 }
             },
@@ -198,7 +200,7 @@ export class ListComponent {
                 visible: true,
                 display: {
                     type     : 'text',
-                    formatter: (_, record: FuelRecord) =>
+                    label: (_, record: FuelRecord) =>
                         `${ record.initialOdometer } → ${ record.finalOdometer } km`
                 }
             },
@@ -208,7 +210,7 @@ export class ListComponent {
                 visible: true,
                 display: {
                     type     : 'text',
-                    formatter: (_, record: FuelRecord) =>
+                    label: (_, record: FuelRecord) =>
                         `${ this.calculateDistance(record) } km`
                 }
             },
@@ -218,7 +220,7 @@ export class ListComponent {
                 visible: true,
                 display: {
                     type     : 'text',
-                    formatter: (value: number) => `${ value } L`
+                    label: (value: number) => `${ value } L`
                 }
             },
             {
@@ -227,7 +229,7 @@ export class ListComponent {
                 visible: true,
                 display: {
                     type     : 'text',
-                    formatter: (value: number) => this.formatCurrency(value)
+                    label: (value: number) => this.formatCurrency(value)
                 }
             },
             {
@@ -236,7 +238,7 @@ export class ListComponent {
                 visible: true,
                 display: {
                     type     : 'text',
-                    formatter: (_, record: FuelRecord) => this.calculateEfficiency(record)
+                    label: (_, record: FuelRecord) => this.calculateEfficiency(record)
                 }
             },
             {

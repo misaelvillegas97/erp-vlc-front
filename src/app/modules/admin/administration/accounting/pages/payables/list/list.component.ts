@@ -54,7 +54,7 @@ export class ListComponent implements AfterViewInit {
             key    : 'supplier',
             header : this.#ts.translate('operations.accounting.payables.fields.supplier'),
             display: {
-                formatter: (supplier: Supplier) => supplier.fantasyName
+                label: (supplier: Supplier) => supplier.fantasyName
             },
             visible: true,
         },
@@ -62,7 +62,7 @@ export class ListComponent implements AfterViewInit {
             key    : 'expenseType',
             header : this.#ts.translate('operations.accounting.payables.fields.expense-type'),
             display: {
-                formatter: (expenseType: ExpenseType) => expenseType.name
+                label: (expenseType: ExpenseType) => expenseType.name
             },
             visible: true,
         },

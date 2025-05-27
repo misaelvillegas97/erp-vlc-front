@@ -160,7 +160,7 @@ export class ListComponent implements OnDestroy {
                 display: {
                     type     : 'text',
                     classes  : 'text-sm',
-                    formatter: (client: Client, row) => client.fantasyName
+                    label: (client: Client, row) => client.fantasyName
                 },
                 filter : {
                     control : this.clientFormControl,
@@ -179,7 +179,7 @@ export class ListComponent implements OnDestroy {
                 display: {
                     classes  : 'text-sm',
                     type     : 'text',
-                    formatter: (value: string) => this.#ts.translate('enums.order-type.' + value)
+                    label: (value: string) => this.#ts.translate('enums.order-type.' + value)
                 },
                 filter : {
                     control : this.typeFormControl,
@@ -198,8 +198,8 @@ export class ListComponent implements OnDestroy {
                 display: {
                     classes    : 'text-sm',
                     type       : 'badge',
-                    pipeOptions: {color: (status: OrderStatusEnum) => OrderStatusConfig[status].color},
-                    formatter  : (status: OrderStatusEnum) => this.#ts.translate('enums.order-status.' + status)
+                    color: (status: OrderStatusEnum) => OrderStatusConfig[status].color,
+                    label: (status: OrderStatusEnum) => this.#ts.translate('enums.order-status.' + status)
                 },
                 filter : {
                     control : this.statusFormControl,

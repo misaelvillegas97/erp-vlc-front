@@ -28,6 +28,7 @@ export enum VehicleType {
  */
 export interface Vehicle {
     id: string;
+    displayName: string; // Nombre para mostrar del vehículo
     brand: string;                // Marca del vehículo
     model: string;                // Modelo del vehículo
     year: number;                 // Año de fabricación

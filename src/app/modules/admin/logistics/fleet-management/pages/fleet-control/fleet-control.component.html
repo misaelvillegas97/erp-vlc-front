@@ -46,7 +46,7 @@
                                 <mat-select formControlName="vehicleId" placeholder="Seleccione un vehículo">
                                     @for (vehicle of availableVehicles(); track vehicle.id) {
                                         <mat-option [value]="vehicle.id">
-                                            {{ vehicle.brand }} {{ vehicle.model }} <span class="mat-hint">({{ vehicle.licensePlate }})</span>
+                                            {{ vehicle.displayName }}
                                         </mat-option>
                                     } @empty {
                                         <mat-option disabled>

@@ -51,21 +51,7 @@
             <!-- Filtros avanzados (colapsables) -->
             <div *ngIf="showAdvancedFilters()" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
                 <!-- Filtro por vehículo -->
-                <mat-form-field class="w-full">
-                    <mat-label>Vehículo</mat-label>
-                    <mat-select [formControl]="vehicleControl" placeholder="Seleccionar vehículo">
-                        <mat-option>Todos</mat-option>
-
-                        @for (vehicle of vehiclesResource.value(); track vehicle.id) {
-                            <mat-option [value]="vehicle.id">
-                                {{ vehicle.displayName }}
-                            </mat-option>
-                        } @empty {
-                            <mat-option disabled>Sin vehículos disponibles</mat-option>
-                        }
-                    </mat-select>
-                    <mat-icon matSuffix>directions_car</mat-icon>
-                </mat-form-field>
+                <vehicle-selector [formControl]="vehicleControl"></vehicle-selector>
 
                 <!-- Filtro por fecha desde -->
                 <mat-form-field class="w-full">

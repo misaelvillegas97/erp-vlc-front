@@ -1,4 +1,4 @@
-export type BadgeColor = 'gray' | 'yellow' | 'blue' | 'green' | 'red';
+export type Color = 'primary' | 'accent' | 'warn' | 'gray' | 'yellow' | 'blue' | 'green' | 'red';
 
 export interface ColorMapping {
     bgLight: string;
@@ -8,7 +8,7 @@ export interface ColorMapping {
     ringBg: string;
 }
 
-export const COLOR_MAP: Record<BadgeColor, ColorMapping> = {
+export const COLOR_MAP: Record<Color, ColorMapping> = {
     gray  : {
         bgLight : 'bg-gray-50',
         text    : 'text-gray-700',
@@ -44,4 +44,25 @@ export const COLOR_MAP: Record<BadgeColor, ColorMapping> = {
         ring    : 'ring-red-600/10',
         ringBg  : 'bg-red-600/20',
     },
+    primary: {
+        bgLight : 'bg-primary-50',
+        text    : 'text-primary-700',
+        darkText: 'dark:text-primary-500',
+        ring    : 'ring-primary-600/20',
+        ringBg  : 'bg-primary-600/20',
+    },
+    accent : {
+        bgLight : 'bg-accent-50',
+        text    : 'text-accent-700',
+        darkText: 'dark:text-accent-500',
+        ring    : 'ring-accent-600/20',
+        ringBg  : 'bg-accent-600/20',
+    },
+    warn   : {
+        bgLight : 'bg-warn-50',
+        text    : 'text-warn-700',
+        darkText: 'dark:text-warn-500',
+        ring    : 'ring-warn-600/20',
+        ringBg  : 'bg-warn-600/20',
+    }
 };

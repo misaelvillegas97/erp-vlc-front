@@ -1,7 +1,8 @@
-import { RoutePermission }            from '@core/permissions/permissions.service';
-import { fleetManagementPermissions } from '@modules/admin/logistics/fleet-management/fleet-management.permissions';
-import { fuelManagementPermissions }  from '@modules/admin/logistics/fuel-management/fuel-management.permissions';
-import { RoleEnum }                   from '@core/user/role.type';
+import { RoutePermission }                  from '@core/permissions/permissions.service';
+import { fleetManagementPermissions }       from '@modules/admin/logistics/fleet-management/fleet-management.permissions';
+import { fuelManagementPermissions }        from '@modules/admin/logistics/fuel-management/fuel-management.permissions';
+import { preventiveMaintenancePermissions } from '@modules/admin/logistics/preventive-maintenance/preventive-maintenance.permissions';
+import { RoleEnum }                         from '@core/user/role.type';
 
 export const LOGISTICS_FEATURE_KEY = 'logistics';
 export const logisticsPermissions: RoutePermission[] = [
@@ -13,7 +14,8 @@ export const logisticsPermissions: RoutePermission[] = [
         allowedRoles: [ RoleEnum.admin, RoleEnum.driver, RoleEnum.dispatcher ],
         children    : [
             ...fleetManagementPermissions,
-            ...fuelManagementPermissions
+            ...fuelManagementPermissions,
+            ...preventiveMaintenancePermissions
         ]
     }
 ];

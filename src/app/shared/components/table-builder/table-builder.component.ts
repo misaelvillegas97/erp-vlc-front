@@ -14,10 +14,11 @@ import { CellRendererComponent }                                                
 import { MatPaginator }                                                                                                                                 from '@angular/material/paginator';
 import { TranslocoService }                                                                                                                             from '@ngneat/transloco';
 import { NumberRangeFilterFieldComponent }                                                                                                              from '@shared/components/table-builder/components/number-range-filter-field/number-range-filter-field.component';
+import { VehicleSelectorComponent }                                                                                                                     from '@shared/controls/components/vehicle-selector/vehicle-selector.component';
 
 @Component({
     selector   : 'table-builder',
-    imports    : [
+    imports: [
         MatTable,
         MatSort,
         MatColumnDef,
@@ -41,6 +42,7 @@ import { NumberRangeFilterFieldComponent }                                      
         NgStyle,
         MatPaginator,
         NumberRangeFilterFieldComponent,
+        VehicleSelectorComponent,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './table-builder.component.html'
@@ -48,13 +50,11 @@ import { NumberRangeFilterFieldComponent }                                      
 export class TableBuilderComponent<T> {
     readonly #ts = inject(TranslocoService);
 
-    columns = input.required<ColumnConfig<T>[], ColumnConfig<T>[]>({
-        transform: (columns: ColumnConfig<T>[]) => columns.filter(column => column.visible)
-    });
+    columns = input.required<ColumnConfig<T>[], ColumnConfig<T>[]>({transform: (columns: ColumnConfig<T>[]) => columns.filter(column => column.visible)});
     data = input.required<T[]>();
     pagination = input<{ limit: number, totalPages: number, disabled: boolean, page: number, totalElements: number }>();
-    paginationChange = output<any>();
     itemsPerPageLabel = input<string>(this.#ts.translate('table.paginator.items-per-page'));
+    paginationChange = output<any>();
 
     containFilters = computed(() => this.columns().some(col => col.filter));
     displayedColumns = computed(() => this.columns().map(col => col.key));

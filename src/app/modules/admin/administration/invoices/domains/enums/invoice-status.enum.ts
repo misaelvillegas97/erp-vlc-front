@@ -1,3 +1,5 @@
+import { Color } from '@shared/components/badge/domain/model/badge.type';
+
 export enum InvoiceStatusEnum {
     ISSUED = 'ISSUED',
     RECEIVED_WITHOUT_OBSERVATIONS = 'RECEIVED_WITHOUT_OBSERVATIONS',
@@ -6,7 +8,7 @@ export enum InvoiceStatusEnum {
     RE_INVOICED = 'RE_INVOICED',
 }
 
-export const InvoiceStatusConfig: Record<InvoiceStatusEnum, Record<string, any>> = {
+export const InvoiceStatusConfig: Record<InvoiceStatusEnum, Record<string, Color>> = {
     [InvoiceStatusEnum.ISSUED]                       : {color: 'blue'},
     [InvoiceStatusEnum.RECEIVED_WITHOUT_OBSERVATIONS]: {color: 'green'},
     [InvoiceStatusEnum.RECEIVED_WITH_OBSERVATIONS]   : {color: 'yellow'},

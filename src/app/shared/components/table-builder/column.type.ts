@@ -2,11 +2,13 @@
 import { TemplateRef }            from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DateTime }               from 'luxon';
+import { Color }                  from '@shared/components/badge/domain/model/badge.type';
 
 export type ColumnType = 'text' | 'date' | 'currency' | 'number' | 'badge' | 'actions' | 'custom' | 'icon' | 'button' | 'progress' | 'toggle' | 'checkbox' | 'link' | 'image';
 
 interface BaseFilterConfig {
     placeholder?: string;
+    controlClasses?: string;
 }
 
 export interface TextFilterConfig extends BaseFilterConfig {
@@ -61,6 +63,14 @@ export interface SelectFilterConfig extends BaseFilterConfig {
     multiple: boolean;
 }
 
+export interface VehicleFilterConfig extends BaseFilterConfig {
+    type: 'vehicle';
+    control: FormControl<string>;
+    hideLabel?: boolean;
+    // vehicles: { id: string; name: string }[];
+    // displayWith?: (value: any) => string;
+}
+
 export type ColumnFilterConfig =
     | TextFilterConfig
     | DateFilterConfig
@@ -68,16 +78,19 @@ export type ColumnFilterConfig =
     | NumberFilterConfig
     | NumberRangeFilterConfig
     | AutocompleteFilterConfig
-    | SelectFilterConfig;
+    | SelectFilterConfig
+    | VehicleFilterConfig;
 
 export interface ColumnDisplayConfig<T> {
     type?: ColumnType;
     classes?: string | ((row: T) => string);
     containerClasses?: string | ((row: T) => string);
-    formatter?: (value: any, row?: T) => string;
+    label?: (value: any, row?: T) => string;
     customTemplate?: TemplateRef<any>;
     pipeOptions?: any; // TODO: Define available types
     onClick?: (row: T) => void;
+
+    color?: (value: any, row?: T) => Color;
 
     // For actions column
     actions?: { icon: string; action: string; label?: string; tooltip?: string; color?: string; }[];

@@ -65,8 +65,8 @@ import { MatTooltipModule }                                      from '@angular/
                     <badge
                         (click)="handleClick()"
                         [class]="computedClasses"
-                        [color]="column.display.pipeOptions?.color?.(row[column.key], row) || 'gray'"
-                        [label]="column.display.formatter(row[column.key], row)"></badge>
+                        [color]="column.display.color?.(row[column.key], row) || 'gray'"
+                        [label]="column.display.label(row[column.key], row)"></badge>
                 }
                 @case ('icon') {
                     <icon-renderer
@@ -252,8 +252,8 @@ export class CellRendererComponent<T> {
 
     // Helper methods for links
     getLinkText(): string {
-        if (this.column.display?.formatter) {
-            return this.column.display.formatter(this.row[this.column.key], this.row);
+        if (this.column.display?.label) {
+            return this.column.display.label(this.row[this.column.key], this.row);
         }
         return this.row[this.column.key] || '';
     }

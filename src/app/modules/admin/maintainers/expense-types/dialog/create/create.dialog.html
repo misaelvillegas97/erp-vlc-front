@@ -20,7 +20,7 @@
             <span [innerText]="'actions.reset' | transloco"></span>
         </button>
 
-        <loader-button [disable]="form.disabled || form.invalid"
+        <loader-button [disabled]="form.disabled || form.invalid"
                        [loading]="form.disabled"
                        [label]="'actions.save' | transloco"
                        (click)="submit()"

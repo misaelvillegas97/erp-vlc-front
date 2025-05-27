@@ -108,7 +108,7 @@ export class ListComponent {
             visible: true,
             display: {
                 type     : 'text',
-                formatter: (value: User['role']) => value.name
+                label: (value: User['role']) => value.name
             }
         },
         {
