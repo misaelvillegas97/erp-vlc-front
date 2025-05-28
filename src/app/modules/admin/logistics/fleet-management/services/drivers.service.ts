@@ -19,8 +19,12 @@ export class DriversService {
      * Obtiene la lista de todos los conductores
      */
     public findAll(): Observable<FindCount<Driver>> {
+        const query = {
+            limit: 100
+        };
+
         // En producción, hacemos la llamada real a la API
-        return this.http.get<FindCount<Driver>>(this.apiUrl);
+        return this.http.get<FindCount<Driver>>(this.apiUrl, {params: query});
     }
 
     /**
