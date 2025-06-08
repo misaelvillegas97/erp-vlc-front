@@ -64,7 +64,7 @@ export interface CreateSessionDto {
     vehicleId: string;              // ID del vehículo
     initialOdometer: number;        // Lectura del odómetro al inicio
     initialLocation: GeoLocation;   // Ubicación inicial
-    observations?: string;          // Observaciones al inicio
+    purpose?: string;               // Propósito de la sesión
 }
 
 // Alias para compatibilidad con el código existente

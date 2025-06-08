@@ -31,7 +31,7 @@ import { VehicleSelectorComponent }                          from '@shared/contr
 @Component({
     selector   : 'app-fleet-control',
     standalone : true,
-    imports: [
+    imports    : [
         CommonModule,
         MatButtonModule,
         MatCardModule,
@@ -81,7 +81,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
         driverId: [ this.currentUserIsDriver() ? {value: this.currentUser().id, disabled: true} : undefined, [ Validators.required ] ],
         vehicleId      : [ '', [ Validators.required ] ],
         initialOdometer: [ '', [ Validators.required, Validators.min(0) ] ],
-        observations   : [ '', [ Validators.maxLength(500) ] ]
+        purpose : [ '', [ Validators.maxLength(500) ] ]
     });
 
     ngOnInit() {
@@ -238,7 +238,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
                 vehicleId      : fv.vehicleId,
                 initialOdometer: parseFloat(fv.initialOdometer),
                 initialLocation: this.currentLocation(),
-                observations   : fv.observations || null
+                purpose: fv.observations || null
             };
 
             const session = await firstValueFrom(
