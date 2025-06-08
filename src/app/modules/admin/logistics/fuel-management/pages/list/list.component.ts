@@ -190,8 +190,7 @@ export class ListComponent {
                 visible: true,
                 display: {
                     type     : 'text',
-                    label: (value: FuelRecord['vehicle']) =>
-                        value ? `${ value.brand } ${ value.model } (${ value.licensePlate })` : 'N/A'
+                    label: (value: FuelRecord['vehicle']) => value ? value.displayName : 'N/A'
                 }
             },
             {

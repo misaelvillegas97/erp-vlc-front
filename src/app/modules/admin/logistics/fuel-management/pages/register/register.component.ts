@@ -179,19 +179,10 @@ export class RegisterComponent implements OnInit {
 
             const newRecord: Omit<FuelRecord, 'id' | 'createdAt'> = {
                 vehicleId      : formValue.vehicleId,
-                vehicle: {
-                    brand       : vehicle.brand,
-                    model       : vehicle.model,
-                    licensePlate: vehicle.licensePlate
-                },
                 station   : formValue.station,
                 fuelType  : formValue.fuelType,
                 date           : formValue.date.toISOString(),
                 userId    : formValue.userId,
-                userInfo  : user ? {
-                    name : user.firstName && user.lastName ? `${ user.firstName } ${ user.lastName }` : user.name,
-                    email: user.email
-                } : undefined,
                 initialOdometer: formValue.initialOdometer,
                 finalOdometer  : formValue.finalOdometer,
                 liters         : formValue.liters,

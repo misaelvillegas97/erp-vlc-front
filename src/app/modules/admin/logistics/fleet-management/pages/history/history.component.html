@@ -65,9 +65,9 @@
         <div class="bg-card rounded-md shadow">
             <div class="overflow-x-auto">
                 <!-- Estado de carga -->
-                <div *ngIf="isLoading()" class="flex justify-center items-center p-8">
+                <div *ngIf="isLoading()" class="flex flex-col justify-center items-center p-8">
                     <mat-spinner diameter="40"></mat-spinner>
-                    <span class="ml-4 text-secondary">Cargando datos...</span>
+                    <span class="text-secondary">Cargando datos...</span>
                 </div>
 
                 <!-- Tabla con datos -->
@@ -141,7 +141,16 @@
                     <!-- Mensaje cuando no hay datos -->
                     <tr class="mat-row" *matNoDataRow>
                         <td class="mat-cell py-4 text-center" [attr.colspan]="displayedColumns.length">
-                            No se encontraron registros que coincidan con los filtros aplicados.
+                            <div class="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 shadow rounded-lg">
+                                <mat-icon class="text-gray-400 icon-size-10 mb-4" svgIcon="mat_outline:no_transfer"></mat-icon>
+                                <h3 class="text-xl font-bold mb-2">No hay sesiones activas</h3>
+                                <p class="text-center mb-6 max-w-lg text-gray-500 dark:text-gray-400">
+                                    No se encontraron registros que coincidan con los filtros aplicados.
+                                </p>
+                                <button mat-flat-button color="primary" [routerLink]="['/logistics/fleet-management/fleet-control']">
+                                    Iniciar Nueva Sesión
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 </table>

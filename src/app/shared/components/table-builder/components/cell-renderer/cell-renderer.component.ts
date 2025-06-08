@@ -143,7 +143,7 @@ import { MatTooltipModule }                                      from '@angular/
                         (click)="handleClick()" 
                         [class]="computedClasses"
                         [matTooltip]="getTooltip()">
-                        {{ column.display?.formatter ? column.display.formatter(row[column.key], row) : row[column.key] }}
+                        {{ column.display?.label ? column.display.label(row[column.key], row) : row[column.key] }}
                     </span>
                 }
             }

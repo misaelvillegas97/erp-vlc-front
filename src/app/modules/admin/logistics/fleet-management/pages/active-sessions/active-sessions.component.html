@@ -50,15 +50,13 @@
 
         <!-- Estado de carga -->
         @if (isLoading()) {
-            <div class="flex justify-center items-center py-20">
-                <div class="text-center">
-                    <mat-spinner diameter="48" color="primary"></mat-spinner>
-                    <p class="mt-4 text-gray-600 dark:text-gray-300">Cargando sesiones activas...</p>
-                </div>
+            <div class="flex flex-col justify-center items-center py-20">
+                <mat-spinner diameter="48" color="primary"></mat-spinner>
+                <p class="mt-4 text-gray-600 dark:text-gray-300">Cargando sesiones activas...</p>
             </div>
         } @else if (filteredSessions().length === 0) {
             <div class="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 shadow rounded-lg">
-                <mat-icon class="text-gray-400 icon-size-10 mb-4" svgIcon="mat_outline:directions_car_off"></mat-icon>
+                <mat-icon class="text-gray-400 icon-size-10 mb-4" svgIcon="mat_outline:no_transfer"></mat-icon>
                 <h3 class="text-xl font-bold mb-2">No hay sesiones activas</h3>
                 <p class="text-center mb-6 max-w-lg text-gray-500 dark:text-gray-400">
                     Actualmente no hay vehículos en uso. Puede iniciar una nueva sesión desde el panel de Control de Flota.

@@ -1,3 +1,5 @@
+import { Vehicle } from '@modules/admin/logistics/fleet-management/domain/model/vehicle.model';
+
 /**
  * Enumeración de estaciones de servicio
  */
@@ -30,11 +32,7 @@ export enum FuelType {
 export interface FuelRecord {
     id: string;
     vehicleId: string;           // ID del vehículo
-    vehicle?: {              // Información del vehículo (para mostrar en listados)
-        brand: string;
-        model: string;
-        licensePlate: string;
-    };
+    vehicle?: Vehicle;
     station: FuelStation;        // Estación de servicio
     fuelType: FuelType;          // Tipo de combustible
     date: string;                // Fecha de la carga de combustible
