@@ -15,6 +15,7 @@ import { MatPaginator }                                                         
 import { TranslocoService }                                                                                                                             from '@ngneat/transloco';
 import { NumberRangeFilterFieldComponent }                                                                                                              from '@shared/components/table-builder/components/number-range-filter-field/number-range-filter-field.component';
 import { VehicleSelectorComponent }                                                                                                                     from '@shared/controls/components/vehicle-selector/vehicle-selector.component';
+import { Paginator }                                                                                                                                    from '@shared/domain/model/paginator';
 
 @Component({
     selector   : 'table-builder',
@@ -52,9 +53,9 @@ export class TableBuilderComponent<T> {
 
     columns = input.required<ColumnConfig<T>[], ColumnConfig<T>[]>({transform: (columns: ColumnConfig<T>[]) => columns.filter(column => column.visible)});
     data = input.required<T[]>();
-    pagination = input<{ limit: number, totalPages: number, disabled: boolean, page: number, totalElements: number }>();
+    pagination = input<Paginator>();
     itemsPerPageLabel = input<string>(this.#ts.translate('table.paginator.items-per-page'));
-    paginationChange = output<any>();
+    paginationChange = output<Paginator>();
 
     containFilters = computed(() => this.columns().some(col => col.filter));
     displayedColumns = computed(() => this.columns().map(col => col.key));

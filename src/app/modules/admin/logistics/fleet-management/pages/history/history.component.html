@@ -7,11 +7,7 @@
             <h2 class="text-xl font-medium mb-4">Buscar sesiones</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <!-- Búsqueda general -->
-                <mat-form-field class="w-full">
-                    <mat-label>Buscar</mat-label>
-                    <input matInput [formControl]="driverFilter" placeholder="Nombre del conductor o vehículo">
-                    <mat-icon matSuffix>search</mat-icon>
-                </mat-form-field>
+                <vehicle-selector [formControl]="vehicleFilter" class="w-full"></vehicle-selector>
 
                 <!-- Filtro por estado simplificado -->
                 <mat-form-field class="w-full">
@@ -71,7 +67,7 @@
                 </div>
 
                 <!-- Tabla con datos -->
-                <table *ngIf="!isLoading()" mat-table [dataSource]="filteredSessions()" class="w-full">
+                <table *ngIf="!isLoading()" mat-table [dataSource]="sessionsHistory()" class="w-full">
                     <!-- Fecha de inicio -->
                     <ng-container matColumnDef="startTimestamp">
                         <th mat-header-cell *matHeaderCellDef> Fecha de inicio</th>
@@ -156,14 +152,17 @@
                 </table>
 
                 <!-- Paginador -->
+                @if (!isLoading() && pagination()?.totalElements > 0) {
                 <mat-paginator
-                    *ngIf="!isLoading() && totalSessions() > 0"
-                    [length]="totalSessions()"
-                    [pageSize]="pageSize()"
+                    [length]="pagination().totalElements"
+                    [pageSize]="pagination().limit"
+                    [disabled]="pagination().disabled"
+                    [pageIndex]="pagination().page - 1"
                     [pageSizeOptions]="pageSizeOptions()"
                     (page)="onPageChange($event)"
                     showFirstLastButtons>
                 </mat-paginator>
+                }
             </div>
         </div>
     </div>

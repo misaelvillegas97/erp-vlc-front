@@ -2,7 +2,7 @@ import { Injectable }                                    from '@angular/core';
 import { HttpClient }                                    from '@angular/common/http';
 import { Observable }                                    from 'rxjs';
 import { FinishSessionDto, GeoLocation, VehicleSession } from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
-import { FindCount }                                     from '@shared/domain/model/find-count';
+import { Pagination }                                    from '@shared/domain/model/pagination';
 
 @Injectable({
     providedIn: 'root'
@@ -119,7 +119,7 @@ export class VehicleSessionsService {
     /**
      * Obtiene el historial de sesiones de vehículos
      */
-    public getHistoricalSessions(): Observable<FindCount<VehicleSession>> {
-        return this.http.get<FindCount<VehicleSession>>(`${ this.apiUrl }/history`);
+    public getHistoricalSessions(params: any): Observable<Pagination<VehicleSession>> {
+        return this.http.get<Pagination<VehicleSession>>(`${ this.apiUrl }/history`, {params});
     }
 }
