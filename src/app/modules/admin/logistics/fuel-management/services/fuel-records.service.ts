@@ -1,6 +1,6 @@
 import { inject, Injectable }                                          from '@angular/core';
 import { HttpClient }                                                  from '@angular/common/http';
-import { Observable, of }                                              from 'rxjs';
+import { Observable }                                                  from 'rxjs';
 import { FuelConsumptionByPeriod, FuelConsumptionSummary, FuelRecord } from '@modules/admin/logistics/fuel-management/domain/model/fuel-record.model';
 
 @Injectable({
@@ -63,13 +63,11 @@ export class FuelRecordsService {
 
     // Analysis operations
     getFuelConsumptionSummary(params?: any): Observable<FuelConsumptionSummary[]> {
-        // TODO: Replace with actual API call when backend is ready
-        return of(this.getMockConsumptionSummary());
+        return this.http.get<FuelConsumptionSummary[]>(`${ this.baseUrl }/analysis/summary`, {params});
     }
 
     getFuelConsumptionByPeriod(params?: any): Observable<FuelConsumptionByPeriod[]> {
-        // TODO: Replace with actual API call when backend is ready
-        return of(this.getMockConsumptionByPeriod());
+        return this.http.get<FuelConsumptionByPeriod[]>(`${ this.baseUrl }/analysis/period`, {params});
     }
 
     private getMockConsumptionSummary(): FuelConsumptionSummary[] {

@@ -29,12 +29,7 @@
         <!-- Panel de filtros -->
         <div class="w-full bg-card rounded-md shadow p-4 mb-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Búsqueda general -->
-                <mat-form-field class="w-full">
-                    <mat-label>Buscar</mat-label>
-                    <input matInput [formControl]="searchControl" placeholder="Buscar por vehículo o notas">
-                    <mat-icon matSuffix>search</mat-icon>
-                </mat-form-field>
+                <vehicle-selector [formControl]="vehicleControl" class="w-full"></vehicle-selector>
 
                 <!-- Botones de acción -->
                 <div class="flex justify-end items-center gap-2">
@@ -50,9 +45,6 @@
 
             <!-- Filtros avanzados (colapsables) -->
             <div *ngIf="showAdvancedFilters()" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
-                <!-- Filtro por vehículo -->
-                <vehicle-selector [formControl]="vehicleControl"></vehicle-selector>
-
                 <!-- Filtro por fecha desde -->
                 <mat-form-field class="w-full">
                     <mat-label>Desde</mat-label>

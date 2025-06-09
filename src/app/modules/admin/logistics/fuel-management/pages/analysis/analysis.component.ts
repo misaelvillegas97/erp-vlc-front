@@ -16,6 +16,8 @@ import { firstValueFrom }                                      from 'rxjs';
 import { toSignal }                                            from '@angular/core/rxjs-interop';
 import { debounceTime }                                        from 'rxjs/operators';
 import { NotyfService }                                        from '@shared/services/notyf.service';
+import { MatProgressSpinner }                                  from '@angular/material/progress-spinner';
+import { VehicleSelectorComponent }                            from '@shared/controls/components/vehicle-selector/vehicle-selector.component';
 
 // Mock service for vehicles - replace with actual service when available
 class VehicleService {
@@ -42,7 +44,7 @@ class VehicleService {
 @Component({
     selector   : 'app-analysis',
     standalone : true,
-    imports    : [
+    imports: [
         CommonModule,
         ReactiveFormsModule,
         MatButtonModule,
@@ -53,7 +55,9 @@ class VehicleService {
         MatDatepickerModule,
         MatNativeDateModule,
         PageHeaderComponent,
-        ChartComponent
+        ChartComponent,
+        MatProgressSpinner,
+        VehicleSelectorComponent
     ],
     providers  : [
         {provide: VehicleService, useClass: VehicleService} // Replace with actual service
@@ -102,11 +106,11 @@ export class AnalysisComponent {
                 let params: any = {};
 
                 if (request.dateFrom) {
-                    params.dateFrom = request.dateFrom.toISOString();
+                    params.startDate = request.dateFrom.toISOString();
                 }
 
                 if (request.dateTo) {
-                    params.dateTo = request.dateTo.toISOString();
+                    params.endDate = request.dateTo.toISOString();
                 }
 
                 if (request.vehicleId) {
@@ -132,6 +136,7 @@ export class AnalysisComponent {
                     consumptionSummary
                 };
             } catch (error) {
+                console.error('Error loading analysis data:', error);
                 this.notyf.error('Error al cargar los datos de análisis');
                 this.isLoading.set(false);
                 return {
@@ -332,7 +337,12 @@ export class AnalysisComponent {
                 foreColor : 'var(--fuse-text-default)'
             },
             colors     : [ '#4ADE80' ], // Verde
-            dataLabels : {enabled: true},
+            dataLabels: {
+                enabled: true,
+                formatter(val: string | number | number[], opts?: any): string | number | string[] {
+                    return val + ' L';
+                }
+            },
             grid       : {
                 borderColor    : 'var(--fuse-border)',
                 strokeDashArray: 4,
@@ -398,7 +408,12 @@ export class AnalysisComponent {
                 foreColor : 'var(--fuse-text-default)'
             },
             colors     : [ '#FBBF24' ], // Amarillo
-            dataLabels : {enabled: true},
+            dataLabels: {
+                enabled: true,
+                formatter(val: string | number | number[], opts?: any): string | number | string[] {
+                    return '$' + val + '/km';
+                }
+            },
             grid       : {
                 borderColor    : 'var(--fuse-border)',
                 strokeDashArray: 4,

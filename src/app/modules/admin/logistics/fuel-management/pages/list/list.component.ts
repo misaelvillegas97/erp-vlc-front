@@ -88,8 +88,8 @@ export class ListComponent {
     fuelRecordsResource = resource({
         request: () => ({
             search  : this.searchControlSignal(),
-            dateFrom: this.dateFromSignal(),
-            dateTo  : this.dateToSignal(),
+            startDate: this.dateFromSignal(),
+            endDate  : this.dateToSignal(),
             vehicle : this.vehicleSignal()
         }),
         loader : async ({request}) => {
@@ -101,12 +101,12 @@ export class ListComponent {
                     params.search = request.search.trim();
                 }
 
-                if (request.dateFrom) {
-                    params.dateFrom = request.dateFrom.toISOString();
+                if (request.startDate) {
+                    params.startDate = request.startDate.toISOString();
                 }
 
-                if (request.dateTo) {
-                    params.dateTo = request.dateTo.toISOString();
+                if (request.endDate) {
+                    params.endDate = request.endDate.toISOString();
                 }
 
                 if (request.vehicle?.trim()) {
