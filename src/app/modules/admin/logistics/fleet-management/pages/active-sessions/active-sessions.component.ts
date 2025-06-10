@@ -131,6 +131,10 @@ export class ActiveSessionsComponent implements OnInit, OnDestroy {
 
         firstValueFrom(this.sessionsService.getActiveSessions())
             .then(sessions => {
+                // Convertir fechas de inicio a objetos Date
+                sessions.forEach(session => {
+                    session.startTime = new Date(session.startTime);
+                });
                 this.activeSessions.set(sessions);
                 this.isLoading.set(false);
             })

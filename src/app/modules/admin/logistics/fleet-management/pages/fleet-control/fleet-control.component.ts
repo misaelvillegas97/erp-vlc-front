@@ -1,20 +1,20 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { CommonModule }                                                                                    from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators }                            from '@angular/forms';
-import { Router }                                                                                          from '@angular/router';
-import { MatButtonModule }                                                                                 from '@angular/material/button';
-import { MatCardModule }                                                                                   from '@angular/material/card';
-import { MatDialog, MatDialogModule }                                                                      from '@angular/material/dialog';
-import { MatFormFieldModule }                                                                              from '@angular/material/form-field';
-import { MatIconModule }                                                                                   from '@angular/material/icon';
-import { MatInputModule }                                                                                  from '@angular/material/input';
-import { MatProgressSpinnerModule }                                                                        from '@angular/material/progress-spinner';
-import { MatSelectModule }                                                                                 from '@angular/material/select';
-import { PageHeaderComponent }                                                                             from '@layout/components/page-header/page-header.component';
-import { Notyf }                                                                                           from 'notyf';
-import { firstValueFrom, of }                                                                              from 'rxjs';
-import { catchError, take }                                                                                from 'rxjs/operators';
-import { takeUntilDestroyed, toSignal }                                                                    from '@angular/core/rxjs-interop';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal }                      from '@angular/core';
+import { CommonModule }                                                                                                         from '@angular/common';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { Router }                                                                                                               from '@angular/router';
+import { MatButtonModule }                                                                                                      from '@angular/material/button';
+import { MatCardModule }                                                                                                        from '@angular/material/card';
+import { MatDialog, MatDialogModule }                                                                                           from '@angular/material/dialog';
+import { MatFormFieldModule }                                                                                                   from '@angular/material/form-field';
+import { MatIconModule }                                                                                                        from '@angular/material/icon';
+import { MatInputModule }                                                                                                       from '@angular/material/input';
+import { MatProgressSpinnerModule }                                                                                             from '@angular/material/progress-spinner';
+import { MatSelectModule }                                                                                                      from '@angular/material/select';
+import { PageHeaderComponent }                                                                                                  from '@layout/components/page-header/page-header.component';
+import { Notyf }                                                                                                                from 'notyf';
+import { firstValueFrom, of }                                                                                                   from 'rxjs';
+import { catchError, take }                                                                                                     from 'rxjs/operators';
+import { takeUntilDestroyed, toSignal }                                                                                         from '@angular/core/rxjs-interop';
 
 import { DriversService }                                    from '@modules/admin/logistics/fleet-management/services/drivers.service';
 import { VehiclesService }                                   from '@modules/admin/logistics/fleet-management/services/vehicles.service';
@@ -27,11 +27,12 @@ import { Vehicle }                                           from '@modules/admi
 import { UserService }                                       from '@core/user/user.service';
 import { RoleEnum }                                          from '@core/user/role.type';
 import { VehicleSelectorComponent }                          from '@shared/controls/components/vehicle-selector/vehicle-selector.component';
+import { DriverSelectorComponent }                           from '@shared/controls';
 
 @Component({
     selector   : 'app-fleet-control',
     standalone : true,
-    imports    : [
+    imports: [
         CommonModule,
         MatButtonModule,
         MatCardModule,
@@ -44,7 +45,8 @@ import { VehicleSelectorComponent }                          from '@shared/contr
         ReactiveFormsModule,
         FormsModule,
         PageHeaderComponent,
-        VehicleSelectorComponent
+        VehicleSelectorComponent,
+        DriverSelectorComponent
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './fleet-control.component.html'
@@ -61,6 +63,40 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
     readonly #dialog = inject(MatDialog);
     readonly #destroyRef = inject(DestroyRef);
     private notyf = new Notyf();
+
+    // Tolerancia permitida para el odómetro (en kilómetros)
+    readonly ODOMETER_TOLERANCE = 100;
+
+    /**
+     * Validador personalizado para verificar que el odómetro inicial esté dentro de la tolerancia permitida
+     * respecto al último odómetro conocido del vehículo.
+     * Permite que el odómetro sea mayor o hasta ODOMETER_TOLERANCE km menor que el último conocido.
+     */
+    private odometerToleranceValidator(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            const value = control.value;
+
+            // Si no hay valor o no hay vehículo seleccionado, no validamos
+            if (value === null || value === undefined || !this.selectedVehicle()) {
+                return null;
+            }
+
+            const lastKnownOdometer = this.selectedVehicle()?.lastKnownOdometer || 0;
+
+            // Permitimos que el odómetro sea mayor o hasta ODOMETER_TOLERANCE km menor que el último conocido
+            if (value < lastKnownOdometer - this.ODOMETER_TOLERANCE) {
+                return {
+                    odometerTolerance: {
+                        lastKnown: lastKnownOdometer,
+                        current  : value,
+                        tolerance: this.ODOMETER_TOLERANCE
+                    }
+                };
+            }
+
+            return null;
+        };
+    }
 
     // Signals
     isLoading = signal(true);
@@ -80,7 +116,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
     form: FormGroup = this.#fb.group({
         driverId: [ this.currentUserIsDriver() ? {value: this.currentUser().id, disabled: true} : undefined, [ Validators.required ] ],
         vehicleId      : [ '', [ Validators.required ] ],
-        initialOdometer: [ '', [ Validators.required, Validators.min(0) ] ],
+        initialOdometer: [ '', [ Validators.required, Validators.min(0), this.odometerToleranceValidator() ] ],
         purpose : [ '', [ Validators.maxLength(500) ] ]
     });
 
@@ -192,9 +228,17 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
         firstValueFrom(this.#vehiclesService.findById(id))
             .then(vehicle => {
                 this.selectedVehicle.set(vehicle);
+
+                // Actualizar el valor del odómetro con el último conocido
                 this.form.patchValue({
                     initialOdometer: vehicle.lastKnownOdometer || 0
                 });
+
+                // Forzar la revalidación del campo de odómetro para aplicar la validación de tolerancia
+                const odometerControl = this.form.get('initialOdometer');
+                if (odometerControl) {
+                    odometerControl.updateValueAndValidity();
+                }
             })
             .catch(() =>
                 this.notyf.error({message: 'Error al cargar detalles del vehículo'})

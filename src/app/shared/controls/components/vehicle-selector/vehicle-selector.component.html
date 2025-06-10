@@ -3,7 +3,9 @@
         <mat-label>{{ label }}</mat-label>
     }
     <mat-select [formControl]="vehicleControl" [placeholder]="placeholder" (blur)="onBlur()">
-        <mat-option *ngIf="includeAllOption" [value]="undefined">{{ allOptionLabel }}</mat-option>
+        @if (includeAllOption) {
+            <mat-option [value]="undefined">{{ allOptionLabel }}</mat-option>
+        }
 
         @for (vehicle of vehicles(); track vehicle.id) {
             <mat-option [value]="vehicle.id">
@@ -15,5 +17,7 @@
     </mat-select>
     <mat-icon matSuffix>directions_car</mat-icon>
 
-    <mat-error *ngIf="vehicleControl.hasError('required')">El vehículo es requerido.</mat-error>
+    @if (vehicleControl.hasError('required')) {
+        <mat-error>El vehículo es requerido.</mat-error>
+    }
 </mat-form-field>

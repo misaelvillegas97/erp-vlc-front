@@ -22,23 +22,7 @@
                     <form [formGroup]="form" (ngSubmit)="startVehicleSession()" class="flex flex-col space-y-4">
                         <!-- Selección de conductor -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <mat-form-field class="w-full" floatLabel="always">
-                                <mat-label>Conductor</mat-label>
-                                <mat-select formControlName="driverId" placeholder="Seleccione un conductor">
-                                    @for (driver of availableDrivers(); track driver.id) {
-                                        <mat-option [value]="driver.id">
-                                            {{ driver.firstName }} {{ driver.lastName }} <span class="mat-hint">(Clase: {{ driver.driverLicense[0].licenseType }})</span>
-                                        </mat-option>
-                                    } @empty {
-                                        <mat-option disabled>
-                                            No hay conductores disponibles
-                                        </mat-option>
-                                    }
-                                </mat-select>
-                                <mat-error *ngIf="form.get('driverId').hasError('required')">
-                                    El conductor es requerido
-                                </mat-error>
-                            </mat-form-field>
+                            <driver-selector formControlName="driverId" [required]="true"></driver-selector>
 
                             <!-- Selección de vehículo -->
                             <vehicle-selector formControlName="vehicleId"
@@ -58,6 +42,9 @@
                             </mat-error>
                             <mat-error *ngIf="form.get('initialOdometer').hasError('min')">
                                 El kilometraje debe ser mayor o igual a 0
+                            </mat-error>
+                            <mat-error *ngIf="form.get('initialOdometer').hasError('odometerTolerance')">
+                                El kilometraje no puede ser menor al último registrado ({{ selectedVehicle()?.lastKnownOdometer }}) por más de {{ ODOMETER_TOLERANCE }} km
                             </mat-error>
                         </mat-form-field>
 

@@ -7,7 +7,11 @@
             <h2 class="text-xl font-medium mb-4">Buscar sesiones</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <!-- Búsqueda general -->
-                <vehicle-selector [formControl]="vehicleFilter" class="w-full"></vehicle-selector>
+                <mat-form-field class="w-full">
+                    <mat-label>Buscar</mat-label>
+                    <input matInput [formControl]="searchFilter" placeholder="Nombre del conductor o vehículo">
+                    <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
 
                 <!-- Filtro por estado simplificado -->
                 <mat-form-field class="w-full">
@@ -32,11 +36,7 @@
                 <!-- Filtros avanzados (colapsables) -->
                 <div *ngIf="showAdvancedFilters()" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
                     <!-- Filtro por vehículo -->
-                    <mat-form-field class="w-full">
-                        <mat-label>Vehículo</mat-label>
-                        <input matInput [formControl]="vehicleFilter" placeholder="Buscar por vehículo">
-                        <mat-icon matSuffix>directions_car</mat-icon>
-                    </mat-form-field>
+                    <vehicle-selector [formControl]="vehicleFilter" class="w-full"></vehicle-selector>
 
                     <!-- Filtro por fecha desde -->
                     <mat-form-field class="w-full">

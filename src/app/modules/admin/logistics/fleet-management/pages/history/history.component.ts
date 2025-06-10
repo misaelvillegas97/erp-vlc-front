@@ -60,6 +60,7 @@ export class HistoryComponent implements OnDestroy {
     readonly #destroyRef = inject(DestroyRef);
 
     // Controles de filtro (se mantienen para los inputs, pero se sincronizan con señales)
+    searchFilter = new FormControl('');
     driverFilter = new FormControl('');
     vehicleFilter = new FormControl('');
     dateFromFilter = new FormControl('');
@@ -72,6 +73,7 @@ export class HistoryComponent implements OnDestroy {
     showAdvancedFilters = signal(false);
 
     // Señales para almacenar los valores actuales de cada filtro
+    searchFilterSignal = toSignal(this.searchFilter.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()));
     driverFilterSignal = toSignal(this.driverFilter.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()));
     vehicleFilterSignal = toSignal(this.vehicleFilter.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()));
     dateFromSignal = toSignal(this.dateFromFilter.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()));
@@ -102,6 +104,7 @@ export class HistoryComponent implements OnDestroy {
 
     historyResource = resource({
         request: () => ({
+            search: this.searchFilterSignal(),
             driver    : this.driverFilterSignal(),
             vehicle   : this.vehicleFilterSignal(),
             dateFrom  : this.dateFromSignal(),
@@ -110,11 +113,12 @@ export class HistoryComponent implements OnDestroy {
             pagination: this.pagination(),
         }),
         loader : async ({request}) => {
-            this.isLoading.set(true);
+            // this.isLoading.set(true);
 
             const filter: any = {};
-            if (request.driver) filter.driver = request.driver;
-            if (request.vehicle) filter.vehicle = request.vehicle;
+            if (request.search) filter.search = request.search;
+            if (request.driver) filter.driverId = request.driver;
+            if (request.vehicle) filter.vehicleId = request.vehicle;
             if (request.dateFrom) filter.startDateFrom = request.dateFrom;
             if (request.dateTo) filter.startDateTo = request.dateTo;
             if (request.status) filter.status = request.status;

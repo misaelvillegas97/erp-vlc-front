@@ -1,0 +1,38 @@
+<mat-form-field class="w-full {{ controlClasses() }}" [floatLabel]="floatLabel()" [subscriptSizing]="subscriptSizing()">
+    <mat-label>{{ label() }}</mat-label>
+
+    <input type="text"
+           matInput
+           [formControl]="searchControl"
+           [placeholder]="placeholder()"
+           [matAutocomplete]="auto"
+           (blur)="onBlur()">
+
+    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayDriverFn" (optionSelected)="onDriverSelected($event.option.value)">
+        @if (loading()) {
+            <mat-option disabled>
+                <span class="flex items-center">
+                    <mat-icon class="mr-2 animate-spin">refresh</mat-icon>
+                    Cargando...
+                </span>
+            </mat-option>
+        }
+
+        @for (driver of drivers(); track driver.id) {
+            <mat-option [value]="driver">
+                {{ driver.firstName }} {{ driver.lastName }}
+                <span class="mat-hint">(Clase: {{ driver.driverLicense[0].licenseType }})</span>
+            </mat-option>
+        } @empty {
+            <mat-option disabled>
+                No se encontraron conductores
+            </mat-option>
+        }
+    </mat-autocomplete>
+
+    <mat-icon matSuffix>person</mat-icon>
+
+    <mat-error *ngIf="searchControl.hasError('required')">
+        El conductor es requerido
+    </mat-error>
+</mat-form-field>
