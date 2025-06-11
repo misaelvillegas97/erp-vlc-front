@@ -5,6 +5,7 @@ import { NoAuthGuard }         from 'app/core/auth/guards/noAuth.guard';
 import { LayoutComponent }     from 'app/layout/layout.component';
 import { rolesGuard }          from '@core/guards/roles.guard';
 import { RoleEnum }            from '@core/user/role.type';
+import { INVENTORY_FEATURE_KEY } from '@modules/admin/inventory/inventory.permissions';
 
 export const appRoutes: Routes = [
 
@@ -97,6 +98,14 @@ export const appRoutes: Routes = [
                     roles: [ RoleEnum.admin, RoleEnum.driver ]
                 },
                 loadChildren: () => import('app/modules/admin/logistics/logistics.routes'),
+            },
+            {
+                path        : INVENTORY_FEATURE_KEY,
+                canActivate : [ rolesGuard ],
+                data        : {
+                    roles: [ RoleEnum.admin, RoleEnum.inventory_manager, RoleEnum.warehouse_staff ]
+                },
+                loadChildren: () => import('app/modules/admin/inventory/inventory.routes')
             },
             {
                 path    : 'maintainers',

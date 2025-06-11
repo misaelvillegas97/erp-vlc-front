@@ -1,0 +1,116 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        title="Reporte de Movimientos de Inventario"
+        subtitle="Consulta y seguimiento de todos los movimientos de inventario"
+        icon="heroicons_outline:document-chart-bar">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-10 gap-y-4 sm:px-4">
+        <div class="flex flex-row w-full">
+            <h2 class="flex-1 font-bold text-secondary text-xl self-center">Movimientos de Inventario</h2>
+
+            <button
+                (click)="movementsResource.reload()"
+                [matTooltip]="'Recargar'"
+                mat-icon-button
+            >
+                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:arrow-path"></mat-icon>
+            </button>
+        </div>
+
+        <!-- Panel de filtros -->
+        <div class="w-full bg-card rounded-md shadow p-4 mb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <mat-form-field class="w-full">
+                    <mat-label>Buscar</mat-label>
+                    <input matInput [formControl]="searchControl" placeholder="Buscar por referencia o elemento">
+                    <mat-icon matSuffix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+                </mat-form-field>
+
+                <!-- Botones de acción -->
+                <div class="flex justify-end items-center gap-2">
+                    <button mat-button color="primary" type="button" (click)="toggleAdvancedFilters()">
+                        Filtros avanzados
+                        <mat-icon>{{ showAdvancedFilters() ? 'expand_less' : 'expand_more' }}</mat-icon>
+                    </button>
+                    <button mat-button color="warn" type="button" (click)="clearFilters()">
+                        Limpiar filtros
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filtros avanzados (colapsables) -->
+            <div *ngIf="showAdvancedFilters()" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
+                <!-- Filtro por fecha desde -->
+                <mat-form-field class="w-full">
+                    <mat-label>Desde</mat-label>
+                    <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFromControl" placeholder="Desde">
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerFrom></mat-datepicker>
+                </mat-form-field>
+
+                <!-- Filtro por fecha hasta -->
+                <mat-form-field class="w-full">
+                    <mat-label>Hasta</mat-label>
+                    <input matInput [matDatepicker]="pickerTo" [formControl]="dateToControl" placeholder="Hasta">
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerTo></mat-datepicker>
+                </mat-form-field>
+
+                <!-- Filtro por tipo de movimiento -->
+                <mat-form-field class="w-full">
+                    <mat-label>Tipo de Movimiento</mat-label>
+                    <mat-select [formControl]="movementTypeControl">
+                        <mat-option value="">Todos los tipos</mat-option>
+                        @for (type of movementTypes; track type) {
+                            <mat-option [value]="type">{{ getMovementTypeLabel(type) }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- Filtro por almacén -->
+                <mat-form-field class="w-full">
+                    <mat-label>Almacén</mat-label>
+                    <mat-select [formControl]="warehouseControl">
+                        <mat-option value="">Todos los almacenes</mat-option>
+                        @for (warehouse of warehousesResource.value() || []; track warehouse.id) {
+                            <mat-option [value]="warehouse.id">{{ warehouse.name }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <!-- Tabla de movimientos -->
+        <div class="relative max-w-full overflow-auto w-full">
+            @if (columnsConfig()) {
+                <table-builder [columns]="columnsConfig()"
+                               [data]="movementsResource.value() || []"
+                               class="w-full"
+                ></table-builder>
+            }
+        </div>
+
+        <!-- Mensaje cuando no hay datos -->
+        @if (movementsResource.value() && movementsResource.value().length === 0) {
+            <div class="flex flex-col items-center justify-center p-8 text-center">
+                <mat-icon class="text-6xl text-gray-300 mb-4">swap_horiz</mat-icon>
+                <h3 class="text-xl font-medium text-gray-500">No hay movimientos de inventario</h3>
+                <p class="text-gray-400 mt-2">No se encontraron movimientos con los filtros aplicados</p>
+            </div>
+        }
+    </div>
+
+    <!-- Template para la columna de detalles -->
+    <ng-template #detailsCell let-movement="row">
+        <button mat-icon-button [matTooltip]="'Ver detalles'">
+            <mat-icon class="icon-size-5" svgIcon="heroicons_outline:eye"></mat-icon>
+        </button>
+    </ng-template>
+
+    <!-- Loading overlay -->
+    <div *ngIf="movementsResource.isLoading()"
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <mat-spinner diameter="48"></mat-spinner>
+    </div>
+</div>

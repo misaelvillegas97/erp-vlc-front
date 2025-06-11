@@ -1,0 +1,182 @@
+<mat-card class="rounded-md shadow">
+    <mat-card-content>
+        <h2 class="text-xl font-medium mb-4">{{ formTitle() }}</h2>
+        <form [formGroup]="itemForm" (ngSubmit)="onSubmit()" class="flex flex-col space-y-4">
+            <!-- Información básica -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Nombre del elemento -->
+                <mat-form-field class="w-full" floatLabel="always">
+                    <mat-label>Nombre</mat-label>
+                    <input matInput formControlName="name" placeholder="Nombre del elemento">
+                    <mat-error *ngIf="itemForm.get('name').hasError('required')">
+                        El nombre es requerido
+                    </mat-error>
+                    <mat-error *ngIf="itemForm.get('name').hasError('maxlength')">
+                        El nombre no puede exceder los 100 caracteres
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Código UPC -->
+                <mat-form-field class="w-full" floatLabel="always">
+                    <mat-label>Código UPC</mat-label>
+                    <input matInput formControlName="upcCode" placeholder="Código UPC (opcional)">
+                    <mat-error *ngIf="itemForm.get('upcCode').hasError('maxlength')">
+                        El código UPC no puede exceder los 50 caracteres
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <!-- Descripción -->
+            <mat-form-field class="w-full" floatLabel="always">
+                <mat-label>Descripción</mat-label>
+                <textarea matInput formControlName="description" rows="3" placeholder="Descripción del elemento (opcional)"></textarea>
+                <mat-error *ngIf="itemForm.get('description').hasError('maxlength')">
+                    La descripción no puede exceder los 500 caracteres
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Almacén y ubicación -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Almacén -->
+                <mat-form-field class="w-full" floatLabel="always">
+                    <mat-label>Almacén</mat-label>
+                    <mat-select formControlName="warehouseId" placeholder="Seleccione un almacén">
+                        @for (warehouse of warehouses(); track warehouse.id) {
+                            <mat-option [value]="warehouse.id">
+                                {{ warehouse.name }}
+                            </mat-option>
+                        } @empty {
+                            <mat-option disabled>
+                                No hay almacenes disponibles
+                            </mat-option>
+                        }
+                    </mat-select>
+                    <mat-error *ngIf="itemForm.get('warehouseId').hasError('required')">
+                        Debe seleccionar un almacén
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Ubicación -->
+                <mat-form-field class="w-full" floatLabel="always">
+                    <mat-label>Ubicación</mat-label>
+                    <input matInput formControlName="location" placeholder="Ubicación dentro del almacén (opcional)">
+                    <mat-error *ngIf="itemForm.get('location').hasError('maxlength')">
+                        La ubicación no puede exceder los 100 caracteres
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <!-- Cantidad y niveles de stock -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Cantidad -->
+                <mat-form-field class="w-full" floatLabel="always">
+                    <mat-label>Cantidad</mat-label>
+                    <input matInput type="number" formControlName="quantity">
+                    <mat-error *ngIf="itemForm.get('quantity').hasError('required')">
+                        La cantidad es requerida
+                    </mat-error>
+                    <mat-error *ngIf="itemForm.get('quantity').hasError('min')">
+                        La cantidad debe ser mayor o igual a 0
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Stock mínimo -->
+                <mat-form-field class="w-full" floatLabel="always">
+                    <mat-label>Stock mínimo</mat-label>
+                    <input matInput type="number" formControlName="minimumStock">
+                    <mat-error *ngIf="itemForm.get('minimumStock').hasError('min')">
+                        El stock mínimo debe ser mayor o igual a 0
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Stock máximo -->
+                <mat-form-field class="w-full" floatLabel="always">
+                    <mat-label>Stock máximo</mat-label>
+                    <input matInput type="number" formControlName="maximumStock">
+                    <mat-error *ngIf="itemForm.get('maximumStock').hasError('min')">
+                        El stock máximo debe ser mayor o igual a 0
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Punto de reorden -->
+                <mat-form-field class="w-full" floatLabel="always">
+                    <mat-label>Punto de reorden</mat-label>
+                    <input matInput type="number" formControlName="reorderPoint">
+                    <mat-error *ngIf="itemForm.get('reorderPoint').hasError('min')">
+                        El punto de reorden debe ser mayor o igual a 0
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <!-- Lote y fecha de expiración -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Número de lote -->
+                <mat-form-field class="w-full" floatLabel="always">
+                    <mat-label>Número de lote</mat-label>
+                    <input matInput formControlName="batchNumber" placeholder="Número de lote (opcional)">
+                    <mat-error *ngIf="itemForm.get('batchNumber').hasError('maxlength')">
+                        El número de lote no puede exceder los 50 caracteres
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Fecha de expiración -->
+                <mat-form-field class="w-full" floatLabel="always">
+                    <mat-label>Fecha de expiración</mat-label>
+                    <input matInput [matDatepicker]="picker" formControlName="expirationDate">
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+            </div>
+
+            <!-- Estado de reserva -->
+            <div class="flex items-center">
+                <mat-slide-toggle formControlName="isReserved" color="primary">
+                    {{ itemForm.get('isReserved').value ? 'Reservado' : 'No reservado' }}
+                </mat-slide-toggle>
+                <span class="ml-2 text-sm text-gray-500">
+                    Indica si el elemento está reservado para algún propósito específico
+                </span>
+            </div>
+
+            <mat-hint class="mat-hint">* Campos requeridos</mat-hint>
+
+            <!-- Botones -->
+            <div class="flex justify-end gap-4 mt-4">
+                <button
+                    type="button"
+                    mat-stroked-button
+                    color="warn"
+                    (click)="onCancel()"
+                    [disabled]="isLoading">
+                    Cancelar
+                </button>
+                <button
+                    type="button"
+                    mat-stroked-button
+                    color="accent"
+                    (click)="resetForm()"
+                    [disabled]="isLoading">
+                    Restablecer
+                </button>
+                <button
+                    type="submit"
+                    mat-flat-button
+                    color="primary"
+                    [disabled]="itemForm.invalid || isLoading">
+                    <div class="inline-flex items-center">
+                        @if (!isLoading) {
+                            <mat-icon class="mr-2">save</mat-icon>
+                        } @else {
+                            <mat-progress-spinner
+                                [diameter]="24"
+                                [mode]="'indeterminate'"
+                                class="mr-2">
+                            </mat-progress-spinner>
+                        }
+                        <span>Guardar</span>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>

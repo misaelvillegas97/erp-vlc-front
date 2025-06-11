@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive }                                                                                                   from '@angular/router';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject, viewChild } from '@angular/core';
+import { RouterLink, RouterLinkActive }                                                                                                                      from '@angular/router';
 import { MatDrawer, MatSidenavModule }                                                                                                    from '@angular/material/sidenav';
 import { MatButtonModule }                                                                                                                from '@angular/material/button';
 import { MatIconModule }                                                                                                                  from '@angular/material/icon';
@@ -53,7 +53,7 @@ export class DrawerListingComponent implements OnInit, OnDestroy {
     drawerOpened: boolean = true;
     protected readonly trackByFn = trackByFn;
 
-    visiblePanels: Array<PanelType> = [];
+    visiblePanels: PanelType[] = [];
 
     private _userService = inject(UserService);
     private _unsubscribeAll: Subject<any> = new Subject<any>();

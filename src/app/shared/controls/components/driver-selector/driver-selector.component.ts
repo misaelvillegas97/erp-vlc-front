@@ -1,16 +1,34 @@
-import { Component, forwardRef, inject, input, OnDestroy, OnInit, resource, signal }                          from '@angular/core';
-import { CommonModule }                                                                                       from '@angular/common';
-import { ControlValueAccessor, FormControl, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule, Validators } from '@angular/forms';
-import { FloatLabelType, MatFormFieldModule, SubscriptSizing }                                                from '@angular/material/form-field';
-import { MatInputModule }                                                                                     from '@angular/material/input';
-import { MatIconModule }                                                                                      from '@angular/material/icon';
-import { MatAutocompleteModule }                                                                              from '@angular/material/autocomplete';
-import { debounceTime, distinctUntilChanged, first, firstValueFrom, Subject, takeUntil }                      from 'rxjs';
-import { DriversService }                                                                                     from '@modules/admin/logistics/fleet-management/services/drivers.service';
-import { Driver }                                                                                             from '@modules/admin/logistics/fleet-management/domain/model/driver.model';
-import { FindCount }                                                                                          from '@shared/domain/model/find-count';
-import { startWith }                                                                                          from 'rxjs/operators';
-import { toSignal }                                                                                           from '@angular/core/rxjs-interop';
+import { Component, forwardRef, inject, input, Input, OnDestroy, OnInit, resource, signal } from '@angular/core';
+import { CommonModule }                                                                     from '@angular/common';
+import {
+    ControlValueAccessor,
+    FormControl,
+    FormsModule,
+    NG_VALUE_ACCESSOR,
+    ReactiveFormsModule,
+    Validators
+}                                                                                           from '@angular/forms';
+import {
+    FloatLabelType,
+    MatFormFieldModule,
+    SubscriptSizing
+}                                                                                           from '@angular/material/form-field';
+import { MatInputModule }                                                                   from '@angular/material/input';
+import { MatIconModule }                                                                    from '@angular/material/icon';
+import { MatAutocompleteModule }                                                            from '@angular/material/autocomplete';
+import {
+    Observable,
+    Subject,
+    debounceTime,
+    distinctUntilChanged,
+    firstValueFrom,
+    takeUntil, first
+}                                                                                           from 'rxjs';
+import { DriversService }                                                                   from '@modules/admin/logistics/fleet-management/services/drivers.service';
+import { Driver }                                                                           from '@modules/admin/logistics/fleet-management/domain/model/driver.model';
+import { FindCount }                                                                        from '@shared/domain/model/find-count';
+import { startWith }                                                                        from 'rxjs/operators';
+import { toSignal }                                                                         from '@angular/core/rxjs-interop';
 
 @Component({
     selector   : 'driver-selector',

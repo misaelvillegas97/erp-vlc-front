@@ -1,0 +1,64 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        title="Crear Elemento de Inventario"
+        subtitle="Registrar un nuevo elemento en el sistema de inventario"
+        icon="heroicons_outline:cube">
+    </page-header>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full p-6">
+        <!-- Formulario de creación de elemento de inventario -->
+        <div class="md:col-span-8">
+            <app-inventory-items-form
+                [isLoading]="isLoading()"
+                (formSubmit)="onFormSubmit($event)"
+                (formCancel)="onFormCancel()">
+            </app-inventory-items-form>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="md:col-span-4 flex flex-col gap-6">
+            <mat-card class="rounded-md shadow">
+                <mat-card-content>
+                    <h2 class="text-xl font-medium mb-4 flex items-center">
+                        <mat-icon>info</mat-icon>
+                        <span class="ml-2">Información</span>
+                    </h2>
+                    <div class="text-gray-700 dark:text-gray-300 space-y-3">
+                        <p>
+                            Complete el formulario para crear un nuevo elemento en el sistema de inventario.
+                        </p>
+                        <p>
+                            Los elementos de inventario representan los productos o materiales almacenados en los diferentes almacenes.
+                        </p>
+                        <p>
+                            Asegúrese de proporcionar información precisa, especialmente para los campos obligatorios marcados con asterisco (*).
+                        </p>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <mat-card class="rounded-md shadow">
+                <mat-card-content>
+                    <h2 class="text-xl font-medium mb-4 flex items-center">
+                        <mat-icon>tips_and_updates</mat-icon>
+                        <span class="ml-2">Consejos</span>
+                    </h2>
+                    <div class="text-gray-700 dark:text-gray-300 space-y-3">
+                        <p>
+                            <strong>Stock mínimo:</strong> Establece el nivel mínimo de stock que debe mantenerse para este elemento.
+                        </p>
+                        <p>
+                            <strong>Stock máximo:</strong> Establece el nivel máximo de stock que debe mantenerse para este elemento.
+                        </p>
+                        <p>
+                            <strong>Punto de reorden:</strong> Nivel de stock en el que se debe realizar un nuevo pedido.
+                        </p>
+                        <p>
+                            <strong>Ubicación:</strong> Especifique la ubicación exacta dentro del almacén para facilitar la localización.
+                        </p>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+</div>

@@ -53,9 +53,14 @@ export class TableBuilderComponent<T> {
 
     columns = input.required<ColumnConfig<T>[], ColumnConfig<T>[]>({transform: (columns: ColumnConfig<T>[]) => columns.filter(column => column.visible)});
     data = input.required<T[]>();
+    loading = input<boolean>(false);
     pagination = input<Paginator>();
     itemsPerPageLabel = input<string>(this.#ts.translate('table.paginator.items-per-page'));
+    emptyMessage = input<string>('No hay datos disponibles');
     paginationChange = output<Paginator>();
+    rowClick = output<T>();
+    sortChange = output<MatSort>();
+    contextMenu = output<T>();
 
     containFilters = computed(() => this.columns().some(col => col.filter));
     displayedColumns = computed(() => this.columns().map(col => col.key));

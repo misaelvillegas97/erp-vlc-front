@@ -1,0 +1,99 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        title="Stock por Producto"
+        subtitle="Consulta el inventario disponible por producto"
+        icon="heroicons_outline:cube">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-10 gap-y-4 sm:px-4">
+        <!-- Panel de filtros -->
+        <div class="w-full bg-card rounded-md shadow p-4 mb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <mat-form-field class="w-full">
+                    <mat-label>Buscar</mat-label>
+                    <input matInput [formControl]="searchControl" placeholder="Buscar por nombre o código UPC">
+                    <mat-icon matSuffix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+                </mat-form-field>
+
+                <!-- Botones de acción -->
+                <div class="flex justify-end items-center gap-2">
+                    <button mat-button color="warn" type="button" (click)="clearFilters()">
+                        Limpiar filtros
+                    </button>
+                    <button
+                        (click)="productsResource.reload()"
+                        [matTooltip]="'Recargar'"
+                        mat-icon-button
+                    >
+                        <mat-icon class="icon-size-5" svgIcon="heroicons_outline:arrow-path"></mat-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen de stock -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full mb-4">
+            <mat-card class="rounded-md shadow">
+                <mat-card-content class="p-4">
+                    <div class="flex items-center">
+                        <mat-icon class="text-green-500 mr-2">inventory_2</mat-icon>
+                        <div>
+                            <p class="text-sm text-gray-500">Total de Productos</p>
+                            <p class="text-xl font-bold">{{ totalProducts() }}</p>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <mat-card class="rounded-md shadow">
+                <mat-card-content class="p-4">
+                    <div class="flex items-center">
+                        <mat-icon class="text-red-500 mr-2">warning</mat-icon>
+                        <div>
+                            <p class="text-sm text-gray-500">Sin Stock</p>
+                            <p class="text-xl font-bold">{{ outOfStockProducts() }}</p>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <mat-card class="rounded-md shadow">
+                <mat-card-content class="p-4">
+                    <div class="flex items-center">
+                        <mat-icon class="text-amber-500 mr-2">trending_down</mat-icon>
+                        <div>
+                            <p class="text-sm text-gray-500">Bajo Stock</p>
+                            <p class="text-xl font-bold">{{ lowStockProducts() }}</p>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <mat-card class="rounded-md shadow">
+                <mat-card-content class="p-4">
+                    <div class="flex items-center">
+                        <mat-icon class="text-blue-500 mr-2">trending_up</mat-icon>
+                        <div>
+                            <p class="text-sm text-gray-500">Exceso de Stock</p>
+                            <p class="text-xl font-bold">{{ excessStockProducts() }}</p>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Tabla de productos -->
+        <div class="relative max-w-full overflow-auto w-full">
+            @if (productsResource.value()) {
+                <table-builder [columns]="columnsConfig()"
+                               [data]="productsResource.value()"
+                               class="w-full"
+                ></table-builder>
+            } @else {
+                <div class="flex justify-center items-center h-64">
+                    <mat-spinner diameter="48"></mat-spinner>
+                </div>
+            }
+        </div>
+    </div>
+</div>

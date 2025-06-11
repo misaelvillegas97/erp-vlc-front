@@ -1,0 +1,70 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        title="Editar Elemento de Inventario"
+        subtitle="Modificar la información de un elemento existente"
+        icon="heroicons_outline:pencil">
+    </page-header>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full p-6">
+        <!-- Formulario de edición de elemento de inventario -->
+        <div class="md:col-span-8">
+            @if (inventoryItem()) {
+                <app-inventory-items-form
+                    [inventoryItem]="inventoryItem()"
+                    [isLoading]="isLoading()"
+                    (formSubmit)="onFormSubmit($event)"
+                    (formCancel)="onFormCancel()">
+                </app-inventory-items-form>
+            } @else {
+                <div class="flex justify-center items-center h-64">
+                    <mat-spinner diameter="48"></mat-spinner>
+                </div>
+            }
+        </div>
+
+        <!-- Información adicional -->
+        <div class="md:col-span-4 flex flex-col gap-6">
+            <mat-card class="rounded-md shadow">
+                <mat-card-content>
+                    <h2 class="text-xl font-medium mb-4 flex items-center">
+                        <mat-icon>info</mat-icon>
+                        <span class="ml-2">Información</span>
+                    </h2>
+                    <div class="text-gray-700 dark:text-gray-300 space-y-3">
+                        <p>
+                            Modifique la información del elemento de inventario según sea necesario.
+                        </p>
+                        <p>
+                            Recuerde que los cambios afectarán a todos los registros asociados a este elemento.
+                        </p>
+                        <p>
+                            Si desea ajustar la cantidad de stock, considere utilizar las operaciones específicas de stock en lugar de modificar directamente el valor.
+                        </p>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            @if (inventoryItem()) {
+                <mat-card class="rounded-md shadow">
+                    <mat-card-content>
+                        <h2 class="text-xl font-medium mb-4 flex items-center">
+                            <mat-icon>history</mat-icon>
+                            <span class="ml-2">Información del Elemento</span>
+                        </h2>
+                        <div class="text-gray-700 dark:text-gray-300 space-y-3">
+                            <p>
+                                <strong>ID:</strong> {{ inventoryItem().id }}
+                            </p>
+                            <p>
+                                <strong>Creado:</strong> {{ inventoryItem().createdAt | date:'dd/MM/yyyy HH:mm' }}
+                            </p>
+                            <p>
+                                <strong>Última actualización:</strong> {{ inventoryItem().updatedAt | date:'dd/MM/yyyy HH:mm' }}
+                            </p>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            }
+        </div>
+    </div>
+</div>

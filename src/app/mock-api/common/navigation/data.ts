@@ -61,7 +61,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         id  : 'operations.accounting.reports',
                         type: 'basic',
                         link: '/operations/accounting/reports',
-                        icon: 'heroicons_outline:document-report'
+                        icon: 'heroicons_outline:document-chart-bar'
                     },
                 ]
             },

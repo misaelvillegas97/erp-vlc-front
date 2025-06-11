@@ -1,7 +1,15 @@
-<div class="bg-cover relative object-center bg-card">
-    <bg-patterns pattern="waves"></bg-patterns>
-    <div class="flex flex-auto flex-col md:flex-row justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-6 sm:py-8 relative z-10 sm:px-4">
+<div class="relative flex-0 py-8 px-4 overflow-hidden bg-gray-200 dark:bg-gray-800">
+    <bg-patterns [pattern]="pattern"></bg-patterns>
+    <div class="flex flex-auto flex-col md:flex-row justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-6 sm:py-8 relative z-10">
         <div class="flex-1 min-w-0">
+            <!-- Back Button -->
+            @if (showBackButton) {
+                <div class="mb-2">
+                    <button mat-icon-button color="primary" routerLink="..">
+                        <mat-icon svgIcon="heroicons_outline:arrow-left"></mat-icon>
+                    </button>
+                </div>
+            }
             <!-- Breadcrumbs -->
             @if (breadcrumbs) {
                 <div>

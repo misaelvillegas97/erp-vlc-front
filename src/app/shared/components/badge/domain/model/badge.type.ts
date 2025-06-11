@@ -1,4 +1,4 @@
-export type Color = 'primary' | 'accent' | 'warn' | 'gray' | 'yellow' | 'blue' | 'green' | 'red';
+export type Color = 'primary' | 'accent' | 'warn' | 'gray' | 'yellow' | 'blue' | 'green' | 'red' | 'amber' | 'teal' | 'purple' | 'orange';
 
 export interface ColorMapping {
     bgLight: string;
@@ -64,5 +64,33 @@ export const COLOR_MAP: Record<Color, ColorMapping> = {
         darkText: 'dark:text-warn-500',
         ring    : 'ring-warn-600/20',
         ringBg  : 'bg-warn-600/20',
+    },
+    amber  : {
+        bgLight : 'bg-amber-50',
+        text    : 'text-amber-700',
+        darkText: 'dark:text-amber-500',
+        ring    : 'ring-amber-600/20',
+        ringBg  : 'bg-amber-600/20',
+    },
+    teal   : {
+        bgLight : 'bg-teal-50',
+        text    : 'text-teal-700',
+        darkText: 'dark:text-teal-500',
+        ring    : 'ring-teal-600/20',
+        ringBg  : 'bg-teal-600/20',
+    },
+    purple : {
+        bgLight : 'bg-purple-50',
+        text    : 'text-purple-700',
+        darkText: 'dark:text-purple-500',
+        ring    : 'ring-purple-600/20',
+        ringBg  : 'bg-purple-600/20',
+    },
+    orange : {
+        bgLight : 'bg-orange-50',
+        text    : 'text-orange-700',
+        darkText: 'dark:text-orange-500',
+        ring    : 'ring-orange-600/20',
+        ringBg  : 'bg-orange-600/20',
     }
 };

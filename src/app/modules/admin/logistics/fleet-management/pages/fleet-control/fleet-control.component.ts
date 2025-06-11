@@ -1,20 +1,20 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal }                      from '@angular/core';
-import { CommonModule }                                                                                                         from '@angular/common';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { CommonModule }                                                                                    from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { Router }                                                                                                               from '@angular/router';
-import { MatButtonModule }                                                                                                      from '@angular/material/button';
-import { MatCardModule }                                                                                                        from '@angular/material/card';
-import { MatDialog, MatDialogModule }                                                                                           from '@angular/material/dialog';
-import { MatFormFieldModule }                                                                                                   from '@angular/material/form-field';
-import { MatIconModule }                                                                                                        from '@angular/material/icon';
-import { MatInputModule }                                                                                                       from '@angular/material/input';
-import { MatProgressSpinnerModule }                                                                                             from '@angular/material/progress-spinner';
-import { MatSelectModule }                                                                                                      from '@angular/material/select';
-import { PageHeaderComponent }                                                                                                  from '@layout/components/page-header/page-header.component';
-import { Notyf }                                                                                                                from 'notyf';
-import { firstValueFrom, of }                                                                                                   from 'rxjs';
-import { catchError, take }                                                                                                     from 'rxjs/operators';
-import { takeUntilDestroyed, toSignal }                                                                                         from '@angular/core/rxjs-interop';
+import { Router }                                                                                          from '@angular/router';
+import { MatButtonModule }                                                                                 from '@angular/material/button';
+import { MatCardModule }                                                                                   from '@angular/material/card';
+import { MatDialog, MatDialogModule }                                                                      from '@angular/material/dialog';
+import { MatFormFieldModule }                                                                              from '@angular/material/form-field';
+import { MatIconModule }                                                                                   from '@angular/material/icon';
+import { MatInputModule }                                                                                  from '@angular/material/input';
+import { MatProgressSpinnerModule }                                                                        from '@angular/material/progress-spinner';
+import { MatSelectModule }                                                                                 from '@angular/material/select';
+import { PageHeaderComponent }                                                                             from '@layout/components/page-header/page-header.component';
+import { Notyf }                                                                                           from 'notyf';
+import { firstValueFrom, of }                                                                              from 'rxjs';
+import { catchError, take }                                                                                from 'rxjs/operators';
+import { takeUntilDestroyed, toSignal }                                                                    from '@angular/core/rxjs-interop';
 
 import { DriversService }                                    from '@modules/admin/logistics/fleet-management/services/drivers.service';
 import { VehiclesService }                                   from '@modules/admin/logistics/fleet-management/services/vehicles.service';
@@ -27,7 +27,7 @@ import { Vehicle }                                           from '@modules/admi
 import { UserService }                                       from '@core/user/user.service';
 import { RoleEnum }                                          from '@core/user/role.type';
 import { VehicleSelectorComponent }                          from '@shared/controls/components/vehicle-selector/vehicle-selector.component';
-import { DriverSelectorComponent }                           from '@shared/controls';
+import { DriverSelectorComponent }                                                                         from '@shared/controls';
 
 @Component({
     selector   : 'app-fleet-control',

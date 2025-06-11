@@ -1,0 +1,129 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-detail-header
+        title="Detalles del Almacén"
+        subtitle="Información detallada del almacén"
+        [showBackButton]="true"
+        (backClick)="goBack()">
+        <div class="flex gap-2">
+            <button
+                mat-flat-button
+                color="primary"
+                [matTooltip]="'Editar almacén'"
+                (click)="editWarehouse()"
+                [disabled]="isLoading()">
+                <mat-icon class="mr-2">edit</mat-icon>
+                Editar
+            </button>
+            <button
+                mat-flat-button
+                color="warn"
+                [matTooltip]="'Eliminar almacén'"
+                (click)="deleteWarehouse()"
+                [disabled]="isLoading()">
+                <mat-icon class="mr-2">delete</mat-icon>
+                Eliminar
+            </button>
+        </div>
+    </page-detail-header>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full p-6">
+        @if (isLoading()) {
+            <div class="md:col-span-12 flex justify-center items-center h-64">
+                <mat-spinner diameter="48"></mat-spinner>
+            </div>
+        } @else if (warehouse()) {
+            <!-- Información principal -->
+            <div class="md:col-span-8">
+                <mat-card class="rounded-md shadow">
+                    <mat-card-content>
+                        <h2 class="text-xl font-medium mb-4">Información del Almacén</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Nombre</p>
+                                    <p class="font-medium">{{ warehouse().name }}</p>
+                                </div>
+
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Dirección</p>
+                                    <p class="font-medium">{{ warehouse().address }}</p>
+                                </div>
+
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Estado</p>
+                                    <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                         [ngClass]="warehouse().isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                                        {{ warehouse().isActive ? 'Activo' : 'Inactivo' }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div *ngIf="warehouse().contactPerson">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Persona de contacto</p>
+                                    <p class="font-medium">{{ warehouse().contactPerson }}</p>
+                                </div>
+
+                                <div *ngIf="warehouse().contactPhone">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Teléfono de contacto</p>
+                                    <p class="font-medium">{{ warehouse().contactPhone }}</p>
+                                </div>
+
+                                <div *ngIf="warehouse().contactEmail">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Email de contacto</p>
+                                    <p class="font-medium">{{ warehouse().contactEmail }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4" *ngIf="warehouse().description">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Descripción</p>
+                            <p class="font-medium">{{ warehouse().description }}</p>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="md:col-span-4">
+                <mat-card class="rounded-md shadow">
+                    <mat-card-content>
+                        <h2 class="text-xl font-medium mb-4 flex items-center">
+                            <mat-icon>inventory</mat-icon>
+                            <span class="ml-2">Inventario</span>
+                        </h2>
+
+                        <div class="text-gray-700 dark:text-gray-300 space-y-3">
+                            @if (warehouse().inventoryItems && warehouse().inventoryItems.length > 0) {
+                                <p>Este almacén contiene {{ warehouse().inventoryItems.length }} productos en inventario.</p>
+
+                                <button
+                                    mat-stroked-button
+                                    color="primary"
+                                    class="w-full mt-4">
+                                    <mat-icon class="mr-2">visibility</mat-icon>
+                                    Ver inventario
+                                </button>
+                            } @else {
+                                <p>Este almacén no tiene productos en inventario.</p>
+
+                                <button
+                                    mat-stroked-button
+                                    color="primary"
+                                    class="w-full mt-4">
+                                    <mat-icon class="mr-2">add</mat-icon>
+                                    Agregar productos
+                                </button>
+                            }
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        } @else {
+            <div class="md:col-span-12 flex justify-center items-center h-64">
+                <p class="text-gray-500">No se encontró información del almacén</p>
+            </div>
+        }
+    </div>
+</div>

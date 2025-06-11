@@ -1,0 +1,41 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        title="Crear Almacén"
+        subtitle="Registrar un nuevo almacén en el sistema de inventario"
+        icon="heroicons_outline:building-office">
+    </page-header>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full p-6">
+        <!-- Formulario de creación de almacén -->
+        <div class="md:col-span-8">
+            <app-warehouse-form
+                [isLoading]="isLoading()"
+                (formSubmit)="onFormSubmit($event)"
+                (formCancel)="onFormCancel()">
+            </app-warehouse-form>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="md:col-span-4 flex flex-col gap-6">
+            <mat-card class="rounded-md shadow">
+                <mat-card-content>
+                    <h2 class="text-xl font-medium mb-4 flex items-center">
+                        <mat-icon>info</mat-icon>
+                        <span class="ml-2">Información</span>
+                    </h2>
+                    <div class="text-gray-700 dark:text-gray-300 space-y-3">
+                        <p>
+                            Complete el formulario para crear un nuevo almacén en el sistema de inventario.
+                        </p>
+                        <p>
+                            Los almacenes son los lugares físicos donde se almacenan los productos y materiales.
+                        </p>
+                        <p>
+                            Asegúrese de proporcionar información precisa, especialmente para los campos obligatorios marcados con asterisco (*).
+                        </p>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+</div>

@@ -93,7 +93,7 @@ export interface ColumnDisplayConfig<T> {
     color?: (value: any, row?: T) => Color;
 
     // For actions column
-    actions?: { icon: string; action: string; label?: string; tooltip?: string; color?: string; }[];
+    actions?: { icon: string; action: string; label?: string; tooltip?: string; color?: string; show?: (row: T) => boolean }[];
     action?: (action: string, row: T) => void;
 
     // For icon column

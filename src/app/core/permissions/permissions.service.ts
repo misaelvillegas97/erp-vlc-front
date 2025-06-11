@@ -3,6 +3,7 @@ import { RoleEnum }                     from '@core/user/role.type';
 import { MODULE_PERMISSIONS }           from './permissions.tokens';
 import { FuseNavigationItem }           from '../../../@fuse/components/navigation';
 import { UserService }                  from '@core/user/user.service';
+import { PanelType } from '@shared/components/drawer-listing/panel.type';
 
 export interface RoutePermission {
     path: string;
@@ -132,7 +133,7 @@ export class PermissionsService {
      * @param subModulePath Optional submodule path to get panels from
      * @returns An array of panels for the specified module and submodule
      */
-    getModulePanels(modulePath: string, subModulePath?: string): any[] {
+    getModulePanels(modulePath: string, subModulePath?: string): PanelType[] {
         const modulePermission = this._routePermissions.find(route => route.path === modulePath);
 
         if (!modulePermission || !modulePermission.children) {
@@ -152,11 +153,19 @@ export class PermissionsService {
             return node.children ? findNodeByPath(node.children, path.slice(1)) : null;
         };
 
-        const buildPanelsFromNode = (node: RoutePermission, parentPath: string[] = []): any[] => {
+        const buildPanelsFromNode = (node: RoutePermission, parentPath: string[] = []): PanelType[] => {
             if (!node.children) return [];
 
             return node.children.map(child => {
-                const linkPath = [ '/', ...parentPath, child.path ];
+                let linkPath;
+
+                // If the parent path is empty, use the module path as the base
+                if (parentPath.length === 0 || parentPath[0] !== '/') {
+                    linkPath = [ '/', ...parentPath, child.path ];
+                } else {
+                    // Otherwise, build the link path from the parent path and child path
+                    linkPath = [ ...parentPath, child.path ];
+                }
 
                 return {
                     id           : child.path,
@@ -166,7 +175,8 @@ export class PermissionsService {
                     selectedIcon : child.selectedIcon,
                     link         : linkPath,
                     requiredRoles: child.allowedRoles,
-                    hasChildren  : !!(child.children && child.children.length > 0)
+                    hasChildren: !!(child.children && child.children.length > 0),
+                    children   : child.children ? buildPanelsFromNode(child, linkPath) : [],
                 };
             });
         };

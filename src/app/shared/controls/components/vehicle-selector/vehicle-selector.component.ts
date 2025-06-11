@@ -1,4 +1,5 @@
 import { Component, forwardRef, inject, Input, OnDestroy, OnInit, signal }                                    from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormControl, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FloatLabelType, MatFormFieldModule, SubscriptSizing }                                                from '@angular/material/form-field';
 import { MatSelectModule }                                                                                    from '@angular/material/select';

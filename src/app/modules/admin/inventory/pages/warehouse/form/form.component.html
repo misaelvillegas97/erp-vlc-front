@@ -1,0 +1,119 @@
+<mat-card class="rounded-md shadow">
+    <mat-card-content>
+        <h2 class="text-xl font-medium mb-4">{{ formTitle() }}</h2>
+        <form [formGroup]="warehouseForm" (ngSubmit)="onSubmit()" class="flex flex-col space-y-4">
+            <!-- Nombre del almacén -->
+            <mat-form-field class="w-full" floatLabel="always">
+                <mat-label>Nombre</mat-label>
+                <input matInput formControlName="name" placeholder="Nombre del almacén">
+                <mat-error *ngIf="warehouseForm.get('name').hasError('required')">
+                    El nombre es requerido
+                </mat-error>
+                <mat-error *ngIf="warehouseForm.get('name').hasError('maxlength')">
+                    El nombre no puede exceder los 100 caracteres
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Descripción -->
+            <mat-form-field class="w-full" floatLabel="always">
+                <mat-label>Descripción</mat-label>
+                <textarea matInput formControlName="description" rows="3" placeholder="Descripción del almacén (opcional)"></textarea>
+                <mat-error *ngIf="warehouseForm.get('description').hasError('maxlength')">
+                    La descripción no puede exceder los 500 caracteres
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Dirección -->
+            <mat-form-field class="w-full" floatLabel="always">
+                <mat-label>Dirección</mat-label>
+                <input matInput formControlName="address" placeholder="Dirección del almacén">
+                <mat-error *ngIf="warehouseForm.get('address').hasError('required')">
+                    La dirección es requerida
+                </mat-error>
+                <mat-error *ngIf="warehouseForm.get('address').hasError('maxlength')">
+                    La dirección no puede exceder los 200 caracteres
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Información de contacto -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <mat-form-field class="w-full" floatLabel="always">
+                    <mat-label>Persona de contacto</mat-label>
+                    <input matInput formControlName="contactPerson" placeholder="Nombre de la persona de contacto (opcional)">
+                    <mat-error *ngIf="warehouseForm.get('contactPerson').hasError('maxlength')">
+                        El nombre no puede exceder los 100 caracteres
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field class="w-full" floatLabel="always">
+                    <mat-label>Teléfono de contacto</mat-label>
+                    <input matInput formControlName="contactPhone" placeholder="Teléfono de contacto (opcional)">
+                    <mat-error *ngIf="warehouseForm.get('contactPhone').hasError('maxlength')">
+                        El teléfono no puede exceder los 20 caracteres
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field class="w-full" floatLabel="always">
+                    <mat-label>Email de contacto</mat-label>
+                    <input matInput formControlName="contactEmail" placeholder="Email de contacto (opcional)">
+                    <mat-error *ngIf="warehouseForm.get('contactEmail').hasError('email')">
+                        Debe ingresar un email válido
+                    </mat-error>
+                    <mat-error *ngIf="warehouseForm.get('contactEmail').hasError('maxlength')">
+                        El email no puede exceder los 100 caracteres
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <!-- Estado -->
+            <div class="flex items-center">
+                <mat-slide-toggle formControlName="isActive" color="primary">
+                    {{ warehouseForm.get('isActive').value ? 'Activo' : 'Inactivo' }}
+                </mat-slide-toggle>
+                <span class="ml-2 text-sm text-gray-500">
+                    Indica si el almacén está activo y disponible para su uso
+                </span>
+            </div>
+
+            <mat-hint class="mat-hint">* Campos requeridos</mat-hint>
+
+            <!-- Botones -->
+            <div class="flex justify-end gap-4 mt-4">
+                <button
+                    type="button"
+                    mat-stroked-button
+                    color="warn"
+                    (click)="onCancel()"
+                    [disabled]="isLoading">
+                    Cancelar
+                </button>
+                <button
+                    type="button"
+                    mat-stroked-button
+                    color="accent"
+                    (click)="resetForm()"
+                    [disabled]="isLoading">
+                    Restablecer
+                </button>
+                <button
+                    type="submit"
+                    mat-flat-button
+                    color="primary"
+                    [disabled]="warehouseForm.invalid || isLoading">
+                    <div class="inline-flex items-center">
+                        @if (!isLoading) {
+                            <mat-icon class="mr-2">save</mat-icon>
+                        } @else {
+                            <mat-progress-spinner
+                                [diameter]="24"
+                                [mode]="'indeterminate'"
+                                class="mr-2">
+                            </mat-progress-spinner>
+                        }
+                        <span>Guardar</span>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>

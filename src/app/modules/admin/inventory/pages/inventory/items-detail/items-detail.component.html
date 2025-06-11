@@ -1,0 +1,202 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-detail-header
+        title="Detalles del Elemento de Inventario"
+        subtitle="Información detallada del elemento"
+        [showBackButton]="true"
+        (backClick)="goBack()">
+        <div class="flex gap-2">
+            <button
+                mat-flat-button
+                color="primary"
+                [matTooltip]="'Editar elemento'"
+                (click)="editInventoryItem()"
+                [disabled]="isLoading()">
+                <mat-icon class="mr-2">edit</mat-icon>
+                Editar
+            </button>
+            <button
+                mat-flat-button
+                color="warn"
+                [matTooltip]="'Eliminar elemento'"
+                (click)="deleteInventoryItem()"
+                [disabled]="isLoading()">
+                <mat-icon class="mr-2">delete</mat-icon>
+                Eliminar
+            </button>
+        </div>
+    </page-detail-header>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full p-6">
+        @if (isLoading()) {
+            <div class="md:col-span-12 flex justify-center items-center h-64">
+                <mat-spinner diameter="48"></mat-spinner>
+            </div>
+        } @else if (inventoryItem()) {
+            <!-- Información principal -->
+            <div class="md:col-span-8">
+                <mat-card class="rounded-md shadow">
+                    <mat-card-content>
+                        <h2 class="text-xl font-medium mb-4">Información del Elemento</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Nombre</p>
+                                    <p class="font-medium">{{ inventoryItem().name }}</p>
+                                </div>
+
+                                <div *ngIf="inventoryItem().upcCode">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Código UPC</p>
+                                    <p class="font-medium">{{ inventoryItem().upcCode }}</p>
+                                </div>
+
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Almacén</p>
+                                    <p class="font-medium">{{ warehouse()?.name || 'No asignado' }}</p>
+                                </div>
+
+                                <div *ngIf="inventoryItem().location">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Ubicación</p>
+                                    <p class="font-medium">{{ inventoryItem().location }}</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Cantidad</p>
+                                    <p class="font-medium">{{ inventoryItem().quantity }}</p>
+                                </div>
+
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Estado de Stock</p>
+                                    <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                         [ngClass]="getStockStatus(inventoryItem()).color">
+                                        {{ getStockStatus(inventoryItem()).status }}
+                                    </div>
+                                </div>
+
+                                <div *ngIf="inventoryItem().batchNumber">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Número de Lote</p>
+                                    <p class="font-medium">{{ inventoryItem().batchNumber }}</p>
+                                </div>
+
+                                <div *ngIf="inventoryItem().expirationDate">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Fecha de Expiración</p>
+                                    <p class="font-medium" [ngClass]="{
+                                        'text-red-600': isExpired(inventoryItem()),
+                                        'text-amber-600': isExpiringSoon(inventoryItem())
+                                    }">
+                                        {{ inventoryItem().expirationDate | date:'dd/MM/yyyy' }}
+                                        <span *ngIf="isExpired(inventoryItem())" class="text-xs ml-2 bg-red-100 text-red-800 px-2 py-0.5 rounded-full">Expirado</span>
+                                        <span *ngIf="isExpiringSoon(inventoryItem()) && !isExpired(inventoryItem())" class="text-xs ml-2 bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Próximo a expirar</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4" *ngIf="inventoryItem().description">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Descripción</p>
+                            <p class="font-medium">{{ inventoryItem().description }}</p>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <!-- Niveles de stock -->
+                <mat-card class="rounded-md shadow mt-6">
+                    <mat-card-content>
+                        <h2 class="text-xl font-medium mb-4">Niveles de Stock</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-4 rounded-md bg-gray-100 dark:bg-gray-800">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Stock Mínimo</p>
+                                <p class="text-2xl font-bold">{{ inventoryItem().minimumStock || 'No definido' }}</p>
+                            </div>
+
+                            <div class="p-4 rounded-md bg-gray-100 dark:bg-gray-800">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Stock Actual</p>
+                                <p class="text-2xl font-bold">{{ inventoryItem().quantity }}</p>
+                            </div>
+
+                            <div class="p-4 rounded-md bg-gray-100 dark:bg-gray-800">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Stock Máximo</p>
+                                <p class="text-2xl font-bold">{{ inventoryItem().maximumStock || 'No definido' }}</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Punto de Reorden</p>
+                            <p class="font-medium">{{ inventoryItem().reorderPoint || 'No definido' }}</p>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="md:col-span-4">
+                <mat-card class="rounded-md shadow">
+                    <mat-card-content>
+                        <h2 class="text-xl font-medium mb-4 flex items-center">
+                            <mat-icon>history</mat-icon>
+                            <span class="ml-2">Información del Sistema</span>
+                        </h2>
+
+                        <div class="text-gray-700 dark:text-gray-300 space-y-3">
+                            <p>
+                                <strong>ID:</strong> {{ inventoryItem().id }}
+                            </p>
+                            <p>
+                                <strong>Creado:</strong> {{ inventoryItem().createdAt | date:'dd/MM/yyyy HH:mm' }}
+                            </p>
+                            <p>
+                                <strong>Última actualización:</strong> {{ inventoryItem().updatedAt | date:'dd/MM/yyyy HH:mm' }}
+                            </p>
+                            <p>
+                                <strong>Estado de reserva:</strong>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                      [ngClass]="inventoryItem().isReserved ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'">
+                                    {{ inventoryItem().isReserved ? 'Reservado' : 'No reservado' }}
+                                </span>
+                            </p>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <!-- Acciones rápidas -->
+                <mat-card class="rounded-md shadow mt-6">
+                    <mat-card-content>
+                        <h2 class="text-xl font-medium mb-4 flex items-center">
+                            <mat-icon>bolt</mat-icon>
+                            <span class="ml-2">Acciones Rápidas</span>
+                        </h2>
+
+                        <div class="flex flex-col gap-3">
+                            <button mat-stroked-button color="primary" class="w-full">
+                                <mat-icon class="mr-2">add</mat-icon>
+                                Agregar Stock
+                            </button>
+
+                            <button mat-stroked-button color="warn" class="w-full">
+                                <mat-icon class="mr-2">remove</mat-icon>
+                                Remover Stock
+                            </button>
+
+                            <button mat-stroked-button color="accent" class="w-full">
+                                <mat-icon class="mr-2">sync</mat-icon>
+                                Ajustar Stock
+                            </button>
+
+                            <button mat-stroked-button class="w-full">
+                                <mat-icon class="mr-2">swap_horiz</mat-icon>
+                                Transferir Stock
+                            </button>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        } @else {
+            <div class="md:col-span-12 flex justify-center items-center h-64">
+                <p class="text-gray-500">No se encontró información del elemento</p>
+            </div>
+        }
+    </div>
+</div>
