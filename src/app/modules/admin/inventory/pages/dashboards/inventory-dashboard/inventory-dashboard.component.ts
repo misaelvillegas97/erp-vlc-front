@@ -128,56 +128,56 @@ export class InventoryDashboardComponent {
             title      : 'Inventario',
             icon       : 'inventory_2',
             color      : 'bg-blue-500',
-            route      : '/admin/inventory/inventory-items',
+            route: '/inventory/dashboard/inventory-items',
             description: 'Gestión de elementos de inventario'
         },
         {
             title      : 'Almacenes',
             icon       : 'home',
             color      : 'bg-green-500',
-            route      : '/admin/inventory/warehouse/list',
+            route: '/inventory/dashboard/warehouse/list',
             description: 'Gestión de almacenes'
         },
         {
             title      : 'Stock por Producto',
             icon       : 'category',
             color      : 'bg-purple-500',
-            route      : '/admin/inventory/product-stock',
+            route: '/inventory/dashboard/product-stock',
             description: 'Consulta el inventario por producto'
         },
         {
             title      : 'Stock por Almacén',
             icon       : 'store',
             color      : 'bg-indigo-500',
-            route      : '/admin/inventory/warehouse-stock',
+            route: '/inventory/dashboard/warehouse-stock',
             description: 'Consulta el inventario por almacén'
         },
         {
             title      : 'Bajo Stock',
             icon       : 'trending_down',
             color      : 'bg-amber-500',
-            route      : '/admin/inventory/low-stock',
+            route: '/inventory/dashboard/low-stock',
             description: 'Productos con nivel de stock bajo'
         },
         {
             title      : 'Productos por Expirar',
             icon       : 'schedule',
             color      : 'bg-orange-500',
-            route      : '/admin/inventory/expiring-items',
+            route: '/inventory/dashboard/expiring-items',
             description: 'Productos próximos a expirar'
         },
         {
             title      : 'Alertas',
             icon       : 'notifications',
             color      : 'bg-red-500',
-            route      : '/admin/inventory/inventory-alerts',
+            route: '/inventory/dashboard/inventory-alerts',
             description: 'Alertas de inventario'
         },
         {
             title      : 'Movimientos',
             icon       : 'swap_horiz',
             color      : 'bg-teal-500',
-            route      : '/admin/inventory/inventory-movement-report',
+            route: '/inventory/dashboard/inventory-movement-report',
             description: 'Reporte de movimientos de inventario'
         }
     ];

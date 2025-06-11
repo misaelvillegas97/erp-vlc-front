@@ -1,4 +1,4 @@
-<div class="flex flex-col min-w-0 w-full">
+<div class="flex flex-col min-w-0 w-full bg-gray-50 dark:bg-gray-900 min-h-screen">
     <page-header
         title="Dashboard de Inventario"
         subtitle="Vista general del sistema de inventario"
@@ -7,12 +7,13 @@
 
     <div class="flex flex-col w-full max-w-7xl mx-auto p-6">
         <!-- Acciones -->
-        <div class="flex justify-end mb-6">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Panel de Control</h1>
             <button
                 mat-flat-button
                 color="primary"
                 (click)="reloadData()"
-                class="flex items-center">
+                class="flex items-center shadow-sm hover:shadow transition-all duration-200">
                 <mat-icon class="mr-2">refresh</mat-icon>
                 Actualizar datos
             </button>
@@ -21,61 +22,65 @@
         <!-- Métricas principales -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <!-- Total de elementos -->
-            <mat-card class="rounded-md shadow">
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-blue-500"></div>
                 <mat-card-content class="p-6">
                     <div class="flex items-center">
                         <div class="flex-1">
-                            <p class="text-lg font-medium text-gray-500">Total de Elementos</p>
-                            <p class="text-3xl font-bold">{{ totalItems() }}</p>
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Total de Elementos</p>
+                            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ totalItems() }}</p>
                         </div>
-                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                            <mat-icon class="text-blue-500">inventory_2</mat-icon>
+                        <div class="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                            <mat-icon class="text-blue-500 dark:text-blue-400 text-2xl">inventory_2</mat-icon>
                         </div>
                     </div>
                 </mat-card-content>
             </mat-card>
 
             <!-- Total de almacenes -->
-            <mat-card class="rounded-md shadow">
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-green-500"></div>
                 <mat-card-content class="p-6">
                     <div class="flex items-center">
                         <div class="flex-1">
-                            <p class="text-lg font-medium text-gray-500">Almacenes</p>
-                            <p class="text-3xl font-bold">{{ totalWarehouses() }}</p>
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Almacenes</p>
+                            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ totalWarehouses() }}</p>
                         </div>
-                        <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                            <mat-icon class="text-green-500">home</mat-icon>
+                        <div class="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                            <mat-icon class="text-green-500 dark:text-green-400 text-2xl">home</mat-icon>
                         </div>
                     </div>
                 </mat-card-content>
             </mat-card>
 
             <!-- Cantidad total -->
-            <mat-card class="rounded-md shadow">
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-purple-500"></div>
                 <mat-card-content class="p-6">
                     <div class="flex items-center">
                         <div class="flex-1">
-                            <p class="text-lg font-medium text-gray-500">Cantidad Total</p>
-                            <p class="text-3xl font-bold">{{ totalQuantity() }}</p>
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Cantidad Total</p>
+                            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ totalQuantity() }}</p>
                         </div>
-                        <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                            <mat-icon class="text-purple-500">inventory</mat-icon>
+                        <div class="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+                            <mat-icon class="text-purple-500 dark:text-purple-400 text-2xl">inventory</mat-icon>
                         </div>
                     </div>
                 </mat-card-content>
             </mat-card>
 
             <!-- Almacén con más elementos -->
-            <mat-card class="rounded-md shadow">
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-indigo-500"></div>
                 <mat-card-content class="p-6">
                     <div class="flex items-center">
                         <div class="flex-1">
-                            <p class="text-lg font-medium text-gray-500">Almacén Principal</p>
-                            <p class="text-xl font-bold truncate">{{ warehouseWithMostItems()?.name }}</p>
-                            <p class="text-sm text-gray-500">{{ warehouseWithMostItems()?.count }} elementos</p>
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Almacén Principal</p>
+                            <p class="text-xl font-bold text-gray-800 dark:text-white mt-1 truncate">{{ warehouseWithMostItems()?.name }}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ warehouseWithMostItems()?.count }} elementos</p>
                         </div>
-                        <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
-                            <mat-icon class="text-indigo-500">store</mat-icon>
+                        <div class="w-14 h-14 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                            <mat-icon class="text-indigo-500 dark:text-indigo-400 text-2xl">store</mat-icon>
                         </div>
                     </div>
                 </mat-card-content>
@@ -83,78 +88,101 @@
         </div>
 
         <!-- Alertas y estados -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- Elementos con bajo stock -->
-            <mat-card class="rounded-md shadow" [routerLink]="['/admin/inventory/low-stock']" style="cursor: pointer;">
-                <mat-card-content class="p-6">
-                    <div class="flex items-center">
-                        <div class="flex-1">
-                            <p class="text-lg font-medium text-gray-500">Bajo Stock</p>
-                            <p class="text-3xl font-bold">{{ lowStockItems() }}</p>
-                            <p class="text-sm text-gray-500">Elementos por debajo del mínimo</p>
-                        </div>
-                        <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
-                            <mat-icon class="text-amber-500">trending_down</mat-icon>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-
-            <!-- Elementos sin stock -->
-            <mat-card class="rounded-md shadow" [routerLink]="['/admin/inventory/low-stock']" style="cursor: pointer;">
-                <mat-card-content class="p-6">
-                    <div class="flex items-center">
-                        <div class="flex-1">
-                            <p class="text-lg font-medium text-gray-500">Sin Stock</p>
-                            <p class="text-3xl font-bold">{{ outOfStockItems() }}</p>
-                            <p class="text-sm text-gray-500">Elementos con cantidad cero</p>
-                        </div>
-                        <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                            <mat-icon class="text-red-500">inventory</mat-icon>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-
-            <!-- Elementos por expirar -->
-            <mat-card class="rounded-md shadow" [routerLink]="['/admin/inventory/expiring-items']" style="cursor: pointer;">
-                <mat-card-content class="p-6">
-                    <div class="flex items-center">
-                        <div class="flex-1">
-                            <p class="text-lg font-medium text-gray-500">Por Expirar</p>
-                            <p class="text-3xl font-bold">{{ expiringItems() }}</p>
-                            <p class="text-sm text-gray-500">Elementos próximos a expirar</p>
-                        </div>
-                        <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
-                            <mat-icon class="text-orange-500">schedule</mat-icon>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-        </div>
-
-        <!-- Accesos rápidos -->
-        <h2 class="text-xl font-bold mb-4">Accesos Rápidos</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            @for (section of dashboardSections; track section.title) {
-                <mat-card class="rounded-md shadow hover:shadow-lg transition-shadow duration-300" [routerLink]="[section.route]" style="cursor: pointer;">
+        <div class="mb-8">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
+                <mat-icon class="mr-2 text-red-500">notifications</mat-icon>
+                Alertas de Inventario
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Elementos con bajo stock -->
+                <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-amber-500 dark:border-amber-600 cursor-pointer" [routerLink]="['/inventory/dashboard/low-stock']">
                     <mat-card-content class="p-6">
-                        <div class="flex flex-col items-center text-center">
-                            <div class="w-16 h-16 rounded-full {{ section.color }} flex items-center justify-center mb-4">
-                                <mat-icon class="text-white text-3xl">{{ section.icon }}</mat-icon>
+                        <div class="flex items-center">
+                            <div class="flex-1">
+                                <div class="flex items-center mb-2">
+                                    <mat-icon class="text-amber-500 dark:text-amber-400 mr-2">trending_down</mat-icon>
+                                    <p class="text-lg font-semibold text-gray-800 dark:text-white">Bajo Stock</p>
+                                </div>
+                                <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ lowStockItems() }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Elementos por debajo del mínimo</p>
                             </div>
-                            <h3 class="text-lg font-bold mb-2">{{ section.title }}</h3>
-                            <p class="text-sm text-gray-500">{{ section.description }}</p>
+                            <div class="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center">
+                                <span class="text-2xl font-bold text-amber-500 dark:text-amber-400">!</span>
+                            </div>
                         </div>
                     </mat-card-content>
                 </mat-card>
-            }
+
+                <!-- Elementos sin stock -->
+                <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-red-500 dark:border-red-600 cursor-pointer" [routerLink]="['/inventory/dashboard/low-stock']">
+                    <mat-card-content class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex-1">
+                                <div class="flex items-center mb-2">
+                                    <mat-icon class="text-red-500 dark:text-red-400 mr-2">inventory</mat-icon>
+                                    <p class="text-lg font-semibold text-gray-800 dark:text-white">Sin Stock</p>
+                                </div>
+                                <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ outOfStockItems() }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Elementos con cantidad cero</p>
+                            </div>
+                            <div class="w-14 h-14 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
+                                <span class="text-2xl font-bold text-red-500 dark:text-red-400">0</span>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <!-- Elementos por expirar -->
+                <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-orange-500 dark:border-orange-600 cursor-pointer" [routerLink]="['/inventory/dashboard/expiring-items']">
+                    <mat-card-content class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex-1">
+                                <div class="flex items-center mb-2">
+                                    <mat-icon class="text-orange-500 dark:text-orange-400 mr-2">schedule</mat-icon>
+                                    <p class="text-lg font-semibold text-gray-800 dark:text-white">Por Expirar</p>
+                                </div>
+                                <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ expiringItems() }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Elementos próximos a expirar</p>
+                            </div>
+                            <div class="w-14 h-14 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
+                                <mat-icon class="text-orange-500 dark:text-orange-400 text-2xl">timer</mat-icon>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        </div>
+
+        <!-- Accesos rápidos -->
+        <div>
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
+                <mat-icon class="mr-2 text-primary">dashboard</mat-icon>
+                Accesos Rápidos
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                @for (section of dashboardSections; track section.title) {
+                    <mat-card class="rounded-lg shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 cursor-pointer transform hover:-translate-y-1" [routerLink]="[section.route]">
+                        <mat-card-content class="p-6">
+                            <div class="flex flex-col items-center text-center">
+                                <div class="w-16 h-16 rounded-full {{ section.color }} dark:opacity-90 flex items-center justify-center mb-4 shadow-md">
+                                    <mat-icon class="text-white text-3xl">{{ section.icon }}</mat-icon>
+                                </div>
+                                <h3 class="text-lg font-bold mb-2 text-gray-800 dark:text-white">{{ section.title }}</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ section.description }}</p>
+                            </div>
+                        </mat-card-content>
+                    </mat-card>
+                }
+            </div>
         </div>
     </div>
 
     <!-- Loading overlay -->
     <div *ngIf="inventoryResource.isLoading() || warehousesResource.isLoading()"
-         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <mat-spinner diameter="48"></mat-spinner>
+         class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col items-center">
+            <mat-spinner diameter="48" color="primary"></mat-spinner>
+            <p class="mt-4 text-gray-800 dark:text-white font-medium">Cargando datos...</p>
+        </div>
     </div>
 </div>
