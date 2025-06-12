@@ -1,103 +1,151 @@
-<div class="flex flex-col min-w-0 w-full">
+<div class="flex flex-col min-w-0 w-full min-h-screen">
+    <!-- Enhanced Page Header with gradient background -->
     <page-header
         title="Stock por Almacén"
         subtitle="Consulta el inventario disponible en cada almacén"
-        icon="heroicons_outline:building-office">
+        icon="heroicons_outline:building-office"
+        class="text-white">
     </page-header>
 
-    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-10 gap-y-4 sm:px-4">
-        <!-- Panel de filtros -->
-        <div class="w-full bg-card rounded-md shadow p-4 mb-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <mat-form-field class="w-full">
-                    <mat-label>Almacén</mat-label>
-                    <mat-select [formControl]="warehouseControl">
-                        <mat-option value="">Todos los almacenes</mat-option>
-                        @for (warehouse of warehousesResource.value() || []; track warehouse.id) {
-                            <mat-option [value]="warehouse.id">{{ warehouse.name }}</mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col w-full max-w-7xl mx-auto gap-y-8">
+            <!-- Panel de filtros mejorado -->
+            <div class="w-full bg-card rounded-xl shadow-md p-6 border transition-all duration-300 hover:shadow-lg">
+                <h2 class="text-lg font-semibold mb-4 flex items-center">
+                    <mat-icon class="mr-2 text-blue-600">filter_list</mat-icon>
+                    Filtros de Búsqueda
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>Almacén</mat-label>
+                        <mat-select [formControl]="warehouseControl">
+                            <mat-option value="">Todos los almacenes</mat-option>
+                            @for (warehouse of warehousesResource.value() || []; track warehouse.id) {
+                                <mat-option [value]="warehouse.id">{{ warehouse.name }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
 
-                <!-- Botones de acción -->
-                <div class="flex justify-end items-center gap-2">
-                    <button mat-button color="warn" type="button" (click)="clearFilters()">
-                        Limpiar filtros
-                    </button>
-                    <button
-                        (click)="inventoryResource.reload()"
-                        [matTooltip]="'Recargar'"
-                        mat-icon-button
-                    >
-                        <mat-icon class="icon-size-5" svgIcon="heroicons_outline:arrow-path"></mat-icon>
-                    </button>
+                    <!-- Botones de acción -->
+                    <div class="flex justify-end items-center gap-3">
+                        <button
+                            mat-flat-button
+                            color="warn"
+                            type="button"
+                            (click)="clearFilters()"
+                            class="rounded-md hover:shadow-md transition-all duration-200">
+                            <mat-icon class="mr-1">clear</mat-icon>
+                            Limpiar filtros
+                        </button>
+                        <button
+                            (click)="inventoryResource.reload()"
+                            [matTooltip]="'Recargar datos'"
+                            mat-flat-button
+                            color="primary"
+                            class="rounded-md hover:shadow-md transition-all duration-200">
+                            <mat-icon class="mr-1">refresh</mat-icon>
+                            Actualizar
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Resumen de stock -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full mb-4">
-            <mat-card class="rounded-md shadow">
-                <mat-card-content class="p-4">
-                    <div class="flex items-center">
-                        <mat-icon class="text-green-500 mr-2">home</mat-icon>
-                        <div>
-                            <p class="text-sm text-gray-500">Almacenes</p>
-                            <p class="text-xl font-bold">{{ totalWarehouses() }}</p>
+            <!-- Resumen de stock mejorado -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+                <!-- Card 1: Almacenes -->
+                <div class="bg-card rounded-xl shadow-md overflow-hidden border-l-4 border-green-500 transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-secondary uppercase tracking-wider">Almacenes</p>
+                                <p class="text-3xl font-bold mt-1">{{ totalWarehouses() }}</p>
+                            </div>
+                            <div class="bg-green-600/25 p-3 rounded-full w-14 h-14 flex-center">
+                                <mat-icon class="text-green-600">home</mat-icon>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-xs text-secondary">
+                            Almacenes activos en el sistema
                         </div>
                     </div>
-                </mat-card-content>
-            </mat-card>
-
-            <mat-card class="rounded-md shadow">
-                <mat-card-content class="p-4">
-                    <div class="flex items-center">
-                        <mat-icon class="text-blue-500 mr-2">inventory_2</mat-icon>
-                        <div>
-                            <p class="text-sm text-gray-500">Productos</p>
-                            <p class="text-xl font-bold">{{ totalItems() }}</p>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-
-            <mat-card class="rounded-md shadow">
-                <mat-card-content class="p-4">
-                    <div class="flex items-center">
-                        <mat-icon class="text-purple-500 mr-2">shopping_cart</mat-icon>
-                        <div>
-                            <p class="text-sm text-gray-500">Cantidad Total</p>
-                            <p class="text-xl font-bold">{{ totalQuantity() }}</p>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-
-            <mat-card class="rounded-md shadow">
-                <mat-card-content class="p-4">
-                    <div class="flex items-center">
-                        <mat-icon class="text-amber-500 mr-2">trending_down</mat-icon>
-                        <div>
-                            <p class="text-sm text-gray-500">Bajo Stock</p>
-                            <p class="text-xl font-bold">{{ lowStockItems() }}</p>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-        </div>
-
-        <!-- Tabla de inventario -->
-        <div class="relative max-w-full overflow-auto w-full">
-            @if (inventoryResource.value) {
-                <table-builder [columns]="columnsConfig()"
-                               [data]="inventoryResource.value"
-                               class="w-full"
-                ></table-builder>
-            } @else {
-                <div class="flex justify-center items-center h-64">
-                    <mat-spinner diameter="48"></mat-spinner>
                 </div>
-            }
+
+                <!-- Card 2: Productos -->
+                <div class="bg-card rounded-xl shadow-md overflow-hidden border-l-4 border-blue-500 transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-secondary uppercase tracking-wider">Productos</p>
+                                <p class="text-3xl font-bold mt-1">{{ totalItems() }}</p>
+                            </div>
+                            <div class="bg-blue-600/25 p-3 rounded-full w-14 h-14 flex-center">
+                                <mat-icon class="text-blue-600">inventory_2</mat-icon>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-xs text-secondary">
+                            Productos únicos en inventario
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Cantidad Total -->
+                <div class="bg-card rounded-xl shadow-md overflow-hidden border-l-4 border-purple-500 transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-secondary uppercase tracking-wider">Cantidad Total</p>
+                                <p class="text-3xl font-bold mt-1">{{ totalQuantity() }}</p>
+                            </div>
+                            <div class="bg-purple-600/25 p-3 rounded-full w-14 h-14 flex-center">
+                                <mat-icon class="text-purple-600">shopping_cart</mat-icon>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-xs text-secondary">
+                            Unidades totales en stock
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: Bajo Stock -->
+                <div class="bg-card rounded-xl shadow-md overflow-hidden border-l-4 border-amber-500 transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-secondary uppercase tracking-wider">Bajo Stock</p>
+                                <p class="text-3xl font-bold mt-1">{{ lowStockItems() }}</p>
+                            </div>
+                            <div class="bg-amber-600/25 p-3 rounded-full w-14 h-14 flex-center">
+                                <mat-icon class="text-amber-600">trending_down</mat-icon>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-xs text-secondary">
+                            Productos con stock crítico
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de inventario mejorada -->
+            <div class="bg-card rounded-xl shadow-md p-6 border w-full">
+                <h2 class="text-lg font-semibold mb-4 flex items-center">
+                    <mat-icon class="mr-2 text-blue-600">table_chart</mat-icon>
+                    Detalle de Inventario
+                </h2>
+                <div class="relative overflow-hidden w-full rounded-lg bg-hover">
+                    @if (inventoryResource.value()) {
+                        <table-builder
+                            [columns]="columnsConfig()"
+                            [data]="inventoryResource.value() "
+                            class="w-full"
+                        ></table-builder>
+                    } @else {
+                        <div class="flex flex-col justify-center items-center h-64 bg-hover rounded-lg">
+                            <mat-spinner diameter="48" color="primary"></mat-spinner>
+                            <p class="mt-4 text-secondary">Cargando datos de inventario...</p>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     </div>
 </div>

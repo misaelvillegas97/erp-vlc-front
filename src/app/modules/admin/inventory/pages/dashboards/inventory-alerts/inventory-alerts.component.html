@@ -1,131 +1,188 @@
-<div class="flex flex-col min-w-0 w-full">
+<div class="flex flex-col min-w-0 w-full min-h-screen">
     <page-header
         title="Alertas de Inventario"
         subtitle="Consulta todas las alertas relacionadas con el inventario"
-        icon="heroicons_outline:bell">
+        icon="heroicons_outline:bell"
+        class="text-white">
     </page-header>
 
-    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-10 gap-y-4 sm:px-4">
-        <!-- Panel de filtros -->
-        <div class="w-full bg-card rounded-md shadow p-4 mb-4">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <mat-form-field class="w-full">
-                    <mat-label>Tipo de Alerta</mat-label>
-                    <mat-select [formControl]="typeControl">
-                        <mat-option value="">Todos los tipos</mat-option>
-                        @for (type of alertTypes; track type.value) {
-                            <mat-option [value]="type.value">{{ type.label }}</mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col w-full max-w-7xl mx-auto gap-y-8">
+            <!-- Panel de filtros mejorado -->
+            <div class="w-full bg-card rounded-xl shadow-md p-6 border transition-all duration-300 hover:shadow-lg">
+                <h2 class="text-lg font-semibold mb-4 flex items-center">
+                    <mat-icon class="mr-2 text-blue-600">filter_list</mat-icon>
+                    Filtros de Alertas
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>Tipo de Alerta</mat-label>
+                        <mat-select [formControl]="typeControl">
+                            <mat-option value="">Todos los tipos</mat-option>
+                            @for (type of alertTypes; track type.value) {
+                                <mat-option [value]="type.value">{{ type.label }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
 
-                <mat-form-field class="w-full">
-                    <mat-label>Severidad</mat-label>
-                    <mat-select [formControl]="severityControl">
-                        <mat-option value="">Todas las severidades</mat-option>
-                        @for (severity of alertSeverities; track severity.value) {
-                            <mat-option [value]="severity.value">{{ severity.label }}</mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>Severidad</mat-label>
+                        <mat-select [formControl]="severityControl">
+                            <mat-option value="">Todas las severidades</mat-option>
+                            @for (severity of alertSeverities; track severity.value) {
+                                <mat-option [value]="severity.value">{{ severity.label }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
 
-                <mat-form-field class="w-full">
-                    <mat-label>Almacén</mat-label>
-                    <mat-select [formControl]="warehouseControl">
-                        <mat-option value="">Todos los almacenes</mat-option>
-                        @for (warehouse of warehousesResource.value() || []; track warehouse.id) {
-                            <mat-option [value]="warehouse.id">{{ warehouse.name }}</mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>Almacén</mat-label>
+                        <mat-select [formControl]="warehouseControl">
+                            <mat-option value="">Todos los almacenes</mat-option>
+                            @for (warehouse of warehousesResource.value() || []; track warehouse.id) {
+                                <mat-option [value]="warehouse.id">{{ warehouse.name }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
 
-                <!-- Botones de acción -->
-                <div class="flex justify-end items-center gap-2 col-span-1 sm:col-span-3">
-                    <button mat-button color="warn" type="button" (click)="clearFilters()">
-                        Limpiar filtros
-                    </button>
-                    <button
-                        (click)="alertsResource.reload()"
-                        [matTooltip]="'Recargar'"
-                        mat-icon-button
-                    >
-                        <mat-icon class="icon-size-5" svgIcon="heroicons_outline:arrow-path"></mat-icon>
-                    </button>
+                    <!-- Botones de acción -->
+                    <div class="flex justify-end items-center gap-3 col-span-1 sm:col-span-3">
+                        <button
+                            mat-flat-button
+                            color="warn"
+                            type="button"
+                            (click)="clearFilters()"
+                            class="rounded-md hover:shadow-md transition-all duration-200">
+                            <mat-icon class="mr-1">clear</mat-icon>
+                            Limpiar filtros
+                        </button>
+                        <button
+                            (click)="alertsResource.reload()"
+                            [matTooltip]="'Recargar datos'"
+                            mat-flat-button
+                            color="primary"
+                            class="rounded-md hover:shadow-md transition-all duration-200">
+                            <mat-icon class="mr-1">refresh</mat-icon>
+                            Actualizar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen de alertas mejorado -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+                <!-- Card 1: Total Alertas -->
+                <div class="bg-card rounded-xl shadow-md overflow-hidden border-l-4 border-blue-500 transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-secondary uppercase tracking-wider">Total Alertas</p>
+                                <p class="text-3xl font-bold mt-1">{{ totalAlerts() }}</p>
+                            </div>
+                            <div class="bg-blue-600/25 p-3 rounded-full w-14 h-14 flex-center">
+                                <mat-icon class="text-blue-600">notifications</mat-icon>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-xs text-secondary">
+                            Alertas activas en el sistema
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Críticas -->
+                <div class="bg-card rounded-xl shadow-md overflow-hidden border-l-4 border-red-600 transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-secondary uppercase tracking-wider">Críticas</p>
+                                <p class="text-3xl font-bold mt-1">{{ criticalAlerts() }}</p>
+                            </div>
+                            <div class="bg-red-600/25 p-3 rounded-full w-14 h-14 flex-center">
+                                <mat-icon class="text-red-600">error</mat-icon>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-xs text-secondary">
+                            Alertas que requieren atención inmediata
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Advertencias -->
+                <div class="bg-card rounded-xl shadow-md overflow-hidden border-l-4 border-amber-500 transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-secondary uppercase tracking-wider">Advertencias</p>
+                                <p class="text-3xl font-bold mt-1">{{ warningAlerts() }}</p>
+                            </div>
+                            <div class="bg-amber-600/25 p-3 rounded-full w-14 h-14 flex-center">
+                                <mat-icon class="text-amber-600">warning</mat-icon>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-xs text-secondary">
+                            Alertas que requieren atención pronto
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: Información -->
+                <div class="bg-card rounded-xl shadow-md overflow-hidden border-l-4 border-blue-400 transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-secondary uppercase tracking-wider">Información</p>
+                                <p class="text-3xl font-bold mt-1">{{ infoAlerts() }}</p>
+                            </div>
+                            <div class="bg-blue-600/25 p-3 rounded-full w-14 h-14 flex-center">
+                                <mat-icon class="text-blue-600">info</mat-icon>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-xs text-secondary">
+                            Alertas informativas del sistema
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de alertas mejorada -->
+            <div class="bg-card rounded-xl shadow-md p-6 border border-gray-600/25 w-full">
+                <h2 class="text-lg font-semibold mb-4 flex items-center">
+                    <mat-icon class="mr-2 text-blue-600">notifications_active</mat-icon>
+                    Listado de Alertas
+                </h2>
+                <div class="relative overflow-hidden w-full rounded-lg">
+                    @if (alertsResource.value()) {
+                        @if (alertsResource.value().length > 0) {
+                            <table-builder
+                                [columns]="columnsConfig()"
+                                [data]="alertsResource.value()"
+                                class="w-full"
+                            ></table-builder>
+                        } @else {
+                            <div class="flex flex-col items-center justify-center h-64 bg-hover rounded-lg">
+                                <mat-icon class="text-green-500 text-5xl mb-4">check_circle</mat-icon>
+                                <p class="text-xl font-medium text-center">¡No hay alertas activas!</p>
+                                <p class="text-secondary text-center mt-2">El inventario está en buen estado según los criterios actuales.</p>
+                            </div>
+                        }
+                    } @else {
+                        <div class="flex flex-col justify-center items-center h-64 bg-hover rounded-lg">
+                            <mat-spinner diameter="48" color="primary"></mat-spinner>
+                            <p class="mt-4 text-secondary">Cargando datos de alertas...</p>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
-
-        <!-- Resumen de alertas -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full mb-4">
-            <mat-card class="rounded-md shadow">
-                <mat-card-content class="p-4">
-                    <div class="flex items-center">
-                        <mat-icon class="text-blue-500 mr-2">notifications</mat-icon>
-                        <div>
-                            <p class="text-sm text-gray-500">Total Alertas</p>
-                            <p class="text-xl font-bold">{{ totalAlerts() }}</p>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-
-            <mat-card class="rounded-md shadow">
-                <mat-card-content class="p-4">
-                    <div class="flex items-center">
-                        <mat-icon class="text-red-600 mr-2">error</mat-icon>
-                        <div>
-                            <p class="text-sm text-gray-500">Críticas</p>
-                            <p class="text-xl font-bold">{{ criticalAlerts() }}</p>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-
-            <mat-card class="rounded-md shadow">
-                <mat-card-content class="p-4">
-                    <div class="flex items-center">
-                        <mat-icon class="text-amber-500 mr-2">warning</mat-icon>
-                        <div>
-                            <p class="text-sm text-gray-500">Advertencias</p>
-                            <p class="text-xl font-bold">{{ warningAlerts() }}</p>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-
-            <mat-card class="rounded-md shadow">
-                <mat-card-content class="p-4">
-                    <div class="flex items-center">
-                        <mat-icon class="text-blue-500 mr-2">info</mat-icon>
-                        <div>
-                            <p class="text-sm text-gray-500">Información</p>
-                            <p class="text-xl font-bold">{{ infoAlerts() }}</p>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-        </div>
-
-        <!-- Tabla de alertas -->
-        <div class="relative max-w-full overflow-auto w-full">
-            @if (alertsResource.value()) {
-                @if (alertsResource.value().length > 0) {
-                    <table-builder [columns]="columnsConfig()"
-                                   [data]="alertsResource.value()"
-                                   class="w-full"
-                    ></table-builder>
-                } @else {
-                    <div class="flex flex-col items-center justify-center h-64 bg-card rounded-md shadow p-4">
-                        <mat-icon class="text-green-500 text-5xl mb-4">check_circle</mat-icon>
-                        <p class="text-xl font-medium text-center">¡No hay alertas activas!</p>
-                        <p class="text-gray-500 text-center mt-2">El inventario está en buen estado según los criterios actuales.</p>
-                    </div>
-                }
-            } @else {
-                <div class="flex justify-center items-center h-64">
-                    <mat-spinner diameter="48"></mat-spinner>
-                </div>
-            }
-        </div>
     </div>
+
+    <!-- Loading overlay -->
+    @if (alertsResource.isLoading()) {
+        <div class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
+            <div class="bg-card p-6 rounded-lg shadow-xl flex flex-col items-center">
+                <mat-spinner diameter="48" color="primary"></mat-spinner>
+                <p class="mt-4 font-medium">Cargando datos...</p>
+            </div>
+        </div>
+    }
 </div>

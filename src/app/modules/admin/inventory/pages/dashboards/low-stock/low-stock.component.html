@@ -1,117 +1,173 @@
-<div class="flex flex-col min-w-0 w-full">
+<div class="flex flex-col min-w-0 w-full min-h-screen">
     <page-header
         title="Productos con Bajo Stock"
         subtitle="Consulta los productos que están por debajo del nivel mínimo de stock"
-        icon="heroicons_outline:exclamation-triangle">
+        icon="heroicons_outline:exclamation-triangle"
+        class="text-white">
     </page-header>
 
-    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-10 gap-y-4 sm:px-4">
-        <!-- Panel de filtros -->
-        <div class="w-full bg-card rounded-md shadow p-4 mb-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <mat-form-field class="w-full">
-                    <mat-label>Buscar</mat-label>
-                    <input matInput [formControl]="searchControl" placeholder="Buscar por nombre de producto">
-                    <mat-icon matSuffix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
-                </mat-form-field>
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col w-full max-w-7xl mx-auto gap-y-8">
+            <!-- Panel de filtros mejorado -->
+            <div class="w-full bg-card rounded-xl shadow-md p-6 border transition-all duration-300 hover:shadow-lg">
+                <h2 class="text-lg font-semibold mb-4 flex items-center">
+                    <mat-icon class="mr-2 text-blue-600">filter_list</mat-icon>
+                    Filtros de Búsqueda
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>Buscar</mat-label>
+                        <input matInput [formControl]="searchControl" placeholder="Buscar por nombre de producto">
+                        <mat-icon matSuffix svgIcon="heroicons_outline:magnifying-glass" class="text-secondary"></mat-icon>
+                    </mat-form-field>
 
-                <mat-form-field class="w-full">
-                    <mat-label>Almacén</mat-label>
-                    <mat-select [formControl]="warehouseControl">
-                        <mat-option value="">Todos los almacenes</mat-option>
-                        @for (warehouse of warehousesResource.value() || []; track warehouse.id) {
-                            <mat-option [value]="warehouse.id">{{ warehouse.name }}</mat-option>
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>Almacén</mat-label>
+                        <mat-select [formControl]="warehouseControl">
+                            <mat-option value="">Todos los almacenes</mat-option>
+                            @for (warehouse of warehousesResource.value() || []; track warehouse.id) {
+                                <mat-option [value]="warehouse.id">{{ warehouse.name }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+
+                    <!-- Botones de acción -->
+                    <div class="flex justify-end items-center gap-3 col-span-1 sm:col-span-2">
+                        <button
+                            mat-flat-button
+                            color="warn"
+                            type="button"
+                            (click)="clearFilters()"
+                            class="rounded-md hover:shadow-md transition-all duration-200">
+                            <mat-icon class="mr-1">clear</mat-icon>
+                            Limpiar filtros
+                        </button>
+                        <button
+                            (click)="lowStockResource.reload()"
+                            [matTooltip]="'Recargar datos'"
+                            mat-flat-button
+                            color="primary"
+                            class="rounded-md hover:shadow-md transition-all duration-200">
+                            <mat-icon class="mr-1">refresh</mat-icon>
+                            Actualizar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen de stock mejorado -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+                <!-- Card 1: Total Bajo Stock -->
+                <div class="bg-card rounded-xl shadow-md overflow-hidden border-l-4 border-amber-500 transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-secondary uppercase tracking-wider">Total Bajo Stock</p>
+                                <p class="text-3xl font-bold mt-1">{{ totalLowStockItems() }}</p>
+                            </div>
+                            <div class="bg-amber-600/25 p-3 rounded-full w-14 h-14 flex-center">
+                                <mat-icon class="text-amber-600">warning</mat-icon>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-xs text-secondary">
+                            Productos por debajo del nivel mínimo
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Críticos -->
+                <div class="bg-card rounded-xl shadow-md overflow-hidden border-l-4 border-red-500 transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-secondary uppercase tracking-wider">Críticos</p>
+                                <p class="text-3xl font-bold mt-1">{{ criticalItems() }}</p>
+                            </div>
+                            <div class="bg-red-600/25 p-3 rounded-full w-14 h-14 flex-center">
+                                <mat-icon class="text-red-600">error</mat-icon>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-xs text-secondary">
+                            Productos con menos del 25% de stock
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Advertencia -->
+                <div class="bg-card rounded-xl shadow-md overflow-hidden border-l-4 border-amber-500 transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-secondary uppercase tracking-wider">Advertencia</p>
+                                <p class="text-3xl font-bold mt-1">{{ warningItems() }}</p>
+                            </div>
+                            <div class="bg-amber-600/25 p-3 rounded-full w-14 h-14 flex-center">
+                                <mat-icon class="text-amber-600">trending_down</mat-icon>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-xs text-secondary">
+                            Productos con más del 25% de stock
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: Sin Stock -->
+                <div class="bg-card rounded-xl shadow-md overflow-hidden border-l-4 border-red-600 transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-secondary uppercase tracking-wider">Sin Stock</p>
+                                <p class="text-3xl font-bold mt-1">{{ outOfStockItems() }}</p>
+                            </div>
+                            <div class="bg-red-600/25 p-3 rounded-full w-14 h-14 flex-center">
+                                <mat-icon class="text-red-600">inventory</mat-icon>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-xs text-secondary">
+                            Productos completamente agotados
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de productos con bajo stock mejorada -->
+            <div class="bg-card rounded-xl shadow-md p-6 border w-full">
+                <h2 class="text-lg font-semibold mb-4 flex items-center">
+                    <mat-icon class="mr-2 text-blue-600">inventory_2</mat-icon>
+                    Productos con Bajo Stock
+                </h2>
+                <div class="relative overflow-hidden w-full rounded-lg">
+                    @if (lowStockResource.value()) {
+                        @if (lowStockResource.value().length > 0) {
+                            <table-builder
+                                [columns]="columnsConfig()"
+                                [data]="lowStockResource.value()"
+                                class="w-full"
+                            ></table-builder>
+                        } @else {
+                            <div class="flex flex-col items-center justify-center h-64 bg-hover rounded-lg">
+                                <mat-icon class="text-green-500 text-5xl mb-4">check_circle</mat-icon>
+                                <p class="text-xl font-medium text-center">¡Todos los productos tienen niveles de stock adecuados!</p>
+                                <p class="text-secondary text-center mt-2">No hay productos con niveles de stock por debajo del mínimo.</p>
+                            </div>
                         }
-                    </mat-select>
-                </mat-form-field>
-
-                <!-- Botones de acción -->
-                <div class="flex justify-end items-center gap-2 col-span-1 sm:col-span-2">
-                    <button mat-button color="warn" type="button" (click)="clearFilters()">
-                        Limpiar filtros
-                    </button>
-                    <button
-                        (click)="lowStockResource.reload()"
-                        [matTooltip]="'Recargar'"
-                        mat-icon-button
-                    >
-                        <mat-icon class="icon-size-5" svgIcon="heroicons_outline:arrow-path"></mat-icon>
-                    </button>
+                    } @else {
+                        <div class="flex flex-col justify-center items-center h-64 bg-hover rounded-lg">
+                            <mat-spinner diameter="48" color="primary"></mat-spinner>
+                            <p class="mt-4 text-secondary">Cargando datos de productos...</p>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Resumen de stock -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full mb-4">
-            <mat-card class="rounded-md shadow">
-                <mat-card-content class="p-4">
-                    <div class="flex items-center">
-                        <mat-icon class="text-amber-500 mr-2">warning</mat-icon>
-                        <div>
-                            <p class="text-sm text-gray-500">Total Bajo Stock</p>
-                            <p class="text-xl font-bold">{{ totalLowStockItems() }}</p>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-
-            <mat-card class="rounded-md shadow">
-                <mat-card-content class="p-4">
-                    <div class="flex items-center">
-                        <mat-icon class="text-red-500 mr-2">error</mat-icon>
-                        <div>
-                            <p class="text-sm text-gray-500">Críticos (<25%)</p>
-                            <p class="text-xl font-bold">{{ criticalItems() }}</p>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-
-            <mat-card class="rounded-md shadow">
-                <mat-card-content class="p-4">
-                    <div class="flex items-center">
-                        <mat-icon class="text-amber-500 mr-2">trending_down</mat-icon>
-                        <div>
-                            <p class="text-sm text-gray-500">Advertencia (>25%)</p>
-                            <p class="text-xl font-bold">{{ warningItems() }}</p>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-
-            <mat-card class="rounded-md shadow">
-                <mat-card-content class="p-4">
-                    <div class="flex items-center">
-                        <mat-icon class="text-red-600 mr-2">inventory</mat-icon>
-                        <div>
-                            <p class="text-sm text-gray-500">Sin Stock</p>
-                            <p class="text-xl font-bold">{{ outOfStockItems() }}</p>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-        </div>
-
-        <!-- Tabla de productos con bajo stock -->
-        <div class="relative max-w-full overflow-auto w-full">
-            @if (lowStockResource.value()) {
-                @if (lowStockResource.value().length > 0) {
-                    <table-builder [columns]="columnsConfig()"
-                                   [data]="lowStockResource.value()"
-                                   class="w-full"
-                    ></table-builder>
-                } @else {
-                    <div class="flex flex-col items-center justify-center h-64 bg-card rounded-md shadow p-4">
-                        <mat-icon class="text-green-500 text-5xl mb-4">check_circle</mat-icon>
-                        <p class="text-xl font-medium text-center">¡Todos los productos tienen niveles de stock adecuados!</p>
-                        <p class="text-gray-500 text-center mt-2">No hay productos con niveles de stock por debajo del mínimo.</p>
-                    </div>
-                }
-            } @else {
-                <div class="flex justify-center items-center h-64">
-                    <mat-spinner diameter="48"></mat-spinner>
-                </div>
-            }
+    <!-- Loading overlay -->
+    <div *ngIf="lowStockResource.isLoading()"
+         class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-card p-6 rounded-lg shadow-xl flex flex-col items-center">
+            <mat-spinner diameter="48" color="primary"></mat-spinner>
+            <p class="mt-4 font-medium">Cargando datos...</p>
         </div>
     </div>
 </div>
