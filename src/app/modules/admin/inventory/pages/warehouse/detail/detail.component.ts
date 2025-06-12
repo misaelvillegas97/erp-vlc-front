@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule }                      from '@angular/common';
 import { ActivatedRoute, Router }            from '@angular/router';
-import { PageHeaderComponent }               from '@layout/components/page-header/page-header.component';
 import { WarehouseService }                  from '@modules/admin/inventory/services/warehouse.service';
 import { Warehouse }                         from '@modules/admin/inventory/domain/models/warehouse.model';
 import { NotyfService }                      from '@shared/services/notyf.service';
@@ -46,7 +45,7 @@ export class WarehouseDetailComponent implements OnInit {
                 this.loadWarehouse(this.warehouseId);
             } else {
                 this.notyf.error('ID de almacén no proporcionado');
-                this.router.navigate([ '/admin/inventory/warehouse/list' ]);
+                this.router.navigate([ '/inventory/warehouse/list' ]);
             }
         });
     }
@@ -59,14 +58,14 @@ export class WarehouseDetailComponent implements OnInit {
         } catch (error) {
             this.notyf.error('Error al cargar el almacén');
             console.error('Error loading warehouse:', error);
-            this.router.navigate([ '/admin/inventory/warehouse/list' ]);
+            this.router.navigate([ '/inventory/warehouse/list' ]);
         } finally {
             this.isLoading.set(false);
         }
     }
 
     editWarehouse(): void {
-        this.router.navigate([ '/admin/inventory/warehouse/edit' ], {queryParams: {id: this.warehouseId}});
+        this.router.navigate([ '/inventory/warehouse/edit' ], {queryParams: {id: this.warehouseId}});
     }
 
     deleteWarehouse(): void {
@@ -85,7 +84,7 @@ export class WarehouseDetailComponent implements OnInit {
                 this.warehouseService.deleteWarehouse(this.warehouseId).subscribe({
                     next : () => {
                         this.notyf.success('Almacén eliminado correctamente');
-                        this.router.navigate([ '/admin/inventory/warehouse/list' ]);
+                        this.router.navigate([ '/inventory/warehouse/list' ]);
                     },
                     error: () => {
                         this.notyf.error('Error al eliminar el almacén');
@@ -97,6 +96,6 @@ export class WarehouseDetailComponent implements OnInit {
     }
 
     goBack(): void {
-        this.router.navigate([ '/admin/inventory/warehouse/list' ]);
+        this.router.navigate([ '/inventory/warehouse/list' ]);
     }
 }

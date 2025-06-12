@@ -1,16 +1,16 @@
-<div class="flex flex-col min-w-0 w-full">
+<div class="flex flex-col min-w-0 w-full min-h-screen">
     <page-detail-header
         title="Detalles del Almacén"
         subtitle="Información detallada del almacén"
-        [showBackButton]="true"
-        (backClick)="goBack()">
-        <div class="flex gap-2">
+        class="text-white">
+        <div class="flex gap-3 items-center">
             <button
                 mat-flat-button
                 color="primary"
                 [matTooltip]="'Editar almacén'"
                 (click)="editWarehouse()"
-                [disabled]="isLoading()">
+                [disabled]="isLoading()"
+                class="rounded-md hover:shadow-md transition-all duration-200">
                 <mat-icon class="mr-2">edit</mat-icon>
                 Editar
             </button>
@@ -19,111 +19,145 @@
                 color="warn"
                 [matTooltip]="'Eliminar almacén'"
                 (click)="deleteWarehouse()"
-                [disabled]="isLoading()">
+                [disabled]="isLoading()"
+                class="rounded-md hover:shadow-md transition-all duration-200">
                 <mat-icon class="mr-2">delete</mat-icon>
                 Eliminar
             </button>
         </div>
     </page-detail-header>
 
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full p-6">
-        @if (isLoading()) {
-            <div class="md:col-span-12 flex justify-center items-center h-64">
-                <mat-spinner diameter="48"></mat-spinner>
-            </div>
-        } @else if (warehouse()) {
-            <!-- Información principal -->
-            <div class="md:col-span-8">
-                <mat-card class="rounded-md shadow">
-                    <mat-card-content>
-                        <h2 class="text-xl font-medium mb-4">Información del Almacén</h2>
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col w-full max-w-7xl mx-auto gap-y-8">
+            @if (isLoading()) {
+                <div class="flex justify-center items-center h-64">
+                    <mat-spinner diameter="48" color="primary"></mat-spinner>
+                    <p class="ml-4 text-secondary">Cargando información del almacén...</p>
+                </div>
+            } @else if (warehouse()) {
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full">
+                    <!-- Información principal -->
+                    <div class="md:col-span-8">
+                        <div class="bg-card rounded-xl shadow-md overflow-hidden border-l-4 border-blue-500 transition-all duration-300 hover:shadow-lg">
+                            <div class="p-6">
+                                <h2 class="text-xl font-semibold mb-6 flex items-center">
+                                    <mat-icon class="mr-2 text-blue-600">business</mat-icon>
+                                    Información del Almacén
+                                </h2>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="space-y-2">
-                                <div>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Nombre</p>
-                                    <p class="font-medium">{{ warehouse().name }}</p>
-                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="space-y-4">
+                                        <div>
+                                            <p class="text-sm font-medium text-secondary uppercase tracking-wider">Nombre</p>
+                                            <p class="text-lg font-medium mt-1">{{ warehouse().name }}</p>
+                                        </div>
 
-                                <div>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Dirección</p>
-                                    <p class="font-medium">{{ warehouse().address }}</p>
-                                </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-secondary uppercase tracking-wider">Dirección</p>
+                                            <p class="text-lg font-medium mt-1">{{ warehouse().address }}</p>
+                                        </div>
 
-                                <div>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Estado</p>
-                                    <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                                         [ngClass]="warehouse().isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                                        {{ warehouse().isActive ? 'Activo' : 'Inactivo' }}
+                                        <div>
+                                            <p class="text-sm font-medium text-secondary uppercase tracking-wider">Estado</p>
+                                            <div class="inline-flex items-center px-3 py-1 mt-1 rounded-full text-sm font-medium"
+                                                 [ngClass]="warehouse().isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                                                <span class="w-2 h-2 rounded-full mr-2"
+                                                      [ngClass]="warehouse().isActive ? 'bg-green-600' : 'bg-red-600'"></span>
+                                                {{ warehouse().isActive ? 'Activo' : 'Inactivo' }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-4">
+                                        <div *ngIf="warehouse().contactPerson">
+                                            <p class="text-sm font-medium text-secondary uppercase tracking-wider">Persona de contacto</p>
+                                            <p class="text-lg font-medium mt-1">{{ warehouse().contactPerson }}</p>
+                                        </div>
+
+                                        <div *ngIf="warehouse().contactPhone">
+                                            <p class="text-sm font-medium text-secondary uppercase tracking-wider">Teléfono de contacto</p>
+                                            <p class="text-lg font-medium mt-1">{{ warehouse().contactPhone }}</p>
+                                        </div>
+
+                                        <div *ngIf="warehouse().contactEmail">
+                                            <p class="text-sm font-medium text-secondary uppercase tracking-wider">Email de contacto</p>
+                                            <p class="text-lg font-medium mt-1">{{ warehouse().contactEmail }}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="space-y-2">
-                                <div *ngIf="warehouse().contactPerson">
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Persona de contacto</p>
-                                    <p class="font-medium">{{ warehouse().contactPerson }}</p>
-                                </div>
-
-                                <div *ngIf="warehouse().contactPhone">
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Teléfono de contacto</p>
-                                    <p class="font-medium">{{ warehouse().contactPhone }}</p>
-                                </div>
-
-                                <div *ngIf="warehouse().contactEmail">
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Email de contacto</p>
-                                    <p class="font-medium">{{ warehouse().contactEmail }}</p>
+                                <div class="mt-6 pt-6 border-t border-gray-100" *ngIf="warehouse().description">
+                                    <p class="text-sm font-medium text-secondary uppercase tracking-wider">Descripción</p>
+                                    <p class="text-base font-medium mt-2">{{ warehouse().description }}</p>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="mt-4" *ngIf="warehouse().description">
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Descripción</p>
-                            <p class="font-medium">{{ warehouse().description }}</p>
+                    <!-- Información adicional -->
+                    <div class="md:col-span-4">
+                        <div class="bg-card rounded-xl shadow-md overflow-hidden border-l-4 border-green-500 transition-all duration-300 hover:shadow-lg">
+                            <div class="p-6">
+                                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                                    <mat-icon class="mr-2 text-green-600">inventory</mat-icon>
+                                    <span>Inventario</span>
+                                </h2>
+
+                                <div class="text-gray-700 space-y-4">
+                                    @if (warehouse().inventoryItems && warehouse().inventoryItems.length > 0) {
+                                        <div class="bg-hover rounded-lg p-4 flex items-center">
+                                            <div class="bg-hover shrink-0 rounded-full w-14 h-14 flex-center mr-3">
+                                                <mat-icon class="text-blue-600">info</mat-icon>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium text-secondary">Este almacén contiene {{ warehouse()?.inventoryItems.length }} productos en inventario.</p>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            mat-flat-button
+                                            color="primary"
+                                            class="w-full mt-4 rounded-md hover:shadow-md transition-all duration-200">
+                                            <mat-icon class="mr-2">visibility</mat-icon>
+                                            Ver inventario
+                                        </button>
+                                    } @else {
+                                        <div class="bg-hover rounded-lg p-4 flex items-center">
+                                            <div class="bg-amber-600/25 shrink-0 rounded-full w-14 h-14 flex-center mr-3">
+                                                <mat-icon class="text-amber-600">warning</mat-icon>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium text-secondary">Este almacén no tiene productos en inventario.</p>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            mat-flat-button
+                                            color="primary"
+                                            class="w-full mt-4 rounded-md hover:shadow-md transition-all duration-200">
+                                            <mat-icon class="mr-2">add</mat-icon>
+                                            Agregar productos
+                                        </button>
+                                    }
+                                </div>
+                            </div>
                         </div>
-                    </mat-card-content>
-                </mat-card>
-            </div>
-
-            <!-- Información adicional -->
-            <div class="md:col-span-4">
-                <mat-card class="rounded-md shadow">
-                    <mat-card-content>
-                        <h2 class="text-xl font-medium mb-4 flex items-center">
-                            <mat-icon>inventory</mat-icon>
-                            <span class="ml-2">Inventario</span>
-                        </h2>
-
-                        <div class="text-gray-700 dark:text-gray-300 space-y-3">
-                            @if (warehouse().inventoryItems && warehouse().inventoryItems.length > 0) {
-                                <p>Este almacén contiene {{ warehouse().inventoryItems.length }} productos en inventario.</p>
-
-                                <button
-                                    mat-stroked-button
-                                    color="primary"
-                                    class="w-full mt-4">
-                                    <mat-icon class="mr-2">visibility</mat-icon>
-                                    Ver inventario
-                                </button>
-                            } @else {
-                                <p>Este almacén no tiene productos en inventario.</p>
-
-                                <button
-                                    mat-stroked-button
-                                    color="primary"
-                                    class="w-full mt-4">
-                                    <mat-icon class="mr-2">add</mat-icon>
-                                    Agregar productos
-                                </button>
-                            }
-                        </div>
-                    </mat-card-content>
-                </mat-card>
-            </div>
-        } @else {
-            <div class="md:col-span-12 flex justify-center items-center h-64">
-                <p class="text-gray-500">No se encontró información del almacén</p>
-            </div>
-        }
+                    </div>
+                </div>
+            } @else {
+                <div class="flex flex-col justify-center items-center h-64 bg-card rounded-xl shadow-md p-6">
+                    <mat-icon class="text-gray-400 text-5xl mb-4">error_outline</mat-icon>
+                    <p class="text-xl font-medium text-secondary">No se encontró información del almacén</p>
+                    <button
+                        mat-flat-button
+                        color="primary"
+                        class="mt-4 rounded-md hover:shadow-md transition-all duration-200"
+                        (click)="goBack()">
+                        <mat-icon class="mr-2">arrow_back</mat-icon>
+                        Volver a la lista
+                    </button>
+                </div>
+            }
+        </div>
     </div>
 </div>

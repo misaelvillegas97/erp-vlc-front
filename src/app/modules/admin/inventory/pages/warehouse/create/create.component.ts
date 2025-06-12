@@ -35,7 +35,7 @@ export class WarehouseCreateComponent {
             this.isLoading.set(true);
             await firstValueFrom(this.warehouseService.createWarehouse(warehouse));
             this.notyf.success('Almacén creado correctamente');
-            this.router.navigate([ '/admin/inventory/warehouse/list' ]);
+            this.router.navigate([ '/inventory/warehouse/list' ]);
         } catch (error) {
             this.notyf.error('Error al crear el almacén');
             console.error('Error creating warehouse:', error);
@@ -45,6 +45,6 @@ export class WarehouseCreateComponent {
     }
 
     onFormCancel(): void {
-        this.router.navigate([ '/admin/inventory/warehouse/list' ]);
+        this.router.navigate([ '/inventory/warehouse/list' ]);
     }
 }
