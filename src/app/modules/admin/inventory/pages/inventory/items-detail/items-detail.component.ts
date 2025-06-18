@@ -4,6 +4,7 @@ import { ActivatedRoute, Router }            from '@angular/router';
 import { PageDetailHeaderComponent }         from '@shared/components/page-detail-header/page-detail-header.component';
 import { InventoryService }                  from '@modules/admin/inventory/services/inventory.service';
 import { InventoryItem }                     from '@modules/admin/inventory/domain/models/inventory-item.model';
+import { InventoryBatch }                    from '@modules/admin/inventory/domain/models/inventory-batch.model';
 import { NotyfService }                      from '@shared/services/notyf.service';
 import { firstValueFrom }                    from 'rxjs';
 import { MatCardModule }                     from '@angular/material/card';
@@ -40,6 +41,8 @@ export class InventoryItemsDetailComponent implements OnInit {
     isLoading = signal(false);
     inventoryItem = signal<InventoryItem | null>(null);
     warehouse = signal<Warehouse | null>(null);
+    batches = signal<InventoryBatch[]>([]);
+    isBatchesLoading = signal(false);
     itemId = '';
 
     ngOnInit(): void {
@@ -47,11 +50,25 @@ export class InventoryItemsDetailComponent implements OnInit {
             if (params['id']) {
                 this.itemId = params['id'];
                 this.loadInventoryItem(this.itemId);
+                this.loadBatches(this.itemId);
             } else {
                 this.notyf.error('ID de elemento no proporcionado');
                 this.router.navigate([ '/admin/inventory/inventory-items' ]);
             }
         });
+    }
+
+    async loadBatches(itemId: string): Promise<void> {
+        try {
+            this.isBatchesLoading.set(true);
+            const batches = await firstValueFrom(this.inventoryService.getBatchesByItemId(itemId));
+            this.batches.set(batches);
+        } catch (error) {
+            this.notyf.error('Error al cargar los lotes del elemento');
+            console.error('Error loading batches:', error);
+        } finally {
+            this.isBatchesLoading.set(false);
+        }
     }
 
     async loadInventoryItem(id: string): Promise<void> {
@@ -136,10 +153,19 @@ export class InventoryItemsDetailComponent implements OnInit {
         return {status: 'Normal', color: 'bg-green-100 text-green-800'};
     }
 
-    isExpiringSoon(item: InventoryItem): boolean {
-        if (!item.expirationDate) return false;
+    isExpiringSoon(dateOrItem: Date | string | InventoryItem | InventoryBatch): boolean {
+        let expirationDate: Date;
 
-        const expirationDate = new Date(item.expirationDate);
+        if (dateOrItem instanceof Date || typeof dateOrItem === 'string') {
+            if (!dateOrItem) return false;
+            expirationDate = new Date(dateOrItem);
+        } else if ('expirationDate' in dateOrItem) {
+            if (!dateOrItem.expirationDate) return false;
+            expirationDate = new Date(dateOrItem.expirationDate);
+        } else {
+            return false;
+        }
+
         const today = new Date();
         const thirtyDaysFromNow = new Date();
         thirtyDaysFromNow.setDate(today.getDate() + 30);
@@ -147,12 +173,20 @@ export class InventoryItemsDetailComponent implements OnInit {
         return expirationDate <= thirtyDaysFromNow && expirationDate >= today;
     }
 
-    isExpired(item: InventoryItem): boolean {
-        if (!item.expirationDate) return false;
+    isExpired(dateOrItem: Date | string | InventoryItem | InventoryBatch): boolean {
+        let expirationDate: Date;
 
-        const expirationDate = new Date(item.expirationDate);
+        if (dateOrItem instanceof Date || typeof dateOrItem === 'string') {
+            if (!dateOrItem) return false;
+            expirationDate = new Date(dateOrItem);
+        } else if ('expirationDate' in dateOrItem) {
+            if (!dateOrItem.expirationDate) return false;
+            expirationDate = new Date(dateOrItem.expirationDate);
+        } else {
+            return false;
+        }
+
         const today = new Date();
-
         return expirationDate < today;
     }
 }

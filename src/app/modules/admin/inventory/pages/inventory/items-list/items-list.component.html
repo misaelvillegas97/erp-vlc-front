@@ -59,6 +59,13 @@
                         }
                     </mat-select>
                 </mat-form-field>
+
+                <!-- Filtro de elementos por expirar -->
+                <div class="flex items-center">
+                    <mat-checkbox [formControl]="showExpiringOnly" color="primary">
+                        Mostrar solo elementos por expirar (próximos 30 días)
+                    </mat-checkbox>
+                </div>
             </div>
         </div>
 
@@ -80,11 +87,11 @@
                 <mat-icon class="icon-size-5" svgIcon="heroicons_outline:ellipsis-vertical"></mat-icon>
             </button>
             <mat-menu #menu="matMenu">
-                <a mat-menu-item [routerLink]="[item.id]">
+                <a mat-menu-item [routerLink]="['..', item.id]">
                     <mat-icon class="icon-size-5" svgIcon="heroicons_outline:eye"></mat-icon>
                     <span>Ver detalles</span>
                 </a>
-                <a mat-menu-item [routerLink]="[item.id, 'edit']">
+                <a mat-menu-item [routerLink]="['..', item.id, 'edit']">
                     <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil"></mat-icon>
                     <span>Editar</span>
                 </a>

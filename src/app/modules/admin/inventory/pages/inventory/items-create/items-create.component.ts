@@ -34,7 +34,7 @@ export class InventoryItemsCreateComponent {
             this.isLoading.set(true);
             await firstValueFrom(this.inventoryService.createInventoryItem(item));
             this.notyf.success('Elemento de inventario creado correctamente');
-            this.router.navigate([ '/admin/inventory/inventory-items' ]);
+            this.router.navigate([ '/inventory/inventory/list' ]);
         } catch (error) {
             this.notyf.error('Error al crear el elemento de inventario');
             console.error('Error creating inventory item:', error);
@@ -44,6 +44,6 @@ export class InventoryItemsCreateComponent {
     }
 
     onFormCancel(): void {
-        this.router.navigate([ '/admin/inventory/inventory-items' ]);
+        this.router.navigate([ '/inventory/inventory/list' ]);
     }
 }

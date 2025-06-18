@@ -79,7 +79,7 @@ export const inventoryPermissions: RoutePermission[] = [
                 ]
             },
             {
-                path        : 'inventory',
+                path        : 'items',
                 title       : 'Inventario',
                 description : 'Gestión de elementos de inventario',
                 icon        : 'heroicons_outline:cube',
@@ -88,7 +88,7 @@ export const inventoryPermissions: RoutePermission[] = [
                 allowedRoles: [ RoleEnum.admin, RoleEnum.inventory_manager, RoleEnum.warehouse_staff ],
                 children    : [
                     {
-                        path        : 'inventory-items',
+                        path: 'list',
                         title       : 'Elementos de Inventario',
                         description : 'Gestiona los elementos de inventario en el sistema',
                         icon        : 'heroicons_outline:cube',

@@ -18,6 +18,7 @@ import { MatMenuModule }                                                        
 import { MatDatepickerModule }                                                                 from '@angular/material/datepicker';
 import { MatNativeDateModule }                                                                 from '@angular/material/core';
 import { MatSelectModule }                                                                     from '@angular/material/select';
+import { MatCheckboxModule }                                                                   from '@angular/material/checkbox';
 import { NotyfService }                                                                        from '@shared/services/notyf.service';
 import { FuseConfirmationService }                                                             from '@fuse/services/confirmation';
 import { WarehouseService }                                                                    from '@modules/admin/inventory/services/warehouse.service';
@@ -40,7 +41,8 @@ import { Warehouse }                                                            
         MatMenuModule,
         MatDatepickerModule,
         MatNativeDateModule,
-        MatSelectModule
+        MatSelectModule,
+        MatCheckboxModule
     ],
     templateUrl: './items-list.component.html'
 })
@@ -56,6 +58,9 @@ export class InventoryItemsComponent {
 
     warehouseControl = new FormControl<string>('');
     warehouseSignal = toSignal(this.warehouseControl.valueChanges.pipe(debounceTime(300)), {initialValue: ''});
+
+    showExpiringOnly = new FormControl<boolean>(false);
+    showExpiringOnlySignal = toSignal(this.showExpiringOnly.valueChanges, {initialValue: false});
 
     showAdvancedFilters = signal(false);
 
@@ -78,12 +83,18 @@ export class InventoryItemsComponent {
 
     inventoryItemsResource = resource({
         request: () => ({
-            search     : this.searchControlSignal(),
-            warehouseId: this.warehouseSignal()
+            search      : this.searchControlSignal(),
+            warehouseId : this.warehouseSignal(),
+            expiringOnly: this.showExpiringOnlySignal()
         }),
         loader : async ({request}) => {
             try {
-                // Apply filters
+                // If expiring only filter is active, use the specific endpoint
+                if (request.expiringOnly) {
+                    return await firstValueFrom(this.#inventoryService.getExpiringItems(30));
+                }
+
+                // Otherwise, apply regular filters
                 let params: any = {};
 
                 if (request.search?.trim()) {
@@ -113,6 +124,7 @@ export class InventoryItemsComponent {
     clearFilters(): void {
         this.searchControl.setValue('');
         this.warehouseControl.setValue('');
+        this.showExpiringOnly.setValue(false);
     }
 
     deleteInventoryItem(item: InventoryItem): void {

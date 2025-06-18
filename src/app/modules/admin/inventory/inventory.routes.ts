@@ -16,36 +16,31 @@ export default [
             },
             // Inventory group
             {
-                path       : 'inventory',
+                path       : 'items',
                 children   : [
                     {
-                        path    : 'inventory-items',
-                        children: [
-                            {
-                                path         : '',
-                                loadComponent: () =>
-                                    import('./pages/inventory/items-list/items-list.component').then(m => m.InventoryItemsComponent),
-                                title        : 'Inventario - Items',
-                            },
-                            {
-                                path         : 'create',
-                                loadComponent: () =>
-                                    import('./pages/inventory/items-create/items-create.component').then(m => m.InventoryItemsCreateComponent),
-                                title        : 'Inventario - Crear Item',
-                            },
-                            {
-                                path         : ':id',
-                                loadComponent: () =>
-                                    import('./pages/inventory/items-detail/items-detail.component').then(m => m.InventoryItemsDetailComponent),
-                                title        : 'Inventario - Detalle de Item',
-                            },
-                            {
-                                path         : ':id/edit',
-                                loadComponent: () =>
-                                    import('./pages/inventory/items-edit/items-edit.component').then(m => m.InventoryItemsEditComponent),
-                                title        : 'Inventario - Editar Item',
-                            }
-                        ]
+                        path         : 'list',
+                        loadComponent: () =>
+                            import('./pages/inventory/items-list/items-list.component').then(m => m.InventoryItemsComponent),
+                        title        : 'Inventario - Items',
+                    },
+                    {
+                        path         : 'create',
+                        loadComponent: () =>
+                            import('./pages/inventory/items-create/items-create.component').then(m => m.InventoryItemsCreateComponent),
+                        title        : 'Inventario - Crear Item',
+                    },
+                    {
+                        path         : ':id',
+                        loadComponent: () =>
+                            import('./pages/inventory/items-detail/items-detail.component').then(m => m.InventoryItemsDetailComponent),
+                        title        : 'Inventario - Detalle de Item',
+                    },
+                    {
+                        path         : ':id/edit',
+                        loadComponent: () =>
+                            import('./pages/inventory/items-edit/items-edit.component').then(m => m.InventoryItemsEditComponent),
+                        title        : 'Inventario - Editar Item',
                     },
                     // Products component to be implemented
                     // {

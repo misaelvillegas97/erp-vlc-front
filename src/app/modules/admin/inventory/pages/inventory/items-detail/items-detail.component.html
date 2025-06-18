@@ -129,6 +129,72 @@
                         </div>
                     </mat-card-content>
                 </mat-card>
+
+            <!-- Lotes (FIFO) -->
+            <mat-card class="rounded-md shadow mt-6">
+                <mat-card-content>
+                    <h2 class="text-xl font-medium mb-4">Lotes (FIFO)</h2>
+
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            Este elemento sigue el lineamiento FIFO (First In, First Out) para la gestión de stock.
+                        </p>
+                    </div>
+
+                    @if (isBatchesLoading()) {
+                        <div class="flex justify-center items-center h-24">
+                            <mat-spinner diameter="32"></mat-spinner>
+                        </div>
+                    } @else if (batches().length) {
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead>
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Lote</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cantidad</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha de Recepción</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha de Expiración</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                                </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                    @for (batch of batches(); track batch.id) {
+                                        <tr>
+                                            <td class="px-4 py-3 whitespace-nowrap">{{ batch.batchNumber || 'N/A' }}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap">{{ batch.quantity }}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap">{{ batch.receiptDate | date:'dd/MM/yyyy' }}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                @if (batch.expirationDate) {
+                                                    <span [ngClass]="{
+                                                            'text-red-600': isExpired(batch.expirationDate),
+                                                            'text-amber-600': isExpiringSoon(batch.expirationDate)
+                                                        }">
+                                                            {{ batch.expirationDate | date:'dd/MM/yyyy' }}
+                                                        <span *ngIf="isExpired(batch.expirationDate)" class="text-xs ml-2 bg-red-100 text-red-800 px-2 py-0.5 rounded-full">Expirado</span>
+                                                            <span *ngIf="isExpiringSoon(batch.expirationDate) && !isExpired(batch.expirationDate)" class="text-xs ml-2 bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Próximo a expirar</span>
+                                                        </span>
+                                                } @else {
+                                                    <span class="text-gray-500">N/A</span>
+                                                }
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                                     [ngClass]="batch.isReserved ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'">
+                                                    {{ batch.isReserved ? 'Reservado' : 'Disponible' }}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    } @else {
+                        <div class="text-center py-6 text-gray-500">
+                            No hay lotes disponibles para este elemento.
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
             </div>
 
             <!-- Información adicional -->

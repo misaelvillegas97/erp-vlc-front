@@ -106,7 +106,7 @@ export class InventoryItemsFormComponent implements OnInit {
 
         const formValue = this.itemForm.getRawValue();
         const itemData: InventoryItem = {
-            id            : this.inventoryItem?.id || '',
+            id: this.inventoryItem?.id || undefined,
             name          : formValue.name,
             description   : formValue.description || undefined,
             upcCode       : formValue.upcCode || undefined,

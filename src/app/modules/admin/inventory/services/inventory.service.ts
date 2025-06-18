@@ -1,8 +1,9 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient }         from '@angular/common/http';
 import { Observable }         from 'rxjs';
 import { InventoryItem }      from '../domain/models/inventory-item.model';
 import { InventoryMovement }  from '../domain/models/inventory-movement.model';
+import { InventoryBatch }     from '../domain/models/inventory-batch.model';
 
 @Injectable({
     providedIn: 'root'
@@ -81,5 +82,38 @@ export class InventoryService {
 
     releaseReservedStock(id: string, data: any): Observable<InventoryMovement> {
         return this.http.post<InventoryMovement>(`${ this.apiUrl }/${ id }/release`, data);
+    }
+
+    // Métodos para gestión de batches
+    getBatchesByItemId(itemId: string): Observable<InventoryBatch[]> {
+        return this.http.get<InventoryBatch[]>(`${ this.apiUrl }/item/${ itemId }/batches`);
+    }
+
+    getAllBatches(options?: {
+        warehouseId?: string;
+        expiringBefore?: Date | string;
+        isReserved?: boolean;
+        batchNumber?: string;
+    }): Observable<InventoryBatch[]> {
+        let params: any = {};
+
+        if (options) {
+            if (options.warehouseId) params.warehouseId = options.warehouseId;
+            if (options.batchNumber) params.batchNumber = options.batchNumber;
+
+            if (options.expiringBefore) {
+                if (options.expiringBefore instanceof Date) {
+                    params.expiringBefore = options.expiringBefore.toISOString();
+                } else {
+                    params.expiringBefore = options.expiringBefore;
+                }
+            }
+
+            if (options.isReserved !== undefined) {
+                params.isReserved = options.isReserved.toString();
+            }
+        }
+
+        return this.http.get<InventoryBatch[]>(`${ this.apiUrl }/batches`, {params});
     }
 }

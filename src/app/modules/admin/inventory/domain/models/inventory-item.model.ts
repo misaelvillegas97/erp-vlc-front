@@ -1,7 +1,7 @@
 import { Warehouse } from '@modules/admin/inventory/domain/models/warehouse.model';
 
 export interface InventoryItem {
-    id: string;
+    id?: string;
     name: string;
     description?: string;
     upcCode?: string;
