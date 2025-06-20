@@ -1,6 +1,6 @@
 {
   "/api" : {
-    "target" : "http://viaduct.proxy.rlwy.net:53743",
+      "target" : "https://erp-vlc-back-transportes-san-pedro.up.railway.app",
     "secure" : false,
     "logLevel" : "debug",
     "changeOrigin" : true

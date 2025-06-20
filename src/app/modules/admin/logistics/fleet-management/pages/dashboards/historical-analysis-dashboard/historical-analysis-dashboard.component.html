@@ -123,6 +123,7 @@
                     @if (sessionsPerDayChart()) {
                         <apx-chart
                             [series]="sessionsPerDayChart().series"
+                            [noData]="sessionsPerDayChart().noData"
                             [chart]="sessionsPerDayChart().chart"
                             [stroke]="sessionsPerDayChart().stroke"
                             [colors]="sessionsPerDayChart().colors"
@@ -130,7 +131,6 @@
                             [xaxis]="sessionsPerDayChart().xaxis"
                             [yaxis]="sessionsPerDayChart().yaxis"
                             [tooltip]="sessionsPerDayChart().tooltip"
-                            [grid]="sessionsPerDayChart().grid"
                             class="w-full h-80"
                         ></apx-chart>
                     } @else {
@@ -151,6 +151,7 @@
                     @if (averageDurationByDayOfWeekChart()) {
                         <apx-chart
                             [series]="averageDurationByDayOfWeekChart().series"
+                            [noData]="averageDurationByDayOfWeekChart().noData"
                             [chart]="averageDurationByDayOfWeekChart().chart"
                             [plotOptions]="averageDurationByDayOfWeekChart().plotOptions"
                             [dataLabels]="averageDurationByDayOfWeekChart().dataLabels"
@@ -158,7 +159,6 @@
                             [xaxis]="averageDurationByDayOfWeekChart().xaxis"
                             [yaxis]="averageDurationByDayOfWeekChart().yaxis"
                             [tooltip]="averageDurationByDayOfWeekChart().tooltip"
-                            [grid]="averageDurationByDayOfWeekChart().grid"
                             class="w-full h-80"
                         ></apx-chart>
                     } @else {
@@ -181,6 +181,7 @@
                     @if (sessionStatusDistributionChart()) {
                         <apx-chart
                             [series]="sessionStatusDistributionChart().series"
+                            [noData]="sessionStatusDistributionChart().noData"
                             [chart]="sessionStatusDistributionChart().chart"
                             [labels]="sessionStatusDistributionChart().labels"
                             [colors]="sessionStatusDistributionChart().colors"
@@ -206,6 +207,7 @@
                     @if (sessionDurationHistogramChart()) {
                         <apx-chart
                             [series]="sessionDurationHistogramChart().series"
+                            [noData]="sessionDurationHistogramChart().noData"
                             [chart]="sessionDurationHistogramChart().chart"
                             [plotOptions]="sessionDurationHistogramChart().plotOptions"
                             [dataLabels]="sessionDurationHistogramChart().dataLabels"
@@ -213,7 +215,6 @@
                             [xaxis]="sessionDurationHistogramChart().xaxis"
                             [yaxis]="sessionDurationHistogramChart().yaxis"
                             [tooltip]="sessionDurationHistogramChart().tooltip"
-                            [grid]="sessionDurationHistogramChart().grid"
                             class="w-full h-80"
                         ></apx-chart>
                     } @else {

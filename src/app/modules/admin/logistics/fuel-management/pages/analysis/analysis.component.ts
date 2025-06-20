@@ -181,8 +181,8 @@ export class AnalysisComponent {
                 foreColor : 'var(--fuse-text-default)',
                 height    : '100%',
                 width     : '100%',
+                zoom: {enabled: false},
                 type      : 'line',
-                zoom      : {enabled: false}
             },
             colors : [ '#34D399' ], // Verde
             grid   : {

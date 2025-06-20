@@ -9,7 +9,7 @@ import { PageHeaderComponent }                                 from '@layout/com
 import { ActiveSessionsDashboardData, VehicleSessionsService } from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
 import { NotyfService }                                        from '@shared/services/notyf.service';
 import { firstValueFrom }                                      from 'rxjs';
-import { NgApexchartsModule }                                  from 'ng-apexcharts';
+import { ApexOptions, NgApexchartsModule }                     from 'ng-apexcharts';
 
 @Component({
     selector   : 'app-active-sessions-dashboard',
@@ -65,13 +65,20 @@ export class ActiveSessionsDashboardComponent {
         if (!chartData) return null;
 
         return {
-            series     : chartData.sessions.map(s => ({x: `${ s.driverName } (${ s.vehicleLicensePlate })`, y: s.durationMinutes})),
+            series     : [ {
+                name: 'Duración de Sesiones',
+                data: chartData.sessions.map(s => ({
+                    x: `${ s.driverName } (${ s.vehicleLicensePlate })`,
+                    y: s.durationMinutes
+                }))
+            } ],
             chart      : {
                 type   : 'bar',
                 height : 350,
-                toolbar: {
-                    show: false
-                }
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)',
+                zoom      : {enabled: false},
+                toolbar   : {show: false}
             },
             plotOptions: {
                 bar: {
@@ -98,20 +105,12 @@ export class ActiveSessionsDashboardComponent {
                 }
             },
             tooltip    : {
+                theme: 'dark',
                 y: {
-                    formatter: (val) => {
-                        return `${ val } minutos`;
-                    }
-                }
-            },
-            grid       : {
-                borderColor: '#e7e7e7',
-                row        : {
-                    colors : [ '#f3f3f3', 'transparent' ],
-                    opacity: 0.5
+                    formatter: (val) => `${ val } minutos`
                 }
             }
-        };
+        } as ApexOptions;
     });
 
     averageSpeedChart = computed(() => {
@@ -119,10 +118,19 @@ export class ActiveSessionsDashboardComponent {
         if (!chartData) return null;
 
         return {
-            series : chartData.sessions.map(s => s.averageSpeed),
+            series : [ {
+                name: 'Velocidad Promedio',
+                data: chartData.sessions.map(s => ({
+                    x: `${ s.driverName } (${ s.vehicleLicensePlate })`,
+                    y: s.averageSpeed
+                }))
+            } ],
             chart  : {
                 type   : 'line',
                 height : 350,
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)',
+                zoom      : {enabled: false},
                 toolbar: {
                     show: false
                 }
@@ -149,6 +157,7 @@ export class ActiveSessionsDashboardComponent {
                 }
             },
             tooltip: {
+                theme: 'dark',
                 y: {
                     formatter: (val) => {
                         return `${ val } km/h`;
@@ -158,11 +167,11 @@ export class ActiveSessionsDashboardComponent {
             grid   : {
                 borderColor: '#e7e7e7',
                 row        : {
-                    colors : [ '#f3f3f3', 'transparent' ],
+                    colors: [ 'transparent' ],
                     opacity: 0.5
                 }
             }
-        };
+        } as ApexOptions;
     });
 
     reloadData(): void {
