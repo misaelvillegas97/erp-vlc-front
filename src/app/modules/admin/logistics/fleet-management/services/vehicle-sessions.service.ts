@@ -3,6 +3,95 @@ import { HttpClient }                                    from '@angular/common/h
 import { Observable }                                    from 'rxjs';
 import { FinishSessionDto, GeoLocation, VehicleSession } from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
 import { Pagination }                                    from '@shared/domain/model/pagination';
+import { HistoricalAnalysisDashboardData }               from '@modules/admin/logistics/fleet-management/domain/model/dashboard.model';
+
+// Interfaces for dashboard data
+export interface ActiveSessionsDashboardData {
+    activeSessions: { count: number };
+    averageDuration: { averageMinutes: number };
+    totalDistance: { totalKm: number };
+    vehiclesInUsePercentage: {
+        percentage: number,
+        activeCount: number,
+        totalCount: number,
+    };
+    sessionDurationChart: {
+        sessions: Array<{
+            sessionId: string;
+            driverName: string;
+            vehicleLicensePlate: string;
+            durationMinutes: number;
+        }>;
+    };
+    averageSpeedChart: {
+        sessions: Array<{
+            sessionId: string;
+            driverName: string;
+            vehicleLicensePlate: string;
+            averageSpeed: number; // km/h
+        }>;
+    };
+}
+
+export interface DriverPerformanceDashboardData {
+    metrics: {
+        totalActiveDrivers: number;
+        mostActiveDriver: {
+            driver: any;
+            sessionCount: number;
+        } | null;
+        averageSessionsPerDriver: number;
+        averageDistancePerDriver: number;
+    };
+    driverStats: any[];
+    topDriversBySessionsChart: any;
+    topDriversByDistanceChart: any;
+    sessionsByLicenseTypeChart: any;
+    driverActivityTrendChart: any;
+}
+
+export interface VehicleUtilizationDashboardData {
+    metrics: {
+        totalActiveVehicles: number;
+        mostUsedVehicle: {
+            vehicle: any;
+            sessionCount: number;
+        } | null;
+        averageSessionsPerVehicle: number;
+        averageDistancePerVehicle: number;
+    };
+    vehicleStats: any[];
+    topVehiclesByUsageChart: any;
+    topVehiclesByDistanceChart: any;
+    usageByVehicleTypeChart: any;
+    costPerKmByVehicleChart: any;
+    vehicleOdometerChart: any;
+}
+
+export interface GeographicalAnalysisDashboardData {
+    metrics: {
+        totalGpsPoints: number;
+        maxSpeed: number;
+        averageDistance: number;
+    };
+    mostVisitedAreas: any[];
+    speedDistributionChart: any;
+    sessionStartTimeDistributionChart: any;
+    sessionEndTimeDistributionChart: any;
+}
+
+export interface ComplianceSafetyDashboardData {
+    metrics: {
+        expiredSessions: number;
+        totalSpeedViolations: number;
+    };
+    expiringLicenses: any[];
+    maintenanceAlerts: any[];
+    speedViolations: any[];
+    expiredSessionsTrendChart: any;
+    incidentsByVehicleTypeChart: any;
+    incidentsByDriverChart: any;
+}
 
 @Injectable({
     providedIn: 'root'
@@ -11,14 +100,15 @@ export class VehicleSessionsService {
 
     // API URL base para sesiones de vehículos
     private readonly apiUrl = `/api/v1/logistics/sessions`;
+    private readonly apiUrlDashboards = `/api/v1/logistics/dashboards`;
 
     constructor(private http: HttpClient) { }
 
     /**
      * Obtiene todas las sesiones de vehículos
      */
-    public findAll(): Observable<VehicleSession[]> {
-        return this.http.get<VehicleSession[]>(this.apiUrl);
+    public findAll(query: any): Observable<VehicleSession[]> {
+        return this.http.get<VehicleSession[]>(this.apiUrl, {params: query});
     }
 
     /**
@@ -121,5 +211,47 @@ export class VehicleSessionsService {
      */
     public getHistoricalSessions(params: any): Observable<Pagination<VehicleSession>> {
         return this.http.get<Pagination<VehicleSession>>(`${ this.apiUrl }/history`, {params});
+    }
+
+    /**
+     * Obtiene los datos para el dashboard de sesiones activas
+     */
+    public getActiveSessionsDashboardData(): Observable<ActiveSessionsDashboardData> {
+        return this.http.get<ActiveSessionsDashboardData>(`${ this.apiUrlDashboards }/active-sessions`);
+    }
+
+    /**
+     * Obtiene los datos para el dashboard de análisis histórico
+     */
+    public getHistoricalAnalysisDashboardData(params: any): Observable<HistoricalAnalysisDashboardData> {
+        return this.http.get<HistoricalAnalysisDashboardData>(`${ this.apiUrlDashboards }/historical-analysis`, {params});
+    }
+
+    /**
+     * Obtiene los datos para el dashboard de rendimiento de conductores
+     */
+    public getDriverPerformanceDashboardData(params: any): Observable<DriverPerformanceDashboardData> {
+        return this.http.get<DriverPerformanceDashboardData>(`${ this.apiUrlDashboards }/driver-performance`, {params});
+    }
+
+    /**
+     * Obtiene los datos para el dashboard de utilización de vehículos
+     */
+    public getVehicleUtilizationDashboardData(params: any): Observable<VehicleUtilizationDashboardData> {
+        return this.http.get<VehicleUtilizationDashboardData>(`${ this.apiUrlDashboards }/vehicle-utilization`, {params});
+    }
+
+    /**
+     * Obtiene los datos para el dashboard de análisis geográfico
+     */
+    public getGeographicalAnalysisDashboardData(params: any): Observable<GeographicalAnalysisDashboardData> {
+        return this.http.get<GeographicalAnalysisDashboardData>(`${ this.apiUrlDashboards }/geographical-analysis`, {params});
+    }
+
+    /**
+     * Obtiene los datos para el dashboard de cumplimiento y seguridad
+     */
+    public getComplianceSafetyDashboardData(params: any): Observable<ComplianceSafetyDashboardData> {
+        return this.http.get<ComplianceSafetyDashboardData>(`${ this.apiUrlDashboards }/compliance-safety`, {params});
     }
 }

@@ -1,0 +1,250 @@
+<div class="flex flex-col min-w-0 w-full bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- Enhanced Page Header with gradient background -->
+    <div class="bg-gradient-to-r from-purple-600 to-indigo-700 text-white shadow-lg">
+        <div class="">
+            <page-header
+                title="Dashboard de Análisis Histórico"
+                subtitle="Análisis de patrones de uso histórico de la flota"
+                icon="heroicons_outline:chart-bar"
+                class="text-white">
+            </page-header>
+        </div>
+    </div>
+
+    <div class="flex flex-col w-full max-w-7xl mx-auto p-6">
+        <!-- Panel de filtros -->
+        <div class="w-full bg-card rounded-md shadow p-4 mb-8">
+            <h2 class="text-xl font-medium mb-4">Filtros</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <!-- Filtro por fecha desde -->
+                <mat-form-field class="w-full">
+                    <mat-label>Desde</mat-label>
+                    <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFromControl" placeholder="Desde">
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerFrom></mat-datepicker>
+                </mat-form-field>
+
+                <!-- Filtro por fecha hasta -->
+                <mat-form-field class="w-full">
+                    <mat-label>Hasta</mat-label>
+                    <input matInput [matDatepicker]="pickerTo" [formControl]="dateToControl" placeholder="Hasta">
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerTo></mat-datepicker>
+                </mat-form-field>
+
+                <!-- Botones de acción -->
+                <div class="flex items-end justify-end gap-2">
+                    <button mat-raised-button color="primary" (click)="reloadData()">
+                        <mat-icon>search</mat-icon>
+                        Aplicar filtros
+                    </button>
+                    <button mat-button color="warn" (click)="clearFilters()">
+                        Limpiar filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Métricas principales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total de Sesiones -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-blue-500"></div>
+                <mat-card-content class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Total de Sesiones</p>
+                            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ totalSessions() }}</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                            <mat-icon class="text-blue-500 dark:text-blue-400 text-2xl">directions_car</mat-icon>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Distancia Total Recorrida -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-green-500"></div>
+                <mat-card-content class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Distancia Total</p>
+                            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ totalDistance() | number:'1.1-1' }} km</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                            <mat-icon class="text-green-500 dark:text-green-400 text-2xl">map</mat-icon>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Tiempo Total en Ruta -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-purple-500"></div>
+                <mat-card-content class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Tiempo Total</p>
+                            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ totalTimeInRoute() | number:'1.0-0' }} min</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+                            <mat-icon class="text-purple-500 dark:text-purple-400 text-2xl">schedule</mat-icon>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Promedio de Distancia por Sesión -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-indigo-500"></div>
+                <mat-card-content class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Distancia Promedio</p>
+                            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ averageDistancePerSession() | number:'1.1-1' }} km</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                            <mat-icon class="text-indigo-500 dark:text-indigo-400 text-2xl">straighten</mat-icon>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Sesiones por Día -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                    <mat-card-title class="text-lg font-medium">Sesiones por Día</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-4">
+                    @if (sessionsPerDayChart()) {
+                        <apx-chart
+                            [series]="sessionsPerDayChart().series"
+                            [chart]="sessionsPerDayChart().chart"
+                            [stroke]="sessionsPerDayChart().stroke"
+                            [colors]="sessionsPerDayChart().colors"
+                            [markers]="sessionsPerDayChart().markers"
+                            [xaxis]="sessionsPerDayChart().xaxis"
+                            [yaxis]="sessionsPerDayChart().yaxis"
+                            [tooltip]="sessionsPerDayChart().tooltip"
+                            [grid]="sessionsPerDayChart().grid"
+                            class="w-full h-80"
+                        ></apx-chart>
+                    } @else {
+                        <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                            <mat-icon class="text-4xl mb-2">show_chart</mat-icon>
+                            <p>No hay datos disponibles</p>
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Duración Promedio por Día de la Semana -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                    <mat-card-title class="text-lg font-medium">Duración Promedio por Día de la Semana</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-4">
+                    @if (averageDurationByDayOfWeekChart()) {
+                        <apx-chart
+                            [series]="averageDurationByDayOfWeekChart().series"
+                            [chart]="averageDurationByDayOfWeekChart().chart"
+                            [plotOptions]="averageDurationByDayOfWeekChart().plotOptions"
+                            [dataLabels]="averageDurationByDayOfWeekChart().dataLabels"
+                            [colors]="averageDurationByDayOfWeekChart().colors"
+                            [xaxis]="averageDurationByDayOfWeekChart().xaxis"
+                            [yaxis]="averageDurationByDayOfWeekChart().yaxis"
+                            [tooltip]="averageDurationByDayOfWeekChart().tooltip"
+                            [grid]="averageDurationByDayOfWeekChart().grid"
+                            class="w-full h-80"
+                        ></apx-chart>
+                    } @else {
+                        <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                            <mat-icon class="text-4xl mb-2">bar_chart</mat-icon>
+                            <p>No hay datos disponibles</p>
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Distribución de Estados de Sesión -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                    <mat-card-title class="text-lg font-medium">Distribución de Estados de Sesión</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-4">
+                    @if (sessionStatusDistributionChart()) {
+                        <apx-chart
+                            [series]="sessionStatusDistributionChart().series"
+                            [chart]="sessionStatusDistributionChart().chart"
+                            [labels]="sessionStatusDistributionChart().labels"
+                            [colors]="sessionStatusDistributionChart().colors"
+                            [legend]="sessionStatusDistributionChart().legend"
+                            [tooltip]="sessionStatusDistributionChart().tooltip"
+                            class="w-full h-80"
+                        ></apx-chart>
+                    } @else {
+                        <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                            <mat-icon class="text-4xl mb-2">pie_chart</mat-icon>
+                            <p>No hay datos disponibles</p>
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Histograma de Duración de Sesiones -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                    <mat-card-title class="text-lg font-medium">Histograma de Duración de Sesiones</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-4">
+                    @if (sessionDurationHistogramChart()) {
+                        <apx-chart
+                            [series]="sessionDurationHistogramChart().series"
+                            [chart]="sessionDurationHistogramChart().chart"
+                            [plotOptions]="sessionDurationHistogramChart().plotOptions"
+                            [dataLabels]="sessionDurationHistogramChart().dataLabels"
+                            [colors]="sessionDurationHistogramChart().colors"
+                            [xaxis]="sessionDurationHistogramChart().xaxis"
+                            [yaxis]="sessionDurationHistogramChart().yaxis"
+                            [tooltip]="sessionDurationHistogramChart().tooltip"
+                            [grid]="sessionDurationHistogramChart().grid"
+                            class="w-full h-80"
+                        ></apx-chart>
+                    } @else {
+                        <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                            <mat-icon class="text-4xl mb-2">bar_chart</mat-icon>
+                            <p>No hay datos disponibles</p>
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Acciones -->
+        <div class="flex justify-end mb-8">
+            <button
+                mat-flat-button
+                color="primary"
+                [routerLink]="['/logistics/fleet-management/history']"
+                class="flex items-center shadow-sm hover:shadow transition-all duration-200">
+                <mat-icon class="mr-2">history</mat-icon>
+                Ver Historial Completo
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div *ngIf="dashboardResource.isLoading()"
+         class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col items-center">
+            <mat-spinner diameter="48" color="primary"></mat-spinner>
+            <p class="mt-4 text-gray-800 dark:text-white font-medium">Cargando datos...</p>
+        </div>
+    </div>
+</div>

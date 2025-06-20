@@ -1,0 +1,192 @@
+<div class="flex flex-col min-w-0 w-full bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- Enhanced Page Header with gradient background -->
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg">
+        <div class="">
+            <page-header
+                title="Dashboard de Sesiones Activas"
+                subtitle="Monitoreo en tiempo real de sesiones de vehículos activas"
+                icon="heroicons_outline:truck"
+                class="text-white">
+            </page-header>
+        </div>
+    </div>
+
+    <div class="flex flex-col w-full max-w-7xl mx-auto p-6">
+        <!-- Acciones -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Sesiones en Curso</h1>
+            <div class="flex gap-2">
+                <button
+                    mat-flat-button
+                    color="primary"
+                    [routerLink]="['/logistics/fleet-management/active-sessions']"
+                    class="flex items-center shadow-sm hover:shadow transition-all duration-200">
+                    <mat-icon class="mr-2">list</mat-icon>
+                    Ver Lista Completa
+                </button>
+                <button
+                    mat-flat-button
+                    color="accent"
+                    (click)="reloadData()"
+                    class="flex items-center shadow-sm hover:shadow transition-all duration-200">
+                    <mat-icon class="mr-2">refresh</mat-icon>
+                    Actualizar datos
+                </button>
+            </div>
+        </div>
+
+        <!-- Métricas principales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Sesiones Activas -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-blue-500"></div>
+                <mat-card-content class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Sesiones Activas</p>
+                            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ activeSessions() }}</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                            <mat-icon class="text-blue-500 dark:text-blue-400 text-2xl">directions_car</mat-icon>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Duración Promedio -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-green-500"></div>
+                <mat-card-content class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Duración Promedio</p>
+                            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ averageDuration() }} min</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                            <mat-icon class="text-green-500 dark:text-green-400 text-2xl">schedule</mat-icon>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Distancia Total -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-purple-500"></div>
+                <mat-card-content class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Distancia Total</p>
+                            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ totalDistance() | number:'1.1-1' }} km</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+                            <mat-icon class="text-purple-500 dark:text-purple-400 text-2xl">map</mat-icon>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Vehículos en Uso -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-indigo-500"></div>
+                <mat-card-content class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Vehículos en Uso</p>
+                            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ vehiclesInUsePercentage() }}%</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                            <mat-icon class="text-indigo-500 dark:text-indigo-400 text-2xl">commute</mat-icon>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Duración de Sesiones Activas -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                    <mat-card-title class="text-lg font-medium">Duración de Sesiones Activas</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-4">
+                    @if (sessionDurationChart()) {
+                        <apx-chart
+                            [series]="sessionDurationChart().series"
+                            [chart]="sessionDurationChart().chart"
+                            [plotOptions]="sessionDurationChart().plotOptions"
+                            [dataLabels]="sessionDurationChart().dataLabels"
+                            [colors]="sessionDurationChart().colors"
+                            [xaxis]="sessionDurationChart().xaxis"
+                            [yaxis]="sessionDurationChart().yaxis"
+                            [tooltip]="sessionDurationChart().tooltip"
+                            [grid]="sessionDurationChart().grid"
+                            class="w-full h-80"
+                        ></apx-chart>
+                    } @else {
+                        <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                            <mat-icon class="text-4xl mb-2">bar_chart</mat-icon>
+                            <p>No hay datos disponibles</p>
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Velocidad Promedio por Sesión -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                    <mat-card-title class="text-lg font-medium">Velocidad Promedio por Sesión</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-4">
+                    @if (averageSpeedChart()) {
+                        <apx-chart
+                            [series]="averageSpeedChart().series"
+                            [chart]="averageSpeedChart().chart"
+                            [stroke]="averageSpeedChart().stroke"
+                            [colors]="averageSpeedChart().colors"
+                            [markers]="averageSpeedChart().markers"
+                            [xaxis]="averageSpeedChart().xaxis"
+                            [yaxis]="averageSpeedChart().yaxis"
+                            [tooltip]="averageSpeedChart().tooltip"
+                            [grid]="averageSpeedChart().grid"
+                            class="w-full h-80"
+                        ></apx-chart>
+                    } @else {
+                        <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                            <mat-icon class="text-4xl mb-2">show_chart</mat-icon>
+                            <p>No hay datos disponibles</p>
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Mapa en Tiempo Real -->
+        <div class="mb-8">
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                    <mat-card-title class="text-lg font-medium">Mapa en Tiempo Real</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-0">
+                    <!-- Aquí iría el componente de mapa, por ahora un placeholder -->
+                    <div class="bg-gray-100 dark:bg-gray-800 h-96 flex items-center justify-center">
+                        <div class="text-center">
+                            <mat-icon class="text-6xl text-gray-400 dark:text-gray-600 mb-4">map</mat-icon>
+                            <p class="text-gray-500 dark:text-gray-400">Mapa mostrando la ubicación actual de todos los vehículos en sesión activa</p>
+                            <p class="text-sm text-gray-400 dark:text-gray-500 mt-2">Componente de mapa pendiente de implementación</p>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div *ngIf="dashboardResource.isLoading()"
+         class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col items-center">
+            <mat-spinner diameter="48" color="primary"></mat-spinner>
+            <p class="mt-4 text-gray-800 dark:text-white font-medium">Cargando datos...</p>
+        </div>
+    </div>
+</div>

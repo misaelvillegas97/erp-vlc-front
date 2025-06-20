@@ -1,0 +1,286 @@
+<div class="flex flex-col min-w-0 w-full bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- Enhanced Page Header with gradient background -->
+    <div class="bg-gradient-to-r from-green-600 to-teal-700 text-white shadow-lg">
+        <div class="">
+            <page-header
+                title="Dashboard de Utilización de Vehículos"
+                subtitle="Análisis del uso y rendimiento de los vehículos de la flota"
+                icon="heroicons_outline:truck"
+                class="text-white">
+            </page-header>
+        </div>
+    </div>
+
+    <div class="flex flex-col w-full max-w-7xl mx-auto p-6">
+        <!-- Panel de filtros -->
+        <div class="w-full bg-card rounded-md shadow p-4 mb-8">
+            <h2 class="text-xl font-medium mb-4">Filtros</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                <!-- Filtro por fecha desde -->
+                <mat-form-field class="w-full">
+                    <mat-label>Desde</mat-label>
+                    <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFromControl" placeholder="Desde">
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerFrom></mat-datepicker>
+                </mat-form-field>
+
+                <!-- Filtro por fecha hasta -->
+                <mat-form-field class="w-full">
+                    <mat-label>Hasta</mat-label>
+                    <input matInput [matDatepicker]="pickerTo" [formControl]="dateToControl" placeholder="Hasta">
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerTo></mat-datepicker>
+                </mat-form-field>
+
+                <!-- Filtro por tipo de vehículo -->
+                <mat-form-field class="w-full">
+                    <mat-label>Tipo de Vehículo</mat-label>
+                    <mat-select [formControl]="vehicleTypeControl">
+                        <mat-option [value]="null">Todos</mat-option>
+                        @for (type of vehicleTypes; track type) {
+                            <mat-option [value]="type">{{ type }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- Botones de acción -->
+                <div class="flex items-end justify-end gap-2">
+                    <button mat-raised-button color="primary" (click)="reloadData()">
+                        <mat-icon>search</mat-icon>
+                        Aplicar filtros
+                    </button>
+                    <button mat-button color="warn" (click)="clearFilters()">
+                        Limpiar filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Métricas principales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total de Vehículos Activos -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-blue-500"></div>
+                <mat-card-content class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Vehículos Activos</p>
+                            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ totalActiveVehicles() }}</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                            <mat-icon class="text-blue-500 dark:text-blue-400 text-2xl">directions_car</mat-icon>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Vehículo Más Utilizado -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-green-500"></div>
+                <mat-card-content class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Vehículo Más Utilizado</p>
+                            @if (mostUsedVehicle()) {
+                                <p class="text-xl font-bold text-gray-800 dark:text-white mt-1 truncate">
+                                    {{ mostUsedVehicle().vehicle.displayName || mostUsedVehicle().vehicle.licensePlate }}
+                                </p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ mostUsedVehicle().sessionCount }} sesiones</p>
+                            } @else {
+                                <p class="text-xl font-bold text-gray-800 dark:text-white mt-1">-</p>
+                            }
+                        </div>
+                        <div class="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                            <mat-icon class="text-green-500 dark:text-green-400 text-2xl">star</mat-icon>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Promedio de Sesiones por Vehículo -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-purple-500"></div>
+                <mat-card-content class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Sesiones por Vehículo</p>
+                            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ averageSessionsPerVehicle() | number:'1.1-1' }}</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+                            <mat-icon class="text-purple-500 dark:text-purple-400 text-2xl">route</mat-icon>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Promedio de Distancia por Vehículo -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="h-1 bg-indigo-500"></div>
+                <mat-card-content class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Distancia por Vehículo</p>
+                            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ averageDistancePerVehicle() | number:'1.1-1' }} km</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                            <mat-icon class="text-indigo-500 dark:text-indigo-400 text-2xl">straighten</mat-icon>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Top 10 Vehículos por Uso -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                    <mat-card-title class="text-lg font-medium">Top 10 Vehículos por Uso</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-4">
+                    @if (topVehiclesByUsageChart()) {
+                        <apx-chart
+                            [series]="topVehiclesByUsageChart().series"
+                            [chart]="topVehiclesByUsageChart().chart"
+                            [plotOptions]="topVehiclesByUsageChart().plotOptions"
+                            [dataLabels]="topVehiclesByUsageChart().dataLabels"
+                            [colors]="topVehiclesByUsageChart().colors"
+                            [xaxis]="topVehiclesByUsageChart().xaxis"
+                            [yaxis]="topVehiclesByUsageChart().yaxis"
+                            [tooltip]="topVehiclesByUsageChart().tooltip"
+                            [grid]="topVehiclesByUsageChart().grid"
+                            class="w-full h-80"
+                        ></apx-chart>
+                    } @else {
+                        <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                            <mat-icon class="text-4xl mb-2">bar_chart</mat-icon>
+                            <p>No hay datos disponibles</p>
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Top 10 Vehículos por Distancia -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                    <mat-card-title class="text-lg font-medium">Top 10 Vehículos por Distancia</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-4">
+                    @if (topVehiclesByDistanceChart()) {
+                        <apx-chart
+                            [series]="topVehiclesByDistanceChart().series"
+                            [chart]="topVehiclesByDistanceChart().chart"
+                            [plotOptions]="topVehiclesByDistanceChart().plotOptions"
+                            [dataLabels]="topVehiclesByDistanceChart().dataLabels"
+                            [colors]="topVehiclesByDistanceChart().colors"
+                            [xaxis]="topVehiclesByDistanceChart().xaxis"
+                            [yaxis]="topVehiclesByDistanceChart().yaxis"
+                            [tooltip]="topVehiclesByDistanceChart().tooltip"
+                            [grid]="topVehiclesByDistanceChart().grid"
+                            class="w-full h-80"
+                        ></apx-chart>
+                    } @else {
+                        <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                            <mat-icon class="text-4xl mb-2">bar_chart</mat-icon>
+                            <p>No hay datos disponibles</p>
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Distribución de Uso por Tipo de Vehículo -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                    <mat-card-title class="text-lg font-medium">Distribución de Uso por Tipo de Vehículo</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-4">
+                    @if (usageByVehicleTypeChart()) {
+                        <apx-chart
+                            [series]="usageByVehicleTypeChart().series"
+                            [chart]="usageByVehicleTypeChart().chart"
+                            [labels]="usageByVehicleTypeChart().labels"
+                            [colors]="usageByVehicleTypeChart().colors"
+                            [legend]="usageByVehicleTypeChart().legend"
+                            [tooltip]="usageByVehicleTypeChart().tooltip"
+                            class="w-full h-80"
+                        ></apx-chart>
+                    } @else {
+                        <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                            <mat-icon class="text-4xl mb-2">pie_chart</mat-icon>
+                            <p>No hay datos disponibles</p>
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Costo por km por Vehículo -->
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                    <mat-card-title class="text-lg font-medium">Costo por Kilómetro por Vehículo</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-4">
+                    @if (costPerKmByVehicleChart()) {
+                        <apx-chart
+                            [series]="costPerKmByVehicleChart().series"
+                            [chart]="costPerKmByVehicleChart().chart"
+                            [plotOptions]="costPerKmByVehicleChart().plotOptions"
+                            [dataLabels]="costPerKmByVehicleChart().dataLabels"
+                            [colors]="costPerKmByVehicleChart().colors"
+                            [xaxis]="costPerKmByVehicleChart().xaxis"
+                            [yaxis]="costPerKmByVehicleChart().yaxis"
+                            [tooltip]="costPerKmByVehicleChart().tooltip"
+                            [grid]="costPerKmByVehicleChart().grid"
+                            class="w-full h-80"
+                        ></apx-chart>
+                    } @else {
+                        <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                            <mat-icon class="text-4xl mb-2">bar_chart</mat-icon>
+                            <p>No hay datos disponibles</p>
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Odómetro por Vehículo -->
+        <div class="mb-8">
+            <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                    <mat-card-title class="text-lg font-medium">Odómetro por Vehículo</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-4">
+                    @if (vehicleOdometerChart()) {
+                        <apx-chart
+                            [series]="vehicleOdometerChart().series"
+                            [chart]="vehicleOdometerChart().chart"
+                            [plotOptions]="vehicleOdometerChart().plotOptions"
+                            [dataLabels]="vehicleOdometerChart().dataLabels"
+                            [colors]="vehicleOdometerChart().colors"
+                            [xaxis]="vehicleOdometerChart().xaxis"
+                            [yaxis]="vehicleOdometerChart().yaxis"
+                            [tooltip]="vehicleOdometerChart().tooltip"
+                            [grid]="vehicleOdometerChart().grid"
+                            class="w-full h-80"
+                        ></apx-chart>
+                    } @else {
+                        <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                            <mat-icon class="text-4xl mb-2">bar_chart</mat-icon>
+                            <p>No hay datos disponibles</p>
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div *ngIf="dashboardResource.isLoading()"
+         class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col items-center">
+            <mat-spinner diameter="48" color="primary"></mat-spinner>
+            <p class="mt-4 text-gray-800 dark:text-white font-medium">Cargando datos...</p>
+        </div>
+    </div>
+</div>
