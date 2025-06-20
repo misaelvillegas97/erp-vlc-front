@@ -36,7 +36,7 @@
                 <mat-form-field class="w-full">
                     <mat-label>Tipo de Licencia</mat-label>
                     <mat-select [formControl]="licenseTypeControl">
-                        <mat-option [value]="null">Todos</mat-option>
+                        <mat-option>Todos</mat-option>
                         @for (type of licenseTypes; track type) {
                             <mat-option [value]="type">{{ type }}</mat-option>
                         }
@@ -83,7 +83,7 @@
                             <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Conductor Más Activo</p>
                             @if (mostActiveDriver()) {
                                 <p class="text-xl font-bold text-gray-800 dark:text-white mt-1 truncate">
-                                    {{ mostActiveDriver().driver.firstName }} {{ mostActiveDriver().driver.lastName }}
+                                    {{ mostActiveDriver().firstName }} {{ mostActiveDriver().lastName }}
                                 </p>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">{{ mostActiveDriver().sessionCount }} sesiones</p>
                             } @else {

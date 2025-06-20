@@ -1,15 +1,16 @@
-import { Component, computed, inject, resource }               from '@angular/core';
-import { CommonModule }                                        from '@angular/common';
-import { MatButtonModule }                                     from '@angular/material/button';
-import { MatCardModule }                                       from '@angular/material/card';
-import { MatIconModule }                                       from '@angular/material/icon';
-import { MatProgressSpinnerModule }                            from '@angular/material/progress-spinner';
-import { RouterLink }                                          from '@angular/router';
-import { PageHeaderComponent }                                 from '@layout/components/page-header/page-header.component';
-import { ActiveSessionsDashboardData, VehicleSessionsService } from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
-import { NotyfService }                                        from '@shared/services/notyf.service';
-import { firstValueFrom }                                      from 'rxjs';
-import { ApexOptions, NgApexchartsModule }                     from 'ng-apexcharts';
+import { Component, computed, inject, resource } from '@angular/core';
+import { CommonModule }                          from '@angular/common';
+import { MatButtonModule }                       from '@angular/material/button';
+import { MatCardModule }                         from '@angular/material/card';
+import { MatIconModule }                         from '@angular/material/icon';
+import { MatProgressSpinnerModule }              from '@angular/material/progress-spinner';
+import { RouterLink }                            from '@angular/router';
+import { PageHeaderComponent }                   from '@layout/components/page-header/page-header.component';
+import { VehicleSessionsService }                from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
+import { NotyfService }                          from '@shared/services/notyf.service';
+import { firstValueFrom }                        from 'rxjs';
+import { ApexOptions, NgApexchartsModule }       from 'ng-apexcharts';
+import { ActiveSessionsDashboardData }           from '@modules/admin/logistics/fleet-management/domain/model/dashboard.model';
 
 @Component({
     selector   : 'app-active-sessions-dashboard',

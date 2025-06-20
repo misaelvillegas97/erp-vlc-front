@@ -1,54 +1,9 @@
-import { Injectable }                                    from '@angular/core';
-import { HttpClient }                                    from '@angular/common/http';
-import { Observable }                                    from 'rxjs';
-import { FinishSessionDto, GeoLocation, VehicleSession } from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
-import { Pagination }                                    from '@shared/domain/model/pagination';
-import { HistoricalAnalysisDashboardData }               from '@modules/admin/logistics/fleet-management/domain/model/dashboard.model';
-
-// Interfaces for dashboard data
-export interface ActiveSessionsDashboardData {
-    activeSessions: { count: number };
-    averageDuration: { averageMinutes: number };
-    totalDistance: { totalKm: number };
-    vehiclesInUsePercentage: {
-        percentage: number,
-        activeCount: number,
-        totalCount: number,
-    };
-    sessionDurationChart: {
-        sessions: Array<{
-            sessionId: string;
-            driverName: string;
-            vehicleLicensePlate: string;
-            durationMinutes: number;
-        }>;
-    };
-    averageSpeedChart: {
-        sessions: Array<{
-            sessionId: string;
-            driverName: string;
-            vehicleLicensePlate: string;
-            averageSpeed: number; // km/h
-        }>;
-    };
-}
-
-export interface DriverPerformanceDashboardData {
-    metrics: {
-        totalActiveDrivers: number;
-        mostActiveDriver: {
-            driver: any;
-            sessionCount: number;
-        } | null;
-        averageSessionsPerDriver: number;
-        averageDistancePerDriver: number;
-    };
-    driverStats: any[];
-    topDriversBySessionsChart: any;
-    topDriversByDistanceChart: any;
-    sessionsByLicenseTypeChart: any;
-    driverActivityTrendChart: any;
-}
+import { Injectable }                                                                                   from '@angular/core';
+import { HttpClient }                                                                                   from '@angular/common/http';
+import { Observable }                                                                                   from 'rxjs';
+import { FinishSessionDto, GeoLocation, VehicleSession }                                                from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
+import { Pagination }                                                                                   from '@shared/domain/model/pagination';
+import { ActiveSessionsDashboardData, DriverPerformanceDashboardData, HistoricalAnalysisDashboardData } from '@modules/admin/logistics/fleet-management/domain/model/dashboard.model';
 
 export interface VehicleUtilizationDashboardData {
     metrics: {
