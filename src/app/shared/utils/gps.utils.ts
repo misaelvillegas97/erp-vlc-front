@@ -41,3 +41,29 @@ export const calculateDistance = (points: GpsGeneric[]): number => {
 
     return +totalDistance.toFixed(2);
 };
+
+type Coord = { lat: number; lon: number };
+
+export const getStaticMapUrl = (
+    coords: Coord[] | Coord,
+    zoom: number = 14,
+    width: number = 200,
+    height: number = 200
+): string => {
+    const base = 'https://staticmap-production.up.railway.app/map.png';
+    const list = Array.isArray(coords) ? coords : [ coords ];
+
+    // Usa el primer punto como centro
+    const center = list[0];
+    const centerParam = `center=${ center.lat },${ center.lon }`;
+    const zoomParam = `zoom=${ zoom }`;
+    const sizeParam = `size=${ width }x${ height }`;
+
+    // Marca todos los puntos
+    const markers = list
+        .map(c => `${ c.lat },${ c.lon }`)
+        .join('|');
+    const markerParam = `markers=color:red|${ markers }`;
+
+    return `${ base }?${ centerParam }&${ zoomParam }&${ sizeParam }&${ markerParam }`;
+};

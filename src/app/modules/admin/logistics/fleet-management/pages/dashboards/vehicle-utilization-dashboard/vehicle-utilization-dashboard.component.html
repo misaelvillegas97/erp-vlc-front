@@ -83,7 +83,7 @@
                             <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">Vehículo Más Utilizado</p>
                             @if (mostUsedVehicle()) {
                                 <p class="text-xl font-bold text-gray-800 dark:text-white mt-1 truncate">
-                                    {{ mostUsedVehicle().vehicle.displayName || mostUsedVehicle().vehicle.licensePlate }}
+                                    {{ mostUsedVehicle().displayName || mostUsedVehicle().licensePlate }}
                                 </p>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">{{ mostUsedVehicle().sessionCount }} sesiones</p>
                             } @else {

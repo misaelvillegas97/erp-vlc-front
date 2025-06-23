@@ -1,39 +1,19 @@
-import { Injectable }                                                                                   from '@angular/core';
-import { HttpClient }                                                                                   from '@angular/common/http';
-import { Observable }                                                                                   from 'rxjs';
-import { FinishSessionDto, GeoLocation, VehicleSession }                                                from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
-import { Pagination }                                                                                   from '@shared/domain/model/pagination';
-import { ActiveSessionsDashboardData, DriverPerformanceDashboardData, HistoricalAnalysisDashboardData } from '@modules/admin/logistics/fleet-management/domain/model/dashboard.model';
-
-export interface VehicleUtilizationDashboardData {
-    metrics: {
-        totalActiveVehicles: number;
-        mostUsedVehicle: {
-            vehicle: any;
-            sessionCount: number;
-        } | null;
-        averageSessionsPerVehicle: number;
-        averageDistancePerVehicle: number;
-    };
-    vehicleStats: any[];
-    topVehiclesByUsageChart: any;
-    topVehiclesByDistanceChart: any;
-    usageByVehicleTypeChart: any;
-    costPerKmByVehicleChart: any;
-    vehicleOdometerChart: any;
-}
-
-export interface GeographicalAnalysisDashboardData {
-    metrics: {
-        totalGpsPoints: number;
-        maxSpeed: number;
-        averageDistance: number;
-    };
-    mostVisitedAreas: any[];
-    speedDistributionChart: any;
-    sessionStartTimeDistributionChart: any;
-    sessionEndTimeDistributionChart: any;
-}
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import {
+    FinishSessionDto,
+    GeoLocation,
+    VehicleSession
+}                     from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
+import { Pagination } from '@shared/domain/model/pagination';
+import {
+    ActiveSessionsDashboardData,
+    DriverPerformanceDashboardData,
+    GeographicalAnalysisDashboardData,
+    HistoricalAnalysisDashboardData,
+    VehicleUtilizationDashboardData
+}                     from '@modules/admin/logistics/fleet-management/domain/model/dashboard.model';
 
 export interface ComplianceSafetyDashboardData {
     metrics: {

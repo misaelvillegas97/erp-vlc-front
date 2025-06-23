@@ -8,7 +8,7 @@ import { PageHeaderComponent }                   from '@layout/components/page-h
 import { VehicleSessionsService }                from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
 import { NotyfService }                          from '@shared/services/notyf.service';
 import { firstValueFrom }                        from 'rxjs';
-import { NgApexchartsModule }                    from 'ng-apexcharts';
+import { ApexOptions, NgApexchartsModule }       from 'ng-apexcharts';
 import { LicenseType }                           from '@modules/admin/logistics/fleet-management/domain/model/driver.model';
 import { FormControl, ReactiveFormsModule }      from '@angular/forms';
 import { MatDatepickerModule }                   from '@angular/material/datepicker';
@@ -70,10 +70,10 @@ export class DriverPerformanceDashboardComponent {
                         averageSessionsPerDriver: {average: 0},
                         averageDistancePerDriver: {averageKm: 0},
                         driverStats               : [],
-                        topDriversBySessionsChart : null,
-                        topDriversByDistanceChart : null,
-                        sessionsByLicenseTypeChart: null,
-                        driverActivityTrendChart  : null
+                        topDriversBySessionsChart : {drivers: []},
+                        topDriversByDistanceChart : {drivers: []},
+                        sessionsByLicenseTypeChart: {data: []},
+                        driverActivityTrendChart  : {weeks: [], drivers: []}
                     } as DriverPerformanceDashboardData;
                 }
 
@@ -86,10 +86,10 @@ export class DriverPerformanceDashboardComponent {
                     averageSessionsPerDriver: {average: 0},
                     averageDistancePerDriver: {averageKm: 0},
                     driverStats               : [],
-                    topDriversBySessionsChart : null,
-                    topDriversByDistanceChart : null,
-                    sessionsByLicenseTypeChart: null,
-                    driverActivityTrendChart  : null
+                    topDriversBySessionsChart : {drivers: []},
+                    topDriversByDistanceChart : {drivers: []},
+                    sessionsByLicenseTypeChart: {data: []},
+                    driverActivityTrendChart  : {weeks: [], drivers: []}
                 } as DriverPerformanceDashboardData;
             }
         }
@@ -102,10 +102,195 @@ export class DriverPerformanceDashboardComponent {
     averageDistancePerDriver = computed(() => this.dashboardResource.value()?.averageDistancePerDriver.averageKm || 0);
 
     // Chart data from dashboard data
-    topDriversBySessionsChart = computed(() => this.dashboardResource.value()?.topDriversBySessionsChart || null);
-    topDriversByDistanceChart = computed(() => this.dashboardResource.value()?.topDriversByDistanceChart || null);
-    sessionsByLicenseTypeChart = computed(() => this.dashboardResource.value()?.sessionsByLicenseTypeChart || null);
-    driverActivityTrendChart = computed(() => this.dashboardResource.value()?.driverActivityTrendChart || null);
+    topDriversBySessionsChart = computed(() => {
+        const chartData = this.dashboardResource.value()?.topDriversBySessionsChart;
+        if (!chartData) return null;
+
+        return {
+            series     : [ {
+                name: 'Sesiones',
+                data: chartData.drivers.map(driver => driver.sessionCount)
+            } ],
+            chart      : {
+                type      : 'bar',
+                height    : 350,
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)',
+                toolbar   : {
+                    show: false
+                }
+            },
+            plotOptions: {
+                bar: {
+                    horizontal  : false,
+                    columnWidth : '55%',
+                    borderRadius: 5
+                }
+            },
+            dataLabels : {
+                enabled: false
+            },
+            colors     : [ '#4F46E5' ],
+            xaxis      : {
+                categories: chartData.drivers.map(driver => `${ driver.firstName } ${ driver.lastName }`),
+                labels    : {
+                    style: {
+                        fontSize: '12px'
+                    }
+                }
+            },
+            yaxis      : {
+                title: {
+                    text: 'Número de sesiones'
+                }
+            },
+            tooltip    : {
+                theme: 'dark',
+                y    : {
+                    formatter: (val) => {
+                        return `${ val } sesiones`;
+                    }
+                }
+            }
+        } as ApexOptions;
+    });
+
+    topDriversByDistanceChart = computed(() => {
+        const chartData = this.dashboardResource.value()?.topDriversByDistanceChart;
+        if (!chartData) return null;
+
+        return {
+            series     : [ {
+                name: 'Distancia',
+                data: chartData.drivers.map(driver => driver.totalDistance)
+            } ],
+            chart      : {
+                type      : 'bar',
+                height    : 350,
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)',
+                toolbar   : {
+                    show: false
+                }
+            },
+            plotOptions: {
+                bar: {
+                    horizontal  : false,
+                    columnWidth : '55%',
+                    borderRadius: 5
+                }
+            },
+            dataLabels : {
+                enabled: false
+            },
+            colors     : [ '#10B981' ],
+            xaxis      : {
+                categories: chartData.drivers.map(driver => `${ driver.firstName } ${ driver.lastName }`),
+                labels    : {
+                    style: {
+                        fontSize: '12px'
+                    }
+                }
+            },
+            yaxis      : {
+                title: {
+                    text: 'Kilómetros'
+                }
+            },
+            tooltip    : {
+                theme: 'dark',
+                y    : {
+                    formatter: (val) => {
+                        return `${ val } km`;
+                    }
+                }
+            }
+        } as ApexOptions;
+    });
+
+    sessionsByLicenseTypeChart = computed(() => {
+        const chartData = this.dashboardResource.value()?.sessionsByLicenseTypeChart;
+        if (!chartData) return null;
+
+        return {
+            series : chartData.data.map(item => item.sessionCount),
+            chart  : {
+                type      : 'pie',
+                height    : 350,
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)',
+                toolbar   : {
+                    show: false
+                }
+            },
+            labels : chartData.data.map(item => item.licenseLabel),
+            colors : [ '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6' ],
+            legend : {
+                position: 'bottom'
+            },
+            tooltip: {
+                theme: 'dark',
+                y    : {
+                    formatter: (val) => {
+                        return `${ val } sesiones`;
+                    }
+                }
+            }
+        } as ApexOptions;
+    });
+
+    driverActivityTrendChart = computed(() => {
+        const chartData = this.dashboardResource.value()?.driverActivityTrendChart;
+        if (!chartData) return null;
+
+        return {
+            series : chartData.drivers.map(driver => ({
+                name: `${ driver.firstName } ${ driver.lastName }`,
+                data: driver.sessionsByWeek
+            })),
+            chart  : {
+                type      : 'line',
+                height    : 350,
+                fontFamily: 'inherit',
+                foreColor : 'var(--fuse-text-default)',
+                zoom      : {
+                    enabled: false
+                },
+                toolbar   : {
+                    show: false
+                }
+            },
+            stroke : {
+                curve: 'smooth',
+                width: 3
+            },
+            colors : [ '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6' ],
+            markers: {
+                size: 5
+            },
+            xaxis  : {
+                categories: chartData.weeks,
+                labels    : {
+                    style: {
+                        fontSize: '12px'
+                    }
+                }
+            },
+            yaxis  : {
+                title: {
+                    text: 'Sesiones'
+                }
+            },
+            tooltip: {
+                theme: 'dark',
+                y    : {
+                    formatter: (val) => {
+                        return `${ val } sesiones`;
+                    }
+                }
+            }
+        } as ApexOptions;
+    });
 
     clearFilters(): void {
         this.dateFromControl.setValue(new Date(new Date().setMonth(new Date().getMonth() - 1)));
