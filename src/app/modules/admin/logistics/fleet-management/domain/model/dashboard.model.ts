@@ -43,7 +43,7 @@ export interface DriverPerformanceDashboardData {
     averageDistancePerDriver: AverageKm;
     topDriversBySessionsChart: TopDriversBySessionsChart;
     topDriversByDistanceChart: TopDriversByDistanceChart;
-    sessionsByLicenseTypeChart: SessionsByLicenseTypeChart;
+    sessionsByLicenseTypeChart: Data<LicenseSessionsCount>;
     driverActivityTrendChart: DriverActivityTrendChart;
 }
 
@@ -54,7 +54,7 @@ export interface VehicleUtilizationDashboardData {
     averageDistancePerVehicle: AverageKm;
     topVehiclesByUsageChart: TopVehiclesByUsageChart;
     topVehiclesByDistanceChart: TopVehiclesByDistanceChart;
-    usageByVehicleTypeChart: UsageByVehicleTypeChart;
+    usageByVehicleTypeChart: Data<VehicleTypeSessionCount>;
     costPerKmByVehicleChart: CostPerKmByVehicleChart;
     vehicleOdometerChart: VehicleOdometerChart;
 }
@@ -64,160 +64,182 @@ export interface GeographicalAnalysisDashboardData {
     maxSpeed: MaxSpeed;
     averageDistance: AverageKm;
     mostVisitedAreas: MostVisitedAreas;
-    speedDistributionChart: SpeedDistributionChart;
-    sessionStartTimeDistributionChart: SessionStartTimeDistributionChart;
-    sessionEndTimeDistributionChart: SessionEndTimeDistributionChart;
+    speedDistributionChart: Data<SpeedCount>;
+    sessionStartTimeDistributionChart: Data<SessionHourStartCount>;
+    sessionEndTimeDistributionChart: Data<SessionHourEndCount>;
     heatMapData: HeatMapData;
     frequentRoutesData: FrequentRoutesData;
 }
 
-export interface Count {
+export interface ComplianceSafetyDashboardData {
+    expiredSessions: CountPercentage;
+    speedViolations: CountSpeedViolations;
+    expiringLicenses: Count;
+    expiredSessionsTrendChart: Data<MonthPercentage>;
+    incidentsByVehicleTypeChart: Data<IncidentsByVehicleType>;
+    incidentsByDriverChart: DriverData<IncidentsCountByDriver>;
+    expiringLicensesTable: { licenses: ExpiringDriverLicense[] };
+    maintenanceAlertsTable: { alerts: MaintenanceAlertChart[] };
+    speedViolationsTable: { violations: SpeedViolations[] };
+}
+
+interface Data<T> {
+    data: T[];
+}
+
+interface DriverData<T> {
+    drivers: T[];
+}
+
+interface Count {
     count: number;
 }
 
-export interface TotalKm {
+interface CountPercentage {
+    count: number;
+    percentage: number;
+}
+
+interface CountSpeedViolations {
+    count: number;
+    speedLimit: number;
+}
+
+interface TotalKm {
     totalKm: number;
 }
 
-export interface TotalMinutes {
+interface TotalMinutes {
     totalMinutes: number;
 }
 
-export interface Average {
+interface Average {
     average: number;
 }
 
-export interface AverageKm {
+interface AverageKm {
     averageKm: number;
 }
 
-export interface AverageMinutes {
+interface AverageMinutes {
     averageMinutes: number;
 }
 
-export interface DateCount {
+interface DateCount {
     date: string;
     count: number;
 }
 
-export interface DayWeekDuration {
+interface DayWeekDuration {
     dayOfWeek: string;
     dayNumber: number;
     averageDurationMinutes: number;
 }
 
-export interface StatusCount {
+interface StatusCount {
     status: string;
     statusLabel: string;
     count: number;
 }
 
-export interface RangeMinutesCount {
+interface RangeMinutesCount {
     range: string;
     minMinutes: number;
     maxMinutes?: number;
     count: number;
 }
 
-export interface TopDriversBySessionsChart {
+interface TopDriversBySessionsChart {
     drivers: DriverSessionCount[];
 }
 
-export interface DriverSessionCount {
+interface DriverSessionCount {
     driverId: string;
     firstName: string;
     lastName: string;
     sessionCount: number;
 }
 
-export interface TopDriversByDistanceChart {
+interface TopDriversByDistanceChart {
     drivers: DriverDistance[];
 }
 
-export interface DriverDistance {
+interface DriverDistance {
     driverId: string;
     firstName: string;
     lastName: string;
     totalDistance: number;
 }
 
-export interface SessionsByLicenseTypeChart {
-    data: LicenseSessionsCount[];
-}
-
-export interface LicenseSessionsCount {
+interface LicenseSessionsCount {
     licenseType: string;
     licenseLabel: string;
     sessionCount: number;
 }
 
-export interface DriverActivityTrendChart {
+interface DriverActivityTrendChart {
     weeks: string[];
     drivers: DriverSessionsWeekCount[];
 }
 
-export interface DriverSessionsWeekCount {
+interface DriverSessionsWeekCount {
     driverId: string;
     firstName: string;
     lastName: string;
     sessionsByWeek: number[];
 }
 
-export interface TopVehiclesByUsageChart {
+interface TopVehiclesByUsageChart {
     vehicles: VehicleSessionCount[];
 }
 
-export interface VehicleSessionCount {
+interface VehicleSessionCount {
     vehicleId: string;
     displayName: string;
     licensePlate: string;
     sessionCount: number;
 }
 
-export interface TopVehiclesByDistanceChart {
+interface TopVehiclesByDistanceChart {
     vehicles: VehicleTotalDistance[];
 }
 
-export interface VehicleTotalDistance {
+interface VehicleTotalDistance {
     vehicleId: string;
     displayName: string;
     licensePlate: string;
     totalDistance: number;
 }
 
-export interface UsageByVehicleTypeChart {
-    data: VehicleTypeSessionCount[];
-}
-
-export interface VehicleTypeSessionCount {
+interface VehicleTypeSessionCount {
     vehicleType: string;
     typeLabel: string;
     sessionCount: number;
 }
 
-export interface CostPerKmByVehicleChart {
+interface CostPerKmByVehicleChart {
     vehicles: VehicleCostPerKm[];
 }
 
-export interface VehicleCostPerKm {
+interface VehicleCostPerKm {
     vehicleId: string;
     displayName: string;
     licensePlate: string;
     costPerKm: number;
 }
 
-export interface VehicleOdometerChart {
+interface VehicleOdometerChart {
     vehicles: VehicleOdometer[];
 }
 
-export interface VehicleOdometer {
+interface VehicleOdometer {
     vehicleId: string;
     displayName: string;
     licensePlate: string;
     odometerReading: number;
 }
 
-export interface MaxSpeed {
+interface MaxSpeed {
     maxSpeedKmh: number;
     sessionId: string;
     driverId: string;
@@ -225,68 +247,109 @@ export interface MaxSpeed {
     timestamp: string;
 }
 
-export interface MostVisitedAreas {
+interface MostVisitedAreas {
     areas: AreaCount[];
 }
 
-export interface AreaCount {
+interface AreaCount {
     latitude: number;
     longitude: number;
     count: number;
 }
 
-export interface SpeedDistributionChart {
-    data: SpeedCount[];
-}
-
-export interface SpeedCount {
+interface SpeedCount {
     range: string;
     minSpeed: number;
     maxSpeed?: number;
     count: number;
 }
 
-export interface SessionStartTimeDistributionChart {
-    data: SessionHourStartCount[];
-}
-
-export interface SessionHourStartCount {
+interface SessionHourStartCount {
     hour: number;
     label: string;
     count: number;
 }
 
-export interface SessionEndTimeDistributionChart {
-    data: SessionHourEndCount[];
-}
-
-export interface SessionHourEndCount {
+interface SessionHourEndCount {
     hour: number;
     label: string;
     count: number;
 }
 
-export interface HeatMapData {
+interface HeatMapData {
     points: Point[];
 }
 
-export interface Point {
+interface Point {
     latitude: number;
     longitude: number;
     weight: number;
 }
 
-export interface FrequentRoutesData {
+interface FrequentRoutesData {
     routes: Route[];
 }
 
-export interface Route {
+interface Route {
     id: string;
     count: number;
     path: Path[];
 }
 
-export interface Path {
+interface Path {
     latitude: number;
     longitude: number;
+}
+
+interface MonthPercentage {
+    month: string;
+    label: string;
+    percentage: number;
+}
+
+interface IncidentsByVehicleType {
+    vehicleType: string;
+    typeLabel: string;
+    incidentCount: number;
+}
+
+interface IncidentsCountByDriver {
+    driverId: string;
+    firstName: string;
+    lastName: string;
+    incidentCount: number;
+}
+
+interface ExpiringDriverLicense {
+    driverId: string;
+    firstName: string;
+    lastName: string;
+    licenseType: string;
+    expiryDate: string;
+    daysUntilExpiry: number;
+}
+
+export interface MaintenanceAlertChart {
+    vehicleId: string;
+    brand: string;
+    model: string;
+    licensePlate: string;
+    alertType: 'date' | 'odometer';
+    dueDate?: string;
+    dueKm?: number;
+    daysUntilDue?: number;
+    kmUntilDue?: number;
+}
+
+interface SpeedViolations {
+    sessionId: string;
+    driverId: string;
+    firstName: string;
+    lastName: string;
+    vehicleId: string;
+    licensePlate: string;
+    timestamp: string;
+    speed: number;
+    speedLimit: number;
+    excess: number;
 }

@@ -10,8 +10,7 @@ import { DriversService }                        from '@modules/admin/logistics/
 import { VehiclesService }                       from '@modules/admin/logistics/fleet-management/services/vehicles.service';
 import { NotyfService }                          from '@shared/services/notyf.service';
 import { firstValueFrom }                        from 'rxjs';
-import { NgApexchartsModule }                    from 'ng-apexcharts';
-import { SessionStatus }                         from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
+import { ApexOptions, NgApexchartsModule }       from 'ng-apexcharts';
 import { Driver }                                from '@modules/admin/logistics/fleet-management/domain/model/driver.model';
 import { Vehicle }                               from '@modules/admin/logistics/fleet-management/domain/model/vehicle.model';
 import { FormControl, ReactiveFormsModule }      from '@angular/forms';
@@ -28,24 +27,9 @@ interface SpeedViolation {
     vehicleId: string;
     timestamp: Date;
     speed: number;
+    excess: number;
     driverName?: string;
     vehicleLicensePlate?: string;
-}
-
-interface ExpiredLicense {
-    driver: Driver;
-    licenseType: string;
-    expiryDate: Date;
-    daysUntilExpiry: number;
-}
-
-interface MaintenanceAlert {
-    vehicle: Vehicle;
-    type: 'date' | 'odometer';
-    dueDate?: Date;
-    dueKm?: number;
-    daysUntilDue?: number;
-    kmUntilDue?: number;
 }
 
 @Component({
@@ -82,6 +66,27 @@ export class ComplianceSafetyDashboardComponent {
     speedLimit = 100;
 
     // Data resources
+    dashboardResource = resource({
+        loader: async () => {
+            try {
+                const dateFrom = this.dateFromControl.value;
+                const dateTo = this.dateToControl.value;
+
+                if (!dateFrom || !dateTo) {
+                    return null;
+                }
+
+                return await firstValueFrom(this.vehicleSessionsService.getComplianceSafetyDashboardData({
+                    dateFrom: dateFrom.toISOString(),
+                    dateTo  : dateTo.toISOString()
+                }));
+            } catch (error) {
+                this.notyf.error('Error al cargar los datos del dashboard');
+                return null;
+            }
+        }
+    });
+
     sessionsResource = resource({
         loader: async () => {
             try {
@@ -125,188 +130,98 @@ export class ComplianceSafetyDashboardComponent {
         }
     });
 
-    // Computed metrics
+    // Computed metrics from dashboard data
     expiredSessions = computed(() => {
-        const sessions = this.sessionsResource.value();
-        if (!sessions || sessions.length === 0) return 0;
+        const dashboard = this.dashboardResource.value();
+        if (!dashboard) return 0;
 
-        return sessions.filter(session => session.status === SessionStatus.EXPIRED).length;
+        return dashboard.expiredSessions.count;
+    });
+
+    expiredSessionsPercentage = computed(() => {
+        const dashboard = this.dashboardResource.value();
+        if (!dashboard) return 0;
+
+        return dashboard.expiredSessions.percentage;
     });
 
     speedViolations = computed(() => {
-        const sessions = this.sessionsResource.value();
-        const drivers = this.driversResource.value();
-        const vehicles = this.vehiclesResource.value();
+        const dashboard = this.dashboardResource.value();
+        if (!dashboard || !dashboard.speedViolationsTable || !dashboard.speedViolationsTable.violations) return [];
 
-        if (!sessions || sessions.length === 0) return [];
-
-        const violations: SpeedViolation[] = [];
-
-        sessions.forEach(session => {
-            if (!session.gps) return;
-
-            session.gps.forEach(point => {
-                if (point.speed !== undefined && point.speed > this.speedLimit && point.timestamp) {
-                    const violation: SpeedViolation = {
-                        sessionId: session.id,
-                        driverId : session.driverId,
-                        vehicleId: session.vehicleId,
-                        timestamp: new Date(point.timestamp),
-                        speed    : point.speed
-                    };
-
-                    // Add driver and vehicle info if available
-                    if (drivers && drivers.items?.length > 0) {
-                        const driver = drivers.items?.find(d => d.id === session.driverId);
-                        if (driver) {
-                            violation.driverName = `${ driver.firstName } ${ driver.lastName }`;
-                        }
-                    }
-
-                    if (vehicles && vehicles.items?.length > 0) {
-                        const vehicle = vehicles.items?.find(v => v.id === session.vehicleId);
-                        if (vehicle) {
-                            violation.vehicleLicensePlate = vehicle.licensePlate;
-                        }
-                    }
-
-                    violations.push(violation);
-                }
-            });
-        });
-
-        return violations;
+        return dashboard.speedViolationsTable.violations.map(violation => ({
+            sessionId          : violation.sessionId,
+            driverId           : violation.driverId,
+            vehicleId          : violation.vehicleId,
+            timestamp          : new Date(violation.timestamp),
+            speed              : violation.speed,
+            excess             : violation.excess,
+            driverName         : `${ violation.firstName } ${ violation.lastName }`,
+            vehicleLicensePlate: violation.licensePlate
+        }));
     });
 
-    totalSpeedViolations = computed(() => this.speedViolations().length);
+    totalSpeedViolations = computed(() => {
+        const dashboard = this.dashboardResource.value();
+        if (!dashboard) return 0;
+
+        return dashboard.speedViolations.count;
+    });
+
+    speedLimitValue = computed(() => {
+        const dashboard = this.dashboardResource.value();
+        if (!dashboard) return this.speedLimit;
+
+        return dashboard.speedViolations.speedLimit;
+    });
 
     expiringLicenses = computed(() => {
-        const drivers = this.driversResource.value();
-        if (!drivers || drivers.items?.length === 0) return [];
+        const dashboard = this.dashboardResource.value();
+        if (!dashboard || !dashboard.expiringLicensesTable || !dashboard.expiringLicensesTable.licenses) return [];
 
-        const today = new Date();
-        const expiringLicenses: ExpiredLicense[] = [];
+        return dashboard.expiringLicensesTable.licenses.map(license => {
+            const driver = {
+                id       : license.driverId,
+                firstName: license.firstName,
+                lastName : license.lastName
+            } as Driver;
 
-        drivers.items?.forEach(driver => {
-            if (!driver.driverLicense || driver.driverLicense.length === 0) return;
-
-            driver.driverLicense.forEach(license => {
-                const expiryDate = new Date(license.licenseValidTo);
-                const daysUntilExpiry = Math.floor((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-                // Include licenses that expire within 30 days or have already expired
-                if (daysUntilExpiry <= 30) {
-                    expiringLicenses.push({
-                        driver,
-                        licenseType: license.licenseType,
-                        expiryDate,
-                        daysUntilExpiry
-                    });
-                }
-            });
-        });
-
-        // Sort by days until expiry (ascending)
-        return expiringLicenses.sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
+            return {
+                driver,
+                licenseType    : license.licenseType,
+                expiryDate     : new Date(license.expiryDate),
+                daysUntilExpiry: license.daysUntilExpiry
+            };
+        }).sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
     });
 
     maintenanceAlerts = computed(() => {
-        const vehicles = this.vehiclesResource.value();
-        if (!vehicles || vehicles.items?.length === 0) return [];
+        const dashboard = this.dashboardResource.value();
+        if (!dashboard || !dashboard.maintenanceAlertsTable || !dashboard.maintenanceAlertsTable.alerts) return [];
 
-        const today = new Date();
-        const maintenanceAlerts: MaintenanceAlert[] = [];
-
-        vehicles.items?.forEach(vehicle => {
-            // Check date-based maintenance
-            if (vehicle.nextMaintenanceDate) {
-                const dueDate = new Date(vehicle.nextMaintenanceDate);
-                const daysUntilDue = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-                // Include vehicles with maintenance due within 30 days or overdue
-                if (daysUntilDue <= 30) {
-                    maintenanceAlerts.push({
-                        vehicle,
-                        type: 'date',
-                        dueDate,
-                        daysUntilDue
-                    });
+        return dashboard.maintenanceAlertsTable.alerts
+            .sort((a, b) => {
+                if (a.alertType === 'date' && b.alertType === 'date') {
+                    return (a.daysUntilDue || 0) - (b.daysUntilDue || 0);
+                } else if (a.alertType === 'odometer' && b.alertType === 'odometer') {
+                    return (a.kmUntilDue || 0) - (b.kmUntilDue || 0);
+                } else {
+                    return a.alertType === 'date' ? -1 : 1; // Date-based alerts first
                 }
-            }
-
-            // Check odometer-based maintenance
-            if (vehicle.nextMaintenanceKm && vehicle.lastKnownOdometer) {
-                const kmUntilDue = vehicle.nextMaintenanceKm - vehicle.lastKnownOdometer;
-
-                // Include vehicles with maintenance due within 500 km or overdue
-                if (kmUntilDue <= 500) {
-                    maintenanceAlerts.push({
-                        vehicle,
-                        type : 'odometer',
-                        dueKm: vehicle.nextMaintenanceKm,
-                        kmUntilDue
-                    });
-                }
-            }
-        });
-
-        // Sort by days until due (ascending) for date-based alerts, then by km until due (ascending) for odometer-based alerts
-        return maintenanceAlerts.sort((a, b) => {
-            if (a.type === 'date' && b.type === 'date') {
-                return (a.daysUntilDue || 0) - (b.daysUntilDue || 0);
-            } else if (a.type === 'odometer' && b.type === 'odometer') {
-                return (a.kmUntilDue || 0) - (b.kmUntilDue || 0);
-            } else {
-                return a.type === 'date' ? -1 : 1; // Date-based alerts first
-            }
-        });
+            });
     });
 
     // Chart data
-    expiredSessionsTrendChart = computed(() => {
-        const sessions = this.sessionsResource.value();
-        if (!sessions || sessions.length === 0) return null;
+    expiredSessionsTrendChart = computed((): ApexOptions => {
+        const dashboard = this.dashboardResource.value();
+        if (!dashboard || !dashboard.expiredSessionsTrendChart || !dashboard.expiredSessionsTrendChart.data || dashboard.expiredSessionsTrendChart.data.length === 0) return null;
 
-        // Group sessions by month
-        const sessionsByMonth = new Map<string, { total: number, expired: number }>();
-
-        sessions.forEach(session => {
-            if (!session.startTime) return;
-
-            const date = new Date(session.startTime);
-            const monthKey = `${ date.getFullYear() }-${ date.getMonth() + 1 }`;
-
-            if (sessionsByMonth.has(monthKey)) {
-                const monthData = sessionsByMonth.get(monthKey);
-                monthData.total++;
-                if (session.status === SessionStatus.EXPIRED) {
-                    monthData.expired++;
-                }
-                sessionsByMonth.set(monthKey, monthData);
-            } else {
-                sessionsByMonth.set(monthKey, {
-                    total  : 1,
-                    expired: session.status === SessionStatus.EXPIRED ? 1 : 0
-                });
-            }
-        });
-
-        // Sort months
-        const sortedMonths = Array.from(sessionsByMonth.keys()).sort();
-
-        // Calculate percentages
-        const percentages = sortedMonths.map(month => {
-            const data = sessionsByMonth.get(month);
-            return {
-                month,
-                percentage: data.total > 0 ? (data.expired / data.total) * 100 : 0
-            };
-        });
+        const chartData = dashboard.expiredSessionsTrendChart.data;
 
         return {
             series : [ {
                 name: 'Sesiones Expiradas (%)',
-                data: percentages.map(p => Math.round(p.percentage * 10) / 10)
+                data: chartData.map(p => Math.round(p.percentage * 10) / 10)
             } ],
             chart  : {
                 type   : 'line',
@@ -324,10 +239,7 @@ export class ComplianceSafetyDashboardComponent {
                 size: 5
             },
             xaxis  : {
-                categories: percentages.map(p => {
-                    const [ year, month ] = p.month.split('-');
-                    return `${ month }/${ year }`;
-                }),
+                categories: chartData.map(p => p.label || `${ p.month }`),
                 labels    : {
                     style: {
                         fontSize: '12px'
@@ -358,40 +270,15 @@ export class ComplianceSafetyDashboardComponent {
         };
     });
 
-    incidentsByVehicleTypeChart = computed(() => {
-        const sessions = this.sessionsResource.value();
-        const vehicles = this.vehiclesResource.value();
+    incidentsByVehicleTypeChart = computed((): ApexOptions => {
+        const dashboard = this.dashboardResource.value();
+        if (!dashboard || !dashboard.incidentsByVehicleTypeChart || !dashboard.incidentsByVehicleTypeChart.data || dashboard.incidentsByVehicleTypeChart.data.length === 0) return null;
 
-        if (!sessions || sessions.length === 0 || !vehicles || vehicles.items?.length === 0) return null;
-
-        // Count incidents by vehicle type
-        const incidentsByType = new Map<string, number>();
-
-        // Initialize with all vehicle types
-        const vehicleTypes = Array.from(new Set(vehicles.items?.map(v => v.type)));
-        vehicleTypes.forEach(type => {
-            incidentsByType.set(type, 0);
-        });
-
-        // Count incidents
-        sessions.forEach(session => {
-            if (!session.incidents || session.incidents.trim() === '') return;
-
-            const vehicle = vehicles.items?.find(v => v.id === session.vehicleId);
-            if (!vehicle || !vehicle.type) return;
-
-            const currentCount = incidentsByType.get(vehicle.type) || 0;
-            incidentsByType.set(vehicle.type, currentCount + 1);
-        });
+        const chartData = dashboard.incidentsByVehicleTypeChart.data;
 
         // Prepare data for chart
-        const data = Array.from(incidentsByType.entries())
-            .filter(([ _, count ]) => count > 0)
-            .map(([ type, count ]) => count);
-
-        const labels = Array.from(incidentsByType.entries())
-            .filter(([ _, count ]) => count > 0)
-            .map(([ type, _ ]) => type);
+        const data = chartData.map(item => item.incidentCount);
+        const labels = chartData.map(item => item.typeLabel || item.vehicleType);
 
         return {
             series : data,
@@ -417,40 +304,19 @@ export class ComplianceSafetyDashboardComponent {
         };
     });
 
-    incidentsByDriverChart = computed(() => {
-        const sessions = this.sessionsResource.value();
-        const drivers = this.driversResource.value();
-
-        if (!sessions || sessions.length === 0 || !drivers || drivers.items?.length === 0) return null;
-
-        // Count incidents by driver
-        const incidentsByDriver = new Map<string, { driver: Driver, count: number }>();
-
-        // Count incidents
-        sessions.forEach(session => {
-            if (!session.incidents || session.incidents.trim() === '') return;
-
-            const driver = drivers.items?.find(d => d.id === session.driverId);
-            if (!driver) return;
-
-            if (incidentsByDriver.has(driver.id)) {
-                const data = incidentsByDriver.get(driver.id);
-                data.count++;
-                incidentsByDriver.set(driver.id, data);
-            } else {
-                incidentsByDriver.set(driver.id, {driver, count: 1});
-            }
-        });
+    incidentsByDriverChart = computed((): ApexOptions => {
+        const dashboard = this.dashboardResource.value();
+        if (!dashboard || !dashboard.incidentsByDriverChart || !dashboard.incidentsByDriverChart.drivers || dashboard.incidentsByDriverChart.drivers.length === 0) return null;
 
         // Get top 10 drivers by incident count
-        const topDrivers = Array.from(incidentsByDriver.values())
-            .sort((a, b) => b.count - a.count)
+        const topDrivers = dashboard.incidentsByDriverChart.drivers
+            .sort((a, b) => b.incidentCount - a.incidentCount)
             .slice(0, 10);
 
         return {
             series     : [ {
                 name: 'Incidentes',
-                data: topDrivers.map(d => d.count)
+                data: topDrivers.map(d => d.incidentCount)
             } ],
             chart      : {
                 type   : 'bar',
@@ -481,7 +347,7 @@ export class ComplianceSafetyDashboardComponent {
             },
             colors     : [ '#EF4444' ],
             xaxis      : {
-                categories: topDrivers.map(d => `${ d.driver.firstName } ${ d.driver.lastName }`),
+                categories: topDrivers.map(d => `${ d.firstName } ${ d.lastName }`),
                 labels    : {
                     style: {
                         fontSize: '12px'
@@ -517,6 +383,7 @@ export class ComplianceSafetyDashboardComponent {
     }
 
     reloadData(): void {
+        this.dashboardResource.reload();
         this.sessionsResource.reload();
         this.driversResource.reload();
         this.vehiclesResource.reload();

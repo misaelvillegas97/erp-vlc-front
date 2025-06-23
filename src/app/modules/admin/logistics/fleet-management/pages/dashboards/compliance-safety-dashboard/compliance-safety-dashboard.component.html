@@ -38,7 +38,7 @@
         </div>
 
         <!-- Estado de carga -->
-        @if (sessionsResource.isLoading() || driversResource.isLoading() || vehiclesResource.isLoading()) {
+        @if (dashboardResource.isLoading() || sessionsResource.isLoading() || driversResource.isLoading() || vehiclesResource.isLoading()) {
             <div class="flex justify-center items-center p-8 w-full">
                 <mat-spinner diameter="40"></mat-spinner>
                 <span class="ml-4 text-secondary">Cargando datos...</span>
@@ -75,7 +75,7 @@
                                     <p class="text-lg font-semibold text-gray-800 dark:text-white">Excesos de Velocidad</p>
                                 </div>
                                 <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ totalSpeedViolations() }}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Registros por encima de {{ speedLimit }} km/h</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Registros por encima de {{ speedLimitValue() }} km/h</p>
                             </div>
                             <div class="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center">
                                 <mat-icon class="text-amber-500 dark:text-amber-400 text-2xl">warning_amber</mat-icon>
@@ -110,18 +110,18 @@
                 <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
                     <h3 class="truncate text-lg font-medium leading-6 tracking-light">Tendencia de Sesiones Expiradas</h3>
                     <div class="flex flex-auto flex-col">
-                        @let chart = expiredSessionsTrendChart();
-                        @if (chart) {
+                        @let expiredSessionsTrendChartConfig = expiredSessionsTrendChart();
+                        @if (expiredSessionsTrendChartConfig) {
                             <apx-chart
-                                [chart]="chart.chart"
-                                [colors]="chart.colors"
-                                [grid]="chart.grid"
-                                [markers]="chart.markers"
-                                [series]="chart.series"
-                                [stroke]="chart.stroke"
-                                [tooltip]="chart.tooltip"
-                                [xaxis]="chart.xaxis"
-                                [yaxis]="chart.yaxis"
+                                [chart]="expiredSessionsTrendChartConfig.chart"
+                                [colors]="expiredSessionsTrendChartConfig.colors"
+                                [grid]="expiredSessionsTrendChartConfig.grid"
+                                [markers]="expiredSessionsTrendChartConfig.markers"
+                                [series]="expiredSessionsTrendChartConfig.series"
+                                [stroke]="expiredSessionsTrendChartConfig.stroke"
+                                [tooltip]="expiredSessionsTrendChartConfig.tooltip"
+                                [xaxis]="expiredSessionsTrendChartConfig.xaxis"
+                                [yaxis]="expiredSessionsTrendChartConfig.yaxis"
                                 class="w-full flex-auto h-64"
                             ></apx-chart>
                         } @else {
@@ -136,15 +136,15 @@
                 <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
                     <h3 class="truncate text-lg font-medium leading-6 tracking-light">Incidentes por Tipo de Vehículo</h3>
                     <div class="flex flex-auto flex-col">
-                        @let chart = incidentsByVehicleTypeChart();
-                        @if (chart) {
+                        @let incidentsByVehicleTypeChartConfig = incidentsByVehicleTypeChart();
+                        @if (incidentsByVehicleTypeChartConfig) {
                             <apx-chart
-                                [chart]="chart.chart"
-                                [colors]="chart.colors"
-                                [labels]="chart.labels"
-                                [legend]="chart.legend"
-                                [series]="chart.series"
-                                [tooltip]="chart.tooltip"
+                                [chart]="incidentsByVehicleTypeChartConfig.chart"
+                                [colors]="incidentsByVehicleTypeChartConfig.colors"
+                                [labels]="incidentsByVehicleTypeChartConfig.labels"
+                                [legend]="incidentsByVehicleTypeChartConfig.legend"
+                                [series]="incidentsByVehicleTypeChartConfig.series"
+                                [tooltip]="incidentsByVehicleTypeChartConfig.tooltip"
                                 class="w-full flex-auto h-64"
                             ></apx-chart>
                         } @else {
@@ -159,18 +159,18 @@
                 <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-12">
                     <h3 class="truncate text-lg font-medium leading-6 tracking-light">Conductores con Más Incidentes</h3>
                     <div class="flex flex-auto flex-col">
-                        @let chart = incidentsByDriverChart();
-                        @if (chart) {
+                        @let incidentsByDriverChartConfig = incidentsByDriverChart();
+                        @if (incidentsByDriverChartConfig) {
                             <apx-chart
-                                [chart]="chart.chart"
-                                [colors]="chart.colors"
-                                [dataLabels]="chart.dataLabels"
-                                [grid]="chart.grid"
-                                [plotOptions]="chart.plotOptions"
-                                [series]="chart.series"
-                                [tooltip]="chart.tooltip"
-                                [xaxis]="chart.xaxis"
-                                [yaxis]="chart.yaxis"
+                                [chart]="incidentsByDriverChartConfig.chart"
+                                [colors]="incidentsByDriverChartConfig.colors"
+                                [dataLabels]="incidentsByDriverChartConfig.dataLabels"
+                                [grid]="incidentsByDriverChartConfig.grid"
+                                [plotOptions]="incidentsByDriverChartConfig.plotOptions"
+                                [series]="incidentsByDriverChartConfig.series"
+                                [tooltip]="incidentsByDriverChartConfig.tooltip"
+                                [xaxis]="incidentsByDriverChartConfig.xaxis"
+                                [yaxis]="incidentsByDriverChartConfig.yaxis"
                                 class="w-full flex-auto h-64"
                             ></apx-chart>
                         } @else {
@@ -340,18 +340,17 @@
                                                 {{ violation.speed }} km/h
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                @let excess = violation.speed - speedLimit;
-                                                @if (excess > 30) {
+                                                @if (violation.excess > 30) {
                                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                                        +{{ excess }} km/h
+                                                        +{{ violation.excess }} km/h
                                                     </span>
-                                                } @else if (excess > 15) {
+                                                } @else if (violation.excess > 15) {
                                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
-                                                        +{{ excess }} km/h
+                                                        +{{ violation.excess }} km/h
                                                     </span>
                                                 } @else {
                                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
-                                                        +{{ excess }} km/h
+                                                        +{{ violation.excess }} km/h
                                                     </span>
                                                 }
                                             </td>

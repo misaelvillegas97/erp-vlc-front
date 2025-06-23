@@ -9,24 +9,12 @@ import {
 import { Pagination } from '@shared/domain/model/pagination';
 import {
     ActiveSessionsDashboardData,
+    ComplianceSafetyDashboardData,
     DriverPerformanceDashboardData,
     GeographicalAnalysisDashboardData,
     HistoricalAnalysisDashboardData,
     VehicleUtilizationDashboardData
 }                     from '@modules/admin/logistics/fleet-management/domain/model/dashboard.model';
-
-export interface ComplianceSafetyDashboardData {
-    metrics: {
-        expiredSessions: number;
-        totalSpeedViolations: number;
-    };
-    expiringLicenses: any[];
-    maintenanceAlerts: any[];
-    speedViolations: any[];
-    expiredSessionsTrendChart: any;
-    incidentsByVehicleTypeChart: any;
-    incidentsByDriverChart: any;
-}
 
 @Injectable({
     providedIn: 'root'
