@@ -225,7 +225,6 @@ export class ComplianceSafetyDashboardComponent {
             } ],
             chart  : {
                 type   : 'line',
-                height : 350,
                 toolbar: {
                     show: false
                 }
@@ -258,13 +257,6 @@ export class ComplianceSafetyDashboardComponent {
                     formatter: (val) => {
                         return `${ val }%`;
                     }
-                }
-            },
-            grid   : {
-                borderColor: '#e7e7e7',
-                row        : {
-                    colors : [ '#f3f3f3', 'transparent' ],
-                    opacity: 0.5
                 }
             }
         };
@@ -364,13 +356,6 @@ export class ComplianceSafetyDashboardComponent {
                     formatter: (val) => {
                         return `${ val } incidentes`;
                     }
-                }
-            },
-            grid       : {
-                borderColor: '#e7e7e7',
-                row        : {
-                    colors : [ '#f3f3f3', 'transparent' ],
-                    opacity: 0.5
                 }
             }
         };

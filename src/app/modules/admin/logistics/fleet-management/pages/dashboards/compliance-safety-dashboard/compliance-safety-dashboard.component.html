@@ -1,61 +1,84 @@
-<div class="flex flex-col min-w-0 w-full">
-    <page-header
-        title="Dashboard de Cumplimiento y Seguridad"
-        subtitle="Monitoreo de cumplimiento normativo y seguridad de la flota"
-        icon="heroicons_outline:shield-check">
-    </page-header>
+<div class="flex flex-col min-w-0 w-full bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- Enhanced Page Header with gradient background -->
+    <div class="bg-gradient-to-r from-red-600 to-amber-700 text-white shadow-lg">
+        <div class="">
+            <page-header
+                    title="Dashboard de Cumplimiento y Seguridad"
+                    subtitle="Monitoreo de cumplimiento normativo y seguridad de la flota"
+                    icon="heroicons_outline:shield-check"
+                    class="text-white">
+            </page-header>
+        </div>
+    </div>
 
-    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-full mx-auto py-10 gap-y-4 sm:px-4">
-        <!-- Panel de filtros -->
-        <div class="w-full bg-card rounded-md shadow p-4 mb-4">
-            <h2 class="text-xl font-medium mb-4">Filtros</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Filtro por fecha desde -->
-                <mat-form-field class="w-full">
-                    <mat-label>Desde</mat-label>
-                    <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFromControl" placeholder="Desde">
-                    <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
-                    <mat-datepicker #pickerFrom></mat-datepicker>
-                </mat-form-field>
-
-                <!-- Filtro por fecha hasta -->
-                <mat-form-field class="w-full">
-                    <mat-label>Hasta</mat-label>
-                    <input matInput [matDatepicker]="pickerTo" [formControl]="dateToControl" placeholder="Hasta">
-                    <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
-                    <mat-datepicker #pickerTo></mat-datepicker>
-                </mat-form-field>
-            </div>
-            <div class="flex justify-end">
-                <button mat-raised-button color="primary" (click)="reloadData()">
-                    <mat-icon>search</mat-icon>
-                    Aplicar filtros
-                </button>
-                <button mat-button color="warn" class="ml-2" (click)="clearFilters()">
-                    Limpiar filtros
+    <div class="flex flex-col w-full max-w-7xl mx-auto p-6">
+        <!-- Acciones y Filtros -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Cumplimiento y Seguridad</h1>
+            <div class="flex gap-2">
+                <button
+                        mat-flat-button
+                        color="primary"
+                        (click)="reloadData()"
+                        class="flex items-center shadow-sm hover:shadow transition-all duration-200">
+                    <mat-icon class="mr-2">refresh</mat-icon>
+                    Actualizar datos
                 </button>
             </div>
         </div>
 
-        <!-- Estado de carga -->
-        @if (dashboardResource.isLoading() || sessionsResource.isLoading() || driversResource.isLoading() || vehiclesResource.isLoading()) {
-            <div class="flex justify-center items-center p-8 w-full">
-                <mat-spinner diameter="40"></mat-spinner>
-                <span class="ml-4 text-secondary">Cargando datos...</span>
-            </div>
-        } @else {
-            <!-- Tarjetas de alertas principales -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-6">
+        <!-- Panel de filtros -->
+        <mat-card
+                class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden mb-8">
+            <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                <mat-card-title class="text-lg font-medium">Filtros de Fecha</mat-card-title>
+            </mat-card-header>
+            <mat-card-content class="p-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Filtro por fecha desde -->
+                    <mat-form-field class="w-full">
+                        <mat-label>Desde</mat-label>
+                        <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFromControl"
+                               placeholder="Desde">
+                        <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+                        <mat-datepicker #pickerFrom></mat-datepicker>
+                    </mat-form-field>
+
+                    <!-- Filtro por fecha hasta -->
+                    <mat-form-field class="w-full">
+                        <mat-label>Hasta</mat-label>
+                        <input matInput [matDatepicker]="pickerTo" [formControl]="dateToControl" placeholder="Hasta">
+                        <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
+                        <mat-datepicker #pickerTo></mat-datepicker>
+                    </mat-form-field>
+                </div>
+                <div class="flex justify-end mt-4">
+                    <button mat-flat-button color="primary" (click)="reloadData()"
+                            class="flex items-center shadow-sm hover:shadow transition-all duration-200">
+                        <mat-icon class="mr-2">search</mat-icon>
+                        Aplicar filtros
+                    </button>
+                    <button mat-button color="warn" class="ml-2" (click)="clearFilters()">
+                        Limpiar filtros
+                    </button>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Métricas principales -->
+        <div *ngIf="!(dashboardResource.isLoading() || sessionsResource.isLoading() || driversResource.isLoading() || vehiclesResource.isLoading())"
+             class="animate-in fade-in duration-300">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <!-- Sesiones expiradas -->
-                <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-red-500 dark:border-red-600">
+                <mat-card
+                        class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div class="h-1 bg-red-500"></div>
                     <mat-card-content class="p-6">
                         <div class="flex items-center">
                             <div class="flex-1">
-                                <div class="flex items-center mb-2">
-                                    <mat-icon class="text-red-500 dark:text-red-400 mr-2">error</mat-icon>
-                                    <p class="text-lg font-semibold text-gray-800 dark:text-white">Sesiones Expiradas</p>
-                                </div>
-                                <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ expiredSessions() }}</p>
+                                <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">
+                                    Sesiones Expiradas</p>
+                                <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ expiredSessions() }}</p>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Sesiones no finalizadas correctamente</p>
                             </div>
                             <div class="w-14 h-14 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
@@ -66,15 +89,15 @@
                 </mat-card>
 
                 <!-- Excesos de velocidad -->
-                <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-amber-500 dark:border-amber-600">
+                <mat-card
+                        class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div class="h-1 bg-amber-500"></div>
                     <mat-card-content class="p-6">
                         <div class="flex items-center">
                             <div class="flex-1">
-                                <div class="flex items-center mb-2">
-                                    <mat-icon class="text-amber-500 dark:text-amber-400 mr-2">speed</mat-icon>
-                                    <p class="text-lg font-semibold text-gray-800 dark:text-white">Excesos de Velocidad</p>
-                                </div>
-                                <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ totalSpeedViolations() }}</p>
+                                <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">
+                                    Excesos de Velocidad</p>
+                                <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ totalSpeedViolations() }}</p>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Registros por encima de {{ speedLimitValue() }} km/h</p>
                             </div>
                             <div class="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center">
@@ -85,15 +108,15 @@
                 </mat-card>
 
                 <!-- Licencias por vencer -->
-                <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-orange-500 dark:border-orange-600">
+                <mat-card
+                        class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div class="h-1 bg-orange-500"></div>
                     <mat-card-content class="p-6">
                         <div class="flex items-center">
                             <div class="flex-1">
-                                <div class="flex items-center mb-2">
-                                    <mat-icon class="text-orange-500 dark:text-orange-400 mr-2">badge</mat-icon>
-                                    <p class="text-lg font-semibold text-gray-800 dark:text-white">Licencias por Vencer</p>
-                                </div>
-                                <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ expiringLicenses().length }}</p>
+                                <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider">
+                                    Licencias por Vencer</p>
+                                <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ expiringLicenses().length }}</p>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Licencias que vencen en 30 días</p>
                             </div>
                             <div class="w-14 h-14 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
@@ -104,38 +127,46 @@
                 </mat-card>
             </div>
 
-            <!-- Gráficos y tablas -->
-            <div class="grid w-full min-w-0 grid-cols-1 gap-6 sm:grid-cols-12">
+            <!-- Gráficos -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <!-- Tendencia de sesiones expiradas -->
-                <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
-                    <h3 class="truncate text-lg font-medium leading-6 tracking-light">Tendencia de Sesiones Expiradas</h3>
-                    <div class="flex flex-auto flex-col">
+                <mat-card
+                        class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <mat-card-header
+                            class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                        <mat-card-title class="text-lg font-medium">Tendencia de Sesiones Expiradas</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="p-4">
                         @let expiredSessionsTrendChartConfig = expiredSessionsTrendChart();
                         @if (expiredSessionsTrendChartConfig) {
                             <apx-chart
                                 [chart]="expiredSessionsTrendChartConfig.chart"
                                 [colors]="expiredSessionsTrendChartConfig.colors"
-                                [grid]="expiredSessionsTrendChartConfig.grid"
                                 [markers]="expiredSessionsTrendChartConfig.markers"
                                 [series]="expiredSessionsTrendChartConfig.series"
                                 [stroke]="expiredSessionsTrendChartConfig.stroke"
                                 [tooltip]="expiredSessionsTrendChartConfig.tooltip"
                                 [xaxis]="expiredSessionsTrendChartConfig.xaxis"
                                 [yaxis]="expiredSessionsTrendChartConfig.yaxis"
-                                class="w-full flex-auto h-64"
+                                class="w-full h-80"
                             ></apx-chart>
                         } @else {
-                            <div class="flex items-center justify-center h-64 text-gray-500">
-                                No hay datos suficientes para mostrar la gráfica
+                            <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                                <mat-icon class="text-4xl mb-2">show_chart</mat-icon>
+                                <p>No hay datos suficientes para mostrar la gráfica</p>
                             </div>
                         }
-                    </div>
-                </div>
+                    </mat-card-content>
+                </mat-card>
 
                 <!-- Incidentes por tipo de vehículo -->
-                <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
-                    <h3 class="truncate text-lg font-medium leading-6 tracking-light">Incidentes por Tipo de Vehículo</h3>
-                    <div class="flex flex-auto flex-col">
+                <mat-card
+                        class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <mat-card-header
+                            class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                        <mat-card-title class="text-lg font-medium">Incidentes por Tipo de Vehículo</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="p-4">
                         @let incidentsByVehicleTypeChartConfig = incidentsByVehicleTypeChart();
                         @if (incidentsByVehicleTypeChartConfig) {
                             <apx-chart
@@ -145,234 +176,317 @@
                                 [legend]="incidentsByVehicleTypeChartConfig.legend"
                                 [series]="incidentsByVehicleTypeChartConfig.series"
                                 [tooltip]="incidentsByVehicleTypeChartConfig.tooltip"
-                                class="w-full flex-auto h-64"
+                                class="w-full h-80"
                             ></apx-chart>
                         } @else {
-                            <div class="flex items-center justify-center h-64 text-gray-500">
-                                No hay datos suficientes para mostrar la gráfica
+                            <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                                <mat-icon class="text-4xl mb-2">pie_chart</mat-icon>
+                                <p>No hay datos suficientes para mostrar la gráfica</p>
                             </div>
                         }
-                    </div>
-                </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
 
-                <!-- Conductores con más incidentes -->
-                <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-12">
-                    <h3 class="truncate text-lg font-medium leading-6 tracking-light">Conductores con Más Incidentes</h3>
-                    <div class="flex flex-auto flex-col">
+            <!-- Conductores con más incidentes -->
+            <div class="mb-8">
+                <mat-card
+                        class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <mat-card-header
+                            class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                        <mat-card-title class="text-lg font-medium">Conductores con Más Incidentes</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="p-4">
                         @let incidentsByDriverChartConfig = incidentsByDriverChart();
                         @if (incidentsByDriverChartConfig) {
                             <apx-chart
                                 [chart]="incidentsByDriverChartConfig.chart"
                                 [colors]="incidentsByDriverChartConfig.colors"
                                 [dataLabels]="incidentsByDriverChartConfig.dataLabels"
-                                [grid]="incidentsByDriverChartConfig.grid"
                                 [plotOptions]="incidentsByDriverChartConfig.plotOptions"
                                 [series]="incidentsByDriverChartConfig.series"
                                 [tooltip]="incidentsByDriverChartConfig.tooltip"
                                 [xaxis]="incidentsByDriverChartConfig.xaxis"
                                 [yaxis]="incidentsByDriverChartConfig.yaxis"
-                                class="w-full flex-auto h-64"
+                                class="w-full h-80"
                             ></apx-chart>
                         } @else {
-                            <div class="flex items-center justify-center h-64 text-gray-500">
-                                No hay datos suficientes para mostrar la gráfica
+                            <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                                <mat-icon class="text-4xl mb-2">bar_chart</mat-icon>
+                                <p>No hay datos suficientes para mostrar la gráfica</p>
                             </div>
                         }
-                    </div>
-                </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
 
+            <!-- Tablas de datos -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <!-- Licencias por vencer -->
-                <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
-                    <h3 class="truncate text-lg font-medium leading-6 tracking-light">Licencias por Vencer</h3>
-                    @if (expiringLicenses().length > 0) {
-                        <div class="overflow-x-auto mt-4">
-                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead class="bg-gray-50 dark:bg-gray-800">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Conductor</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tipo</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vence en</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
-                                </tr>
-                                </thead>
-                                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                                    @for (license of expiringLicenses().slice(0, 5); track license.driver.id) {
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                                {{ license.driver.firstName }} {{ license.driver.lastName }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {{ license.licenseType }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {{ license.daysUntilExpiry }} días
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                @if (license.daysUntilExpiry <= 0) {
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                                        Expirada
-                                                    </span>
-                                                } @else if (license.daysUntilExpiry <= 7) {
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
-                                                        Crítica
-                                                    </span>
-                                                } @else {
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
-                                                        Por vencer
-                                                    </span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                        @if (expiringLicenses().length > 5) {
-                            <div class="mt-4 text-center">
-                                <button mat-button color="primary">
-                                    Ver todas ({{ expiringLicenses().length }})
-                                </button>
+                <mat-card
+                        class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <mat-card-header
+                            class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                        <mat-card-title class="text-lg font-medium">Licencias por Vencer</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="p-4">
+                        @if (expiringLicenses().length > 0) {
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                    <thead class="bg-gray-50 dark:bg-gray-800">
+                                    <tr>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Conductor
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Tipo
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Vence en
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Estado
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                                        @for (license of expiringLicenses().slice(0, 5); track license.driver.id) {
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                                    {{ license.driver.firstName }} {{ license.driver.lastName }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    {{ license.licenseType }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    {{ license.daysUntilExpiry }} días
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    @if (license.daysUntilExpiry <= 0) {
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                                            Expirada
+                                                        </span>
+                                                    } @else if (license.daysUntilExpiry <= 7) {
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                                                            Crítica
+                                                        </span>
+                                                    } @else {
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                                                            Por vencer
+                                                        </span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            @if (expiringLicenses().length > 5) {
+                                <div class="mt-4 text-center">
+                                    <button mat-button color="primary">
+                                        Ver todas ({{ expiringLicenses().length }})
+                                    </button>
+                                </div>
+                            }
+                        } @else {
+                            <div class="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
+                                <mat-icon class="text-4xl mb-2">event_busy</mat-icon>
+                                <p>No hay licencias por vencer en los próximos 30 días</p>
                             </div>
                         }
-                    } @else {
-                        <div class="flex items-center justify-center h-64 text-gray-500">
-                            No hay licencias por vencer en los próximos 30 días
-                        </div>
-                    }
-                </div>
+                    </mat-card-content>
+                </mat-card>
 
                 <!-- Mantenimientos pendientes -->
-                <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
-                    <h3 class="truncate text-lg font-medium leading-6 tracking-light">Mantenimientos Pendientes</h3>
-                    @if (maintenanceAlerts().length > 0) {
-                        <div class="overflow-x-auto mt-4">
-                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead class="bg-gray-50 dark:bg-gray-800">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehículo</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tipo</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vence en</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
-                                </tr>
-                                </thead>
-                                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                                    @for (alert of maintenanceAlerts().slice(0, 5); track alert.vehicle.id) {
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                                {{ alert.vehicle.brand }} {{ alert.vehicle.model }} ({{ alert.vehicle.licensePlate }})
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                @if (alert.type === 'date') {
-                                                    Por fecha
-                                                } @else {
-                                                    Por kilometraje
-                                                }
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                @if (alert.type === 'date') {
-                                                    {{ alert.daysUntilDue }} días
-                                                } @else {
-                                                    {{ alert.kmUntilDue }} km
-                                                }
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                @if ((alert.type === 'date' && alert.daysUntilDue <= 0) || (alert.type === 'odometer' && alert.kmUntilDue <= 0)) {
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                                        Vencido
-                                                    </span>
-                                                } @else if ((alert.type === 'date' && alert.daysUntilDue <= 7) || (alert.type === 'odometer' && alert.kmUntilDue <= 100)) {
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
-                                                        Crítico
-                                                    </span>
-                                                } @else {
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
-                                                        Próximo
-                                                    </span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                        @if (maintenanceAlerts().length > 5) {
-                            <div class="mt-4 text-center">
-                                <button mat-button color="primary">
-                                    Ver todos ({{ maintenanceAlerts().length }})
-                                </button>
+                <mat-card
+                        class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <mat-card-header
+                            class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                        <mat-card-title class="text-lg font-medium">Mantenimientos Pendientes</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="p-4">
+                        @if (maintenanceAlerts().length > 0) {
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                    <thead class="bg-gray-50 dark:bg-gray-800">
+                                    <tr>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Vehículo
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Tipo
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Vence en
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Estado
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                                        @for (alert of maintenanceAlerts().slice(0, 5); track alert.vehicle.id) {
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                                    {{ alert.vehicle.brand }} {{ alert.vehicle.model }}
+                                                    ({{ alert.vehicle.licensePlate }})
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    @if (alert.type === 'date') {
+                                                        Por fecha
+                                                    } @else {
+                                                        Por kilometraje
+                                                    }
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    @if (alert.type === 'date') {
+                                                        {{ alert.daysUntilDue }} días
+                                                    } @else {
+                                                        {{ alert.kmUntilDue }} km
+                                                    }
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    @if ((alert.type === 'date' && alert.daysUntilDue <= 0) || (alert.type === 'odometer' && alert.kmUntilDue <= 0)) {
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                                            Vencido
+                                                        </span>
+                                                    } @else if ((alert.type === 'date' && alert.daysUntilDue <= 7) || (alert.type === 'odometer' && alert.kmUntilDue <= 100)) {
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                                                            Crítico
+                                                        </span>
+                                                    } @else {
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                                                            Próximo
+                                                        </span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            @if (maintenanceAlerts().length > 5) {
+                                <div class="mt-4 text-center">
+                                    <button mat-button color="primary">
+                                        Ver todos ({{ maintenanceAlerts().length }})
+                                    </button>
+                                </div>
+                            }
+                        } @else {
+                            <div class="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
+                                <mat-icon class="text-4xl mb-2">build</mat-icon>
+                                <p>No hay mantenimientos pendientes en los próximos 30 días</p>
                             </div>
                         }
-                    } @else {
-                        <div class="flex items-center justify-center h-64 text-gray-500">
-                            No hay mantenimientos pendientes en los próximos 30 días
-                        </div>
-                    }
-                </div>
-
-                <!-- Excesos de velocidad recientes -->
-                <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-12">
-                    <h3 class="truncate text-lg font-medium leading-6 tracking-light">Excesos de Velocidad Recientes</h3>
-                    @if (speedViolations().length > 0) {
-                        <div class="overflow-x-auto mt-4">
-                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead class="bg-gray-50 dark:bg-gray-800">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Conductor</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehículo</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Velocidad</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Exceso</th>
-                                </tr>
-                                </thead>
-                                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                                    @for (violation of speedViolations().slice(0, 10); track violation.sessionId + violation.timestamp.getTime()) {
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {{ violation.timestamp | date:'dd/MM/yyyy HH:mm' }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                                {{ violation.driverName || 'Desconocido' }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {{ violation.vehicleLicensePlate || 'Desconocido' }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {{ violation.speed }} km/h
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                @if (violation.excess > 30) {
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                                        +{{ violation.excess }} km/h
-                                                    </span>
-                                                } @else if (violation.excess > 15) {
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
-                                                        +{{ violation.excess }} km/h
-                                                    </span>
-                                                } @else {
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
-                                                        +{{ violation.excess }} km/h
-                                                    </span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                        @if (speedViolations().length > 10) {
-                            <div class="mt-4 text-center">
-                                <button mat-button color="primary">
-                                    Ver todos ({{ speedViolations().length }})
-                                </button>
-                            </div>
-                        }
-                    } @else {
-                        <div class="flex items-center justify-center h-64 text-gray-500">
-                            No se han registrado excesos de velocidad en el período seleccionado
-                        </div>
-                    }
-                </div>
+                    </mat-card-content>
+                </mat-card>
             </div>
-        }
+
+            <!-- Excesos de velocidad recientes -->
+            <div class="mb-8">
+                <mat-card
+                        class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <mat-card-header
+                            class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                        <mat-card-title class="text-lg font-medium">Excesos de Velocidad Recientes</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="p-4">
+                        @if (speedViolations().length > 0) {
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                    <thead class="bg-gray-50 dark:bg-gray-800">
+                                    <tr>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Fecha
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Conductor
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Vehículo
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Velocidad
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Exceso
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                                        @for (
+                                            violation of speedViolations().slice(0, 10); track violation.sessionId + violation.timestamp.getTime()) {
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    {{ violation.timestamp | date:'dd/MM/yyyy HH:mm' }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                                    {{ violation.driverName || 'Desconocido' }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    {{ violation.vehicleLicensePlate || 'Desconocido' }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    {{ violation.speed }} km/h
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    @if (violation.excess > 30) {
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                                            +{{ violation.excess }} km/h
+                                                        </span>
+                                                    } @else if (violation.excess > 15) {
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                                                            +{{ violation.excess }} km/h
+                                                        </span>
+                                                    } @else {
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                                                            +{{ violation.excess }} km/h
+                                                        </span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            @if (speedViolations().length > 10) {
+                                <div class="mt-4 text-center">
+                                    <button mat-button color="primary">
+                                        Ver todos ({{ speedViolations().length }})
+                                    </button>
+                                </div>
+                            }
+                        } @else {
+                            <div class="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
+                                <mat-icon class="text-4xl mb-2">speed</mat-icon>
+                                <p>No se han registrado excesos de velocidad en el período seleccionado</p>
+                            </div>
+                        }
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div *ngIf="dashboardResource.isLoading() || sessionsResource.isLoading() || driversResource.isLoading() || vehiclesResource.isLoading()"
+         class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col items-center">
+            <mat-spinner diameter="48" color="primary"></mat-spinner>
+            <p class="mt-4 text-gray-800 dark:text-white font-medium">Cargando datos...</p>
+        </div>
     </div>
 </div>
