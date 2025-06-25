@@ -1,15 +1,16 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import { CommonModule }                         from '@angular/common';
 import { MatSnackBar, MatSnackBarModule }       from '@angular/material/snack-bar';
 
 @Component({
     selector  : 'app-offline-indicator',
     standalone: true,
-    imports   : [ CommonModule, MatSnackBarModule ],
+    imports   : [ MatSnackBarModule ],
     template  : `
-        <div *ngIf="isOffline()" class="offline-banner">
-            <span>Estás trabajando en modo offline</span>
-        </div>
+        @if (isOffline()) {
+            <div class="offline-banner">
+                <span>Estás trabajando en modo offline</span>
+            </div>
+        }
     `,
     styles    : [ `
         .offline-banner {
