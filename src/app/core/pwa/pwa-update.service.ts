@@ -61,9 +61,8 @@ export class PwaUpdateService {
 
         // Also show an alert for browsers that don't support notifications
         // or if notifications are denied
-        if (confirm('Hay una nueva versión disponible. ¿Desea actualizar ahora?')) {
-            this.activateUpdate();
-        }
+        this.activateUpdate();
+        // if (confirm('Hay una nueva versión disponible. ¿Desea actualizar ahora?')) {}
     }
 
     /**
@@ -85,7 +84,7 @@ export class PwaUpdateService {
      */
     private activateUpdate(): void {
         this.swUpdate.activateUpdate().then(() => {
-            window.location.reload();
+            // window.location.reload();
         });
     }
 }
