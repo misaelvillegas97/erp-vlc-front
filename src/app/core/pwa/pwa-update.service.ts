@@ -1,6 +1,7 @@
 import { inject, Injectable }          from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter }                      from 'rxjs/operators';
+import { environment }                 from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
@@ -28,8 +29,12 @@ export class PwaUpdateService {
      * Manually check for updates
      */
     checkForUpdates(): Promise<boolean> {
+        console.log('Is production mode:', environment.production);
         if (!this.swUpdate.isEnabled) {
-            console.log('Service Worker updates are not enabled');
+            console.log('Service Worker updates are not enabled. This is expected in development mode.');
+            console.log('To enable service worker updates, run the application in production mode:');
+            console.log('- Use "npm run start:prod" for development with production configuration');
+            console.log('- Use "npm run serve:prod" for a full production build and server');
             return Promise.resolve(false);
         }
 

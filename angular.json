@@ -1,152 +1,154 @@
 {
-  "$schema" : "./node_modules/@angular/cli/lib/config/schema.json",
-  "version" : 1,
-  "newProjectRoot" : "projects",
-  "projects" : {
-    "fuse" : {
-      "projectType" : "application",
-      "schematics" : {
-        "@schematics/angular:component" : {
-          "style" : "scss"
-        }
-      },
-      "root" : "",
-      "sourceRoot" : "src",
-      "prefix" : "app",
-      "architect" : {
-        "build" : {
-          "builder" : "@angular-devkit/build-angular:application",
-          "options" : {
-            "outputPath" : "dist/fuse",
-            "index" : "src/index.html",
-            "browser" : "src/main.ts",
-            "tsConfig" : "tsconfig.app.json",
-            "inlineStyleLanguage" : "scss",
-            "allowedCommonJsDependencies" : [
-              "apexcharts",
-              "crypto-js/enc-utf8",
-              "crypto-js/hmac-sha256",
-              "crypto-js/enc-base64",
-              "quill-delta"
-            ],
-            "assets" : [
-              "src/assets",
-              {
-                "glob" : "**/*",
-                "input" : "public",
-                "output" : "/"
-              },
-              {
-                "glob" : "**/*",
-                "input" : "node_modules/leaflet/dist/images/",
-                "output" : "media"
-              },
-              {
-                "glob" : "_redirects",
-                "input" : "src",
-                "output" : "/"
-              }
-            ],
-            "stylePreprocessorOptions" : {
-              "includePaths" : [
-                "src/@fuse/styles"
-              ]
+    "$schema" : "./node_modules/@angular/cli/lib/config/schema.json",
+    "version" : 1,
+    "newProjectRoot" : "projects",
+    "projects" : {
+        "fuse" : {
+            "projectType" : "application",
+            "schematics" : {
+                "@schematics/angular:component" : {
+                    "style" : "scss"
+                }
             },
-            "styles" : [
-              "node_modules/leaflet/dist/leaflet.css",
-              "src/@fuse/styles/tailwind.scss",
-              "src/@fuse/styles/themes.scss",
-              "src/styles/vendors.scss",
-              "src/@fuse/styles/main.scss",
-              "src/styles/styles.scss",
-              "src/styles/tailwind.scss"
-            ],
-            "scripts" : [
-            ]
-          },
-          "configurations" : {
-            "production" : {
-              "sourceMap" : {
-                "scripts" : true
-              },
-              "budgets" : [
-                {
-                  "type" : "initial",
-                  "maximumWarning" : "4mb",
-                  "maximumError" : "5mb"
+            "root" : "",
+            "sourceRoot" : "src",
+            "prefix" : "app",
+            "architect" : {
+                "build" : {
+                    "builder" : "@angular-devkit/build-angular:application",
+                    "options" : {
+                        "outputPath" : "dist/fuse",
+                        "index" : "src/index.html",
+                        "browser" : "src/main.ts",
+                        "tsConfig" : "tsconfig.app.json",
+                        "inlineStyleLanguage" : "scss",
+                        "allowedCommonJsDependencies" : [
+                            "apexcharts",
+                            "crypto-js/enc-utf8",
+                            "crypto-js/hmac-sha256",
+                            "crypto-js/enc-base64",
+                            "quill-delta"
+                        ],
+                        "assets" : [
+                            "src/assets",
+                            {
+                                "glob" : "**/*",
+                                "input" : "public",
+                                "output" : "/"
+                            },
+                            {
+                                "glob" : "**/*",
+                                "input" : "node_modules/leaflet/dist/images/",
+                                "output" : "media"
+                            },
+                            {
+                                "glob" : "_redirects",
+                                "input" : "src",
+                                "output" : "/"
+                            }
+                        ],
+                        "stylePreprocessorOptions" : {
+                            "includePaths" : [
+                                "src/@fuse/styles"
+                            ]
+                        },
+                        "styles" : [
+                            "node_modules/leaflet/dist/leaflet.css",
+                            "src/@fuse/styles/tailwind.scss",
+                            "src/@fuse/styles/themes.scss",
+                            "src/styles/vendors.scss",
+                            "src/@fuse/styles/main.scss",
+                            "src/styles/styles.scss",
+                            "src/styles/tailwind.scss"
+                        ],
+                        "scripts" : [
+                        ]
+                    },
+                    "configurations" : {
+                        "production" : {
+                            "sourceMap" : {
+                                "scripts" : true
+                            },
+                            "budgets" : [
+                                {
+                                    "type" : "initial",
+                                    "maximumWarning" : "4mb",
+                                    "maximumError" : "5mb"
+                                },
+                                {
+                                    "type" : "anyComponentStyle",
+                                    "maximumWarning" : "75kb",
+                                    "maximumError" : "90kb"
+                                }
+                            ],
+                            "outputHashing" : "all",
+                            "serviceWorker" : true,
+                            "ngswConfigPath" : "ngsw-config.json"
+                        },
+                        "development" : {
+                            "optimization" : false,
+                            "extractLicenses" : false,
+                            "sourceMap" : true,
+                            "fileReplacements" : [
+                                {
+                                    "replace" : "src/environments/environment.ts",
+                                    "with" : "src/environments/environment.development.ts"
+                                }
+                            ]
+                        }
+                    },
+                    "defaultConfiguration" : "production"
                 },
-                {
-                  "type" : "anyComponentStyle",
-                  "maximumWarning" : "75kb",
-                  "maximumError" : "90kb"
+                "serve" : {
+                    "builder" : "@angular-devkit/build-angular:dev-server",
+                    "options" : {
+                        "proxyConfig" : "proxy.conf.json"
+                    },
+                    "configurations" : {
+                        "production" : {
+                            "buildTarget" : "fuse:build:production",
+                            "proxyConfig" : "proxy.conf.prod.json"
+                        },
+                        "development" : {
+                            "hmr" : true,
+                            "buildTarget" : "fuse:build:development",
+                            "proxyConfig" : "proxy.conf.json"
+                        }
+                    },
+                    "defaultConfiguration" : "development"
+                },
+                "extract-i18n" : {
+                    "builder" : "@angular-devkit/build-angular:extract-i18n"
+                },
+                "test" : {
+                    "builder" : "@angular-devkit/build-angular:karma",
+                    "options" : {
+                        "polyfills" : [
+                            "zone.js",
+                            "zone.js/testing"
+                        ],
+                        "tsConfig" : "tsconfig.spec.json",
+                        "inlineStyleLanguage" : "scss",
+                        "assets" : [
+                            {
+                                "glob" : "**/*",
+                                "input" : "public"
+                            },
+                            {
+                                "glob" : "**/*",
+                                "input" : "node_modules/leaflet/dist/images/"
+                            }
+                        ],
+                        "styles" : [
+                            "src/styles/styles.scss"
+                        ],
+                        "scripts" : []
+                    }
                 }
-              ],
-              "outputHashing" : "all"
-            },
-            "development" : {
-              "optimization" : false,
-              "extractLicenses" : false,
-              "sourceMap" : true,
-              "fileReplacements" : [
-                {
-                  "replace" : "src/environments/environment.ts",
-                  "with" : "src/environments/environment.development.ts"
-                }
-              ]
             }
-          },
-          "defaultConfiguration" : "production"
-        },
-        "serve" : {
-          "builder" : "@angular-devkit/build-angular:dev-server",
-          "options" : {
-            "proxyConfig" : "proxy.conf.json"
-          },
-          "configurations" : {
-            "production" : {
-              "buildTarget" : "fuse:build:production",
-              "proxyConfig" : "proxy.conf.prod.json"
-            },
-            "development" : {
-              "hmr" : true,
-              "buildTarget" : "fuse:build:development",
-              "proxyConfig" : "proxy.conf.json"
-            }
-          },
-          "defaultConfiguration" : "development"
-        },
-        "extract-i18n" : {
-          "builder" : "@angular-devkit/build-angular:extract-i18n"
-        },
-        "test" : {
-          "builder" : "@angular-devkit/build-angular:karma",
-          "options" : {
-            "polyfills" : [
-              "zone.js",
-              "zone.js/testing"
-            ],
-            "tsConfig" : "tsconfig.spec.json",
-            "inlineStyleLanguage" : "scss",
-            "assets" : [
-              {
-                "glob" : "**/*",
-                "input" : "public"
-              },
-              {
-                "glob" : "**/*",
-                "input" : "node_modules/leaflet/dist/images/"
-              }
-            ],
-            "styles" : [
-              "src/styles/styles.scss"
-            ],
-            "scripts" : []
-          }
         }
-      }
+    },
+    "cli" : {
+        "analytics" : "8a169303-b7ae-4474-bb59-f4f79f30af2c"
     }
-  },
-  "cli" : {
-    "analytics" : "8a169303-b7ae-4474-bb59-f4f79f30af2c"
-  }
 }

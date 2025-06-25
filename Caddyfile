@@ -37,14 +37,6 @@
     handle {
         root * /dist
         encode gzip
-
-        # Configurar MIME types para PWA
-        @serviceWorker path *.js /ngsw-worker.js
-        header @serviceWorker Content-Type "application/javascript"
-
-        @webmanifest path *.webmanifest /manifest.webmanifest
-        header @webmanifest Content-Type "application/manifest+json"
-
         file_server
         try_files {path} /index.html
     }
