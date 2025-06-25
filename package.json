@@ -10,6 +10,8 @@
         "start" : "ng serve --host 0.0.0.0",
         "start:prod" : "ng serve --host 0.0.0.0 --configuration production",
         "build" : "ng build",
+        "build:prod" : "ng build --configuration production",
+        "serve:prod" : "npm run build:prod && npx http-server dist/browser -p 8080",
         "watch" : "ng build --watch --configuration development",
         "test" : "ng test"
     },

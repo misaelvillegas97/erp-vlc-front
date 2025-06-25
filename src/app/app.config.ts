@@ -4,6 +4,7 @@ import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE }                       
 import { LuxonDateAdapter }                                                                                                             from '@angular/material-luxon-adapter';
 import { PreloadAllModules, provideRouter, withComponentInputBinding, withInMemoryScrolling, withPreloading, withViewTransitions }      from '@angular/router';
 import { provideServiceWorker }                                                                                                         from '@angular/service-worker';
+import { environment }                                                                                                                  from '../environments/environment';
 import { provideModulePermissions }                                                                                                     from '@core/permissions/permissions.providers';
 import { homePermissions }                                                                                                              from '@modules/admin/home/home.permissions';
 import { administrationPermissions }                                                                                                    from '@modules/admin/administration/administration.permissions';
@@ -42,7 +43,7 @@ export const appConfig: ApplicationConfig = {
         provideAnimationsAsync(),
         provideHttpClient(),
         provideServiceWorker('ngsw-worker.js', {
-            enabled             : true,
+            enabled: environment.production,
             registrationStrategy: 'registerWhenStable:30000'
         }),
         provideRouter(appRoutes,
