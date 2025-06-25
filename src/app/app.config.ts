@@ -44,7 +44,7 @@ export const appConfig: ApplicationConfig = {
         provideHttpClient(),
         provideServiceWorker('ngsw-worker.js', {
             enabled: environment.production,
-            registrationStrategy: 'registerWhenStable:30000'
+            registrationStrategy: 'registerWhenStable:30000',
         }),
         provideRouter(appRoutes,
             withComponentInputBinding(),

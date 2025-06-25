@@ -12,7 +12,10 @@ export class PwaUpdateService {
         // Subscribe to version updates
         this.swUpdate.versionUpdates
             .pipe(
-                filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY')
+                filter((evt): evt is VersionReadyEvent => {
+                    console.log('Version update event:', evt);
+                    return evt.type === 'VERSION_READY';
+                })
             )
             .subscribe(evt => {
                 // Log the update details
