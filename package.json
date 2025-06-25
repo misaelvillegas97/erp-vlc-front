@@ -26,7 +26,7 @@
         "@angular/platform-browser" : "19.1.4",
         "@angular/platform-browser-dynamic" : "19.1.4",
         "@angular/router" : "19.1.4",
-        "@angular/service-worker" : "^19.2.14",
+        "@angular/service-worker" : "^19.1.4",
         "@ionic/storage-angular" : "^4.0.0",
         "@ngneat/transloco" : "6.0.4",
         "@ngx-dropzone/cdk" : "^19.0.0",
