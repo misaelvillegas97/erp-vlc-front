@@ -132,13 +132,11 @@ export const appConfig: ApplicationConfig = {
         // Dashboards
         provideModulePermissions(dashboardsPermissions),
         // Logistics
-        // provideModulePermissions(fleetManagementPermissions),
-        // provideModulePermissions(fuelManagementPermissions),
         provideModulePermissions(logisticsPermissions),
-        // Maintainers
-        provideModulePermissions(maintainersPermissions),
         // Inventory
         provideModulePermissions(inventoryPermissions),
+        // Maintainers
+        provideModulePermissions(maintainersPermissions),
 
         // Fuse
         provideAuth(),
