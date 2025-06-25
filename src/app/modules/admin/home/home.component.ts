@@ -41,7 +41,7 @@ export class HomeComponent implements OnInit {
         {
             title      : 'Órdenes',
             description: 'Gestionar órdenes',
-            icon       : 'shopping_cart',
+            icon: 'mat_solid:shopping_cart',
             route      : '/operations/orders',
             roles      : [ RoleEnum.admin, RoleEnum.dispatcher ],
             color: 'blue'
@@ -49,7 +49,7 @@ export class HomeComponent implements OnInit {
         {
             title      : 'Facturas',
             description: 'Ver facturas',
-            icon       : 'receipt',
+            icon: 'mat_solid:receipt',
             route      : '/operations/invoices',
             roles      : [ RoleEnum.admin, RoleEnum.accountant ],
             color: 'green'
@@ -57,7 +57,7 @@ export class HomeComponent implements OnInit {
         {
             title      : 'Contabilidad',
             description: 'Gestionar contabilidad',
-            icon       : 'account_balance',
+            icon: 'mat_solid:account_balance',
             route      : '/operations/accounting',
             roles      : [ RoleEnum.admin, RoleEnum.accountant ],
             color: 'yellow'
@@ -65,7 +65,7 @@ export class HomeComponent implements OnInit {
         {
             title      : 'Logística',
             description: 'Control de flota',
-            icon       : 'local_shipping',
+            icon: 'mat_solid:local_shipping',
             route: '/logistics/fleet-management/fleet-control',
             roles      : [ RoleEnum.admin, RoleEnum.dispatcher, RoleEnum.driver ],
             color: 'purple'
@@ -73,7 +73,7 @@ export class HomeComponent implements OnInit {
         {
             title      : 'Clientes',
             description: 'Gestionar clientes',
-            icon       : 'people',
+            icon: 'mat_solid:people',
             route      : '/maintainers/clients',
             roles      : [ RoleEnum.admin, RoleEnum.dispatcher ],
             color: 'pink'
@@ -81,7 +81,7 @@ export class HomeComponent implements OnInit {
         {
             title      : 'Productos',
             description: 'Gestionar productos',
-            icon       : 'inventory_2',
+            icon: 'mat_solid:inventory_2',
             route      : '/maintainers/products',
             roles      : [ RoleEnum.admin, RoleEnum.dispatcher ],
             color: 'indigo'
@@ -89,7 +89,7 @@ export class HomeComponent implements OnInit {
         {
             title      : 'Vehículos',
             description: 'Gestionar vehículos',
-            icon       : 'directions_car',
+            icon: 'mat_solid:directions_car',
             route      : '/maintainers/vehicles',
             roles: [ RoleEnum.admin ],
             color: 'teal'
@@ -97,7 +97,7 @@ export class HomeComponent implements OnInit {
         {
             title      : 'Usuarios',
             description: 'Gestionar usuarios',
-            icon       : 'manage_accounts',
+            icon: 'mat_solid:manage_accounts',
             route      : '/maintainers/users',
             roles      : [ RoleEnum.admin ],
             color: 'orange'

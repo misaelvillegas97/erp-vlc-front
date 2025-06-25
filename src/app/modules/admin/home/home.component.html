@@ -9,7 +9,7 @@
                         @if (user.avatar) {
                             <img [src]="user.avatar" alt="Avatar de usuario" class="w-full h-full object-cover">
                         } @else {
-                            <mat-icon class="icon-size-24 text-blue-300">account_circle</mat-icon>
+                            <mat-icon class="icon-size-24 text-blue-300" svgIcon="mat_solid:account_circle"></mat-icon>
                         }
                     </div>
                 </div>
@@ -50,9 +50,7 @@
                             <div class="p-6">
                                 <div class="flex items-center mb-4">
                                     <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-50 group-hover:bg-blue-400 transition-all">
-                                        <mat-icon class="text-3xl text-blue-500 group-hover:text-white transition-all">
-                                            {{ shortcut.icon }}
-                                        </mat-icon>
+                                        <mat-icon class="text-3xl text-blue-500 group-hover:text-white transition-all" [svgIcon]="shortcut.icon"></mat-icon>
                                     </div>
                                     <h3 class="ml-4 text-xl font-semibold">{{ shortcut.title }}</h3>
                                 </div>
