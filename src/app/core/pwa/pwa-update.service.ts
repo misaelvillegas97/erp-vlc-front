@@ -75,7 +75,7 @@ export class PwaUpdateService {
     private createUpdateNotification(): void {
         const notification = new Notification('Actualización disponible', {
             body: 'Hay una nueva versión de la aplicación disponible. Haga clic para actualizar.',
-            icon: 'assets/icons/icon-128x128.png'
+            icon: 'icons/icon-128x128.png'
         });
 
         notification.onclick = () => {
