@@ -18,28 +18,9 @@ import { debounceTime }                                        from 'rxjs/operat
 import { NotyfService }                                        from '@shared/services/notyf.service';
 import { MatProgressSpinner }                                  from '@angular/material/progress-spinner';
 import { VehicleSelectorComponent }                            from '@shared/controls/components/vehicle-selector/vehicle-selector.component';
+import { MatCardModule }                                       from '@angular/material/card';
+import { VehiclesService }                                     from '@modules/admin/logistics/fleet-management/services/vehicles.service';
 
-// Mock service for vehicles - replace with actual service when available
-class VehicleService {
-    getVehicles() {
-        return Promise.resolve({
-            items: [
-                {
-                    id          : 'v1',
-                    brand       : 'Toyota',
-                    model       : 'Corolla',
-                    licensePlate: 'ABC-123'
-                },
-                {
-                    id          : 'v2',
-                    brand       : 'Honda',
-                    model       : 'Civic',
-                    licensePlate: 'XYZ-789'
-                }
-            ]
-        });
-    }
-}
 
 @Component({
     selector   : 'app-analysis',
@@ -57,16 +38,14 @@ class VehicleService {
         PageHeaderComponent,
         ChartComponent,
         MatProgressSpinner,
-        VehicleSelectorComponent
-    ],
-    providers  : [
-        {provide: VehicleService, useClass: VehicleService} // Replace with actual service
+        VehicleSelectorComponent,
+        MatCardModule,
     ],
     templateUrl: './analysis.component.html'
 })
 export class AnalysisComponent {
     private readonly fuelRecordsService = inject(FuelRecordsService);
-    private readonly vehicleService = inject(VehicleService);
+    private readonly vehicleService = inject(VehiclesService);
     private readonly notyf = inject(NotyfService);
 
     // Filters
@@ -147,19 +126,6 @@ export class AnalysisComponent {
         }
     });
 
-    constructor() {
-        this.loadVehicles();
-    }
-
-    async loadVehicles(): Promise<void> {
-        try {
-            const result = await this.vehicleService.getVehicles();
-            this.vehicles.set(result.items);
-        } catch (error) {
-            this.notyf.error('Error al cargar los vehículos');
-        }
-    }
-
     clearFilters(): void {
         this.dateFromControl.setValue(null);
         this.dateToControl.setValue(null);
@@ -169,6 +135,8 @@ export class AnalysisComponent {
 
     // Chart setters
     setChartConsumptionByPeriod(data: FuelConsumptionByPeriod[]): void {
+        if (!data || data.length === 0) return;
+
         const labels = data.map(item => item.period);
         const series = [ {
             name: 'Litros',
@@ -179,9 +147,9 @@ export class AnalysisComponent {
             chart  : {
                 fontFamily: 'inherit',
                 foreColor : 'var(--fuse-text-default)',
-                height    : '100%',
                 width     : '100%',
-                zoom: {enabled: false},
+                height: 350,
+                zoom  : {enabled: false},
                 type      : 'line',
             },
             colors : [ '#34D399' ], // Verde
@@ -220,6 +188,8 @@ export class AnalysisComponent {
     }
 
     setChartEfficiencyByPeriod(data: FuelConsumptionByPeriod[]): void {
+        if (!data || data.length === 0) return;
+
         const labels = data.map(item => item.period);
         const series = [ {
             name: 'Rendimiento',
@@ -230,7 +200,7 @@ export class AnalysisComponent {
             chart  : {
                 fontFamily: 'inherit',
                 foreColor : 'var(--fuse-text-default)',
-                height    : '100%',
+                height: 350,
                 width     : '100%',
                 type      : 'line',
                 zoom      : {enabled: false}
@@ -271,6 +241,8 @@ export class AnalysisComponent {
     }
 
     setChartCostByPeriod(data: FuelConsumptionByPeriod[]): void {
+        if (!data || data.length === 0) return;
+
         const labels = data.map(item => item.period);
         const series = [ {
             name: 'Costo',
@@ -281,7 +253,7 @@ export class AnalysisComponent {
             chart  : {
                 fontFamily: 'inherit',
                 foreColor : 'var(--fuse-text-default)',
-                height    : '100%',
+                height: 350,
                 width     : '100%',
                 type      : 'line',
                 zoom      : {enabled: false}
@@ -322,6 +294,8 @@ export class AnalysisComponent {
     }
 
     setChartConsumptionByVehicle(data: FuelConsumptionSummary[]): void {
+        if (!data || data.length === 0) return;
+
         const labels = data.map(item => `${ item.vehicle.brand } ${ item.vehicle.model } (${ item.vehicle.licensePlate })`);
         const series = [ {
             name: 'Litros',
@@ -331,13 +305,13 @@ export class AnalysisComponent {
         this.chartConsumptionByVehicle.set({
             chart      : {
                 type      : 'bar',
-                height    : '100%',
+                height: 350,
                 width     : '100%',
                 fontFamily: 'inherit',
                 foreColor : 'var(--fuse-text-default)'
             },
             colors     : [ '#4ADE80' ], // Verde
-            dataLabels: {
+            dataLabels : {
                 enabled: true,
                 formatter(val: string | number | number[], opts?: any): string | number | string[] {
                     return val + ' L';
@@ -367,13 +341,15 @@ export class AnalysisComponent {
     }
 
     setChartEfficiencyByVehicle(data: FuelConsumptionSummary[]): void {
+        if (!data || data.length === 0) return;
+
         const labels = data.map(item => `${ item.vehicle.brand } ${ item.vehicle.model } (${ item.vehicle.licensePlate })`);
         const series = data.map(item => item.averageEfficiency);
 
         this.chartEfficiencyByVehicle.set({
             chart  : {
                 type      : 'donut',
-                height    : '100%',
+                height: 350,
                 width     : '100%',
                 fontFamily: 'inherit',
                 foreColor : 'var(--fuse-text-default)'
@@ -393,6 +369,8 @@ export class AnalysisComponent {
     }
 
     setChartCostPerKmByVehicle(data: FuelConsumptionSummary[]): void {
+        if (!data || data.length === 0) return;
+
         const labels = data.map(item => `${ item.vehicle.brand } ${ item.vehicle.model } (${ item.vehicle.licensePlate })`);
         const series = [ {
             name: 'Costo por km',
@@ -402,13 +380,13 @@ export class AnalysisComponent {
         this.chartCostPerKmByVehicle.set({
             chart      : {
                 type      : 'bar',
-                height    : '100%',
+                height: 350,
                 width     : '100%',
                 fontFamily: 'inherit',
                 foreColor : 'var(--fuse-text-default)'
             },
             colors     : [ '#FBBF24' ], // Amarillo
-            dataLabels: {
+            dataLabels : {
                 enabled: true,
                 formatter(val: string | number | number[], opts?: any): string | number | string[] {
                     return '$' + val + '/km';

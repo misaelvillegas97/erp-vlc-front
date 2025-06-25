@@ -11,6 +11,7 @@ import { MatIconModule }                                               from '@an
 import { MatButtonModule }                                             from '@angular/material/button';
 import { MatDividerModule }                                            from '@angular/material/divider';
 import { MatBadgeModule }                                              from '@angular/material/badge';
+import { MatProgressSpinnerModule }                                    from '@angular/material/progress-spinner';
 import { Router }                                                      from '@angular/router';
 import { ApexOptions, ChartComponent }                                 from 'ng-apexcharts';
 import { firstValueFrom }                                              from 'rxjs';
@@ -25,6 +26,7 @@ import { firstValueFrom }                                              from 'rxj
         MatButtonModule,
         MatDividerModule,
         MatBadgeModule,
+        MatProgressSpinnerModule,
         ChartComponent,
         PageDetailHeaderComponent
     ],
@@ -76,10 +78,16 @@ export class DashboardComponent implements OnInit {
      * Configura los gráficos para el dashboard usando las estadísticas
      */
     setupChartsFromStatistics(statistics: MaintenanceStatisticsDto): void {
-        this.setupMaintenanceByStatusChartFromStatistics(statistics.maintenanceByStatus);
-        this.setupMaintenanceByMonthChartFromStatistics(statistics.maintenanceByMonth);
-        this.setupMaintenanceByTypeChartFromStatistics(statistics.maintenanceByType);
-        this.setupUpcomingMaintenanceChartFromStatistics(statistics.upcomingMaintenanceByVehicle);
+        if (!statistics) return;
+
+        if (statistics.maintenanceByStatus?.length > 0)
+            this.setupMaintenanceByStatusChartFromStatistics(statistics.maintenanceByStatus);
+        if (statistics.maintenanceByMonth?.length > 0)
+            this.setupMaintenanceByMonthChartFromStatistics(statistics.maintenanceByMonth);
+        if (statistics.maintenanceByType?.length > 0)
+            this.setupMaintenanceByTypeChartFromStatistics(statistics.maintenanceByType);
+        if (statistics.upcomingMaintenanceByVehicle?.length > 0)
+            this.setupUpcomingMaintenanceChartFromStatistics(statistics.upcomingMaintenanceByVehicle);
     }
 
     /**
@@ -92,7 +100,7 @@ export class DashboardComponent implements OnInit {
         this.chartMaintenanceByStatus.set({
             chart  : {
                 type      : 'donut',
-                height    : '100%',
+                height: 350,
                 width     : '100%',
                 fontFamily: 'inherit',
                 foreColor : 'var(--fuse-text-default)'
@@ -122,7 +130,7 @@ export class DashboardComponent implements OnInit {
             chart  : {
                 fontFamily: 'inherit',
                 foreColor : 'var(--fuse-text-default)',
-                height    : '100%',
+                height: 350,
                 width     : '100%',
                 type      : 'line',
                 zoom      : {enabled: false}
@@ -172,7 +180,7 @@ export class DashboardComponent implements OnInit {
         this.chartMaintenanceByType.set({
             chart  : {
                 type      : 'pie',
-                height    : '100%',
+                height: 350,
                 width     : '100%',
                 fontFamily: 'inherit',
                 foreColor : 'var(--fuse-text-default)'
@@ -199,7 +207,7 @@ export class DashboardComponent implements OnInit {
         this.chartUpcomingMaintenance.set({
             chart      : {
                 type      : 'bar',
-                height    : '100%',
+                height: 350,
                 width     : '100%',
                 fontFamily: 'inherit',
                 foreColor : 'var(--fuse-text-default)'

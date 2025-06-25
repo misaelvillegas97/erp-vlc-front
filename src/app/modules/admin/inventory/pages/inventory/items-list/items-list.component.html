@@ -17,7 +17,7 @@
             </button>
             <a
                 [matTooltip]="'Nuevo elemento'"
-                [routerLink]="['create']"
+                [routerLink]="['/inventory', 'items', 'create']"
                 class="flex-0 font-bold py-2 px-4 rounded"
                 color="primary"
                 mat-icon-button
@@ -87,11 +87,11 @@
                 <mat-icon class="icon-size-5" svgIcon="heroicons_outline:ellipsis-vertical"></mat-icon>
             </button>
             <mat-menu #menu="matMenu">
-                <a mat-menu-item [routerLink]="['..', item.id]">
+                <a mat-menu-item [routerLink]="['/inventory', 'items', item.id]">
                     <mat-icon class="icon-size-5" svgIcon="heroicons_outline:eye"></mat-icon>
                     <span>Ver detalles</span>
                 </a>
-                <a mat-menu-item [routerLink]="['..', item.id, 'edit']">
+                <a mat-menu-item [routerLink]="['/inventory', 'items', item.id, 'edit']">
                     <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil"></mat-icon>
                     <span>Editar</span>
                 </a>

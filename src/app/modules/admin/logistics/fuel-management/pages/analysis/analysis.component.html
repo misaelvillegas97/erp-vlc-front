@@ -1,57 +1,79 @@
-<div class="flex flex-col min-w-0 w-full">
-    <page-header
-        title="Análisis de Consumo de Combustible"
-        subtitle="Estadísticas y gráficos de consumo de combustible">
-    </page-header>
+<div class="flex flex-col min-w-0 w-full bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- Enhanced Page Header with gradient background -->
+    <div class="bg-gradient-to-r from-green-600 to-teal-700 text-white shadow-lg">
+        <div class="">
+            <page-header
+                title="Análisis de Consumo de Combustible"
+                subtitle="Estadísticas y gráficos de consumo de combustible"
+                icon="heroicons_outline:chart-bar"
+                class="text-white">
+            </page-header>
+        </div>
+    </div>
 
-    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-full mx-auto py-10 gap-y-4 sm:px-4">
-        <!-- Panel de filtros -->
-        <div class="w-full bg-card rounded-md shadow p-4 mb-4">
-            <h2 class="text-xl font-medium mb-4">Filtros</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <!-- Filtro por vehículo -->
-                <vehicle-selector [formControl]="vehicleControl" class="w-full"></vehicle-selector>
-
-                <!-- Filtro por fecha desde -->
-                <mat-form-field class="w-full">
-                    <mat-label>Desde</mat-label>
-                    <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFromControl" placeholder="Desde">
-                    <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
-                    <mat-datepicker #pickerFrom></mat-datepicker>
-                </mat-form-field>
-
-                <!-- Filtro por fecha hasta -->
-                <mat-form-field class="w-full">
-                    <mat-label>Hasta</mat-label>
-                    <input matInput [matDatepicker]="pickerTo" [formControl]="dateToControl" placeholder="Hasta">
-                    <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
-                    <mat-datepicker #pickerTo></mat-datepicker>
-                </mat-form-field>
-            </div>
-            <div class="flex justify-end">
-                <button mat-raised-button color="primary" (click)="analysisResource.reload()">
-                    <mat-icon>search</mat-icon>
-                    Aplicar filtros
-                </button>
-                <button mat-button color="warn" class="ml-2" (click)="clearFilters()">
-                    Limpiar filtros
+    <div class="flex flex-col w-full max-w-7xl mx-auto p-6">
+        <!-- Acciones y Filtros -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Análisis de Consumo</h1>
+            <div class="flex gap-2">
+                <button
+                    mat-flat-button
+                    color="primary"
+                    (click)="analysisResource.reload()"
+                    class="flex items-center shadow-sm hover:shadow transition-all duration-200">
+                    <mat-icon class="mr-2">refresh</mat-icon>
+                    Actualizar datos
                 </button>
             </div>
         </div>
 
-        <!-- Estado de carga -->
-        @if (isLoading()) {
-            <div class="flex justify-center items-center p-8 w-full">
-                <mat-spinner diameter="40"></mat-spinner>
-                <span class="ml-4 text-secondary">Cargando datos...</span>
-            </div>
-        } @else {
-            <!-- Gráficos -->
-            <div class="grid w-full min-w-0 grid-cols-1 gap-6 sm:grid-cols-12">
+        <!-- Panel de filtros -->
+        <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden mb-8">
+            <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+                <mat-card-title class="text-lg font-medium">Filtros de Análisis</mat-card-title>
+            </mat-card-header>
+            <mat-card-content class="p-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <!-- Filtro por vehículo -->
+                    <vehicle-selector [formControl]="vehicleControl" class="w-full"></vehicle-selector>
+
+                    <!-- Filtro por fecha desde -->
+                    <mat-form-field class="w-full">
+                        <mat-label>Desde</mat-label>
+                        <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFromControl" placeholder="Desde">
+                        <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+                        <mat-datepicker #pickerFrom></mat-datepicker>
+                    </mat-form-field>
+
+                    <!-- Filtro por fecha hasta -->
+                    <mat-form-field class="w-full">
+                        <mat-label>Hasta</mat-label>
+                        <input matInput [matDatepicker]="pickerTo" [formControl]="dateToControl" placeholder="Hasta">
+                        <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
+                        <mat-datepicker #pickerTo></mat-datepicker>
+                    </mat-form-field>
+                </div>
+                <div class="flex justify-end mt-4">
+                    <button mat-flat-button color="primary" (click)="analysisResource.reload()" class="flex items-center shadow-sm hover:shadow transition-all duration-200">
+                        <mat-icon class="mr-2">search</mat-icon>
+                        Aplicar filtros
+                    </button>
+                    <button mat-button color="warn" class="ml-2" (click)="clearFilters()">
+                        Limpiar filtros
+                    </button>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Gráficos -->
+        <div *ngIf="!isLoading()" class="animate-in fade-in duration-300">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <!-- Consumo por período (línea) -->
-                <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
-                    <h3 class="truncate text-lg font-medium leading-6 tracking-light">Consumo por período</h3>
-                    <div class="flex flex-auto flex-col">
+                <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-b-gray-100 dark:border-b-gray-700 border-l-4 border-l-blue-500">
+                        <mat-card-title class="text-lg font-medium">Consumo por período</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="p-4">
                         @let consumptionByPeriod = chartConsumptionByPeriod();
                         @if (consumptionByPeriod) {
                             <apx-chart
@@ -65,16 +87,23 @@
                                 [tooltip]="consumptionByPeriod.tooltip"
                                 [xaxis]="consumptionByPeriod.xaxis"
                                 [yaxis]="consumptionByPeriod.yaxis"
-                                class="w-full flex-auto h-64"
+                                class="w-full h-80"
                             ></apx-chart>
+                        } @else {
+                            <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                                <mat-icon class="mb-2" svgIcon="mat_outline:show_chart"></mat-icon>
+                                <p>No hay datos suficientes para mostrar la gráfica</p>
+                            </div>
                         }
-                    </div>
-                </div>
+                    </mat-card-content>
+                </mat-card>
 
                 <!-- Eficiencia por período (línea) -->
-                <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
-                    <h3 class="truncate text-lg font-medium leading-6 tracking-light">Rendimiento por período</h3>
-                    <div class="flex flex-auto flex-col">
+                <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-b-gray-100 dark:border-b-gray-700 border-l-4 border-l-green-500">
+                        <mat-card-title class="text-lg font-medium">Rendimiento por período</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="p-4">
                         @let efficiencyByPeriod = chartEfficiencyByPeriod();
                         @if (efficiencyByPeriod) {
                             <apx-chart
@@ -88,16 +117,25 @@
                                 [tooltip]="efficiencyByPeriod.tooltip"
                                 [xaxis]="efficiencyByPeriod.xaxis"
                                 [yaxis]="efficiencyByPeriod.yaxis"
-                                class="w-full flex-auto h-64"
+                                class="w-full h-80"
                             ></apx-chart>
+                        } @else {
+                            <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                                <mat-icon class="mb-2" svgIcon="mat_outline:show_chart"></mat-icon>
+                                <p>No hay datos suficientes para mostrar la gráfica</p>
+                            </div>
                         }
-                    </div>
-                </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
 
-                <!-- Costo por período (línea) -->
-                <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-12">
-                    <h3 class="truncate text-lg font-medium leading-6 tracking-light">Costo por período</h3>
-                    <div class="flex flex-auto flex-col">
+            <!-- Costo por período (línea) -->
+            <div class="mb-8">
+                <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-b-gray-100 dark:border-b-gray-700 border-l-4 border-l-purple-500">
+                        <mat-card-title class="text-lg font-medium">Costo por período</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="p-4">
                         @let costByPeriod = chartCostByPeriod();
                         @if (costByPeriod) {
                             <apx-chart
@@ -111,16 +149,25 @@
                                 [tooltip]="costByPeriod.tooltip"
                                 [xaxis]="costByPeriod.xaxis"
                                 [yaxis]="costByPeriod.yaxis"
-                                class="w-full flex-auto h-64"
+                                class="w-full h-80"
                             ></apx-chart>
+                        } @else {
+                            <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                                <mat-icon class="mb-2" svgIcon="mat_outline:show_chart"></mat-icon>
+                                <p>No hay datos suficientes para mostrar la gráfica</p>
+                            </div>
                         }
-                    </div>
-                </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
 
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <!-- Consumo por vehículo (barras) -->
-                <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
-                    <h3 class="truncate text-lg font-medium leading-6 tracking-light">Consumo por vehículo</h3>
-                    <div class="flex flex-auto flex-col">
+                <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-b-gray-100 dark:border-b-gray-700 border-l-4 border-l-yellow-500">
+                        <mat-card-title class="text-lg font-medium">Consumo por vehículo</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="p-4">
                         @let consumptionByVehicle = chartConsumptionByVehicle();
                         @if (consumptionByVehicle) {
                             <apx-chart
@@ -134,16 +181,23 @@
                                 [tooltip]="consumptionByVehicle.tooltip"
                                 [xaxis]="consumptionByVehicle.xaxis"
                                 [yaxis]="consumptionByVehicle.yaxis"
-                                class="w-full flex-auto h-64"
+                                class="w-full h-80"
                             ></apx-chart>
+                        } @else {
+                            <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                                <mat-icon class="mb-2" svgIcon="mat_outline:" svgIcon="mat_outline:bar_chart"></mat-icon>
+                                <p>No hay datos suficientes para mostrar la gráfica</p>
+                            </div>
                         }
-                    </div>
-                </div>
+                    </mat-card-content>
+                </mat-card>
 
                 <!-- Eficiencia por vehículo (donut) -->
-                <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-6">
-                    <h3 class="truncate text-lg font-medium leading-6 tracking-light">Rendimiento por vehículo</h3>
-                    <div class="flex flex-auto flex-col">
+                <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-b-gray-100 dark:border-b-gray-700 border-l-4 border-l-green-500">
+                        <mat-card-title class="text-lg font-medium">Rendimiento por vehículo</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="p-4">
                         @let efficiencyByVehicle = chartEfficiencyByVehicle();
                         @if (efficiencyByVehicle) {
                             <apx-chart
@@ -154,16 +208,25 @@
                                 [noData]="efficiencyByVehicle.noData"
                                 [series]="efficiencyByVehicle.series"
                                 [tooltip]="efficiencyByVehicle.tooltip"
-                                class="w-full flex-auto h-64"
+                                class="w-full h-80"
                             ></apx-chart>
+                        } @else {
+                            <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                                <mat-icon class="mb-2" svgIcon="mat_outline:pie_chart"></mat-icon>
+                                <p>No hay datos suficientes para mostrar la gráfica</p>
+                            </div>
                         }
-                    </div>
-                </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
 
-                <!-- Costo por km por vehículo (barras horizontales) -->
-                <div class="bg-card flex flex-auto flex-col overflow-hidden rounded-2xl p-6 shadow sm:col-span-12">
-                    <h3 class="truncate text-lg font-medium leading-6 tracking-light">Costo por kilómetro por vehículo</h3>
-                    <div class="flex flex-auto flex-col">
+            <!-- Costo por km por vehículo (barras horizontales) -->
+            <div class="mb-8">
+                <mat-card class="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <mat-card-header class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-b-gray-100 dark:border-b-gray-700 border-l-4 border-l-red-500">
+                        <mat-card-title class="text-lg font-medium">Costo por kilómetro por vehículo</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="p-4">
                         @let costPerKmByVehicle = chartCostPerKmByVehicle();
                         @if (costPerKmByVehicle) {
                             <apx-chart
@@ -177,12 +240,26 @@
                                 [tooltip]="costPerKmByVehicle.tooltip"
                                 [xaxis]="costPerKmByVehicle.xaxis"
                                 [yaxis]="costPerKmByVehicle.yaxis"
-                                class="w-full flex-auto h-64"
+                                class="w-full h-80"
                             ></apx-chart>
+                        } @else {
+                            <div class="flex flex-col items-center justify-center h-80 text-gray-500 dark:text-gray-400">
+                                <mat-icon class="mb-2" svgIcon="mat_outline:bar_chart"></mat-icon>
+                                <p>No hay datos suficientes para mostrar la gráfica</p>
+                            </div>
                         }
-                    </div>
-                </div>
+                    </mat-card-content>
+                </mat-card>
             </div>
-        }
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div *ngIf="isLoading()"
+         class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col items-center">
+            <mat-spinner diameter="48" color="primary"></mat-spinner>
+            <p class="mt-4 text-gray-800 dark:text-white font-medium">Cargando datos...</p>
+        </div>
     </div>
 </div>
