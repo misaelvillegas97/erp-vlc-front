@@ -19,7 +19,18 @@
   <link href="favicon-16x16.png" rel="icon" type="image/png">
   <link href="favicon-32x32.png" rel="icon" type="image/png">
 
-  <!-- Fonts -->
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#1976d2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="VIVERO LAS CAÑAS">
+    <link rel="apple-touch-icon" href="assets/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="assets/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="assets/icons/icon-152x152.png">
+
+    <!-- Fonts -->
   <link
     href="fonts/inter/inter.css"
     rel="stylesheet">
@@ -49,6 +60,16 @@
 
 <!-- App root -->
 <app-root></app-root>
+
+<!-- No JavaScript message -->
+<noscript>
+    <div style="margin: 40px; text-align: center;">
+        <img src="images/logo/logo.svg" alt="VIVERO LAS CAÑAS" style="max-width: 150px;">
+        <h2 style="font-family: sans-serif; color: #333;">
+            Para utilizar esta aplicación, por favor habilite JavaScript en su navegador.
+        </h2>
+    </div>
+</noscript>
 
 <!-- Google Maps -->
 <script>
