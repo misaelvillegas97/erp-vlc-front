@@ -205,12 +205,33 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
             this.startMarker.set(new google.maps.Marker({
                 position: path[0],
                 title: 'Inicio',
+                icon: {
+                    url       : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzRDQUY1MCI+PHBhdGggZD0iTTEyIDJDOC4xMyAyIDUgNS4xMyA1IDljMCA1LjI1IDcgMTMgNyAxM3M3LTcuNzUgNy0xM2MwLTMuODctMy4xMy03LTctN3ptMCA5LjVjLTEuMzggMC0yLjUtMS4xMi0yLjUtMi41czEuMTItMi41IDIuNS0yLjUgMi41IDEuMTIgMi41IDIuNS0xLjEyIDIuNS0yLjUgMi41eiIvPjwvc3ZnPg==',
+                    scaledSize: new google.maps.Size(36, 36)
+                },
                 map  : this.mapInstance()
             }));
         }
 
+        // Agregar o actualizar marcador de fin si la sesión está completada
+        if (this.session()?.status === SessionStatus.COMPLETED) {
+            if (!this.endMarker()) {
+                this.endMarker.set(new google.maps.Marker({
+                    position: lastPosition,
+                    title   : 'Fin',
+                    icon: {
+                        url       : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0Y0NDMzNiI+PHBhdGggZD0iTTIxIDNMMyA5djFsMi4xIDIuOEwzIDIxaDFsMi44LTIuMUwyMSAyMXYtMWwtMi44LTIuMUwyMSA0VjN6Ii8+PC9zdmc+',
+                        scaledSize: new google.maps.Size(36, 36)
+                    },
+                    map     : this.mapInstance()
+                }));
+            } else {
+                this.endMarker().setPosition(lastPosition);
+            }
+        }
+
         // Marcador de posición actual
-        if (!this.currentPositionMarker()) {
+        if (!this.currentPositionMarker() && this.session().status === SessionStatus.ACTIVE) {
             this.currentPositionMarker.set(new google.maps.Marker({
                 position: lastPosition,
                 title   : 'Ubicación actual',
@@ -223,19 +244,6 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
         } else {
             // Solo actualizar posición
             this.currentPositionMarker().setPosition(lastPosition);
-        }
-
-        // Agregar o actualizar marcador de fin si la sesión está completada
-        if (this.session()?.status === SessionStatus.COMPLETED) {
-            if (!this.endMarker) {
-                this.endMarker.set(new google.maps.Marker({
-                    position: lastPosition,
-                    title   : 'Fin',
-                    map     : this.mapInstance()
-                }));
-            } else {
-                this.endMarker().setPosition(lastPosition);
-            }
         }
 
         // Opcional: asegurarse de que todos los marcadores sean visibles
