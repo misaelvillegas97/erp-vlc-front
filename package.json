@@ -1,8 +1,8 @@
 {
-    "name" : "we-work-together",
+    "name" : "flotana",
     "version" : "1.0.1",
-    "description" : "VIVERO LAS CAÑAS",
-    "author" : "VIVERO LAS CAÑAS",
+    "description" : "Flotana",
+    "author" : "David Villegas <david.misa97@gmail.com>",
     "license" : "MIT",
     "private" : true,
     "scripts" : {
