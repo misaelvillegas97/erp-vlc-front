@@ -46,14 +46,11 @@
                                 </div>
                             } @else {
                                 <!-- Si es conductor, mostrar solo el selector de vehículo a ancho completo -->
-                                <div class="bg-hover p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-                                    <h4 class="text-sm font-medium mb-3 text-gray-600 dark:text-gray-400">Vehículo</h4>
-                                    <vehicle-selector formControlName="vehicleId"
-                                                      [onlyAvailable]="true"
-                                                      [required]="true"
-                                                      allOptionLabel="Seleccione un vehículo"
-                                    ></vehicle-selector>
-                                </div>
+                                <vehicle-selector formControlName="vehicleId"
+                                                  [onlyAvailable]="true"
+                                                  [required]="true"
+                                                  allOptionLabel="Seleccione un vehículo"
+                                ></vehicle-selector>
                             }
                         </div>
 
