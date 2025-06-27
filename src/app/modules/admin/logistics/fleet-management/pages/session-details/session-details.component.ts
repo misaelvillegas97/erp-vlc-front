@@ -225,8 +225,6 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
                     },
                     map     : this.mapInstance()
                 }));
-            } else {
-                this.endMarker().setPosition(lastPosition);
             }
         }
 
@@ -241,7 +239,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
                 },
                 map     : this.mapInstance()
             }));
-        } else {
+        } else if (this.currentPositionMarker()) {
             // Solo actualizar posición
             this.currentPositionMarker().setPosition(lastPosition);
         }
