@@ -14,7 +14,7 @@ export const authInterceptor = (
     let newReq = req.clone();
 
     // Agrega el Bearer token si no está expirado
-    if (authService.accessToken && !AuthUtils.isTokenExpired(authService.accessToken)) {
+    if (authService.accessToken && !AuthUtils.isTokenExpired(authService.accessToken) && !req.headers.get('Authorization')) {
         newReq = req.clone({
             headers: req.headers.set('Authorization', 'Bearer ' + authService.accessToken),
         });

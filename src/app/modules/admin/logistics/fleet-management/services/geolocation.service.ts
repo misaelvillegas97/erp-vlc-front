@@ -1,7 +1,7 @@
 import { Injectable }                            from '@angular/core';
 import { BehaviorSubject, from, Observable, of } from 'rxjs';
 import { catchError, map, tap }                  from 'rxjs/operators';
-import { GeoLocation } from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
+import { GeoLocation }                           from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
 
 @Injectable({
     providedIn: 'root'
@@ -85,5 +85,18 @@ export class GeolocationService {
             accuracy : position.coords.accuracy,
             timestamp: position.timestamp
         };
+    }
+
+    getCurrentCity(latitude: number, longitude: number) {
+        const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${ latitude }&lon=${ longitude }&zoom=10&addressdetails=1`;
+        return from(fetch(geoUrl).then(response => response.json())).pipe(
+            map((data: any) => {
+                if (data && data.address) {
+                    return data.address.city || data.address.town || data.address.village || 'Desconocida';
+                }
+                return 'Desconocida';
+            }),
+            catchError(() => of('Desconocida'))
+        );
     }
 }

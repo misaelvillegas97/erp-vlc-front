@@ -9,7 +9,7 @@
                         @if (user.avatar) {
                             <img [src]="user.avatar" alt="Avatar de usuario" class="w-full h-full object-cover">
                         } @else {
-                            <mat-icon class="icon-size-24 text-blue-300" svgIcon="mat_solid:account_circle"></mat-icon>
+                            <mat-icon class="icon-size-24 text-primary" svgIcon="mat_solid:account_circle"></mat-icon>
                         }
                     </div>
                 </div>
@@ -61,5 +61,153 @@
                 }
             }
         </div>
+    }
+
+    <!-- Role-specific widgets section -->
+    @if (user && roleWidgets.length > 0) {
+        <h2 class="text-2xl font-bold mt-12 mb-6">Widgets para {{ user.role?.name }}</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Role-specific widget cards -->
+            @for (widget of roleWidgets; track trackByFn($index, widget)) {
+                @if (isWidgetVisible(widget, user)) {
+                    <mat-card class="bg-card shadow-sm rounded-lg overflow-hidden border-t-4"
+                              [ngClass]="{
+                                'border-blue-500': widget.color==='blue',
+                                'border-green-500': widget.color==='green',
+                                'border-yellow-500': widget.color==='yellow',
+                                'border-purple-500': widget.color==='purple',
+                                'border-red-500': widget.color==='red',
+                                'border-gray-500': widget.color==='gray',
+                                'border-pink-500': widget.color==='pink',
+                                'border-orange-500': widget.color==='orange',
+                                'border-teal-500': widget.color==='teal',
+                                'border-indigo-500': widget.color==='indigo',
+                              }">
+                        <div class="p-6">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-50">
+                                    <mat-icon class="text-3xl text-blue-500" [svgIcon]="widget.icon"></mat-icon>
+                                </div>
+                                <h3 class="ml-4 text-xl font-semibold">{{ widget.title }}</h3>
+                            </div>
+                            <p class="leading-relaxed text-gray-400 mb-4">{{ widget.description }}</p>
+
+                            <!-- Widget content container -->
+                            <div class="mt-4 bg-card-dark rounded-lg p-4">
+                                <ng-container [ngComponentOutlet]="widget.component"></ng-container>
+                            </div>
+                        </div>
+                    </mat-card>
+                }
+            }
+        </div>
+    }
+
+    <!-- Utility widgets section -->
+    @if (user) {
+        <h2 class="text-2xl font-bold mt-12 mb-6">Widgets de utilidad</h2>
+
+        <!-- Weather widget (full width) -->
+        @if (isWidgetVisible(weatherWidget, user)) {
+            <div class="mb-6">
+                <mat-card class="bg-card shadow-sm rounded-lg overflow-hidden border-t-4"
+                          [ngClass]="{
+                            'border-blue-500': weatherWidget.color==='blue',
+                            'border-green-500': weatherWidget.color==='green',
+                            'border-yellow-500': weatherWidget.color==='yellow',
+                            'border-purple-500': weatherWidget.color==='purple',
+                            'border-red-500': weatherWidget.color==='red',
+                            'border-gray-500': weatherWidget.color==='gray',
+                            'border-pink-500': weatherWidget.color==='pink',
+                            'border-orange-500': weatherWidget.color==='orange',
+                            'border-teal-500': weatherWidget.color==='teal',
+                            'border-indigo-500': weatherWidget.color==='indigo',
+                          }">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-50">
+                                <mat-icon class="text-3xl text-blue-500" [svgIcon]="weatherWidget.icon"></mat-icon>
+                            </div>
+                            <h3 class="ml-4 text-xl font-semibold">{{ weatherWidget.title }}</h3>
+                        </div>
+                        <p class="leading-relaxed text-gray-400 mb-4">{{ weatherWidget.description }}</p>
+
+                        <!-- Widget content container -->
+                        <div class="mt-4 bg-card-dark rounded-lg p-4">
+                            <ng-container [ngComponentOutlet]="weatherWidget.component"></ng-container>
+                        </div>
+                    </div>
+                </mat-card>
+            </div>
+        }
+
+        <!-- Fuel prices widget (full width) -->
+        @if (isWidgetVisible(fuelPricesWidget, user)) {
+            <div class="mb-6">
+                <mat-card class="bg-card shadow-sm rounded-lg overflow-hidden border-t-4"
+                          [ngClass]="{
+                            'border-blue-500': fuelPricesWidget.color==='blue',
+                            'border-green-500': fuelPricesWidget.color==='green',
+                            'border-yellow-500': fuelPricesWidget.color==='yellow',
+                            'border-purple-500': fuelPricesWidget.color==='purple',
+                            'border-red-500': fuelPricesWidget.color==='red',
+                            'border-gray-500': fuelPricesWidget.color==='gray',
+                            'border-pink-500': fuelPricesWidget.color==='pink',
+                            'border-orange-500': fuelPricesWidget.color==='orange',
+                            'border-teal-500': fuelPricesWidget.color==='teal',
+                            'border-indigo-500': fuelPricesWidget.color==='indigo',
+                          }">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-50">
+                                <mat-icon class="text-3xl text-blue-500" [svgIcon]="fuelPricesWidget.icon"></mat-icon>
+                            </div>
+                            <h3 class="ml-4 text-xl font-semibold">{{ fuelPricesWidget.title }}</h3>
+                        </div>
+                        <p class="leading-relaxed text-gray-400 mb-4">{{ fuelPricesWidget.description }}</p>
+
+                        <!-- Widget content container -->
+                        <div class="mt-4 bg-card-dark rounded-lg p-4">
+                            <ng-container [ngComponentOutlet]="fuelPricesWidget.component"></ng-container>
+                        </div>
+                    </div>
+                </mat-card>
+            </div>
+        }
+
+        <!-- Industry news widget -->
+        @if (isWidgetVisible(industryNewsWidget, user)) {
+            <div>
+                <mat-card class="bg-card shadow-sm rounded-lg overflow-hidden border-t-4"
+                          [ngClass]="{
+                            'border-blue-500': industryNewsWidget.color==='blue',
+                            'border-green-500': industryNewsWidget.color==='green',
+                            'border-yellow-500': industryNewsWidget.color==='yellow',
+                            'border-purple-500': industryNewsWidget.color==='purple',
+                            'border-red-500': industryNewsWidget.color==='red',
+                            'border-gray-500': industryNewsWidget.color==='gray',
+                            'border-pink-500': industryNewsWidget.color==='pink',
+                            'border-orange-500': industryNewsWidget.color==='orange',
+                            'border-teal-500': industryNewsWidget.color==='teal',
+                            'border-indigo-500': industryNewsWidget.color==='indigo',
+                          }">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-50">
+                                <mat-icon class="text-3xl text-blue-500" [svgIcon]="industryNewsWidget.icon"></mat-icon>
+                            </div>
+                            <h3 class="ml-4 text-xl font-semibold">{{ industryNewsWidget.title }}</h3>
+                        </div>
+                        <p class="leading-relaxed text-gray-400 mb-4">{{ industryNewsWidget.description }}</p>
+
+                        <!-- Widget content container -->
+                        <div class="mt-4 bg-card-dark rounded-lg p-4">
+                            <ng-container [ngComponentOutlet]="industryNewsWidget.component"></ng-container>
+                        </div>
+                    </div>
+                </mat-card>
+            </div>
+        }
     }
 </div>
