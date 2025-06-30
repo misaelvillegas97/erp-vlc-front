@@ -22,6 +22,8 @@ export class PwaUpdateService {
                 console.log(`Current app version: ${ evt.currentVersion.hash }`);
                 console.log(`New app version available: ${ evt.latestVersion.hash }`);
 
+                window.location.reload();
+
                 // Show update notification to the user
                 this.showUpdateNotification();
             });
