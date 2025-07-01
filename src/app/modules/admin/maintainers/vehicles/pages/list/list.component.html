@@ -4,6 +4,33 @@
     <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-10 gap-y-4 sm:px-4">
         <div class="flex flex-row w-full">
             <h2 class="flex-1 font-bold text-secondary text-xl self-center">{{ t('title') }}</h2>
+
+            <!-- Export button with dropdown menu -->
+            <button
+                [matTooltip]="'Exportar datos'"
+                class="flex-0 font-bold py-2 px-4 rounded mr-2"
+                color="primary"
+                mat-icon-button
+                [matMenuTriggerFor]="exportMenu"
+                [disabled]="exportLoading()"
+            >
+                <mat-icon svgIcon="heroicons_outline:arrow-down-tray"></mat-icon>
+            </button>
+
+            <!-- Export menu -->
+            <mat-menu #exportMenu="matMenu">
+                <button mat-menu-item (click)="exportData('csv')">
+                    <span>Exportar como CSV</span>
+                </button>
+                <button mat-menu-item (click)="exportData('excel')">
+                    <span>Exportar como Excel</span>
+                </button>
+                <button mat-menu-item (click)="exportData('json')">
+                    <span>Exportar como JSON</span>
+                </button>
+            </mat-menu>
+
+            <!-- Add new vehicle button -->
             <a
                 [matTooltip]="t('new.title')"
                 [routerLink]="['/maintainers', 'vehicles', 'new']"

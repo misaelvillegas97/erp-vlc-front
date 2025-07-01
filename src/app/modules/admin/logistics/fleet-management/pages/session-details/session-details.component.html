@@ -316,16 +316,30 @@
                                 (mapInitialized)="onMapInitialized($event)">
 
                                 <!-- Marcadores de inicio y fin -->
-                                <!--                                @for (marker of markers(); track marker.position) {-->
-                                <!--                                    <map-marker [position]="marker.position" [title]="marker.title" [icon]="marker.icon"></map-marker>-->
-                                <!--                                }-->
+                                @let start = startMarker();
+                                @if (start) {
+                                    <map-marker [position]="start.position" [title]="start.title" [icon]="start.icon"></map-marker>
+                                }
+                                @for (marker of markers(); track marker.position) {
+                                    <map-marker [position]="marker.position" [title]="marker.title" [icon]="marker.icon"></map-marker>
+                                }
+
+                                @let end = endMarker();
+                                @if (end) {
+                                    <map-marker [position]="end.position" [title]="end.title" [icon]="end.icon"></map-marker>
+                                }
+
+                                @let currentPosition = currentPositionMarker();
+                                @if (currentPosition) {
+                                    <map-marker [position]="currentPosition.position" [title]="currentPosition.title" [icon]="currentPosition.icon"></map-marker>
+                                }
 
                                 <!--                                &lt;!&ndash; Línea de ruta &ndash;&gt;-->
-                                <!--                                <map-polyline [path]="polylinePath()" [options]="{-->
-                                <!--                                    strokeColor: '#4285F4',-->
-                                <!--                                    strokeOpacity: 1.0,-->
-                                <!--                                    strokeWeight: 3-->
-                                <!--                                }"></map-polyline>-->
+                                <map-polyline [path]="polylinePath()" [options]="{
+                                    strokeColor: '#4285F4',
+                                    strokeOpacity: 1.0,
+                                    strokeWeight: 3
+                                }"></map-polyline>
                             </google-map>
                         </div>
 

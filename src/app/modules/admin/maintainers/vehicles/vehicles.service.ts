@@ -1,8 +1,8 @@
-import { inject, Injectable } from '@angular/core';
-import { HttpClient }         from '@angular/common/http';
-import { Vehicle }            from './domain/model/vehicle';
-import { Observable }         from 'rxjs';
-import { FindCount }          from '@shared/domain/model/find-count';
+import { inject, Injectable }                   from '@angular/core';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import { Vehicle }                              from './domain/model/vehicle';
+import { Observable }                           from 'rxjs';
+import { FindCount }                            from '@shared/domain/model/find-count';
 
 @Injectable({providedIn: 'root'})
 export class VehiclesService {
@@ -30,5 +30,14 @@ export class VehiclesService {
 
     uploadDocument(vehicleId: string, documentData: FormData): Observable<any> {
         return this.#http.post<any>(`/api/v1/logistics/vehicles/${ vehicleId }/documents`, documentData);
+    }
+
+    export(format: 'csv' | 'json' | 'excel'): Observable<HttpResponse<Blob>> {
+        const params = new HttpParams().set('format', format);
+        return this.#http.get('/api/v1/logistics/vehicles/export', {
+            params,
+            responseType: 'blob',
+            observe     : 'response'
+        });
     }
 }

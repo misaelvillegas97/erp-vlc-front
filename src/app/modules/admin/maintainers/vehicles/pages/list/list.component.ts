@@ -16,6 +16,7 @@ import { VehiclesService }                                                      
 import { MatDialog }                                                                           from '@angular/material/dialog';
 import { Vehicle, VehicleStatus }                                                              from '../../domain/model/vehicle';
 import { CommonModule }                                                                        from '@angular/common';
+import { MatMenuModule }                                                                       from '@angular/material/menu';
 
 @Component({
     selector   : 'app-list',
@@ -33,7 +34,8 @@ import { CommonModule }                                                         
         MatInput,
         TranslocoPipe,
         MatIconButton,
-        CommonModule
+        CommonModule,
+        MatMenuModule
     ],
     templateUrl: './list.component.html'
 })
@@ -42,6 +44,8 @@ export class ListComponent {
     readonly #service = inject(VehiclesService);
     readonly #notyf = new Notyf();
     readonly #dialog = inject(MatDialog);
+
+    exportLoading: WritableSignal<boolean> = signal(false);
 
     searchControl = new FormControl('', [ Validators.minLength(3), Validators.maxLength(100) ]);
     actionsCell: Signal<TemplateRef<any>> = viewChild('actionsCell', {read: TemplateRef});
@@ -101,6 +105,55 @@ export class ListComponent {
             default:
                 return 'Desconocido';
         }
+    }
+
+    exportData(format: 'csv' | 'json' | 'excel'): void {
+        this.exportLoading.set(true);
+
+        this.#service.export(format).subscribe({
+            next : (response) => {
+                // Get the blob from the response body
+                const blob = response.body;
+
+                // Create a URL for the blob
+                const url = window.URL.createObjectURL(blob);
+
+                // Create a link element
+                const link = document.createElement('a');
+                link.href = url;
+
+                // Get filename from Content-Disposition header if available
+                let filename = `vehicles.${ format }`;
+                const contentDisposition = response.headers.get('Content-Disposition');
+                if (contentDisposition) {
+                    const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                    if (filenameMatch && filenameMatch[1]) {
+                        // Remove quotes if present
+                        filename = filenameMatch[1].replace(/['"]/g, '');
+                    }
+                }
+
+                link.download = filename;
+
+                // Append to the document
+                document.body.appendChild(link);
+
+                // Trigger the download
+                link.click();
+
+                // Clean up
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+
+                this.exportLoading.set(false);
+                this.#notyf.success(`Datos exportados en formato ${ format.toUpperCase() }`);
+            },
+            error: (error) => {
+                console.error('Error exporting data:', error);
+                this.exportLoading.set(false);
+                this.#notyf.error('Error al exportar los datos');
+            }
+        });
     }
 
     buildColumnsConfig = (): ColumnConfig<any>[] => [
