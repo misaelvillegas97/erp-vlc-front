@@ -1,0 +1,101 @@
+<div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden" role="region" aria-labelledby="gps-table-title">
+    <div class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 id="gps-table-title" class="text-lg font-medium text-gray-800 dark:text-gray-200 flex items-center">
+            <mat-icon svgIcon="heroicons_outline:table-cells" class="text-gray-500 dark:text-gray-400 mr-2" aria-hidden="true"></mat-icon>
+            {{ title }}
+        </h3>
+    </div>
+
+    <!-- Desktop view -->
+    @if (!isMobile()) {
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" aria-labelledby="gps-table-title">
+                <caption class="sr-only">Tabla de puntos GPS registrados durante la sesión</caption>
+                <thead class="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Fecha y Hora
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Latitud
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Longitud
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Velocidad
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Distancia
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
+                    @for (point of gpsData; track point.timestamp) {
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                {{ formatDateTime(+point.timestamp) }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ point.latitude.toFixed(6) }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ point.longitude.toFixed(6) }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                <span class="flex items-center">
+                  {{ formatSpeed(point.speed) }}
+                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                <span class="flex items-center">
+                  {{ formatDistance(point.totalDistance) }}
+                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <!-- Mobile view - Card-based layout -->
+    @if (isMobile()) {
+        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            @for (point of gpsData; track point.timestamp) {
+                <div class="p-4 bg-white dark:bg-gray-900">
+                    <div class="mb-2 pb-2 border-b border-gray-100 dark:border-gray-800">
+                        <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ formatDateTime(+point.timestamp) }}</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <p class="text-gray-500 dark:text-gray-400 font-medium">Latitud</p>
+                            <p class="text-gray-900 dark:text-gray-100">{{ point.latitude.toFixed(6) }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 dark:text-gray-400 font-medium">Longitud</p>
+                            <p class="text-gray-900 dark:text-gray-100">{{ point.longitude.toFixed(6) }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 dark:text-gray-400 font-medium">Velocidad</p>
+                            <p class="text-gray-900 dark:text-gray-100">{{ formatSpeed(point.speed) }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 dark:text-gray-400 font-medium">Distancia</p>
+                            <p class="text-gray-900 dark:text-gray-100">{{ formatDistance(point.totalDistance) }}</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Empty state -->
+    @if (gpsData.length === 0) {
+        <div class="p-8 text-center">
+            <mat-icon svgIcon="heroicons_outline:exclamation-circle" class="text-gray-400 dark:text-gray-500 text-4xl mb-4" aria-hidden="true"></mat-icon>
+            <p class="text-gray-500 dark:text-gray-400">No hay datos GPS disponibles</p>
+        </div>
+    }
+</div>

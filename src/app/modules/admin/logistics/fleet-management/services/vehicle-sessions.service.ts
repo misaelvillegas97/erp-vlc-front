@@ -1,12 +1,13 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Injectable }                 from '@angular/core';
+import { HttpClient }                 from '@angular/common/http';
+import { Observable, of }             from 'rxjs';
+import { catchError, switchMap, tap } from 'rxjs/operators';
 import {
     FinishSessionDto,
     GeoLocation,
     VehicleSession
-}                     from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
-import { Pagination } from '@shared/domain/model/pagination';
+}                                     from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
+import { Pagination }                 from '@shared/domain/model/pagination';
 import {
     ActiveSessionsDashboardData,
     ComplianceSafetyDashboardData,
@@ -14,7 +15,8 @@ import {
     GeographicalAnalysisDashboardData,
     HistoricalAnalysisDashboardData,
     VehicleUtilizationDashboardData
-}                     from '@modules/admin/logistics/fleet-management/domain/model/dashboard.model';
+}                                     from '@modules/admin/logistics/fleet-management/domain/model/dashboard.model';
+import { OfflineCacheService }        from './offline-cache.service';
 
 @Injectable({
     providedIn: 'root'
@@ -25,7 +27,13 @@ export class VehicleSessionsService {
     private readonly apiUrl = `/api/v1/logistics/sessions`;
     private readonly apiUrlDashboards = `/api/v1/logistics/dashboards`;
 
-    constructor(private http: HttpClient) { }
+    constructor(
+        private http: HttpClient,
+        private offlineCache: OfflineCacheService
+    ) {
+        // Clear old cache entries on service initialization
+        this.offlineCache.clearOldCache().subscribe();
+    }
 
     /**
      * Obtiene todas las sesiones de vehículos
@@ -39,7 +47,44 @@ export class VehicleSessionsService {
      * @param id ID de la sesión
      */
     public findById(id: string): Observable<VehicleSession> {
-        return this.http.get<VehicleSession>(`${ this.apiUrl }/${ id }`);
+        // Check if we're offline
+        if (!this.offlineCache.isNetworkOnline()) {
+            console.log('Network is offline, trying to get session from cache');
+            return this.offlineCache.getCachedSession(id).pipe(
+                switchMap(cachedSession => {
+                    if (cachedSession) {
+                        console.log('Session found in cache', cachedSession);
+                        return of(cachedSession);
+                    } else {
+                        console.error('Session not found in cache and network is offline');
+                        throw new Error('No se puede obtener la sesión. No hay conexión a internet y la sesión no está en caché.');
+                    }
+                })
+            );
+        }
+
+        // If we're online, try to get from API and cache the result
+        return this.http.get<VehicleSession>(`${ this.apiUrl }/${ id }`).pipe(
+            tap(session => {
+                // Cache the session for offline use
+                this.offlineCache.cacheSession(session).subscribe();
+            }),
+            catchError(error => {
+                console.error('Error fetching session from API, trying cache', error);
+                // If API call fails, try to get from cache
+                return this.offlineCache.getCachedSession(id).pipe(
+                    switchMap(cachedSession => {
+                        if (cachedSession) {
+                            console.log('Session found in cache after API error', cachedSession);
+                            return of(cachedSession);
+                        } else {
+                            console.error('Session not found in cache after API error');
+                            throw error;
+                        }
+                    })
+                );
+            })
+        );
     }
 
     /**

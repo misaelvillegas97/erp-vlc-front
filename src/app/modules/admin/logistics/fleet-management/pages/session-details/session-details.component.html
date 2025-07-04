@@ -1,4 +1,7 @@
 <div class="flex flex-col min-w-0 w-full">
+    <!-- Offline indicator -->
+    <app-offline-indicator></app-offline-indicator>
+
     <page-header
         title="Detalles de Sesión de Vehículo"
         subtitle="Información detallada sobre la sesión de uso del vehículo">
@@ -8,22 +11,22 @@
     @if (isLoading()) {
         <div class="flex justify-center items-center py-20">
             <div class="text-center">
-                <mat-spinner diameter="48" color="primary"></mat-spinner>
-                <p class="mt-4 text-gray-600 dark:text-gray-300 text-lg">Cargando detalles de la sesión...</p>
+                <mat-spinner diameter="48" color="primary" aria-label="Cargando"></mat-spinner>
+                <p class="mt-4 text-gray-600 dark:text-gray-300 text-lg" aria-live="polite">Cargando detalles de la sesión...</p>
             </div>
         </div>
     } @else if (!session()) {
-        <div class="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 max-w-2xl mx-auto my-8">
+        <div class="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 max-w-2xl mx-auto my-8" role="alert" aria-live="assertive">
             <div class="w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-6">
-                <mat-icon svgIcon="heroicons_outline:exclamation-triangle" class="text-red-500 dark:text-red-400 text-4xl"></mat-icon>
+                <mat-icon svgIcon="heroicons_outline:exclamation-triangle" class="text-red-500 dark:text-red-400 text-4xl" aria-hidden="true"></mat-icon>
             </div>
             <h3 class="text-2xl font-bold mb-3 text-gray-800 dark:text-gray-200">Sesión no encontrada</h3>
             <p class="text-center mb-8 max-w-lg text-gray-600 dark:text-gray-400 px-6">
                 No se pudo encontrar la sesión solicitada. Es posible que haya sido eliminada o que no tenga permisos para verla.
             </p>
-            <button mat-flat-button color="primary" class="px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200" (click)="goBack()">
+            <button mat-flat-button color="primary" class="px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" (click)="goBack()" aria-label="Volver a la página anterior">
                 <div class="flex items-center">
-                    <mat-icon svgIcon="heroicons_outline:arrow-left" class="mr-2"></mat-icon>
+                    <mat-icon svgIcon="heroicons_outline:arrow-left" class="mr-2" aria-hidden="true"></mat-icon>
                     Volver
                 </div>
             </button>
@@ -32,18 +35,18 @@
         <div class="flex-1 flex flex-col w-full max-w-7xl mx-auto py-6 px-4 sm:px-6">
             <!-- Botón de volver -->
             <div class="mb-6">
-                <button mat-stroked-button color="primary" class="rounded-lg shadow-sm hover:shadow transition-all duration-200" (click)="goBack()">
+                <button mat-stroked-button color="primary" class="rounded-lg shadow-sm hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" (click)="goBack()" aria-label="Volver a la página anterior">
                     <div class="flex items-center">
-                        <mat-icon svgIcon="heroicons_outline:arrow-left" class="mr-2"></mat-icon>
+                        <mat-icon svgIcon="heroicons_outline:arrow-left" class="mr-2" aria-hidden="true"></mat-icon>
                         Volver
                     </div>
                 </button>
             </div>
 
             <!-- Encabezado con estado -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center">
-                    <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-4">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-4" aria-hidden="true">
                         <mat-icon svgIcon="heroicons_outline:identification" class="text-blue-600 dark:text-blue-400"></mat-icon>
                     </div>
                     <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200">
@@ -52,23 +55,25 @@
                 </div>
                 <div class="mt-4 sm:mt-0">
                     <span class="px-4 py-2 rounded-full text-sm font-medium text-white shadow-sm flex items-center"
-                          [ngClass]="getStatusClass(session()?.status || SessionStatus.ACTIVE)">
-                        <mat-icon svgIcon="heroicons_outline:check-circle" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.COMPLETED"></mat-icon>
-                        <mat-icon svgIcon="heroicons_outline:play" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.ACTIVE"></mat-icon>
-                        <mat-icon svgIcon="heroicons_outline:x-circle" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.CANCELLED"></mat-icon>
-                        <mat-icon svgIcon="heroicons_outline:clock" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.EXPIRED"></mat-icon>
+                          [ngClass]="getStatusClass(session()?.status || SessionStatus.ACTIVE)"
+                          role="status"
+                          aria-label="Estado de la sesión: {{ getStatusText(session()?.status || SessionStatus.ACTIVE) }}">
+                        <mat-icon svgIcon="heroicons_outline:check-circle" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.COMPLETED" aria-hidden="true"></mat-icon>
+                        <mat-icon svgIcon="heroicons_outline:play" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.ACTIVE" aria-hidden="true"></mat-icon>
+                        <mat-icon svgIcon="heroicons_outline:x-circle" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.CANCELLED" aria-hidden="true"></mat-icon>
+                        <mat-icon svgIcon="heroicons_outline:clock" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.EXPIRED" aria-hidden="true"></mat-icon>
                         {{ getStatusText(session()?.status || SessionStatus.ACTIVE) }}
                     </span>
                 </div>
-            </div>
+            </header>
 
             <!-- Información principal -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <!-- Información del conductor -->
-                <mat-card class="rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <mat-card class="rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden" role="region" aria-labelledby="driver-info-title">
                     <div class="bg-indigo-600 dark:bg-indigo-700 text-white p-4">
-                        <h2 class="text-xl font-medium flex items-center">
-                            <mat-icon svgIcon="heroicons_outline:user" class="mr-2 text-white"></mat-icon>
+                        <h2 id="driver-info-title" class="text-xl font-medium flex items-center">
+                            <mat-icon svgIcon="heroicons_outline:user" class="mr-2 text-white" aria-hidden="true"></mat-icon>
                             Información del Conductor
                         </h2>
                     </div>
@@ -78,7 +83,7 @@
                                 <div class="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center overflow-hidden">
                                     <img
                                         [src]="session()?.driver?.photoUrl"
-                                        alt="Foto del conductor"
+                                        alt="Foto del conductor {{ session()?.driver?.firstName }} {{ session()?.driver?.lastName }}"
                                         class="w-full h-full object-cover"
                                         onerror="this.src='images/avatars/male-01.jpg'; this.style.opacity='0.7'"
                                     >
@@ -88,8 +93,8 @@
                                         {{ session()?.driver?.firstName }} {{ session()?.driver?.lastName }}
                                     </p>
                                     <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center">
-                                        <mat-icon svgIcon="heroicons_outline:identification" class="text-indigo-500 dark:text-indigo-400 mr-1 text-sm"></mat-icon>
-                                        {{ session()?.driver?.documentId }}
+                                        <mat-icon svgIcon="heroicons_outline:identification" class="text-indigo-500 dark:text-indigo-400 mr-1 text-sm" aria-hidden="true"></mat-icon>
+                                        <span>ID: {{ session()?.driver?.documentId }}</span>
                                     </p>
                                 </div>
                             </div>
@@ -134,10 +139,10 @@
                 </mat-card>
 
                 <!-- Información del vehículo -->
-                <mat-card class="rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <mat-card class="rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden" role="region" aria-labelledby="vehicle-info-title">
                     <div class="bg-blue-600 dark:bg-blue-700 text-white p-4">
-                        <h2 class="text-xl font-medium flex items-center">
-                            <mat-icon svgIcon="heroicons_outline:truck" class="mr-2 text-white"></mat-icon>
+                        <h2 id="vehicle-info-title" class="text-xl font-medium flex items-center">
+                            <mat-icon svgIcon="heroicons_outline:truck" class="mr-2 text-white" aria-hidden="true"></mat-icon>
                             Información del Vehículo
                         </h2>
                     </div>
@@ -147,7 +152,7 @@
                                 <div class="w-16 h-16 rounded bg-blue-100 dark:bg-blue-900 flex items-center justify-center overflow-hidden">
                                     <img
                                         [src]="session()?.vehicle?.photoUrl"
-                                        alt="Foto del vehículo"
+                                        alt="Foto del vehículo {{ session()?.vehicle?.brand }} {{ session()?.vehicle?.model }}"
                                         class="w-full h-full object-cover"
                                         onerror="this.src='images/placeholders/vehicle.png'; this.style.opacity='0.7'"
                                     >
@@ -157,8 +162,8 @@
                                         {{ session()?.vehicle?.brand }} {{ session()?.vehicle?.model }}
                                     </p>
                                     <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center">
-                                        <mat-icon svgIcon="heroicons_outline:tag" class="text-blue-500 dark:text-blue-400 mr-1 text-sm"></mat-icon>
-                                        {{ session()?.vehicle?.licensePlate }}
+                                        <mat-icon svgIcon="heroicons_outline:tag" class="text-blue-500 dark:text-blue-400 mr-1 text-sm" aria-hidden="true"></mat-icon>
+                                        <span>Matrícula: {{ session()?.vehicle?.licensePlate }}</span>
                                     </p>
                                 </div>
                             </div>
@@ -205,54 +210,54 @@
                 </mat-card>
 
                 <!-- Información de la sesión -->
-                <mat-card class="rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <mat-card class="rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden" role="region" aria-labelledby="session-info-title">
                     <div class="bg-green-600 dark:bg-green-700 text-white p-4">
-                        <h2 class="text-xl font-medium flex items-center">
-                            <mat-icon svgIcon="heroicons_outline:clock" class="mr-2 text-white"></mat-icon>
+                        <h2 id="session-info-title" class="text-xl font-medium flex items-center">
+                            <mat-icon svgIcon="heroicons_outline:clock" class="mr-2 text-white" aria-hidden="true"></mat-icon>
                             Detalles de la Sesión
                         </h2>
                     </div>
                     <mat-card-content class="p-5">
                         <div class="grid grid-cols-2 gap-4">
                             <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Inicio</p>
-                                <div class="flex items-center mt-1">
-                                    <mat-icon svgIcon="heroicons_outline:play" class="text-green-500 dark:text-green-400 mr-2 text-sm"></mat-icon>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium" id="start-time-label">Inicio</p>
+                                <div class="flex items-center mt-1" aria-labelledby="start-time-label">
+                                    <mat-icon svgIcon="heroicons_outline:play" class="text-green-500 dark:text-green-400 mr-2 text-sm" aria-hidden="true"></mat-icon>
                                     <p class="font-medium text-gray-800 dark:text-gray-200">{{ session()?.startTime | date:'dd-MM-yyyy HH:mm:ss' }}</p>
                                 </div>
                             </div>
                             <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Fin</p>
-                                <div class="flex items-center mt-1">
-                                    <mat-icon svgIcon="heroicons_outline:stop" class="text-red-500 dark:text-red-400 mr-2 text-sm"></mat-icon>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium" id="end-time-label">Fin</p>
+                                <div class="flex items-center mt-1" aria-labelledby="end-time-label">
+                                    <mat-icon svgIcon="heroicons_outline:stop" class="text-red-500 dark:text-red-400 mr-2 text-sm" aria-hidden="true"></mat-icon>
                                     <p class="font-medium text-gray-800 dark:text-gray-200">{{ session()?.endTime ? (session().endTime | date:'dd-MM-yyyy HH:mm:ss') : 'En curso' }}</p>
                                 </div>
                             </div>
                             <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Duración</p>
-                                <div class="flex items-center mt-1">
-                                    <mat-icon svgIcon="heroicons_outline:clock" class="text-amber-500 dark:text-amber-400 mr-2 text-sm"></mat-icon>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium" id="duration-label">Duración</p>
+                                <div class="flex items-center mt-1" aria-labelledby="duration-label">
+                                    <mat-icon svgIcon="heroicons_outline:clock" class="text-amber-500 dark:text-amber-400 mr-2 text-sm" aria-hidden="true"></mat-icon>
                                     <p class="font-medium text-gray-800 dark:text-gray-200">{{ formatDuration(session()?.startTime, session()?.endTime) }}</p>
                                 </div>
                             </div>
                             <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Odómetro inicial</p>
-                                <div class="flex items-center mt-1">
-                                    <mat-icon svgIcon="heroicons_outline:calculator" class="text-blue-500 dark:text-blue-400 mr-2 text-sm"></mat-icon>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium" id="initial-odometer-label">Odómetro inicial</p>
+                                <div class="flex items-center mt-1" aria-labelledby="initial-odometer-label">
+                                    <mat-icon svgIcon="heroicons_outline:calculator" class="text-blue-500 dark:text-blue-400 mr-2 text-sm" aria-hidden="true"></mat-icon>
                                     <p class="font-medium text-gray-800 dark:text-gray-200">{{ session()?.initialOdometer }} km</p>
                                 </div>
                             </div>
                             <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Odómetro final</p>
-                                <div class="flex items-center mt-1">
-                                    <mat-icon svgIcon="heroicons_outline:calculator" class="text-blue-500 dark:text-blue-400 mr-2 text-sm"></mat-icon>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium" id="final-odometer-label">Odómetro final</p>
+                                <div class="flex items-center mt-1" aria-labelledby="final-odometer-label">
+                                    <mat-icon svgIcon="heroicons_outline:calculator" class="text-blue-500 dark:text-blue-400 mr-2 text-sm" aria-hidden="true"></mat-icon>
                                     <p class="font-medium text-gray-800 dark:text-gray-200">{{ session()?.finalOdometer ? session()?.finalOdometer + ' km' : 'N/A' }}</p>
                                 </div>
                             </div>
                             <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Distancia recorrida</p>
-                                <div class="flex items-center mt-1">
-                                    <mat-icon svgIcon="heroicons_outline:map" class="text-purple-500 dark:text-purple-400 mr-2 text-sm"></mat-icon>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium" id="distance-label">Distancia recorrida</p>
+                                <div class="flex items-center mt-1" aria-labelledby="distance-label">
+                                    <mat-icon svgIcon="heroicons_outline:map" class="text-purple-500 dark:text-purple-400 mr-2 text-sm" aria-hidden="true"></mat-icon>
                                     <p class="font-medium text-gray-800 dark:text-gray-200">
                                         @if (session()?.finalOdometer && session()?.initialOdometer) {
                                             {{ (session()?.finalOdometer - session()?.initialOdometer).toFixed(1) }} km
@@ -290,171 +295,40 @@
             </div>
 
             <!-- Mapa y datos GPS -->
-            <mat-card class="rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden mb-6">
+            <mat-card class="rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden mb-6" role="region" aria-labelledby="gps-route-title">
                 <div class="bg-purple-600 dark:bg-purple-700 text-white p-4">
-                    <h2 class="text-xl font-medium flex items-center">
-                        <mat-icon svgIcon="heroicons_outline:map" class="mr-2 text-white"></mat-icon>
+                    <h2 id="gps-route-title" class="text-xl font-medium flex items-center">
+                        <mat-icon svgIcon="heroicons_outline:map" class="mr-2 text-white" aria-hidden="true"></mat-icon>
                         Ruta GPS
                     </h2>
                 </div>
                 <mat-card-content class="p-5">
                     @if (!session()?.gps || session()?.gps.length === 0) {
-                        <div class="flex flex-col items-center justify-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                            <mat-icon svgIcon="heroicons_outline:map-pin" class="text-gray-400 dark:text-gray-500 text-5xl mb-4"></mat-icon>
+                        <div class="flex flex-col items-center justify-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700" role="alert">
+                            <mat-icon svgIcon="heroicons_outline:map-pin" class="text-gray-400 dark:text-gray-500 text-5xl mb-4" aria-hidden="true"></mat-icon>
                             <p class="text-center text-gray-500 dark:text-gray-400 text-lg">
                                 No hay datos GPS disponibles para esta sesión.
                             </p>
                         </div>
                     } @else {
                         <!-- Mapa de Google -->
-                        <div class="h-96 w-full mb-6 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm">
-                            <google-map
-                                height="100%"
-                                width="100%"
-                                [options]="{ center: {lat: 0, lng: 0}, mapTypeId: 'roadmap', mapTypeControl: false, streetViewControl: false, fullscreenControl: true, cameraControl: false }"
-                                [center]="mapCenter()"
-                                (mapInitialized)="onMapInitialized($event)">
-                                <map-polyline [path]="polylinePath()" [options]="{
-                                    strokeColor: '#4285F4',
-                                    strokeOpacity: 1.0,
-                                    strokeWeight: 3
-                                }"></map-polyline>
-
-                                <!-- Marcadores de inicio y fin -->
-                                @let start = startMarker();
-                                @if (start) {
-                                    <map-marker [position]="start.position" [title]="start.title" [icon]="start.icon"></map-marker>
-                                }
-
-                                @let end = endMarker();
-                                @if (end) {
-                                    <map-marker [position]="end.position" [title]="end.title" [icon]="end.icon"></map-marker>
-                                }
-
-                                @let currentPosition = currentPositionMarker();
-                                @if (currentPosition) {
-                                    <map-marker [position]="currentPosition.position" [title]="currentPosition.title" [icon]="currentPosition.icon"></map-marker>
-                                }
-
-                                <!-- Marcadores de puntos GPS -->
-                                @for (marker of gpsMarkers(); track marker.index) {
-                                    <map-marker
-                                        [position]="marker.position"
-                                        [title]="marker.title"
-                                        [options]="marker.options"
-                                        [label]="marker.label"
-                                        (mapClick)="onMarkerClick(marker)"
-                                        (mapMouseover)="onMarkerMouseOver(marker)"
-                                        (mapMouseout)="onMarkerMouseOut()">
-                                    </map-marker>
-                                }
-
-                                <!-- Ventana de información para puntos GPS -->
-                                @if (selectedMarker()) {
-                                    <map-info-window [position]="selectedMarker().position" [options]="{ zIndex: 1000, disableAutoPan: true, headerContent: headerComputed(), pixelOffset: { width: 0, height: -5 } }" class="text-gray-800">
-                                        <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
-                                            <p><strong>Fecha y hora:</strong></p>
-                                            <p>{{ formatDateTime(+selectedPoint().timestamp) }}</p>
-                                            <p><strong>Coordenadas:</strong></p>
-                                            <p>{{ selectedPoint().latitude.toFixed(6) }}, {{ selectedPoint().longitude.toFixed(6) }}</p>
-                                            <p><strong>Velocidad:</strong></p>
-                                            <p>{{ formatSpeed(selectedPoint().speed) }}</p>
-                                            <p><strong>Distancia recorrida:</strong></p>
-                                            <p>{{ formatDistance(selectedPoint().totalDistance) }}</p>
-                                        </div>
-                                    </map-info-window>
-                                }
-                            </google-map>
+                        <div class="h-96 w-full mb-6">
+                            <app-gps-map
+                                [gpsData]="session()?.gps || []"
+                                [isActive]="session()?.status === SessionStatus.ACTIVE">
+                            </app-gps-map>
                         </div>
 
                         <!-- Resumen de datos GPS -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 shadow-sm">
-                                <div class="flex items-center mb-2">
-                                    <mat-icon svgIcon="heroicons_outline:signal" class="text-blue-500 dark:text-blue-400 mr-2"></mat-icon>
-                                    <p class="text-sm font-medium text-blue-700 dark:text-blue-300">Puntos GPS registrados</p>
-                                </div>
-                                <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ session()?.gps?.length }}</p>
-                            </div>
-
-                            <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-100 dark:border-green-800 shadow-sm">
-                                <div class="flex items-center mb-2">
-                                    <mat-icon svgIcon="heroicons_outline:bolt" class="text-green-500 dark:text-green-400 mr-2"></mat-icon>
-                                    <p class="text-sm font-medium text-green-700 dark:text-green-300">Velocidad máxima</p>
-                                </div>
-                                <p class="text-2xl font-bold text-green-600 dark:text-green-400">
-                                    {{ formatSpeed(maxSpeed()) }}
-                                </p>
-                            </div>
-
-                            <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-100 dark:border-purple-800 shadow-sm">
-                                <div class="flex items-center mb-2">
-                                    <mat-icon svgIcon="heroicons_outline:map" class="text-purple-500 dark:text-purple-400 mr-2"></mat-icon>
-                                    <p class="text-sm font-medium text-purple-700 dark:text-purple-300">Distancia total GPS</p>
-                                </div>
-                                <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                                    {{ formatDistance(totalDistance()) }} <span class="text-xs text-purple-500 dark:text-purple-400">* aprox</span>
-                                </p>
-                            </div>
+                        <div class="mb-6">
+                            <app-gps-summary [gpsData]="session()?.gps || []"></app-gps-summary>
                         </div>
 
                         <!-- Tabla de puntos GPS -->
-                        <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-                            <div class="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-200 dark:border-gray-700">
-                                <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 flex items-center">
-                                    <mat-icon svgIcon="heroicons_outline:table-cells" class="text-gray-500 dark:text-gray-400 mr-2"></mat-icon>
-                                    Registro de puntos GPS
-                                </h3>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                    <thead class="bg-gray-50 dark:bg-gray-800">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Fecha y Hora
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Latitud
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Longitud
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Velocidad
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Distancia
-                                        </th>
-                                    </tr>
-                                    </thead>
-                                    <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
-                                        @for (point of session()?.gps; track point.timestamp) {
-                                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150">
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                                                    {{ formatDateTime(+point.timestamp) }}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                    {{ point.latitude.toFixed(6) }}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                    {{ point.longitude.toFixed(6) }}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                    <span class="flex items-center">
-                                                        {{ formatSpeed(point.speed) }}
-                                                    </span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                    <span class="flex items-center">
-                                                        {{ formatDistance(point.totalDistance) }}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                        <app-gps-table
+                            [gpsData]="session()?.gps || []"
+                            title="Registro de puntos GPS">
+                        </app-gps-table>
                     }
                 </mat-card-content>
             </mat-card>

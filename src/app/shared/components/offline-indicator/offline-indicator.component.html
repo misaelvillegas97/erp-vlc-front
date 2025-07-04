@@ -1,0 +1,12 @@
+@if (isOffline()) {
+    <div class="fixed bottom-4 right-4 z-50 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 animate-pulse" role="alert" aria-live="assertive">
+        <mat-icon svgIcon="heroicons_outline:wifi-off" class="text-white" aria-hidden="true"></mat-icon>
+        <div>
+            <p class="font-medium">Modo sin conexión</p>
+            <p class="text-sm">Estás viendo datos almacenados en caché</p>
+        </div>
+        <button mat-icon-button color="white" matTooltip="Intentar reconectar" (click)="tryReconnect()" class="ml-2 focus:outline-none focus:ring-2 focus:ring-white" aria-label="Intentar reconectar">
+            <mat-icon svgIcon="heroicons_outline:refresh" class="text-white"></mat-icon>
+        </button>
+    </div>
+}

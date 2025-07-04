@@ -1,0 +1,134 @@
+/* Estilos para el tema dark del info window de Google Maps */
+
+/* Cuando el tema dark está activo */
+:host(.dark-theme) {
+
+    /* Estilos globales para el info window */
+    ::ng-deep {
+        /* Contenedor principal del info window */
+        .gm-style-iw-c {
+            background-color: #1f2937 !important;
+            border-radius: 8px !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1) !important;
+            border: 1px solid #374151 !important;
+        }
+
+        /* Contenedor del contenido */
+        .gm-style-iw-d {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            border-radius: 8px !important;
+            overflow: hidden !important;
+        }
+
+        /* Header del info window */
+        .gm-style-iw-t {
+            background-color: #374151 !important;
+            color: #f3f4f6 !important;
+            border-bottom: 1px solid #4b5563 !important;
+        }
+
+        /* Botón de cerrar */
+        .gm-ui-hover-effect {
+            background-color: #374151 !important;
+            border-radius: 50% !important;
+
+            & > span {
+                background-color: #9ca3af !important;
+
+                &:hover {
+                    background-color: #f3f4f6 !important;
+                }
+            }
+        }
+
+        /* Flecha del info window */
+        .gm-style-iw-tc::after {
+            background-color: #1f2937 !important;
+            border-top-color: #374151 !important;
+            border-left-color: #374151 !important;
+        }
+
+        /* Scrollbar si es necesario */
+        .gm-style-iw-d::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .gm-style-iw-d::-webkit-scrollbar-track {
+            background: #374151;
+        }
+
+        .gm-style-iw-d::-webkit-scrollbar-thumb {
+            background: #6b7280;
+            border-radius: 3px;
+        }
+
+        .gm-style-iw-d::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+    }
+}
+
+/* Estilos para el tema claro (por defecto) */
+:host(.light-theme) {
+    ::ng-deep {
+        .gm-style-iw-c {
+            background-color: #ffffff !important;
+            border-radius: 8px !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+            border: 1px solid #e5e7eb !important;
+        }
+
+        .gm-style-iw-d {
+            background-color: #ffffff !important;
+            color: #1f2937 !important;
+            border-radius: 8px !important;
+        }
+
+        .gm-style-iw-t {
+            background-color: #f9fafb !important;
+            color: #1f2937 !important;
+            border-bottom: 1px solid #e5e7eb !important;
+        }
+
+        .gm-ui-hover-effect {
+            background-color: #f3f4f6 !important;
+
+            & > span {
+                background-color: #6b7280 !important;
+
+                &:hover {
+                    background-color: #1f2937 !important;
+                }
+            }
+        }
+
+        .gm-style-iw-tc::after {
+            background-color: #ffffff !important;
+            border-top-color: #e5e7eb !important;
+            border-left-color: #e5e7eb !important;
+        }
+    }
+}
+
+/* Estilos adicionales para mejorar la apariencia */
+::ng-deep {
+    /* Asegurar que el info window tenga un ancho máximo */
+    .gm-style-iw-c {
+        max-width: 300px !important;
+    }
+
+    /* Mejorar el padding del contenido */
+    .gm-style-iw-d {
+        padding: 0 !important;
+
+        & > div {
+            padding: 12px !important;
+        }
+    }
+
+    /* Estilo para el contenido cuando no hay header */
+    .gm-style-iw-d > div:first-child {
+        margin-top: 0 !important;
+    }
+}

@@ -1,0 +1,42 @@
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4" role="region" aria-label="Resumen de datos GPS">
+    <!-- Total GPS points -->
+    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 shadow-sm">
+        <div class="flex items-center mb-2">
+            <mat-icon svgIcon="heroicons_outline:signal" class="text-blue-500 dark:text-blue-400 mr-2" aria-hidden="true"></mat-icon>
+            <p id="gps-points-label" class="text-sm font-medium text-blue-700 dark:text-blue-300">Puntos GPS registrados</p>
+        </div>
+        <p class="text-2xl font-bold text-blue-600 dark:text-blue-400" aria-labelledby="gps-points-label">
+            {{ gpsData?.length || 0 }}
+        </p>
+    </div>
+
+    <!-- Max speed -->
+    <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-100 dark:border-green-800 shadow-sm">
+        <div class="flex items-center mb-2">
+            <mat-icon svgIcon="heroicons_outline:bolt" class="text-green-500 dark:text-green-400 mr-2" aria-hidden="true"></mat-icon>
+            <p id="max-speed-label" class="text-sm font-medium text-green-700 dark:text-green-300">Velocidad máxima</p>
+        </div>
+        <p class="text-2xl font-bold text-green-600 dark:text-green-400" aria-labelledby="max-speed-label">
+            {{ formatSpeed(maxSpeed()) }}
+        </p>
+    </div>
+
+    <!-- Total distance -->
+    <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-100 dark:border-purple-800 shadow-sm">
+        <div class="flex items-center mb-2">
+            <mat-icon svgIcon="heroicons_outline:map" class="text-purple-500 dark:text-purple-400 mr-2" aria-hidden="true"></mat-icon>
+            <p id="total-distance-label" class="text-sm font-medium text-purple-700 dark:text-purple-300">Distancia total GPS</p>
+        </div>
+        <p class="text-2xl font-bold text-purple-600 dark:text-purple-400" aria-labelledby="total-distance-label">
+            {{ formatDistance(totalDistance()) }} <span class="text-xs text-purple-500 dark:text-purple-400" aria-label="aproximado">* aprox</span>
+        </p>
+    </div>
+</div>
+
+<!-- Empty state -->
+@if (!gpsData || gpsData.length === 0) {
+    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 text-center">
+        <mat-icon svgIcon="heroicons_outline:chart-bar" class="text-gray-400 dark:text-gray-500 text-4xl mb-3" aria-hidden="true"></mat-icon>
+        <p class="text-gray-500 dark:text-gray-400">No hay datos GPS disponibles para mostrar estadísticas</p>
+    </div>
+}

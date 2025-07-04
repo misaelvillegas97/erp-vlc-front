@@ -1,0 +1,86 @@
+<div class="h-full w-full rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm" aria-label="Mapa de ruta GPS" role="application">
+    <google-map
+        height="100%"
+        width="100%"
+        [options]="mapOptions"
+        [center]="mapCenter()"
+        (mapInitialized)="onMapInitialized($event)"
+        aria-label="Mapa de ruta GPS">
+
+        <map-polyline
+            [path]="polylinePath()"
+            [options]="{
+        strokeColor: '#4285F4',
+        strokeOpacity: 1.0,
+        strokeWeight: 3
+      }"
+            aria-label="Ruta del vehículo">
+        </map-polyline>
+
+        <!-- Marcadores de inicio y fin -->
+        @let start = startMarker();
+        @if (start) {
+            <map-marker
+                [position]="start.position"
+                [title]="start.title"
+                [icon]="start.icon"
+                [options]="{ clickable: true }"
+                aria-label="Punto de inicio de la ruta">
+            </map-marker>
+        }
+
+        @let end = endMarker();
+        @if (end) {
+            <map-marker
+                [position]="end.position"
+                [title]="end.title"
+                [icon]="end.icon"
+                [options]="{ clickable: true }"
+                aria-label="Punto final de la ruta">
+            </map-marker>
+        }
+
+        @let currentPosition = currentPositionMarker();
+        @if (currentPosition) {
+            <map-marker
+                [position]="currentPosition.position"
+                [title]="currentPosition.title"
+                [icon]="currentPosition.icon"
+                [options]="{ clickable: true }"
+                aria-label="Ubicación actual del vehículo">
+            </map-marker>
+        }
+
+        <!-- Marcadores de puntos GPS -->
+        @for (marker of gpsMarkers(); track marker.index) {
+            <map-marker
+                [position]="marker.position"
+                [title]="marker.title"
+                [options]="marker.options"
+                (mapMouseover)="onMarkerMouseOver(marker)"
+                (mapMouseout)="onMarkerMouseOut()"
+                (mapClick)="onMarkerMouseOver(marker)"
+                aria-label="Punto GPS #{{ marker.index + 1 }}"
+                tabindex="0">
+            </map-marker>
+        }
+
+        @if (selectedMarker()) {
+            <map-info-window
+                [position]="selectedMarker().position"
+                [options]="infoWindowOptions()">
+                <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-xs pt-2 pr-2 pb-4">
+                    @let point = selectedMarker().point;
+                    <p class="text-gray-600 dark:text-gray-400"><strong>Fecha y hora:</strong></p>
+                    <p>{{ formatDateTime(+point.timestamp) }}</p>
+                    <p class="text-gray-600 dark:text-gray-400"><strong>Coordenadas:</strong></p>
+                    <p>{{ point.latitude.toFixed(6) }}, {{ point.longitude.toFixed(6) }}</p>
+                    <p class="text-gray-600 dark:text-gray-400"><strong>Velocidad:</strong></p>
+                    <p>{{ formatSpeed(point.speed) }}</p>
+                    <p class="text-gray-600 dark:text-gray-400"><strong>Distancia recorrida:</strong></p>
+                    <p>{{ formatDistance(point.totalDistance) }}</p>
+                </div>
+            </map-info-window>
+        }
+    </google-map>
+</div>
