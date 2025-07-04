@@ -311,17 +311,19 @@
                             <google-map
                                 height="100%"
                                 width="100%"
-                                [options]="mapOptions()"
+                                [options]="{ center: {lat: 0, lng: 0}, mapTypeId: 'roadmap', mapTypeControl: false, streetViewControl: false, fullscreenControl: true, cameraControl: false }"
                                 [center]="mapCenter()"
                                 (mapInitialized)="onMapInitialized($event)">
+                                <map-polyline [path]="polylinePath()" [options]="{
+                                    strokeColor: '#4285F4',
+                                    strokeOpacity: 1.0,
+                                    strokeWeight: 3
+                                }"></map-polyline>
 
                                 <!-- Marcadores de inicio y fin -->
                                 @let start = startMarker();
                                 @if (start) {
                                     <map-marker [position]="start.position" [title]="start.title" [icon]="start.icon"></map-marker>
-                                }
-                                @for (marker of markers(); track marker.position) {
-                                    <map-marker [position]="marker.position" [title]="marker.title" [icon]="marker.icon"></map-marker>
                                 }
 
                                 @let end = endMarker();
@@ -334,12 +336,34 @@
                                     <map-marker [position]="currentPosition.position" [title]="currentPosition.title" [icon]="currentPosition.icon"></map-marker>
                                 }
 
-                                <!--                                &lt;!&ndash; Línea de ruta &ndash;&gt;-->
-                                <map-polyline [path]="polylinePath()" [options]="{
-                                    strokeColor: '#4285F4',
-                                    strokeOpacity: 1.0,
-                                    strokeWeight: 3
-                                }"></map-polyline>
+                                <!-- Marcadores de puntos GPS -->
+                                @for (marker of gpsMarkers(); track marker.index) {
+                                    <map-marker
+                                        [position]="marker.position"
+                                        [title]="marker.title"
+                                        [options]="marker.options"
+                                        [label]="marker.label"
+                                        (mapClick)="onMarkerClick(marker)"
+                                        (mapMouseover)="onMarkerMouseOver(marker)"
+                                        (mapMouseout)="onMarkerMouseOut()">
+                                    </map-marker>
+                                }
+
+                                <!-- Ventana de información para puntos GPS -->
+                                @if (selectedMarker()) {
+                                    <map-info-window [position]="selectedMarker().position" [options]="{ zIndex: 1000, disableAutoPan: true, headerContent: headerComputed(), pixelOffset: { width: 0, height: -5 } }" class="text-gray-800">
+                                        <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
+                                            <p><strong>Fecha y hora:</strong></p>
+                                            <p>{{ formatDateTime(+selectedPoint().timestamp) }}</p>
+                                            <p><strong>Coordenadas:</strong></p>
+                                            <p>{{ selectedPoint().latitude.toFixed(6) }}, {{ selectedPoint().longitude.toFixed(6) }}</p>
+                                            <p><strong>Velocidad:</strong></p>
+                                            <p>{{ formatSpeed(selectedPoint().speed) }}</p>
+                                            <p><strong>Distancia recorrida:</strong></p>
+                                            <p>{{ formatDistance(selectedPoint().totalDistance) }}</p>
+                                        </div>
+                                    </map-info-window>
+                                }
                             </google-map>
                         </div>
 
