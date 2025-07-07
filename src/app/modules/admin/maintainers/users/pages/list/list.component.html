@@ -58,6 +58,10 @@
                     <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil"></mat-icon>
                     <span>{{ 'actions.edit' | transloco }}</span>
                 </button>
+                <button mat-menu-item (click)="changePassword(user)">
+                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:key"></mat-icon>
+                    <span>{{ 'maintainers.users.change-password.title' | transloco }}</span>
+                </button>
                 <button mat-menu-item (click)="assignDriverLicense(user)">
                     <mat-icon class="icon-size-5" svgIcon="heroicons_outline:identification"></mat-icon>
                     <span>{{ 'maintainers.users.driver-license.assign' | transloco }}</span>

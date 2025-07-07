@@ -48,4 +48,8 @@ export class UserService {
     create(user: CreateUserDto): Observable<User> {
         return this._httpClient.post<User>('api/v1/auth/email/register', user);
     }
+
+    changePassword(userId: string, newPassword: string): Observable<void> {
+        return this._httpClient.patch<void>(`api/v1/users/${ userId }/change-password`, {password: newPassword});
+    }
 }

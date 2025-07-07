@@ -18,6 +18,7 @@ import { trackByFn }                                                            
 import { TableBuilderComponent }                                                               from '@shared/components/table-builder/table-builder.component';
 import { MatDialog }                                                                           from '@angular/material/dialog';
 import { DriverLicenseDialogComponent }                                                        from '../../dialog/driver-license/driver-license.component';
+import { ChangePasswordComponent }                                                             from '../../dialog/change-password/change-password.component';
 import { ColumnConfig }                                                                        from '@shared/components/table-builder/column.type';
 import { MatMenuModule }                                                                       from '@angular/material/menu';
 
@@ -95,6 +96,19 @@ export class ListComponent {
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
                 this.usersResource.reload();
+            }
+        });
+    };
+
+    changePassword = (user: User) => {
+        const dialogRef = this.#dialog.open(ChangePasswordComponent, {
+            data: {user}
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                // No necesitamos recargar los datos ya que cambiar contraseña no afecta la lista
+                console.log('Password changed successfully');
             }
         });
     };

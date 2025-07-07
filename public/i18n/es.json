@@ -380,6 +380,17 @@
                     "restrictions" : "Restricciones de la licencia (opcional)",
                     "issuingAuthority" : "Autoridad que emitió la licencia (opcional)"
                 }
+            },
+            "change-password" : {
+                "title" : "Cambiar contraseña",
+                "user-info" : "Cambiar contraseña para {{name}} ({{email}})",
+                "new-password" : "Nueva contraseña",
+                "new-password-placeholder" : "Ingrese la nueva contraseña",
+                "confirm-password" : "Confirmar contraseña",
+                "confirm-password-placeholder" : "Confirme la nueva contraseña",
+                "change-password" : "Cambiar contraseña",
+                "success" : "Contraseña cambiada exitosamente",
+                "error" : "Error al cambiar la contraseña"
             }
         },
         "suppliers" : {
@@ -602,6 +613,11 @@
             "password-must-match" : "Las contraseñas deben coincidir",
             "pattern" : "El campo no cumple con el formato requerido. {{pattern}}"
         }
+    },
+    "validation" : {
+        "required" : "Este campo es obligatorio",
+        "min-length" : "Debe tener al menos {{min}} caracteres",
+        "password-mismatch" : "Las contraseñas no coinciden"
     },
     "selectors" : {
         "benefit-category" : {
