@@ -5,16 +5,17 @@ import { MatFormFieldModule }                                      from '@angula
 import { MatInputModule }                                          from '@angular/material/input';
 import { MatButtonModule }                                         from '@angular/material/button';
 import { MatIconModule }                                           from '@angular/material/icon';
-import { TranslocoModule }                                         from '@ngneat/transloco';
+import { TranslocoModule, TranslocoService }                       from '@ngneat/transloco';
 import { UserService }                                             from '@core/user/user.service';
 import { User }                                                    from '@core/user/user.types';
 import { LoaderButtonComponent }                                   from '@shared/components/loader-button/loader-button.component';
 import { NgIf }                                                    from '@angular/common';
+import { NotyfService }                                            from '@shared/services/notyf.service';
 
 @Component({
     selector  : 'app-change-password',
     standalone: true,
-    imports   : [
+    imports: [
         MatDialogModule,
         MatFormFieldModule,
         MatInputModule,
@@ -92,6 +93,8 @@ import { NgIf }                                                    from '@angula
 export class ChangePasswordComponent {
     private readonly userService = inject(UserService);
     private readonly dialogRef = inject(MatDialogRef<ChangePasswordComponent>);
+    private readonly notyfService = inject(NotyfService);
+    private readonly translocoService = inject(TranslocoService);
 
     isLoading = signal(false);
 
@@ -122,10 +125,23 @@ export class ChangePasswordComponent {
             this.userService.changePassword(this.data.user.id, newPassword).subscribe({
                 next : () => {
                     this.isLoading.set(false);
+
+                    // Mostrar mensaje de éxito
+                    this.notyfService.success(
+                        this.translocoService.translate('maintainers.users.change-password.success')
+                    );
+
                     this.dialogRef.close(true);
                 },
-                error: () => {
+                error: (error) => {
                     this.isLoading.set(false);
+
+                    // Mostrar mensaje de error
+                    this.notyfService.error(
+                        this.translocoService.translate('maintainers.users.change-password.error')
+                    );
+
+                    console.error('Error changing password:', error);
                 }
             });
         }

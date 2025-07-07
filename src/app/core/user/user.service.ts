@@ -50,6 +50,9 @@ export class UserService {
     }
 
     changePassword(userId: string, newPassword: string): Observable<void> {
-        return this._httpClient.patch<void>(`api/v1/users/${ userId }/change-password`, {password: newPassword});
+        return this._httpClient.post<void>('api/v1/auth/override/password', {
+            userId  : userId,
+            password: newPassword
+        });
     }
 }
