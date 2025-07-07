@@ -1,8 +1,8 @@
-<div class="flex flex-col min-h-screen p-6 w-full max-w-screen-lg mx-auto">
+<div class="flex flex-col min-h-screen p-6 w-full max-w-screen-lg mx-auto gap-y-6">
     @let user = user$ | async;
 
     @if (user) {
-        <mat-card class="bg-card shadow-sm rounded-lg p-8 mb-12">
+        <mat-card class="bg-card shadow-sm rounded-lg p-8 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-900 border border-blue-100 dark:border-slate-700">
             <div class="flex flex-col md:flex-row items-center gap-6">
                 <div class="flex-shrink-0">
                     <div class="w-28 h-28 rounded-full bg-hover flex items-center justify-center overflow-hidden">
@@ -24,9 +24,11 @@
         </mat-card>
     }
 
+    <app-weather-widget></app-weather-widget>
+
     <!-- Shortcuts section -->
     @if (user) {
-        <h2 class="text-2xl font-bold mb-6">Accesos Directos</h2>
+        <h2 class="text-2xl font-bold">Accesos Directos</h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <!-- Shortcut cards -->

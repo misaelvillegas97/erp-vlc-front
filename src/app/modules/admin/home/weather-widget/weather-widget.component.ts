@@ -17,67 +17,76 @@ import { GeolocationService }                           from '@modules/admin/log
         MatProgressSpinnerModule
     ],
     template  : `
-        <div class="flex flex-col">
-            <div class="flex justify-between items-center mb-4">
-                <div class="text-lg font-semibold">Clima actual</div>
-                <div class="bg-blue-900/30 text-blue-500 text-sm font-bold px-2 py-1 rounded" *ngIf="weather()">
-                    Actualizado {{ getTimeAgo(weather().current.lastUpdated) }}
-                </div>
-            </div>
-
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-900 rounded-xl p-4 shadow-sm border border-blue-100 dark:border-slate-700"><!-- border border-blue-100 dark:border-slate-700 -->
             <!-- Loading state -->
-            <div class="flex justify-center items-center py-8" *ngIf="loading()">
-                <mat-spinner [diameter]="40"></mat-spinner>
+            <div class="flex items-center justify-center py-6" *ngIf="loading()">
+                <mat-spinner [diameter]="24"></mat-spinner>
             </div>
 
             <!-- Error state -->
-            <div class="text-center py-8 text-red-500" *ngIf="error">
-                <p>{{ error }}</p>
-                <button mat-button color="primary" class="mt-2" (click)="loadWeatherData()">
+            <div class="text-center py-4" *ngIf="error && !loading()">
+                <mat-icon class="text-red-400 mb-2">warning</mat-icon>
+                <p class="text-sm text-red-600 dark:text-red-400 mb-2">Error al cargar clima</p>
+                <button mat-button (click)="loadWeatherData()" class="">
                     Reintentar
                 </button>
             </div>
 
             <!-- Weather data -->
             <ng-container *ngIf="weather() && !loading() && !error">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center">
-                        <div class="w-16 h-16 flex items-center justify-center mr-4">
-                            <mat-icon class="text-5xl text-yellow-500" [svgIcon]="weather().current.icon"></mat-icon>
+                <!-- Header compacto -->
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">Clima Actual</h3>
+                    <span class="text-xs text-gray-500 bg-white/60 dark:bg-slate-700/60 px-2 py-1 rounded-full">
+                        {{ getTimeAgo(weather().current.lastUpdated) }}
+                    </span>
+                </div>
+
+                <!-- Información principal -->
+                <div class="flex items-center space-x-4 mb-4">
+                    <!-- Icono y temperatura -->
+                    <div class="flex items-center space-x-2">
+                        <div class="w-12 h-12 flex items-center justify-center bg-white/70 dark:bg-slate-700/70 rounded-lg">
+                            <mat-icon class="text-2xl text-yellow-500" [svgIcon]="weather().current.icon"></mat-icon>
                         </div>
                         <div>
-                            <div class="text-3xl font-bold">{{ weather().current.temperature }}°C</div>
-                            <div class="text-sm text-gray-400">{{ weather().current.condition }}</div>
+                            <div class="text-2xl font-bold text-gray-800 dark:text-white">{{ weather().current.temperature }}°</div>
+                            <div class=" text-gray-500 dark:text-gray-400">{{ weather().current.condition }}</div>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <div class="text-sm text-gray-400">{{ weather().current.location }}</div>
-                        <div class="text-xs text-gray-500">Sensación térmica: {{ weather().current.feelsLike }}°C</div>
+
+                    <!-- Información adicional -->
+                    <div class="flex-1 text-right space-y-1">
+                        <div class=" text-gray-600 dark:text-gray-400">{{ weather().current.location }}</div>
+                        <div class=" text-gray-500 dark:text-gray-500">ST: {{ weather().current.feelsLike }}°</div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-4 gap-2 mb-4">
-                    <div class="text-center p-2 bg-blue-900/20 rounded-lg" *ngFor="let forecast of weather().hourly">
-                        <div class="text-xs text-gray-400">{{ forecast.time }}</div>
-                        <mat-icon [svgIcon]="forecast.icon"></mat-icon>
-                        <div class="text-sm font-bold">{{ forecast.temperature }}°C</div>
-                    </div>
+                <!-- Pronóstico por horas (compacto) -->
+                <div class="grid grid-cols-4 gap-1 mb-3">
+                    @for (forecast of weather().hourly; track forecast.time) {
+                        <div class="text-center p-2 bg-white/50 dark:bg-slate-700/50 rounded-lg">
+                            <div class=" text-gray-500 mb-1">{{ forecast.time }}</div>
+                            <mat-icon class="text-sm text-blue-500 mb-1" [svgIcon]="forecast.icon"></mat-icon>
+                            <div class=" font-medium">{{ forecast.temperature }}°</div>
+                        </div>
+                    }
                 </div>
 
-                <div class="flex justify-between items-center">
-                    <div>
-                        <div class="flex items-center mb-1">
-                            <mat-icon class="text-blue-500 mr-1 text-sm" svgIcon="mat_solid:opacity"></mat-icon>
-                            <span class="text-sm">Humedad: {{ weather().current.humidity }}%</span>
-                        </div>
-                        <div class="flex items-center">
-                            <mat-icon class="text-blue-500 mr-1 text-sm" svgIcon="mat_solid:air"></mat-icon>
-                            <span class="text-sm">Viento: {{ weather().current.windSpeed }} km/h</span>
-                        </div>
+                <!-- Detalles compactos -->
+                <div class="flex items-center justify-between  text-gray-600 dark:text-gray-400">
+                    <div class="flex items-center space-x-3">
+                        <span class="flex items-center">
+                            <mat-icon class="text-sm mr-1">opacity</mat-icon>
+                            {{ weather().current.humidity }}%
+                        </span>
+                        <span class="flex items-center">
+                            <mat-icon class="text-sm mr-1">air</mat-icon>
+                            {{ weather().current.windSpeed }}km/h
+                        </span>
                     </div>
-                    <button mat-button color="primary">
-                        <mat-icon svgIcon="mat_solid:map"></mat-icon>
-                        Ver pronóstico completo
+                    <button mat-button class=" h-6 min-h-0 px-2" (click)="showFullForecast()">
+                        <mat-icon class="text-sm">expand_more</mat-icon>
                     </button>
                 </div>
             </ng-container>
@@ -130,6 +139,11 @@ export class WeatherWidgetComponent implements OnInit, OnDestroy {
                     }
                 });
             });
+    }
+
+    showFullForecast(): void {
+        // Implementar navegación al pronóstico completo
+        console.log('Mostrar pronóstico completo');
     }
 
     getTimeAgo(date: Date): string {

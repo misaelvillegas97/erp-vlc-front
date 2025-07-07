@@ -11,11 +11,10 @@ import { AsyncPipe, NgClass, NgComponentOutlet } from '@angular/common';
 import { trackByFn }                             from '@libs/ui/utils/utils';
 
 // Widget components
-
 // Utility widgets
-import { WeatherWidgetComponent } from './weather-widget/weather-widget.component';
-import { FuelPricesComponent }    from './fuel-prices/fuel-prices.component';
-import { IndustryNewsComponent }  from './industry-news/industry-news.component';
+import { WeatherWidgetComponent }                from './weather-widget/weather-widget.component';
+import { FuelPricesComponent }                   from './fuel-prices/fuel-prices.component';
+import { IndustryNewsComponent }                 from './industry-news/industry-news.component';
 
 interface Shortcut {
     title: string;
@@ -46,6 +45,7 @@ interface RoleWidget {
         AsyncPipe,
         NgClass,
         NgComponentOutlet,
+        WeatherWidgetComponent,
     ],
   templateUrl: './home.component.html'
 })

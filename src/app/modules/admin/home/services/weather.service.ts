@@ -150,7 +150,7 @@ export class WeatherService {
         }
 
         // Only process up to 4 time slots from the starting index
-        const endIndex = Math.min(startIndex + 4, response.hourly.time.length);
+        const endIndex = Math.min(startIndex + 8, response.hourly.time.length);
 
         for (let i = startIndex; i < endIndex; i++) {
             const time = new Date(response.hourly.time[i]);
