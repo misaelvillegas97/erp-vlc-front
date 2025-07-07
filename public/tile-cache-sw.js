@@ -37,8 +37,8 @@ async function handleMapRequest(request) {
         // Make network request
         const networkResponse = await fetch(request);
 
-        // Only cache successful responses
-        if (networkResponse && networkResponse.status === 200) {
+        // Only cache successful responses and avoid re-caching existing entries
+        if (networkResponse && networkResponse.status === 200 && !cachedResponse) {
             // Clone the response before modifying
             const responseToCache = networkResponse.clone();
 
@@ -52,8 +52,8 @@ async function handleMapRequest(request) {
                 }
             });
 
-            // Cache the modified response
-            cache.put(request, modifiedResponse.clone());
+            // Cache the modified response only if not already cached
+            await cache.put(request, modifiedResponse.clone());
         }
 
         return networkResponse;
@@ -77,11 +77,6 @@ async function handleMapRequest(request) {
         });
     }
 }
-
-// Clean up old cache entries periodically
-self.addEventListener('activate', (event) => {
-    event.waitUntil(cleanupCache());
-});
 
 async function cleanupCache() {
     try {
@@ -133,7 +128,7 @@ self.addEventListener('install', (event) => {
     console.log('Google Maps tile cache service worker installed (v2)');
 });
 
-// Handle service worker activation
+// Handle service worker activation - Combined single event listener
 self.addEventListener('activate', (event) => {
     event.waitUntil(
       clients.claim().then(() => {
