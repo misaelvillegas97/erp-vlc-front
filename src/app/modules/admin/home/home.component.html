@@ -1,215 +1,209 @@
-<div class="flex flex-col min-h-screen p-6 w-full max-w-screen-lg mx-auto gap-y-6">
+<div class="flex flex-col min-h-screen p-4 w-full max-w-7xl mx-auto gap-y-8">
     @let user = user$ | async;
 
     @if (user) {
-        <mat-card class="bg-card shadow-sm rounded-lg p-8 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-900 border border-blue-100 dark:border-slate-700">
-            <div class="flex flex-col md:flex-row items-center gap-6">
-                <div class="flex-shrink-0">
-                    <div class="w-28 h-28 rounded-full bg-hover flex items-center justify-center overflow-hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- User greeting card -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-5 border border-blue-100 dark:border-slate-700 h-full transition-all duration-300 hover:shadow-lg">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-full bg-white/70 dark:bg-slate-700/70 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-blue-200 dark:ring-slate-600">
                         @if (user.avatar) {
-                            <img [src]="user.avatar" alt="Avatar de usuario" class="w-full h-full object-cover">
+                            <img [src]="user.avatar" alt="Avatar de {{ user.name }}" class="w-full h-full object-cover">
                         } @else {
-                            <mat-icon class="icon-size-24 text-primary" svgIcon="mat_solid:account_circle"></mat-icon>
+                            <mat-icon class="text-2xl text-blue-500" svgIcon="mat_solid:account_circle"></mat-icon>
                         }
                     </div>
-                </div>
-
-                <!-- User info -->
-                <div class="text-center md:text-left">
-                    <h1 class="text-4xl font-bold mb-2">¡Bienvenido, {{ user.name || user.firstName || 'Usuario' }}!</h1>
-                    <p class="text-xl text-gray-400 mb-4">Acceso como: <span class="font-semibold">{{ user.role?.name }}</span></p>
-                    <p class="text-lg text-gray-400 leading-relaxed">Aquí encontrarás accesos directos a las funciones más importantes según tu rol.</p>
+                    <div class="flex-1 min-w-0">
+                        <h1 class="text-xl font-bold text-gray-800 dark:text-white truncate">
+                            ¡Hola, {{ user.name || user.firstName || 'Usuario' }}!
+                        </h1>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                            {{ user.role?.name }} • Panel de control
+                        </p>
+                    </div>
                 </div>
             </div>
-        </mat-card>
-    }
 
-    <app-weather-widget></app-weather-widget>
-
-    <!-- Shortcuts section -->
-    @if (user) {
-        <h2 class="text-2xl font-bold">Accesos Directos</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <!-- Shortcut cards -->
-            @for (shortcut of shortcuts; track trackByFn($index, shortcut)) {
-                @if (isShortcutVisible(shortcut, user)) {
-                    <a [routerLink]="shortcut.route"
-                       class="block transform hover:scale-105 transition focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-lg group">
-                        <mat-card class="h-full bg-card shadow-sm rounded-lg overflow-hidden border-t-4"
-                                  [ngClass]="{
-                                    'border-blue-500': shortcut.color==='blue',
-                                    'border-green-500': shortcut.color==='green',
-                                    'border-yellow-500': shortcut.color==='yellow',
-                                    'border-purple-500': shortcut.color==='purple',
-                                    'border-red-500': shortcut.color==='red',
-                                    'border-gray-500': shortcut.color==='gray',
-                                    'border-pink-500': shortcut.color==='pink',
-                                    'border-orange-500': shortcut.color==='orange',
-                                    'border-teal-500': shortcut.color==='teal',
-                                    'border-indigo-500': shortcut.color==='indigo',
-                                  }">
-                            <div class="p-6">
-                                <div class="flex items-center mb-4">
-                                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-50 group-hover:bg-blue-400 transition-all">
-                                        <mat-icon class="text-3xl text-blue-500 group-hover:text-white transition-all" [svgIcon]="shortcut.icon"></mat-icon>
-                                    </div>
-                                    <h3 class="ml-4 text-xl font-semibold">{{ shortcut.title }}</h3>
-                                </div>
-                                <p class="leading-relaxed text-gray-400">{{ shortcut.description }}</p>
-                            </div>
-                        </mat-card>
-                    </a>
-                }
-            }
+            <!-- Weather widget -->
+            <app-weather-widget></app-weather-widget>
         </div>
     }
 
-    <!-- Role-specific widgets section -->
-    @if (user && roleWidgets.length > 0) {
-        <h2 class="text-2xl font-bold mt-12 mb-6">Widgets para {{ user.role?.name }}</h2>
+    <!-- Arquitectura de información optimizada por secciones -->
+    @if (user) {
+        <!-- 1. Operaciones Principales (Pirámide Invertida) -->
+        <section class="space-y-6" role="region" aria-labelledby="operations-heading">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center">
+                    <mat-icon class="text-lg" svgIcon="mat_solid:bolt"></mat-icon>
+                </div>
+                <h2 id="operations-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
+                    Operaciones Principales
+                </h2>
+                <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                    Máxima prioridad
+                </span>
+            </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Role-specific widget cards -->
-            @for (widget of roleWidgets; track trackByFn($index, widget)) {
-                @if (isWidgetVisible(widget, user)) {
-                    <mat-card class="bg-card shadow-sm rounded-lg overflow-hidden border-t-4"
-                              [ngClass]="{
-                                'border-blue-500': widget.color==='blue',
-                                'border-green-500': widget.color==='green',
-                                'border-yellow-500': widget.color==='yellow',
-                                'border-purple-500': widget.color==='purple',
-                                'border-red-500': widget.color==='red',
-                                'border-gray-500': widget.color==='gray',
-                                'border-pink-500': widget.color==='pink',
-                                'border-orange-500': widget.color==='orange',
-                                'border-teal-500': widget.color==='teal',
-                                'border-indigo-500': widget.color==='indigo',
-                              }">
-                        <div class="p-6">
-                            <div class="flex items-center mb-4">
-                                <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-50">
-                                    <mat-icon class="text-3xl text-blue-500" [svgIcon]="widget.icon"></mat-icon>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @for (shortcut of operationsShortcuts(); track trackByFn($index, shortcut)) {
+                    @if (isShortcutVisible(shortcut, user)) {
+                        <a [routerLink]="shortcut.route"
+                           class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                           role="button"
+                           [attr.aria-label]="shortcut.title + ': ' + shortcut.description">
+
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110"
+                                     [style.background-color]="getDesignToken(shortcut.color).secondary"
+                                     [style.color]="getDesignToken(shortcut.color).primary">
+                                    <mat-icon class="text-xl" [svgIcon]="shortcut.icon"></mat-icon>
                                 </div>
-                                <h3 class="ml-4 text-xl font-semibold">{{ widget.title }}</h3>
-                            </div>
-                            <p class="leading-relaxed text-gray-400 mb-4">{{ widget.description }}</p>
 
-                            <!-- Widget content container -->
-                            <div class="mt-4 bg-card-dark rounded-lg p-4">
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-base font-semibold text-gray-900 dark:text-white transition-colors truncate">
+                                        {{ shortcut.title }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                                        {{ shortcut.description }}
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                }
+            </div>
+        </section>
+
+        <!-- 2. Gestión Comercial -->
+        <section class="space-y-6" role="region" aria-labelledby="commercial-heading">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                    <mat-icon class="text-lg" svgIcon="mat_solid:business"></mat-icon>
+                </div>
+                <h2 id="commercial-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
+                    Gestión Comercial
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @for (shortcut of commercialShortcuts(); track trackByFn($index, shortcut)) {
+                    @if (isShortcutVisible(shortcut, user)) {
+                        <a [routerLink]="shortcut.route"
+                           class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                           role="button"
+                           [attr.aria-label]="shortcut.title + ': ' + shortcut.description">
+
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110"
+                                     [style.background-color]="getDesignToken(shortcut.color).secondary"
+                                     [style.color]="getDesignToken(shortcut.color).primary">
+                                    <mat-icon class="text-xl" [svgIcon]="shortcut.icon"></mat-icon>
+                                </div>
+
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-base font-semibold text-gray-900 dark:text-white transition-colors truncate">
+                                        {{ shortcut.title }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                                        {{ shortcut.description }}
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                }
+            </div>
+        </section>
+
+        <!-- 3. Administración -->
+        <section class="space-y-6" role="region" aria-labelledby="admin-heading">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center">
+                    <mat-icon class="text-lg" svgIcon="mat_solid:admin_panel_settings"></mat-icon>
+                </div>
+                <h2 id="admin-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
+                    Administración
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @for (shortcut of administrationShortcuts(); track trackByFn($index, shortcut)) {
+                    @if (isShortcutVisible(shortcut, user)) {
+                        <a [routerLink]="shortcut.route"
+                           class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                           role="button"
+                           [attr.aria-label]="shortcut.title + ': ' + shortcut.description">
+
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110"
+                                     [style.background-color]="getDesignToken(shortcut.color).secondary"
+                                     [style.color]="getDesignToken(shortcut.color).primary">
+                                    <mat-icon class="text-xl" [svgIcon]="shortcut.icon"></mat-icon>
+                                </div>
+
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-base font-semibold text-gray-900 dark:text-white transition-colors truncate">
+                                        {{ shortcut.title }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                                        {{ shortcut.description }}
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                }
+            </div>
+        </section>
+    }
+
+    <!-- Widgets de utilidad modernos -->
+    @if (user && utilityWidgets().length > 0) {
+        <section class="space-y-6" role="region" aria-labelledby="utilities-heading">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
+                    <mat-icon class="text-lg" svgIcon="mat_solid:widgets"></mat-icon>
+                </div>
+                <h2 id="utilities-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
+                    Herramientas de Apoyo
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @for (widget of utilityWidgets(); track trackByFn($index, widget)) {
+                    @if (isWidgetVisible(widget, user)) {
+                        <article class="bg-white dark:bg-slate-800 rounded-xl border border-blue-100 dark:border-slate-700 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                                 role="complementary"
+                                 [attr.aria-labelledby]="'widget-' + $index">
+
+                            <!-- Header del widget con diseño mejorado -->
+                            <header class="px-6 py-4 border-b border-blue-100 dark:border-slate-700">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300"
+                                         [style.background-color]="getDesignToken(widget.color).secondary"
+                                         [style.color]="getDesignToken(widget.color).primary">
+                                        <mat-icon class="text-xl" [svgIcon]="widget.icon"></mat-icon>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h3 [id]="'widget-' + $index" class="text-base font-semibold text-gray-800 dark:text-white truncate">
+                                            {{ widget.title }}
+                                        </h3>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
+                                            {{ widget.description }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </header>
+
+                            <!-- Contenido del widget -->
+                            <div class="p-5">
                                 <ng-container [ngComponentOutlet]="widget.component"></ng-container>
                             </div>
-                        </div>
-                    </mat-card>
+                        </article>
+                    }
                 }
-            }
-        </div>
-    }
-
-    <!-- Utility widgets section -->
-    @if (user) {
-        <h2 class="text-2xl font-bold mt-12 mb-6">Widgets de utilidad</h2>
-
-        <!-- Weather widget (full width) -->
-        @if (isWidgetVisible(weatherWidget, user)) {
-            <div class="mb-6">
-                <mat-card class="bg-card shadow-sm rounded-lg overflow-hidden border-t-4"
-                          [ngClass]="{
-                            'border-blue-500': weatherWidget.color==='blue',
-                            'border-green-500': weatherWidget.color==='green',
-                            'border-yellow-500': weatherWidget.color==='yellow',
-                            'border-purple-500': weatherWidget.color==='purple',
-                            'border-red-500': weatherWidget.color==='red',
-                            'border-gray-500': weatherWidget.color==='gray',
-                            'border-pink-500': weatherWidget.color==='pink',
-                            'border-orange-500': weatherWidget.color==='orange',
-                            'border-teal-500': weatherWidget.color==='teal',
-                            'border-indigo-500': weatherWidget.color==='indigo',
-                          }">
-                    <div class="p-6">
-                        <div class="flex items-center mb-4">
-                            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-50">
-                                <mat-icon class="text-3xl text-blue-500" [svgIcon]="weatherWidget.icon"></mat-icon>
-                            </div>
-                            <h3 class="ml-4 text-xl font-semibold">{{ weatherWidget.title }}</h3>
-                        </div>
-                        <p class="leading-relaxed text-gray-400 mb-4">{{ weatherWidget.description }}</p>
-
-                        <!-- Widget content container -->
-                        <div class="mt-4 bg-card-dark rounded-lg p-4">
-                            <ng-container [ngComponentOutlet]="weatherWidget.component"></ng-container>
-                        </div>
-                    </div>
-                </mat-card>
             </div>
-        }
-
-        <!-- Fuel prices widget (full width) -->
-        @if (isWidgetVisible(fuelPricesWidget, user)) {
-            <div class="mb-6">
-                <mat-card class="bg-card shadow-sm rounded-lg overflow-hidden border-t-4"
-                          [ngClass]="{
-                            'border-blue-500': fuelPricesWidget.color==='blue',
-                            'border-green-500': fuelPricesWidget.color==='green',
-                            'border-yellow-500': fuelPricesWidget.color==='yellow',
-                            'border-purple-500': fuelPricesWidget.color==='purple',
-                            'border-red-500': fuelPricesWidget.color==='red',
-                            'border-gray-500': fuelPricesWidget.color==='gray',
-                            'border-pink-500': fuelPricesWidget.color==='pink',
-                            'border-orange-500': fuelPricesWidget.color==='orange',
-                            'border-teal-500': fuelPricesWidget.color==='teal',
-                            'border-indigo-500': fuelPricesWidget.color==='indigo',
-                          }">
-                    <div class="p-6">
-                        <div class="flex items-center mb-4">
-                            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-50">
-                                <mat-icon class="text-3xl text-blue-500" [svgIcon]="fuelPricesWidget.icon"></mat-icon>
-                            </div>
-                            <h3 class="ml-4 text-xl font-semibold">{{ fuelPricesWidget.title }}</h3>
-                        </div>
-                        <p class="leading-relaxed text-gray-400 mb-4">{{ fuelPricesWidget.description }}</p>
-
-                        <!-- Widget content container -->
-                        <div class="mt-4 bg-card-dark rounded-lg p-4">
-                            <ng-container [ngComponentOutlet]="fuelPricesWidget.component"></ng-container>
-                        </div>
-                    </div>
-                </mat-card>
-            </div>
-        }
-
-        <!-- Industry news widget -->
-        @if (isWidgetVisible(industryNewsWidget, user)) {
-            <div>
-                <mat-card class="bg-card shadow-sm rounded-lg overflow-hidden border-t-4"
-                          [ngClass]="{
-                            'border-blue-500': industryNewsWidget.color==='blue',
-                            'border-green-500': industryNewsWidget.color==='green',
-                            'border-yellow-500': industryNewsWidget.color==='yellow',
-                            'border-purple-500': industryNewsWidget.color==='purple',
-                            'border-red-500': industryNewsWidget.color==='red',
-                            'border-gray-500': industryNewsWidget.color==='gray',
-                            'border-pink-500': industryNewsWidget.color==='pink',
-                            'border-orange-500': industryNewsWidget.color==='orange',
-                            'border-teal-500': industryNewsWidget.color==='teal',
-                            'border-indigo-500': industryNewsWidget.color==='indigo',
-                          }">
-                    <div class="p-6">
-                        <div class="flex items-center mb-4">
-                            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-50">
-                                <mat-icon class="text-3xl text-blue-500" [svgIcon]="industryNewsWidget.icon"></mat-icon>
-                            </div>
-                            <h3 class="ml-4 text-xl font-semibold">{{ industryNewsWidget.title }}</h3>
-                        </div>
-                        <p class="leading-relaxed text-gray-400 mb-4">{{ industryNewsWidget.description }}</p>
-
-                        <!-- Widget content container -->
-                        <div class="mt-4 bg-card-dark rounded-lg p-4">
-                            <ng-container [ngComponentOutlet]="industryNewsWidget.component"></ng-container>
-                        </div>
-                    </div>
-                </mat-card>
-            </div>
-        }
+        </section>
     }
 </div>

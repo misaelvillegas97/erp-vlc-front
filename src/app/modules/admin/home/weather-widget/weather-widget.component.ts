@@ -1,11 +1,11 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { CommonModule }                                 from '@angular/common';
-import { MatIconModule }                                from '@angular/material/icon';
-import { MatButtonModule }                              from '@angular/material/button';
-import { MatProgressSpinnerModule }                     from '@angular/material/progress-spinner';
-import { WeatherForecast, WeatherService }              from '../services/weather.service';
-import { firstValueFrom, Subscription }                 from 'rxjs';
-import { GeolocationService }                           from '@modules/admin/logistics/fleet-management/services/geolocation.service';
+import { Component, inject, model, OnDestroy, OnInit, signal } from '@angular/core';
+import { CommonModule }                                        from '@angular/common';
+import { MatIconModule }                                       from '@angular/material/icon';
+import { MatButtonModule }                                     from '@angular/material/button';
+import { MatProgressSpinnerModule }                            from '@angular/material/progress-spinner';
+import { WeatherForecast, WeatherService }                     from '../services/weather.service';
+import { firstValueFrom, Subscription }                        from 'rxjs';
+import { GeolocationService }                                  from '@modules/admin/logistics/fleet-management/services/geolocation.service';
 
 @Component({
     selector  : 'app-weather-widget',
@@ -17,7 +17,7 @@ import { GeolocationService }                           from '@modules/admin/log
         MatProgressSpinnerModule
     ],
     template  : `
-        <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-900 rounded-xl p-4 shadow-sm border border-blue-100 dark:border-slate-700"><!-- border border-blue-100 dark:border-slate-700 -->
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-900 rounded-xl p-5 border border-blue-100 dark:border-slate-700 h-full transition-all duration-300 hover:shadow-lg">
             <!-- Loading state -->
             <div class="flex items-center justify-center py-6" *ngIf="loading()">
                 <mat-spinner [diameter]="24"></mat-spinner>
@@ -64,7 +64,7 @@ import { GeolocationService }                           from '@modules/admin/log
 
                 <!-- Pronóstico por horas (compacto) -->
                 <div class="grid grid-cols-4 gap-1 mb-3">
-                    @for (forecast of weather().hourly; track forecast.time) {
+                    @for (forecast of weather().hourly.slice(0, showCount()); track forecast.time) {
                         <div class="text-center p-2 bg-white/50 dark:bg-slate-700/50 rounded-lg">
                             <div class=" text-gray-500 mb-1">{{ forecast.time }}</div>
                             <mat-icon class="text-sm text-blue-500 mb-1" [svgIcon]="forecast.icon"></mat-icon>
@@ -86,7 +86,11 @@ import { GeolocationService }                           from '@modules/admin/log
                         </span>
                     </div>
                     <button mat-button class=" h-6 min-h-0 px-2" (click)="showFullForecast()">
-                        <mat-icon class="text-sm">expand_more</mat-icon>
+                        @if (fullForecast()) {
+                            <mat-icon class="text-sm" svgIcon="mat_solid:unfold_more"></mat-icon>
+                        } @else {
+                            <mat-icon class="text-sm" svgIcon="mat_solid:unfold_less"></mat-icon>
+                        }
                     </button>
                 </div>
             </ng-container>
@@ -94,16 +98,21 @@ import { GeolocationService }                           from '@modules/admin/log
     `
 })
 export class WeatherWidgetComponent implements OnInit, OnDestroy {
+    showCount = model<number>(4);
+
     readonly #geoService = inject(GeolocationService);
+
     weather = signal<WeatherForecast>(null);
     loading = signal<boolean>(true);
+    fullForecast = signal<boolean>(false);
+
     error: string | null = null;
     private subscription: Subscription | null = null;
 
     constructor(private weatherService: WeatherService) {}
 
     ngOnInit(): void {
-        this.loadWeatherData();
+        void this.loadWeatherData();
     }
 
     ngOnDestroy(): void {
@@ -142,8 +151,12 @@ export class WeatherWidgetComponent implements OnInit, OnDestroy {
     }
 
     showFullForecast(): void {
-        // Implementar navegación al pronóstico completo
-        console.log('Mostrar pronóstico completo');
+        this.fullForecast.set(!this.fullForecast());
+        if (this.fullForecast()) {
+            this.showCount.set(24); // Mostrar todo el pronóstico
+        } else {
+            this.showCount.set(4); // Volver al pronóstico compacto
+        }
     }
 
     getTimeAgo(date: Date): string {

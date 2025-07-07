@@ -128,13 +128,11 @@ export class WeatherService {
             lastUpdated: new Date()
         };
 
-        // Transform hourly forecast (next 4 hours from current time)
         const hourlyForecast: ForecastItem[] = [];
 
         // Get current hour
         const currentHour = new Date().getHours();
 
-        // Find the starting index for the next 4 hours
         let startIndex = -1;
         for (let i = 0; i < response.hourly.time.length; i++) {
             const timeHour = new Date(response.hourly.time[i]).getHours();
@@ -150,9 +148,9 @@ export class WeatherService {
         }
 
         // Only process up to 4 time slots from the starting index
-        const endIndex = Math.min(startIndex + 8, response.hourly.time.length);
+        // const endIndex = Math.min(startIndex + 24, response.hourly.time.length);
 
-        for (let i = startIndex; i < endIndex; i++) {
+        for (let i = startIndex; i < response.hourly.time.length; i++) {
             const time = new Date(response.hourly.time[i]);
             const hourCondition = this.getWeatherCondition(
                 response.hourly.precipitation[i],
@@ -166,11 +164,6 @@ export class WeatherService {
                 icon       : this.getWeatherIconFromCondition(hourCondition, time.getHours() >= 6 && time.getHours() < 18 ? 1 : 0)
             });
         }
-
-        console.log('Transformed Weather Data:', {
-            current: currentWeather,
-            hourly : hourlyForecast
-        });
 
         return {
             current: currentWeather,
