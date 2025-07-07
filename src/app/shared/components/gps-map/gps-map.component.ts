@@ -105,79 +105,9 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     });
 
     ngAfterViewInit(): void {
-        // Register service worker for tile caching
-        this.registerTileCacheServiceWorker();
-
         if (this.gpsData()?.length > 0) {
             this.setupMapData();
         }
-    }
-
-    /**
-     * Register service worker for caching map tiles
-     */
-    private registerTileCacheServiceWorker(): void {
-        if ('serviceWorker' in navigator) {
-            // Register the service worker
-            navigator.serviceWorker.register('/tile-cache-sw.js')
-                .then(registration => {
-                    console.log('Tile cache service worker registered:', registration);
-
-                    // Handle service worker updates
-                    registration.addEventListener('updatefound', () => {
-                        const newWorker = registration.installing;
-                        if (newWorker) {
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // New service worker installed, reload to use it
-                                    console.log('New service worker installed, reloading...');
-                                    window.location.reload();
-                                }
-                            });
-                        }
-                    });
-
-                    // Check for updates periodically
-                    setInterval(() => {
-                        registration.update();
-                    }, 5 * 60 * 1000); // Check every 5 minutes
-                })
-                .catch(error => {
-                    console.error('Tile cache service worker registration failed:', error);
-                });
-
-            // Listen for service worker messages
-            navigator.serviceWorker.addEventListener('message', (event) => {
-                if (event.data.type === 'CACHE_UPDATED') {
-                    console.log('Map tiles cache updated');
-                }
-            });
-
-            // Handle service worker controller changes
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                console.log('Service worker controller changed');
-                // Optionally reload the page to ensure consistency
-                // window.location.reload();
-            });
-        }
-    }
-
-    /**
-     * Create the service worker script for tile caching if it doesn't exist
-     */
-    private createTileCacheServiceWorker(): void {
-        // This method is no longer needed since we have the actual service worker file
-        // Just log that the service worker should be available
-        console.log('Using tile cache service worker from /tile-cache-sw.js');
-    }
-
-    /**
-     * Dynamically create the service worker script for tile caching
-     * In a real implementation, this would be done during the build process
-     */
-    private dynamicallyCreateServiceWorker(): void {
-        // This method is no longer needed
-        console.log('Service worker file should be available at /tile-cache-sw.js');
     }
 
     ngOnChanges(changes: SimpleChanges): void {
