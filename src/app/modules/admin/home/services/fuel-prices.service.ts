@@ -14,6 +14,8 @@ export interface GasStation {
     address: string;
     distance: number;
     prices: FuelPrice[];
+    latitude?: number; // Optional for internal use
+    longitude?: number; // Optional for internal use
     // Note: brand is used internally for grouping but not included in the interface
 }
 
@@ -249,17 +251,18 @@ export class FuelPricesService {
             const prices: FuelPrice[] = [];
 
             // Check each fuel type and add it to the prices array if available
-            if (station.precios?.['95']) {
-                prices.push({
-                    fuelType: '95',
-                    price   : parseFloat(station.precios['95'].precio)
-                });
-            }
 
             if (station.precios?.['93']) {
                 prices.push({
                     fuelType: '93',
                     price   : parseFloat(station.precios['93'].precio)
+                });
+            }
+
+            if (station.precios?.['95']) {
+                prices.push({
+                    fuelType: '95',
+                    price   : parseFloat(station.precios['95'].precio)
                 });
             }
 
@@ -287,7 +290,9 @@ export class FuelPricesService {
                 address: `${ station.ubicacion.direccion }, ${ station.ubicacion.nombre_comuna }`,
                 distance,
                 prices,
-                brand  : station.distribuidor.marca // Add brand for grouping
+                latitude : stationLat,
+                longitude: stationLng,
+                brand    : station.distribuidor.marca, // Add brand for grouping
             } as GasStation & { brand: string }; // Extend GasStation with brand
         });
 

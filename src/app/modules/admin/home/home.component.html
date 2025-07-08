@@ -129,7 +129,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @for (shortcut of letAdministrationShortcuts(); track trackByFn($index, shortcut)) {
+                    @for (shortcut of letAdministrationShortcuts; track trackByFn($index, shortcut)) {
                         <a [routerLink]="shortcut.route"
                            class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                            role="button"
@@ -170,7 +170,7 @@
                 </h2>
             </div>
 
-            <div class="grid grid-cols-1 {{utilityWidgetsVisibles().lenght > 1 ? 'md:grid-cols-2' : ''}} gap-6">
+            <div class="grid grid-cols-1 {{utilityWidgetsVisibles().length > 1 ? 'md:grid-cols-2' : ''}} gap-6">
                 @for (widget of utilityWidgetsVisibles(); track trackByFn($index, widget)) {
                     <article class="bg-white dark:bg-slate-800 rounded-xl border border-blue-100 dark:border-slate-700 overflow-hidden transition-all duration-300 hover:shadow-lg"
                              role="complementary"
