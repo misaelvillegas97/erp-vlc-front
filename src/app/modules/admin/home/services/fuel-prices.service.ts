@@ -1,7 +1,7 @@
-import { Injectable }                                                  from '@angular/core';
-import { HttpClient, HttpHeaders }                                     from '@angular/common/http';
-import { catchError, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
-import { environment }                                                 from '../../../../../environments/environment';
+import { Injectable }                                             from '@angular/core';
+import { HttpClient, HttpHeaders }                                from '@angular/common/http';
+import { catchError, map, Observable, of, switchMap, throwError } from 'rxjs';
+import { environment }                                            from '../../../../../environments/environment';
 
 // Original interfaces for our app's data model
 export interface FuelPrice {
@@ -159,13 +159,6 @@ export class FuelPricesService {
         maxStations: number = 5,
         maxDistance: number = 100
     ): Observable<FuelPricesData> {
-        console.log(`Fetching fuel prices for coordinates: ${ latitude }, ${ longitude } with max stations: ${ maxStations } and max distance: ${ maxDistance } km`);
-        // If we don't have credentials, return mock data
-        if (!this.email || !this.password) {
-            console.warn('No fuel API credentials provided. Using mock data.');
-            return this.getMockFuelPrices();
-        }
-
         // Store the coordinates for distance calculation
         this.userLatitude = latitude;
         this.userLongitude = longitude;
@@ -217,7 +210,6 @@ export class FuelPricesService {
 
         return this.http.get<Root[]>(this.stationsUrl, {headers}).pipe(
             map(stations => this.transformStationsData(stations)),
-            tap(data => console.log('Fuel prices data:', data)),
             catchError(error => {
                 console.error('Error fetching stations data:', error);
                 return throwError(() => new Error('Failed to load fuel stations data'));
@@ -233,7 +225,6 @@ export class FuelPricesService {
     private transformStationsData(stations: Root[]): FuelPricesData {
         if (!stations || stations.length === 0) throw new Error('No stations data received');
 
-        console.log('Transforming stations data...', stations.length, 'stations found');
         // Calculate distance and transform data
         const stationsWithDistance = stations.map(station => {
             const stationLat = parseFloat(station.ubicacion.latitud);
