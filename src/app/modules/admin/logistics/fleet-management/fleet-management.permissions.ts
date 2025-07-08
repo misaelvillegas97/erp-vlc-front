@@ -41,7 +41,7 @@ export const fleetManagementPermissions: RoutePermission[] = [
                 description : 'Consulta el historial de sesiones de los vehículos',
                 icon        : 'heroicons_outline:clock',
                 selectedIcon: 'heroicons_solid:clock',
-                allowedRoles: [ RoleEnum.admin ]
+                allowedRoles: [ RoleEnum.admin, RoleEnum.driver ]
             },
             {
                 path        : 'dashboards',

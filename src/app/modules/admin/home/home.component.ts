@@ -1,21 +1,22 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
-import { MatCardModule }                                       from '@angular/material/card';
-import { MatButtonModule }                                     from '@angular/material/button';
-import { MatIconModule }                                       from '@angular/material/icon';
-import { MatBadgeModule }                                      from '@angular/material/badge';
-import { RouterModule }                                        from '@angular/router';
-import { UserService }                                         from '@core/user/user.service';
-import { User }                                                from '@core/user/user.types';
-import { RoleEnum }                                            from '@core/user/role.type';
-import { Observable }                                          from 'rxjs';
-import { AsyncPipe, NgComponentOutlet }                        from '@angular/common';
-import { trackByFn }                                           from '@libs/ui/utils/utils';
+import { Component, computed, inject, signal } from '@angular/core';
+import { MatCardModule }                       from '@angular/material/card';
+import { MatButtonModule }                     from '@angular/material/button';
+import { MatIconModule }                       from '@angular/material/icon';
+import { MatBadgeModule }                      from '@angular/material/badge';
+import { RouterModule }                        from '@angular/router';
+import { UserService }                         from '@core/user/user.service';
+import { User }                                from '@core/user/user.types';
+import { RoleEnum }                            from '@core/user/role.type';
+import { Observable }                          from 'rxjs';
+import { NgComponentOutlet }                   from '@angular/common';
+import { trackByFn }                           from '@libs/ui/utils/utils';
 
 // Widget components
 // Utility widgets
-import { WeatherWidgetComponent }                              from './weather-widget/weather-widget.component';
-import { FuelPricesComponent }                                 from './fuel-prices/fuel-prices.component';
-import { IndustryNewsComponent }                               from './industry-news/industry-news.component';
+import { WeatherWidgetComponent }              from './weather-widget/weather-widget.component';
+import { FuelPricesComponent }                 from './fuel-prices/fuel-prices.component';
+import { IndustryNewsComponent }               from './industry-news/industry-news.component';
+import { toSignal }                            from '@angular/core/rxjs-interop';
 
 // Design tokens para colores accesibles (WCAG 2.1 AA)
 interface DesignToken {
@@ -183,70 +184,30 @@ interface RoleWidget {
 }
 
 @Component({
-  selector: 'app-home',
-    imports: [
+    selector   : 'app-home',
+    imports    : [
         MatCardModule,
         MatButtonModule,
         MatIconModule,
         MatBadgeModule,
         RouterModule,
-        AsyncPipe,
         NgComponentOutlet,
         WeatherWidgetComponent,
     ],
-  templateUrl: './home.component.html'
+    templateUrl: './home.component.html'
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
     private _userService = inject(UserService);
     private _themeService = new ThemeService();
+
+    user = toSignal<User>(this._userService.user$);
 
     user$: Observable<User>;
 
     // Signals para tema reactivo
     isDarkTheme = this._themeService.isDarkTheme;
 
-    // Design tokens reactivos basados en el tema
-    designTokens = computed(() => {
-        return this.isDarkTheme() ? DESIGN_TOKENS_THEME.dark : DESIGN_TOKENS_THEME.light;
-    });
-
-    // Métricas en tiempo real (simuladas - en producción vendrían de un servicio)
-    private _metrics = signal<Metric[]>([
-        {key: 'pendingOrders', value: 12, status: 'warning', lastUpdated: new Date()},
-        {key: 'criticalAlerts', value: 3, status: 'critical', lastUpdated: new Date()},
-        {key: 'deliveriesInProgress', value: 8, status: 'normal', lastUpdated: new Date()},
-        {key: 'lowStockItems', value: 5, status: 'warning', lastUpdated: new Date()}
-    ]);
-
-    metrics = this._metrics.asReadonly();
-
-    // Utility widgets optimizados con métricas
-    utilityWidgets = computed(() => [
-        {
-            title      : 'Precios de Combustible',
-            description: 'Precios actuales en gasolineras cercanas',
-            icon       : 'mat_solid:local_gas_station',
-            color      : 'success' as const,
-            component  : FuelPricesComponent,
-            roles      : [ RoleEnum.admin, RoleEnum.driver, RoleEnum.dispatcher ],
-            priority   : 2,
-            category   : 'utility' as const
-        },
-        {
-            title      : 'Noticias del Sector',
-            description: 'Últimas noticias relevantes para la industria logística',
-            icon       : 'mat_solid:article',
-            color      : 'info' as const,
-            component  : IndustryNewsComponent,
-            roles      : [ RoleEnum.admin, RoleEnum.dispatcher, RoleEnum.accountant ],
-            priority   : 3,
-            category   : 'utility' as const
-    }
-    ]);
-
-    // Accesos directos con métricas integradas
-    shortcuts = computed(() => [
-        // Operaciones Principales (máxima prioridad)
+    shortcuts = signal([
         {
             title      : 'Órdenes',
             description: 'Gestionar órdenes de trabajo',
@@ -343,53 +304,59 @@ export class HomeComponent implements OnInit {
         }
     ]);
 
+    designTokens = computed(() => {
+        return this.isDarkTheme() ? DESIGN_TOKENS_THEME.dark : DESIGN_TOKENS_THEME.light;
+    });
+
+    // Utility widgets optimizados con métricas
+    utilityWidgets = computed(() => [
+        {
+            title      : 'Precios de Combustible',
+            description: 'Precios actuales en gasolineras cercanas',
+            icon       : 'mat_solid:local_gas_station',
+            color      : 'success' as const,
+            component  : FuelPricesComponent,
+            roles      : [ RoleEnum.admin, RoleEnum.driver, RoleEnum.dispatcher ],
+            priority   : 2,
+            category   : 'utility' as const
+        },
+        {
+            title      : 'Noticias del Sector',
+            description: 'Últimas noticias relevantes para la industria logística',
+            icon       : 'mat_solid:article',
+            color      : 'info' as const,
+            component  : IndustryNewsComponent,
+            roles      : [ RoleEnum.admin, RoleEnum.dispatcher, RoleEnum.accountant ],
+            priority   : 3,
+            category   : 'utility' as const
+        }
+    ]);
+
+    utilityWidgetsVisibles = computed(() => {
+        return this.utilityWidgets().filter(widget => this.isWidgetVisible(widget, this.user()));
+    });
+
     // Computed signals para organización optimizada
     operationsShortcuts = computed(() =>
         this.shortcuts()
             .filter(s => s.category === 'operations')
+            .filter(s => this.isShortcutVisible(s, this.user()))
             .sort((a, b) => a.priority - b.priority)
     );
 
     commercialShortcuts = computed(() =>
         this.shortcuts()
             .filter(s => s.category === 'commercial')
+            .filter(s => this.isShortcutVisible(s, this.user()))
             .sort((a, b) => a.priority - b.priority)
     );
 
     administrationShortcuts = computed(() =>
         this.shortcuts()
             .filter(s => s.category === 'administration')
+            .filter(s => this.isShortcutVisible(s, this.user()))
             .sort((a, b) => a.priority - b.priority)
     );
-
-    // Métricas por categoría para badges en tiempo real
-    operationsMetrics = computed(() => {
-        const metrics = this.metrics();
-        return {
-            pendingOrders       : metrics.find(m => m.key === 'pendingOrders')?.value || 0,
-            criticalAlerts      : metrics.find(m => m.key === 'criticalAlerts')?.value || 0,
-            deliveriesInProgress: metrics.find(m => m.key === 'deliveriesInProgress')?.value || 0
-        };
-    });
-
-    inventoryMetrics = computed(() => {
-        const metrics = this.metrics();
-        return {
-            lowStockItems: metrics.find(m => m.key === 'lowStockItems')?.value || 0
-        };
-    });
-
-    // Effect para logging de cambios de tema (usado para debugging y monitoreo)
-    private _themeChangeEffect = effect(() => {
-        console.log('Tema cambiado a:', this.isDarkTheme() ? 'oscuro' : 'claro');
-    });
-
-    ngOnInit(): void {
-        this.user$ = this._userService.user$;
-
-        // Simular actualización de métricas en tiempo real
-        this.startMetricsUpdates();
-    }
 
     /**
      * Obtiene el token de diseño para un color específico de forma reactiva
@@ -397,37 +364,6 @@ export class HomeComponent implements OnInit {
     getDesignToken(color: keyof (typeof DESIGN_TOKENS_THEME.light)): DesignToken {
         const tokens = this.designTokens();
         return tokens[color] || tokens.neutral;
-    }
-
-    /**
-     * Actualiza una métrica específica
-     */
-    updateMetric(key: string, value: number, status: 'normal' | 'warning' | 'critical'): void {
-        this._metrics.update(metrics =>
-            metrics.map(m =>
-                m.key === key
-                    ? {...m, value, status, lastUpdated: new Date()}
-                    : m
-            )
-        );
-    }
-
-    /**
-     * Simula actualizaciones de métricas en tiempo real
-     */
-    private startMetricsUpdates(): void {
-        // En producción, esto sería reemplazado por WebSockets o polling a APIs
-        setInterval(() => {
-            const randomMetric = this.metrics()[Math.floor(Math.random() * this.metrics().length)];
-            const variation = Math.floor(Math.random() * 5) - 2; // -2 a +2
-            const newValue = Math.max(0, randomMetric.value + variation);
-
-            let newStatus: 'normal' | 'warning' | 'critical' = 'normal';
-            if (newValue > 10) newStatus = 'warning';
-            if (newValue > 15) newStatus = 'critical';
-
-            this.updateMetric(randomMetric.key, newValue, newStatus);
-        }, 30000); // Actualizar cada 30 segundos
     }
 
     /**

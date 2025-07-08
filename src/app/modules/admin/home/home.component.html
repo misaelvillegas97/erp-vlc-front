@@ -1,24 +1,24 @@
 <div class="flex flex-col min-h-screen p-4 w-full max-w-7xl mx-auto gap-y-8">
-    @let user = user$ | async;
+    @let letUser = user();
 
-    @if (user) {
+    @if (letUser) {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- User greeting card -->
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-5 border border-blue-100 dark:border-slate-700 h-full transition-all duration-300 hover:shadow-lg">
                 <div class="flex items-center gap-4">
                     <div class="w-16 h-16 rounded-full bg-white/70 dark:bg-slate-700/70 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-blue-200 dark:ring-slate-600">
-                        @if (user.avatar) {
-                            <img [src]="user.avatar" alt="Avatar de {{ user.name }}" class="w-full h-full object-cover">
+                        @if (letUser.avatar) {
+                            <img [src]="letUser.avatar" alt="Avatar de {{ letUser.name }}" class="w-full h-full object-cover">
                         } @else {
                             <mat-icon class="text-2xl text-blue-500" svgIcon="mat_solid:account_circle"></mat-icon>
                         }
                     </div>
                     <div class="flex-1 min-w-0">
                         <h1 class="text-xl font-bold text-gray-800 dark:text-white truncate">
-                            ¡Hola, {{ user.name || user.firstName || 'Usuario' }}!
+                            ¡Hola, {{ letUser.name || letUser.firstName || 'Usuario' }}!
                         </h1>
                         <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                            {{ user.role?.name }} • Panel de control
+                            {{ letUser.role?.name }} • Panel de control
                         </p>
                     </div>
                 </div>
@@ -30,24 +30,20 @@
     }
 
     <!-- Arquitectura de información optimizada por secciones -->
-    @if (user) {
-        <!-- 1. Operaciones Principales (Pirámide Invertida) -->
-        <section class="space-y-6" role="region" aria-labelledby="operations-heading">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center">
-                    <mat-icon class="text-lg" svgIcon="mat_solid:bolt"></mat-icon>
-                </div>
-                <h2 id="operations-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
-                    Operaciones Principales
-                </h2>
-                <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
-                    Máxima prioridad
-                </span>
-            </div>
+    @if (letUser) {
+        @let letOperationsShortcuts = operationsShortcuts();
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @for (shortcut of operationsShortcuts(); track trackByFn($index, shortcut)) {
-                    @if (isShortcutVisible(shortcut, user)) {
+        @if (letOperationsShortcuts.length > 0) {
+            <section class="space-y-6" role="region" aria-labelledby="operations-heading">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center">
+                        <mat-icon class="text-lg" svgIcon="mat_solid:bolt"></mat-icon>
+                    </div>
+                    <h2 id="operations-heading" class="text-lg font-semibold text-gray-800 dark:text-white">Operaciones Principales</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @for (shortcut of operationsShortcuts(); track trackByFn($index, shortcut)) {
                         <a [routerLink]="shortcut.route"
                            class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                            role="button"
@@ -71,24 +67,26 @@
                             </div>
                         </a>
                     }
-                }
-            </div>
-        </section>
+                </div>
+            </section>
+        }
 
         <!-- 2. Gestión Comercial -->
-        <section class="space-y-6" role="region" aria-labelledby="commercial-heading">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
-                    <mat-icon class="text-lg" svgIcon="mat_solid:business"></mat-icon>
-                </div>
-                <h2 id="commercial-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
-                    Gestión Comercial
-                </h2>
-            </div>
+        @let letCommercialShortcuts = commercialShortcuts();
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @for (shortcut of commercialShortcuts(); track trackByFn($index, shortcut)) {
-                    @if (isShortcutVisible(shortcut, user)) {
+        @if (letCommercialShortcuts.length > 0) {
+            <section class="space-y-6" role="region" aria-labelledby="commercial-heading">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                        <mat-icon class="text-lg" svgIcon="mat_solid:business"></mat-icon>
+                    </div>
+                    <h2 id="commercial-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
+                        Gestión Comercial
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @for (shortcut of commercialShortcuts(); track trackByFn($index, shortcut)) {
                         <a [routerLink]="shortcut.route"
                            class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                            role="button"
@@ -112,24 +110,26 @@
                             </div>
                         </a>
                     }
-                }
-            </div>
-        </section>
+                </div>
+            </section>
+        }
 
         <!-- 3. Administración -->
-        <section class="space-y-6" role="region" aria-labelledby="admin-heading">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center">
-                    <mat-icon class="text-lg" svgIcon="mat_solid:admin_panel_settings"></mat-icon>
-                </div>
-                <h2 id="admin-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
-                    Administración
-                </h2>
-            </div>
+        @let letAdministrationShortcuts = administrationShortcuts();
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @for (shortcut of administrationShortcuts(); track trackByFn($index, shortcut)) {
-                    @if (isShortcutVisible(shortcut, user)) {
+        @if (letAdministrationShortcuts.length > 0) {
+            <section class="space-y-6" role="region" aria-labelledby="admin-heading">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center">
+                        <mat-icon class="text-lg" svgIcon="mat_solid:admin_panel_settings"></mat-icon>
+                    </div>
+                    <h2 id="admin-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
+                        Administración
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @for (shortcut of letAdministrationShortcuts(); track trackByFn($index, shortcut)) {
                         <a [routerLink]="shortcut.route"
                            class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                            role="button"
@@ -153,13 +153,13 @@
                             </div>
                         </a>
                     }
-                }
-            </div>
-        </section>
+                </div>
+            </section>
+        }
     }
 
     <!-- Widgets de utilidad modernos -->
-    @if (user && utilityWidgets().length > 0) {
+    @if (letUser && utilityWidgets().length > 0) {
         <section class="space-y-6" role="region" aria-labelledby="utilities-heading">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
@@ -170,38 +170,36 @@
                 </h2>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                @for (widget of utilityWidgets(); track trackByFn($index, widget)) {
-                    @if (isWidgetVisible(widget, user)) {
-                        <article class="bg-white dark:bg-slate-800 rounded-xl border border-blue-100 dark:border-slate-700 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-                                 role="complementary"
-                                 [attr.aria-labelledby]="'widget-' + $index">
+            <div class="grid grid-cols-1 {{utilityWidgetsVisibles().lenght > 1 ? 'md:grid-cols-2' : ''}} gap-6">
+                @for (widget of utilityWidgetsVisibles(); track trackByFn($index, widget)) {
+                    <article class="bg-white dark:bg-slate-800 rounded-xl border border-blue-100 dark:border-slate-700 overflow-hidden transition-all duration-300 hover:shadow-lg"
+                             role="complementary"
+                             [attr.aria-labelledby]="'widget-' + $index">
 
-                            <!-- Header del widget con diseño mejorado -->
-                            <header class="px-6 py-4 border-b border-blue-100 dark:border-slate-700">
-                                <div class="flex items-center space-x-4">
-                                    <div class="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300"
-                                         [style.background-color]="getDesignToken(widget.color).secondary"
-                                         [style.color]="getDesignToken(widget.color).primary">
-                                        <mat-icon class="text-xl" [svgIcon]="widget.icon"></mat-icon>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <h3 [id]="'widget-' + $index" class="text-base font-semibold text-gray-800 dark:text-white truncate">
-                                            {{ widget.title }}
-                                        </h3>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
-                                            {{ widget.description }}
-                                        </p>
-                                    </div>
+                        <!-- Header del widget con diseño mejorado -->
+                        <header class="px-6 py-4 border-b border-blue-100 dark:border-slate-700">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300"
+                                     [style.background-color]="getDesignToken(widget.color).secondary"
+                                     [style.color]="getDesignToken(widget.color).primary">
+                                    <mat-icon class="text-xl" [svgIcon]="widget.icon"></mat-icon>
                                 </div>
-                            </header>
-
-                            <!-- Contenido del widget -->
-                            <div class="p-5">
-                                <ng-container [ngComponentOutlet]="widget.component"></ng-container>
+                                <div class="flex-1 min-w-0">
+                                    <h3 [id]="'widget-' + $index" class="text-base font-semibold text-gray-800 dark:text-white truncate">
+                                        {{ widget.title }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
+                                        {{ widget.description }}
+                                    </p>
+                                </div>
                             </div>
-                        </article>
-                    }
+                        </header>
+
+                        <!-- Contenido del widget -->
+                        <div class="p-5">
+                            <ng-container [ngComponentOutlet]="widget.component"></ng-container>
+                        </div>
+                    </article>
                 }
             </div>
         </section>
