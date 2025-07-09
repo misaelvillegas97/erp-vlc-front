@@ -25,7 +25,19 @@
             </div>
 
             <!-- Weather widget -->
-            <app-weather-widget></app-weather-widget>
+            @defer (on viewport) {
+                <app-weather-widget></app-weather-widget>
+            } @placeholder {
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-5 border border-blue-100 dark:border-slate-700 h-full flex items-center justify-center">
+                    <div class="animate-pulse flex space-x-4 w-full">
+                        <div class="rounded-full bg-slate-200 dark:bg-slate-700 h-12 w-12"></div>
+                        <div class="flex-1 space-y-3 py-1">
+                            <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                            <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     }
 
@@ -34,174 +46,279 @@
         @let letOperationsShortcuts = operationsShortcuts();
 
         @if (letOperationsShortcuts.length > 0) {
-            <section class="space-y-6" role="region" aria-labelledby="operations-heading">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center">
-                        <mat-icon class="text-lg" svgIcon="mat_solid:bolt"></mat-icon>
+            @defer (on immediate) {
+                <section class="space-y-6" role="region" aria-labelledby="operations-heading">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center">
+                            <mat-icon class="text-lg" svgIcon="mat_solid:bolt"></mat-icon>
+                        </div>
+                        <h2 id="operations-heading" class="text-lg font-semibold text-gray-800 dark:text-white">Operaciones Principales</h2>
                     </div>
-                    <h2 id="operations-heading" class="text-lg font-semibold text-gray-800 dark:text-white">Operaciones Principales</h2>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @for (shortcut of operationsShortcuts(); track trackByFn($index, shortcut)) {
-                        <a [routerLink]="shortcut.route"
-                           class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                           role="button"
-                           [attr.aria-label]="shortcut.title + ': ' + shortcut.description">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @for (shortcut of operationsShortcuts(); track trackByFn($index, shortcut)) {
+                            <a [routerLink]="shortcut.route"
+                               class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                               role="button"
+                               [attr.aria-label]="shortcut.title + ': ' + shortcut.description">
 
-                            <div class="flex items-start gap-4">
-                                <div class="w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110"
-                                     [style.background-color]="getDesignToken(shortcut.color).secondary"
-                                     [style.color]="getDesignToken(shortcut.color).primary">
-                                    <mat-icon class="text-xl" [svgIcon]="shortcut.icon"></mat-icon>
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110"
+                                         [style.background-color]="getDesignToken(shortcut.color).secondary"
+                                         [style.color]="getDesignToken(shortcut.color).primary">
+                                        <mat-icon class="text-xl" [svgIcon]="shortcut.icon"></mat-icon>
+                                    </div>
+
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="text-base font-semibold text-gray-900 dark:text-white transition-colors truncate">
+                                            {{ shortcut.title }}
+                                        </h3>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                                            {{ shortcut.description }}
+                                        </p>
+                                    </div>
                                 </div>
+                            </a>
+                        }
+                    </div>
+                </section>
+            } @placeholder {
+                <section class="space-y-6" role="region">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
+                        <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-48 animate-pulse"></div>
+                    </div>
 
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="text-base font-semibold text-gray-900 dark:text-white transition-colors truncate">
-                                        {{ shortcut.title }}
-                                    </h3>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
-                                        {{ shortcut.description }}
-                                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @for (i of [1, 2, 3]; track i) {
+                            <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 animate-pulse">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
+                                    <div class="flex-1 space-y-3">
+                                        <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
+                                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-2/3"></div>
+                                    </div>
                                 </div>
                             </div>
-                        </a>
-                    }
-                </div>
-            </section>
+                        }
+                    </div>
+                </section>
+            }
         }
 
         <!-- 2. Gestión Comercial -->
         @let letCommercialShortcuts = commercialShortcuts();
 
         @if (letCommercialShortcuts.length > 0) {
-            <section class="space-y-6" role="region" aria-labelledby="commercial-heading">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
-                        <mat-icon class="text-lg" svgIcon="mat_solid:business"></mat-icon>
+            @defer (on idle) {
+                <section class="space-y-6" role="region" aria-labelledby="commercial-heading">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                            <mat-icon class="text-lg" svgIcon="mat_solid:business"></mat-icon>
+                        </div>
+                        <h2 id="commercial-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
+                            Gestión Comercial
+                        </h2>
                     </div>
-                    <h2 id="commercial-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
-                        Gestión Comercial
-                    </h2>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @for (shortcut of commercialShortcuts(); track trackByFn($index, shortcut)) {
-                        <a [routerLink]="shortcut.route"
-                           class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                           role="button"
-                           [attr.aria-label]="shortcut.title + ': ' + shortcut.description">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @for (shortcut of commercialShortcuts(); track trackByFn($index, shortcut)) {
+                            <a [routerLink]="shortcut.route"
+                               class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                               role="button"
+                               [attr.aria-label]="shortcut.title + ': ' + shortcut.description">
 
-                            <div class="flex items-start gap-4">
-                                <div class="w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110"
-                                     [style.background-color]="getDesignToken(shortcut.color).secondary"
-                                     [style.color]="getDesignToken(shortcut.color).primary">
-                                    <mat-icon class="text-xl" [svgIcon]="shortcut.icon"></mat-icon>
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110"
+                                         [style.background-color]="getDesignToken(shortcut.color).secondary"
+                                         [style.color]="getDesignToken(shortcut.color).primary">
+                                        <mat-icon class="text-xl" [svgIcon]="shortcut.icon"></mat-icon>
+                                    </div>
+
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="text-base font-semibold text-gray-900 dark:text-white transition-colors truncate">
+                                            {{ shortcut.title }}
+                                        </h3>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                                            {{ shortcut.description }}
+                                        </p>
+                                    </div>
                                 </div>
+                            </a>
+                        }
+                    </div>
+                </section>
+            } @placeholder {
+                <section class="space-y-6" role="region">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
+                        <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-40 animate-pulse"></div>
+                    </div>
 
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="text-base font-semibold text-gray-900 dark:text-white transition-colors truncate">
-                                        {{ shortcut.title }}
-                                    </h3>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
-                                        {{ shortcut.description }}
-                                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @for (i of [1, 2, 3]; track i) {
+                            <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 animate-pulse">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
+                                    <div class="flex-1 space-y-3">
+                                        <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
+                                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-2/3"></div>
+                                    </div>
                                 </div>
                             </div>
-                        </a>
-                    }
-                </div>
-            </section>
+                        }
+                    </div>
+                </section>
+            }
         }
 
         <!-- 3. Administración -->
         @let letAdministrationShortcuts = administrationShortcuts();
 
         @if (letAdministrationShortcuts.length > 0) {
-            <section class="space-y-6" role="region" aria-labelledby="admin-heading">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center">
-                        <mat-icon class="text-lg" svgIcon="mat_solid:admin_panel_settings"></mat-icon>
+            @defer (on idle) {
+                <section class="space-y-6" role="region" aria-labelledby="admin-heading">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center">
+                            <mat-icon class="text-lg" svgIcon="mat_solid:admin_panel_settings"></mat-icon>
+                        </div>
+                        <h2 id="admin-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
+                            Administración
+                        </h2>
                     </div>
-                    <h2 id="admin-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
-                        Administración
-                    </h2>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @for (shortcut of letAdministrationShortcuts; track trackByFn($index, shortcut)) {
-                        <a [routerLink]="shortcut.route"
-                           class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                           role="button"
-                           [attr.aria-label]="shortcut.title + ': ' + shortcut.description">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @for (shortcut of letAdministrationShortcuts; track trackByFn($index, shortcut)) {
+                            <a [routerLink]="shortcut.route"
+                               class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                               role="button"
+                               [attr.aria-label]="shortcut.title + ': ' + shortcut.description">
 
-                            <div class="flex items-start gap-4">
-                                <div class="w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110"
-                                     [style.background-color]="getDesignToken(shortcut.color).secondary"
-                                     [style.color]="getDesignToken(shortcut.color).primary">
-                                    <mat-icon class="text-xl" [svgIcon]="shortcut.icon"></mat-icon>
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110"
+                                         [style.background-color]="getDesignToken(shortcut.color).secondary"
+                                         [style.color]="getDesignToken(shortcut.color).primary">
+                                        <mat-icon class="text-xl" [svgIcon]="shortcut.icon"></mat-icon>
+                                    </div>
+
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="text-base font-semibold text-gray-900 dark:text-white transition-colors truncate">
+                                            {{ shortcut.title }}
+                                        </h3>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                                            {{ shortcut.description }}
+                                        </p>
+                                    </div>
                                 </div>
+                            </a>
+                        }
+                    </div>
+                </section>
+            } @placeholder {
+                <section class="space-y-6" role="region">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
+                        <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-36 animate-pulse"></div>
+                    </div>
 
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="text-base font-semibold text-gray-900 dark:text-white transition-colors truncate">
-                                        {{ shortcut.title }}
-                                    </h3>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
-                                        {{ shortcut.description }}
-                                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @for (i of [1, 2, 3]; track i) {
+                            <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 animate-pulse">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
+                                    <div class="flex-1 space-y-3">
+                                        <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
+                                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-2/3"></div>
+                                    </div>
                                 </div>
                             </div>
-                        </a>
-                    }
-                </div>
-            </section>
+                        }
+                    </div>
+                </section>
+            }
         }
     }
 
     <!-- Widgets de utilidad modernos -->
     @if (letUser && utilityWidgets().length > 0) {
-        <section class="space-y-6" role="region" aria-labelledby="utilities-heading">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
-                    <mat-icon class="text-lg" svgIcon="mat_solid:widgets"></mat-icon>
+        @defer (on viewport) {
+            <section class="space-y-6" role="region" aria-labelledby="utilities-heading">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
+                        <mat-icon class="text-lg" svgIcon="mat_solid:widgets"></mat-icon>
+                    </div>
+                    <h2 id="utilities-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
+                        Herramientas de Apoyo
+                    </h2>
                 </div>
-                <h2 id="utilities-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
-                    Herramientas de Apoyo
-                </h2>
-            </div>
 
-            <div class="grid grid-cols-1 {{utilityWidgetsVisibles().length > 1 ? 'md:grid-cols-2' : ''}} gap-6">
-                @for (widget of utilityWidgetsVisibles(); track trackByFn($index, widget)) {
-                    <article class="bg-white dark:bg-slate-800 rounded-xl border border-blue-100 dark:border-slate-700 overflow-hidden transition-all duration-300 hover:shadow-lg"
-                             role="complementary"
-                             [attr.aria-labelledby]="'widget-' + $index">
+                <div class="grid grid-cols-1 {{utilityWidgetsVisibles().length > 1 ? 'md:grid-cols-2' : ''}} gap-6">
+                    @for (widget of utilityWidgetsVisibles(); track trackByFn($index, widget)) {
+                        <article class="bg-white dark:bg-slate-800 rounded-xl border border-blue-100 dark:border-slate-700 overflow-hidden transition-all duration-300 hover:shadow-lg"
+                                 role="complementary"
+                                 [attr.aria-labelledby]="'widget-' + $index">
 
-                        <!-- Header del widget con diseño mejorado -->
-                        <header class="px-6 py-4 border-b border-blue-100 dark:border-slate-700">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300"
-                                     [style.background-color]="getDesignToken(widget.color).secondary"
-                                     [style.color]="getDesignToken(widget.color).primary">
-                                    <mat-icon class="text-xl" [svgIcon]="widget.icon"></mat-icon>
+                            <!-- Header del widget con diseño mejorado -->
+                            <header class="px-6 py-4 border-b border-blue-100 dark:border-slate-700">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300"
+                                         [style.background-color]="getDesignToken(widget.color).secondary"
+                                         [style.color]="getDesignToken(widget.color).primary">
+                                        <mat-icon class="text-xl" [svgIcon]="widget.icon"></mat-icon>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h3 [id]="'widget-' + $index" class="text-base font-semibold text-gray-800 dark:text-white truncate">
+                                            {{ widget.title }}
+                                        </h3>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
+                                            {{ widget.description }}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div class="flex-1 min-w-0">
-                                    <h3 [id]="'widget-' + $index" class="text-base font-semibold text-gray-800 dark:text-white truncate">
-                                        {{ widget.title }}
-                                    </h3>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
-                                        {{ widget.description }}
-                                    </p>
+                            </header>
+
+                            <!-- Contenido del widget -->
+                            <div class="p-5">
+                                <ng-container [ngComponentOutlet]="widget.component"></ng-container>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+        } @placeholder {
+            <section class="space-y-6" role="region">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
+                    <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-44 animate-pulse"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    @for (i of [1, 2]; track i) {
+                        <article class="bg-white dark:bg-slate-800 rounded-xl border border-blue-100 dark:border-slate-700 overflow-hidden animate-pulse">
+                            <!-- Header placeholder -->
+                            <div class="px-6 py-4 border-b border-blue-100 dark:border-slate-700">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
+                                    <div class="flex-1 space-y-2">
+                                        <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
+                                    </div>
                                 </div>
                             </div>
-                        </header>
 
-                        <!-- Contenido del widget -->
-                        <div class="p-5">
-                            <ng-container [ngComponentOutlet]="widget.component"></ng-container>
-                        </div>
-                    </article>
-                }
-            </div>
-        </section>
+                            <!-- Content placeholder -->
+                            <div class="p-5 space-y-4">
+                                <div class="h-20 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                <div class="h-12 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                <div class="h-12 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
     }
 </div>

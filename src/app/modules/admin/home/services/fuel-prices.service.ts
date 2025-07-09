@@ -1,7 +1,7 @@
-import { Injectable }                                             from '@angular/core';
-import { HttpClient, HttpHeaders }                                from '@angular/common/http';
-import { catchError, map, Observable, of, switchMap, throwError } from 'rxjs';
-import { environment }                                            from '../../../../../environments/environment';
+import { Injectable }                                                                   from '@angular/core';
+import { HttpClient, HttpHeaders }                                                      from '@angular/common/http';
+import { catchError, map, Observable, of, shareReplay, switchMap, throwError, timeout } from 'rxjs';
+import { environment }                                                                  from '../../../../../environments/environment';
 
 // Original interfaces for our app's data model
 export interface FuelPrice {
@@ -209,10 +209,32 @@ export class FuelPricesService {
         });
 
         return this.http.get<Root[]>(this.stationsUrl, {headers}).pipe(
+            timeout(10000),
+            shareReplay({
+                bufferSize: 1,
+                refCount  : false
+            }),
             map(stations => this.transformStationsData(stations)),
             catchError(error => {
-                console.error('Error fetching stations data:', error);
-                return throwError(() => new Error('Failed to load fuel stations data'));
+                let errorMessage = 'Error desconocido al cargar datos de estaciones';
+
+                if (error.status === 0 || error.name === 'TimeoutError') {
+                    errorMessage = 'Tiempo de espera agotado. Verifique su conexión a internet';
+                } else if (error.status === 401) {
+                    errorMessage = 'Token de autenticación inválido o expirado';
+                } else if (error.status === 403) {
+                    errorMessage = 'No tiene permisos para acceder a los datos de estaciones';
+                } else if (error.status === 404) {
+                    errorMessage = 'Servicio de estaciones no encontrado';
+                } else if (error.status === 429) {
+                    errorMessage = 'Demasiadas solicitudes. Intente nuevamente más tarde';
+                } else if (error.status >= 500) {
+                    errorMessage = 'Error del servidor. Intente nuevamente más tarde';
+                } else if (error.status >= 400) {
+                    errorMessage = 'Error en la solicitud de datos de estaciones';
+                }
+
+                return throwError(() => new Error(errorMessage));
             })
         );
     }
