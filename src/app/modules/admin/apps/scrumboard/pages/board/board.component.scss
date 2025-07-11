@@ -1,15 +1,149 @@
-.cdk-drag-preview {
-    @apply shadow-2xl;
+// Enhanced drag preview styles for professional Trello-like appearance
+
+// List drag preview - elevated and rotated for visual feedback
+.list-drag-preview {
+    @apply shadow-2xl ring-4 ring-blue-500/30 backdrop-blur-md;
+    opacity: 0.95;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.cdk-drag-placeholder {
-    opacity: 0;
+// List drag placeholder - subtle dashed outline
+.list-drag-placeholder {
+    @apply border-2 border-dashed border-blue-400/60 bg-blue-50/30 rounded-xl;
+    opacity: 0.6;
+    backdrop-filter: blur(4px);
+    min-height: 200px;
+    transition: all 200ms ease-in-out;
 }
 
-.cdk-drag-animating {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+// Card drag preview - clean elevation with subtle rotation
+.card-drag-preview {
+    @apply shadow-xl ring-2 ring-blue-400/40 rounded-lg;
+    opacity: 0.92;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(6px);
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
 }
 
+// Card drag placeholder - minimal dashed outline
+.card-drag-placeholder {
+    @apply border-2 border-dashed border-blue-300/50 bg-blue-50/20 rounded-lg;
+    opacity: 0.5;
+    min-height: 60px;
+    margin-bottom: 12px;
+    transition: all 150ms ease-in-out;
+}
+
+
+// Smooth transitions for non-dragged items
 .cdk-drop-list-dragging div:not(.cdk-drag-placeholder) {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    transition: transform 250ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+// Hover states for better UX
+.cdk-drag:hover {
+    @apply shadow-lg;
+    transform: translateY(-1px);
+    transition: all 200ms ease-out;
+}
+
+// Active drag state
+.cdk-drag-dragging {
+    @apply cursor-grabbing;
+    user-select: none;
+}
+
+// Drop zone highlighting
+.cdk-drop-list-receiving {
+    @apply ring-2 ring-green-400/50 bg-green-50/20;
+    transition: all 200ms ease-in-out;
+}
+
+// Empty drop list styling for better visual feedback
+.cdk-drop-list:empty {
+    @apply border-2 border-dashed border-gray-300/50;
+    min-height: 80px;
+    border-radius: 8px;
+    transition: all 200ms ease-in-out;
+
+    &.cdk-drop-list-receiving {
+        @apply border-green-400/60 bg-green-50/30;
+    }
+}
+
+// Improved drag handle styling
+[cdkDragHandle] {
+    @apply cursor-grab;
+    transition: all 150ms ease-out;
+
+    &:hover {
+        @apply opacity-80;
+    }
+
+    &:active {
+        @apply cursor-grabbing;
+    }
+}
+
+// Enhanced visual feedback for drag operations
+.cdk-drag-disabled {
+    @apply opacity-50 cursor-not-allowed;
+}
+
+// Smooth scaling animation for drag start
+.cdk-drag-dragging {
+    animation: dragStart 150ms ease-out;
+}
+
+@keyframes dragStart {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1.03);
+    }
+}
+
+// Pulse animation for drop zones when dragging
+.cdk-drop-list-dragging {
+    .cdk-drop-list:not(.cdk-drop-list-disabled) {
+        animation: dropZonePulse 2s ease-in-out infinite;
+    }
+}
+
+@keyframes dropZonePulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.1);
+    }
+    50% {
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+    }
+}
+
+// Dark mode adjustments
+@media (prefers-color-scheme: dark) {
+    .list-drag-preview {
+        background: rgba(31, 41, 55, 0.95);
+        border-color: rgba(59, 130, 246, 0.4);
+    }
+
+    .card-drag-preview {
+        background: rgba(31, 41, 55, 0.98);
+        border-color: rgba(59, 130, 246, 0.4);
+    }
+
+    .list-drag-placeholder {
+        @apply border-blue-400/40 bg-blue-900/20;
+    }
+
+    .card-drag-placeholder {
+        @apply border-blue-400/30 bg-blue-900/10;
+    }
 }

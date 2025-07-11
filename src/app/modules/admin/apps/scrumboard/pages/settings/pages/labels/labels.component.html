@@ -1,37 +1,76 @@
-<div *transloco="let t; read: 'scrumboard.settings.labels'" class="flex flex-col min-w-0 w-full">
+<div class="flex flex-col min-w-0 w-full">
     <div class="flex flex-col justify-center w-full sm:max-w-5xl mx-auto py-6 px-4 space-y-4">
         <div class="">
-            <h2 [innerText]="t('list.title')" class="font-semibold text-xl"></h2>
-            <p [innerText]="t('heading-description')" class="text-hint"></p>
+            <h2 class="font-semibold text-xl">Etiquetas</h2>
+            <p class="text-hint">
+                Aquí puedes gestionar las etiquetas de tu tablero. Las etiquetas te permiten categorizar y organizar tus tarjetas de manera más efectiva.
+                Puedes crear nuevas etiquetas, asignarles colores y eliminarlas si es necesario.
+            </p>
         </div>
 
         <!-- Search and add member to board -->
-        <form (ngSubmit)="submit()" [formGroup]="form" class="w-full flex-center flex-col md:flex-row gap-4">
-            <mat-form-field class="w-full fuse-mat-dense fuse-mat-rounded" floatLabel="always" subscriptSizing="dynamic">
-                <input
-                    formControlName="title"
-                    matInput
-                    placeholder="{{ t('add-label.placeholder') }}"
-                    type="text"
-                />
+        <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4 bg-card p-4 rounded-lg shadow">
+            <!-- Title -->
+            <mat-form-field class="w-full">
+                <mat-label>Title</mat-label>
+                <input matInput formControlName="title" required>
+                @if (form.get('title').hasError('required')) {
+                    <mat-error>Title is required</mat-error>
+                }
             </mat-form-field>
-            <button [disabled]="form.disabled || form.invalid || form.pending" class="hidden md:inline-flex shrink-0" color="primary" mat-flat-button type="submit">
-                    <span class="flex-center gap-x-1 w-fit transition-all duration-300">
-                        @if (form.disabled) {
-                            <mat-spinner diameter="20" mode="indeterminate"></mat-spinner>
-                        } @else {
-                            <mat-icon>add</mat-icon> {{ 'actions.add' | transloco }}
-                        }
-                    </span>
-            </button>
+
+            <!-- Color selection -->
+            <div class="mb-4">
+                <div class="mb-2 font-medium">Color</div>
+                <div class="flex flex-wrap gap-2">
+                    @for (color of colors; track color) {
+                        <div
+                            class="w-8 h-8 rounded-full cursor-pointer border-2 transition-all duration-300"
+                            [style.background-color]="color"
+                            [style.border-color]="selectedColor() === color ? '#DDD' : 'transparent'"
+                            [matTooltip]="color"
+                            (click)="selectColor(color)">
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Preview -->
+            <div class="mb-4">
+                <div class="mb-2 font-medium">Preview</div>
+                <div
+                    class="px-4 py-2 rounded-full inline-block"
+                    [style.background-color]="selectedColor()"
+                    [style.color]="contrastColor()">
+                    {{ form.get('title')?.value || 'Label' }}
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button
+                    mat-raised-button
+                    color="primary"
+                    type="submit"
+                    [disabled]="form.invalid || form.disabled"
+                >
+                    {{ form.value.id ? 'Actualizar' : 'Crear' }}
+                </button>
+            </div>
         </form>
 
         <div class="bg-card flex flex-col shadow w-full rounded-lg overflow-hidden">
             <!-- Members list -->
             <div class="flex flex-col divide-y">
-                @for (label of board.labels; track trackByFn($index, label)) {
+                @for (label of board().labels; track label.id) {
                     <div class="flex flex-row items-center justify-between px-4 py-2 hover:bg-hover transition-all duration-300">
-                        <span>{{ label.title }}</span>
+                        {{ label.color }}
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-4 h-4 rounded"
+                                [style.background-color]="label.color">
+                            </div>
+                            <span>{{ label.title }}</span>
+                        </div>
 
                         @if (!label.deletable) {
                             <button
@@ -46,12 +85,9 @@
                         }
                     </div>
                 } @empty {
-                    <p class="px-4 py-2 hover:bg-hover transition-all duration-300 text-center italic text-hint">{{ t('list.no-content') }}</p>
+                    <p class="px-4 py-2 hover:bg-hover transition-all duration-300 text-center italic text-hint">Sin etiquetas aún</p>
                 }
             </div>
         </div>
     </div>
 </div>
-
-
-

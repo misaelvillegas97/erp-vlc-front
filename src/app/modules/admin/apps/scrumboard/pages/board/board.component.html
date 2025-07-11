@@ -5,6 +5,63 @@
          style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
     </div>
     <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-center justify-between p-6 sm:py-4 sm:px-6 border-b bg-card dark:bg-transparent">
+        <!-- Board title and description -->
+        <div class="flex items-center">
+            <div class="flex flex-col">
+                <div class="text-2xl font-semibold">{{ board()?.title }}</div>
+                <div class="text-secondary">{{ board()?.description }}</div>
+            </div>
+        </div>
+
+        <!-- Board actions -->
+        <div class="flex items-center mt-4 sm:mt-0">
+            <!-- Board members -->
+            <div class="flex items-center -space-x-1.5 mr-4">
+                @for (member of board()?.members; track member.id) {
+                    <img
+                        class="w-8 h-8 rounded-full ring-2 ring-bg-card"
+                        [src]="member.avatar"
+                        [alt]="member.name"
+                        [matTooltip]="member.name">
+                }
+            </div>
+
+            <!-- Add member button -->
+            <button
+                class="ml-2"
+                mat-icon-button
+                [matTooltip]="'Add member'">
+                <mat-icon [svgIcon]="'heroicons_outline:user-plus'"></mat-icon>
+            </button>
+
+            <!-- Board settings -->
+            <button
+                class="ml-2"
+                mat-icon-button
+                [matMenuTriggerFor]="boardMenu">
+                <mat-icon [svgIcon]="'heroicons_outline:cog'"></mat-icon>
+            </button>
+            <mat-menu #boardMenu="matMenu">
+                <button mat-menu-item>
+                    <mat-icon [svgIcon]="'heroicons_outline:pencil'"></mat-icon>
+                    <span>Edit Board</span>
+                </button>
+                <button mat-menu-item>
+                    <mat-icon [svgIcon]="'heroicons_outline:photo'"></mat-icon>
+                    <span>Change Background</span>
+                </button>
+                <button mat-menu-item>
+                    <mat-icon [svgIcon]="'heroicons_outline:archive-box'"></mat-icon>
+                    <span>Archive Board</span>
+                </button>
+                <button mat-menu-item>
+                    <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                    <span>Delete Board</span>
+                </button>
+            </mat-menu>
+        </div>
+    </div>
     <div class="relative z-10 flex flex-0 flex-col backdrop-blur-md bg-white/10 border-b border-white/20 p-6 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:py-8">
         <!-- Title -->
         <div class="min-w-0 flex-1 space-x-4 flex">
@@ -49,9 +106,11 @@
             <div cdkDropListGroup class="flex items-start space-x-4">
                 <!-- List -->
                 @for (list of boardLists(); track list.id) {
-                    <div class="w-72 flex-0 rounded-xl p-3 backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 shadow-lg border border-white/20 dark:border-gray-600/20 min-h-fit"
+                    <div class="w-72 flex-0 rounded-xl p-3 backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 shadow-lg border border-white/20 dark:border-gray-600/20 min-h-fit transition-all duration-200 hover:shadow-xl hover:scale-[1.02]"
                          [style.background-color]="list.color ? list.color + '90' : 'rgba(255,255,255,0.9)'"
-                         cdkDrag>
+                         cdkDrag
+                         cdkDragPreviewClass="list-drag-preview"
+                         cdkDragPlaceholderClass="list-drag-placeholder">
                         <div class="flex items-center justify-between" cdkDragHandle>
                             <div class="flex w-full cursor-text items-center rounded-lg border border-transparent px-3 py-2 focus-within:border-blue-500 focus-within:bg-white/95 dark:focus-within:bg-gray-700/95 focus-within:shadow-md transition-all duration-200">
                                 @if (list.icon) {
@@ -93,17 +152,20 @@
                         <!-- Cards -->
                         <div class="mt-3 rounded-lg bg-black/5 backdrop-blur-sm border border-white/10">
                             <div
-                                class="p-3 pb-0 min-h-22"
+                                class="p-3 pb-0 min-h-22 rounded-lg"
                                 cdkDropList
                                 [id]="list.id"
                                 [cdkDropListData]="list.cards"
                                 (cdkDropListDropped)="cardDropped($event)"
+                                cdkDropListSortingDisabled="false"
                             >
                                 <!-- Card -->
                                 @for (card of list.cards; track card.id) {
-                                    <div cdkDrag>
+                                    <div cdkDrag
+                                         cdkDragPreviewClass="card-drag-preview"
+                                         cdkDragPlaceholderClass="card-drag-placeholder">
                                         <a
-                                            class="bg-white dark:bg-gray-800 mb-3 flex flex-col items-start space-y-3 overflow-hidden rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02] border border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm"
+                                            class="bg-white dark:bg-gray-800 mb-3 flex flex-col items-start space-y-3 overflow-hidden rounded-lg p-4 shadow-sm hover:shadow-md transition-all hover:scale-[1.02] border border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm cursor-grab active:cursor-grabbing"
                                             [routerLink]="['card', card.id]"
                                         >
                                             <!-- Cover image -->
@@ -173,16 +235,13 @@
 
                                             <!-- Labels -->
                                             @if (card.labels.length) {
-                                                <div>
-                                                    <div class="-mx-1 -mb-2 flex flex-wrap max-w-full">
-                                                        @for (label of card.labels; track label.id) {
-                                                            <div class="shrink-0 mx-1 mb-2 rounded-full px-3 py-0.5 text-sm font-medium shadow-sm"
-                                                                 [style.background-color]="label.color || '#e5e7eb'"
-                                                                 [style.color]="getContrastColor(label.color)">
-                                                                {{ label.title }}
-                                                            </div>
-                                                        }
-                                                    </div>
+                                                <div class="flex flex-wrap gap-1 mb-2">
+                                                    @for (label of card.labels; track label.id) {
+                                                        <div
+                                                            class="w-8 h-2 rounded"
+                                                            [style.background-color]="label.color">
+                                                        </div>
+                                                    }
                                                 </div>
                                             }
 

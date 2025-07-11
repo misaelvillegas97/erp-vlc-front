@@ -192,38 +192,6 @@ swiper-slide {
     padding: 0;
 }
 
-// cdk drag drop custom styles
-.cdk-drag {
-    &.cdk-drag-preview {
-        z-index: 1000;
-        overflow: hidden;
-        box-shadow: none;
-        height: 12rem !important;
-        padding-top: 2rem;
-        // make the inside a an effect of being lifted off the page and slightly rotated without cutting off the shadow
-        & > a {
-            transition: all .5s cubic-bezier(0, 0, 0.2, 1);
-            transform: rotate(13deg) scale(.8) !important;
-            transform-origin: center;
-            transform-style: preserve-3d;
-        }
-
-    }
-
-    &.cdk-drag-placeholder {
-        opacity: .5;
-    }
-
-    &.cdk-drag-animating {
-        transition: all .5s cubic-bezier(0, 0, 0.2, 1);
-        padding-top: 0;
-
-        & > a {
-            transform: rotate(0deg) scale(1) !important;
-        }
-    }
-}
-
 // quill editor custom styles
 quill-view {
     .ql-container {

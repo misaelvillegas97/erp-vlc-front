@@ -35,22 +35,22 @@ export class BoardConfigComponent {
             {
                 id         : 'board-info',
                 icon       : 'heroicons_outline:information-circle',
-                title      : this._ts.translate('scrumboard.settings.board-information.title'),
-                description: this._ts.translate('scrumboard.settings.board-information.description'),
+                title      : 'Información del tablero',
+                description: 'Configura la información básica del tablero.',
                 link       : [ './' ]
             },
             {
                 id         : 'members',
                 icon       : 'heroicons_outline:user-group',
-                title      : this._ts.translate('scrumboard.settings.members.title'),
-                description: this._ts.translate('scrumboard.settings.members.description'),
+                title      : 'Miembros del tablero',
+                description: 'Gestiona los miembros del tablero y sus roles.',
                 link       : [ './members' ]
             },
             {
                 id         : 'labels',
                 icon       : 'heroicons_outline:tag',
-                title      : this._ts.translate('scrumboard.settings.labels.title'),
-                description: this._ts.translate('scrumboard.settings.labels.description'),
+                title      : 'Etiquetas del tablero',
+                description: 'Configura las etiquetas que se pueden usar en las tarjetas del tablero.',
                 link       : [ './labels' ]
             }
         ];
