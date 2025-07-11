@@ -59,7 +59,7 @@ export class ScrumboardCardDetailsComponent implements OnDestroy {
         type       : [ null ],
     });
 
-    formValue = toSignal(this.cardForm.valueChanges.pipe(distinctUntilChanged(), debounceTime(3000)), {initialValue: this.card()});
+    formValue = toSignal(this.cardForm.valueChanges.pipe(distinctUntilChanged(), debounceTime(1000)), {initialValue: null});
 
     // Filter terms as signals
     private _labelFilterTerm = signal<string>('');
@@ -103,7 +103,7 @@ export class ScrumboardCardDetailsComponent implements OnDestroy {
         effect(() => {
             const card = this.card();
 
-            this.cardForm.patchValue({...card});
+            this.cardForm.patchValue({...card}, {emitEvent: false});
         });
 
         effect(() => {

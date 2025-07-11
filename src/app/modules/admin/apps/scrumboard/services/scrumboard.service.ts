@@ -375,19 +375,35 @@ export class ScrumboardService {
         const updatedCard = await firstValueFrom(this._httpClient.patch<Card>('api/scrumboard/card/' + id, clonedCard));
 
         this._board.update((board) => {
-            const list = board.lists.find((list) => list.cards.some((item) => item.id === id));
+            if (!board) return board;
 
-            if (!list) throw new Error('Could not find a list containing the card with id of ' + id + '!');
+            const listIndex = board.lists.findIndex((list) => list.cards.some((item) => item.id === id));
 
+            if (listIndex === -1) throw new Error('Could not find a list containing the card with id of ' + id + '!');
+
+            const list = board.lists[listIndex];
             const cardIndex = list.cards.findIndex((item) => item.id === id);
 
             if (cardIndex === -1) throw new Error('Could not find the card with id of ' + id + '!');
 
-            list.cards[cardIndex] = updatedCard;
-            list.cards.sort((a, b) => a.position - b.position);
+            // Create immutable updates
+            const updatedCards = [ ...list.cards ];
+            updatedCards[cardIndex] = new Card(updatedCard);
+            updatedCards.sort((a, b) => a.position - b.position);
 
-            return board;
+            const updatedList = {...list, cards: updatedCards};
+            const updatedLists = [ ...board.lists ];
+            updatedLists[listIndex] = updatedList;
+
+            // Return a new board object to trigger signal updates
+            return {...board, lists: updatedLists};
         });
+
+        // Also update the card signal if it's the same card
+        const currentCard = this._card();
+        if (currentCard && currentCard.id === id) {
+            this._card.set(new Card(updatedCard));
+        }
 
         return updatedCard;
     }
@@ -403,32 +419,43 @@ export class ScrumboardService {
             .pipe(
                 map((response) => response.map((item) => new Card(item))),
                 tap((updatedCards) => {
-                    // Get the board value
-                    const board = this._board();
+                    this._board.update((board) => {
+                        if (!board) return board;
 
-                    // Go through the updated cards
-                    updatedCards.forEach((updatedCard) => {
-                        // Find the index of the updated card's list
-                        const listIndex = board.lists.findIndex(
-                            (list) => list.id === updatedCard.listId
-                        );
+                        // Create a new board with immutable updates
+                        const updatedLists = [ ...board.lists ];
 
-                        // Find the index of the updated card
-                        const cardIndex = board.lists[
-                            listIndex
-                            ].cards.findIndex((item) => item.id === updatedCard.id);
+                        // Go through the updated cards
+                        updatedCards.forEach((updatedCard) => {
+                            // Find the index of the updated card's list
+                            const listIndex = updatedLists.findIndex(
+                                (list) => list.id === updatedCard.listId
+                            );
 
-                        // Update the card
-                        board.lists[listIndex].cards[cardIndex] = updatedCard;
+                            if (listIndex === -1) return;
 
-                        // Sort the cards
-                        board.lists[listIndex].cards.sort(
-                            (a, b) => a.position - b.position
-                        );
+                            // Find the index of the updated card
+                            const cardIndex = updatedLists[listIndex].cards.findIndex(
+                                (item) => item.id === updatedCard.id
+                            );
+
+                            if (cardIndex === -1) return;
+
+                            // Create immutable updates for the list
+                            const updatedCards = [ ...updatedLists[listIndex].cards ];
+                            updatedCards[cardIndex] = updatedCard;
+                            updatedCards.sort((a, b) => a.position - b.position);
+
+                            // Update the list immutably
+                            updatedLists[listIndex] = {
+                                ...updatedLists[listIndex],
+                                cards: updatedCards
+                            };
+                        });
+
+                        // Return a new board object to trigger signal updates
+                        return {...board, lists: updatedLists};
                     });
-
-                    // Update the board
-                    this._board.set(board);
                 })
             );
     }
@@ -442,17 +469,27 @@ export class ScrumboardService {
         return this._httpClient.delete('api/scrumboard/card', {params: {id}}).pipe(
             tap((isDeleted: boolean) => {
                 this._board.update((board) => {
-                    const list = board.lists.find((list) => list.cards.some((item) => item.id === id));
+                    if (!board) return board;
 
-                    if (!list) throw new Error('Could not find a list containing the card with id of ' + id + '!');
+                    const listIndex = board.lists.findIndex((list) => list.cards.some((item) => item.id === id));
 
+                    if (listIndex === -1) throw new Error('Could not find a list containing the card with id of ' + id + '!');
+
+                    const list = board.lists[listIndex];
                     const cardIndex = list.cards.findIndex((item) => item.id === id);
 
                     if (cardIndex === -1) throw new Error('Could not find the card with id of ' + id + '!');
 
-                    list.cards.splice(cardIndex, 1);
+                    // Create immutable updates
+                    const updatedCards = [ ...list.cards ];
+                    updatedCards.splice(cardIndex, 1);
 
-                    return board;
+                    const updatedList = {...list, cards: updatedCards};
+                    const updatedLists = [ ...board.lists ];
+                    updatedLists[listIndex] = updatedList;
+
+                    // Return a new board object to trigger signal updates
+                    return {...board, lists: updatedLists};
                 });
 
                 this._card.set(null);
