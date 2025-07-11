@@ -6,7 +6,30 @@
             <p [innerText]="t('form.description')" class="text-hint"></p>
         </div>
 
-        <form (ngSubmit)="submit()" [formGroup]="form" class="bg-card flex flex-col overflow-hidden rounded p-8 pb-4 shadow w-full">
+        <!-- Loading indicator -->
+        @if (isLoading()) {
+            <div class="flex items-center justify-center p-8">
+                <mat-spinner diameter="40" mode="indeterminate"></mat-spinner>
+                <span class="ml-4 text-secondary">Loading board information...</span>
+            </div>
+        }
+
+        <!-- Error display -->
+        @if (error()) {
+            <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+                <div class="flex">
+                    <mat-icon class="text-red-400" svgIcon="heroicons_solid:exclamation-triangle"></mat-icon>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">Error</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            {{ error() }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <form (ngSubmit)="submit()" [formGroup]="form" class="bg-card flex flex-col overflow-hidden rounded p-8 pb-4 shadow w-full" [class.opacity-50]="isLoading()">
             <div class="flex flex-col md:flex-row gap-4">
                 <mat-form-field class="w-full" floatLabel="always">
                     <mat-label [innerText]="t('form.fields.name')"></mat-label>
@@ -25,9 +48,9 @@
             </mat-form-field>
 
             <div class="flex flex-row justify-end gap-4">
-                <button [disabled]="form.disabled || form.invalid || form.pending || form.pristine" class="hidden md:inline-flex shrink-0" color="primary" mat-flat-button type="submit">
+                <button [disabled]="isSubmitting() || form.invalid || form.pending || form.pristine" class="hidden md:inline-flex shrink-0" color="primary" mat-flat-button type="submit">
                     <span class="flex-center gap-x-1">
-                        @if (form.disabled) {
+                        @if (isSubmitting()) {
                             <mat-spinner diameter="20" mode="indeterminate"></mat-spinner>
                         } @else {
                             <mat-icon class="icon-size-5" svgIcon="feather:save"></mat-icon> {{ 'actions.save-changes' | transloco }}

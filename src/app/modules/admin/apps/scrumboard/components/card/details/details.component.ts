@@ -1,21 +1,21 @@
-import { TextFieldModule }                                                                                                                               from '@angular/cdk/text-field';
-import { DatePipe, NgClass, NgStyle, NgSwitch, NgSwitchCase }                                                                                            from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ViewEncapsulation, } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators, }                                                           from '@angular/forms';
-import { MatButtonModule }                                                                                                                               from '@angular/material/button';
-import { MatCheckboxChange, MatCheckboxModule, }                                                                                                         from '@angular/material/checkbox';
-import { MatDatepickerModule }                                                                                                                           from '@angular/material/datepicker';
-import { MatDialogRef }                                                                                                                                  from '@angular/material/dialog';
-import { MatFormFieldModule }                                                                                                                            from '@angular/material/form-field';
-import { MatIconModule }                                                                                                                                 from '@angular/material/icon';
-import { MatInputModule }                                                                                                                                from '@angular/material/input';
-import { Board, Card, Label, Member, Checklist, ChecklistItem, Comment, Attachment, CustomField }                                                        from '@modules/admin/apps/scrumboard/models/scrumboard.models';
-import { ScrumboardService }                                                                                                                             from '@modules/admin/apps/scrumboard/services/scrumboard.service';
-import { assign }                                                                                                                                        from 'lodash-es';
-import { DateTime }                                                                                                                                      from 'luxon';
-import { debounceTime, distinctUntilChanged, lastValueFrom, Subject, takeUntil, tap }                                                                    from 'rxjs';
-import { UserService }                                                                                                                                   from '@core/user/user.service';
-import { MatSelectModule }                                                                                                                               from '@angular/material/select';
+import { TextFieldModule }                                                                                                            from '@angular/cdk/text-field';
+import { DatePipe, NgSwitch, NgSwitchCase }                                                                                           from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, OnDestroy, signal, ViewChild, ViewEncapsulation, } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators, }                                        from '@angular/forms';
+import { MatButtonModule }                                                                                                            from '@angular/material/button';
+import { MatCheckboxChange, MatCheckboxModule, }                                                                                      from '@angular/material/checkbox';
+import { MatDatepickerModule }                                                                                                        from '@angular/material/datepicker';
+import { MatDialogRef }                                                                                                               from '@angular/material/dialog';
+import { MatFormFieldModule }                                                                                                         from '@angular/material/form-field';
+import { MatIconModule }                                                                                                              from '@angular/material/icon';
+import { MatInputModule }                                                                                                             from '@angular/material/input';
+import { Attachment, Checklist, ChecklistItem, Comment, CustomField, Label, Member }                                                  from '@modules/admin/apps/scrumboard/models/scrumboard.models';
+import { ScrumboardService }                                                                                                          from '@modules/admin/apps/scrumboard/services/scrumboard.service';
+import { DateTime }                                                                                                                   from 'luxon';
+import { debounceTime, distinctUntilChanged, Subject }                                                                                from 'rxjs';
+import { UserService }                                                                                                                from '@core/user/user.service';
+import { MatSelectModule }                                                                                                            from '@angular/material/select';
+import { toSignal }                                                                                                                   from '@angular/core/rxjs-interop';
 
 @Component({
     selector       : 'scrumboard-card-details',
@@ -23,7 +23,7 @@ import { MatSelectModule }                                                      
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone     : true,
-    imports        : [
+    imports: [
         MatButtonModule,
         MatIconModule,
         FormsModule,
@@ -31,30 +31,65 @@ import { MatSelectModule }                                                      
         MatFormFieldModule,
         MatInputModule,
         TextFieldModule,
-        NgClass,
         MatDatepickerModule,
         MatCheckboxModule,
         DatePipe,
-        NgStyle,
         MatSelectModule,
         NgSwitch,
         NgSwitchCase
     ],
 })
-export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
+export class ScrumboardCardDetailsComponent implements OnDestroy {
     readonly #userService = inject(UserService);
+    readonly #boardService = inject(ScrumboardService);
+    readonly #fb = inject(UntypedFormBuilder);
 
     @ViewChild('labelInput') labelInput: ElementRef<HTMLInputElement>;
-    board = signal<Board>(undefined);
-    card = signal<Card>(undefined);
-    labels = signal<Label[]>(undefined);
-    filteredLabels = signal<Label[]>(undefined);
-    members = signal<Member[]>(undefined);
-    filteredMembers = signal<Member[]>(undefined);
-    cardForm: UntypedFormGroup;
+    board = this.#boardService.board;
+    card = this.#boardService.card;
+    labels = computed(() => this.board().labels);
+    members = computed(() => this.board().members);
+    cardForm: UntypedFormGroup = this.#fb.group({
+        id         : [ '' ],
+        title      : [ '', Validators.required ],
+        description: [ '' ],
+        labels     : [ [] ],
+        assignees  : [ [] ],
+        dueDate    : [ null ],
+        type       : [ null ],
+    });
+
+    formValue = toSignal(this.cardForm.valueChanges.pipe(distinctUntilChanged(), debounceTime(3000)), {initialValue: this.card()});
+
+    // Filter terms as signals
+    private _labelFilterTerm = signal<string>('');
+    private _memberFilterTerm = signal<string>('');
 
     // Private
     private _unsubscribeAll: Subject<any> = new Subject<any>();
+
+    // Computed signals for filtered data
+    filteredLabels = computed(() => {
+        const labels = this.labels();
+        const filterTerm = this._labelFilterTerm().toLowerCase();
+
+        if (!labels || !filterTerm) {
+            return labels || [];
+        }
+
+        return labels.filter(label => label.title.toLowerCase().includes(filterTerm));
+    });
+
+    filteredMembers = computed(() => {
+        const members = this.members();
+        const filterTerm = this._memberFilterTerm().toLowerCase();
+
+        if (!members || !filterTerm) {
+            return members || [];
+        }
+
+        return members.filter(member => member.name.toLowerCase().includes(filterTerm));
+    });
 
     currentUser = computed(() => {
         const loggedUser = this.#userService.userSignal();
@@ -64,79 +99,20 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
 
     constructor(
         public matDialogRef: MatDialogRef<ScrumboardCardDetailsComponent>,
-        private _changeDetectorRef: ChangeDetectorRef,
-        private _formBuilder: UntypedFormBuilder,
-        private _scrumboardService: ScrumboardService
-    ) {}
+    ) {
+        effect(() => {
+            const card = this.card();
 
-    // -----------------------------------------------------------------------------------------------------
-    // @ Lifecycle hooks
-    // -----------------------------------------------------------------------------------------------------
-
-    /**
-     * On init
-     */
-    ngOnInit(): void {
-        // Get the board
-        this._scrumboardService.board$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((board) => {
-                // Board data
-                this.board.set(board);
-
-                // Get the labels
-                this.labels.set(board.labels);
-                this.filteredLabels.set(board.labels);
-
-                // Get the members
-                this.members.set(board.members);
-                this.filteredMembers.set(board.members);
-            });
-
-        // Get the card details
-        this._scrumboardService.card$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((card) => {
-                this.card.set(card);
-
-                console.log(card);
-            });
-
-        // Prepare the card form
-        this.cardForm = this._formBuilder.group({
-            id         : [ '' ],
-            title      : [ '', Validators.required ],
-            description: [ '' ],
-            labels     : [ [] ],
-            assignees  : [ [] ],
-            dueDate    : [ null ],
-            type       : [ null ],
+            this.cardForm.patchValue({...card});
         });
 
-        // Fill the form
-        this.cardForm.setValue({
-            id         : this.card().id,
-            title      : this.card().title,
-            description: this.card().description,
-            labels     : this.card().labels,
-            assignees  : this.card().assignees,
-            dueDate    : this.card().dueDate,
-        });
+        effect(() => {
+            const cardForm = this.formValue();
 
-        // Update card when there is a value change on the card form
-        this.cardForm.valueChanges
-            .pipe(
-                takeUntil(this._unsubscribeAll),
-                tap((value) => this.card.update((currentCard) => ({...currentCard, ...value}))),
-                debounceTime(500),
-                distinctUntilChanged(),
-            )
-            .subscribe((value) => {
-                lastValueFrom(this._scrumboardService.updateCard(value.id, value)).then(() => {
-                    // Mark for check
-                    this._changeDetectorRef.markForCheck();
-                });
-            });
+            if (cardForm && cardForm.id) {
+                this.#boardService.updateCard(cardForm.id, cardForm);
+            }
+        });
     }
 
     /**
@@ -169,11 +145,9 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
      * @param event
      */
     filterLabels(event): void {
-        // Get the value
-        const value = event.target.value.toLowerCase();
-
-        // Filter the labels
-        this.filteredLabels.set(this.labels().filter((label) => label.title.toLowerCase().includes(value)));
+        // Get the value and update the filter term signal
+        const value = event.target.value;
+        this._labelFilterTerm.set(value);
     }
 
     /**
@@ -229,14 +203,17 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
      * @param label
      */
     addLabelToCard(label: Label): void {
-        // Add the label
-        this.card().labels.unshift(label);
+        const currentCard = this.card();
+        if (!currentCard) return;
+
+        // Add the label immutably
+        const updatedLabels = [ label, ...currentCard.labels ];
+        const updatedCard = {...currentCard, labels: updatedLabels};
+
+        this.card.set(updatedCard);
 
         // Update the card form data
-        this.cardForm.get('labels').patchValue(this.card().labels);
-
-        // Mark for check
-        this._changeDetectorRef.markForCheck();
+        this.cardForm.get('labels').patchValue(updatedLabels);
     }
 
     /**
@@ -245,19 +222,19 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
      * @param label
      */
     removeLabelFromCard(label: Label): void {
-        // Remove the label
-        this.card().labels.splice(
-            this.card().labels.findIndex(
-                (cardLabel) => cardLabel.id === label.id
-            ),
-            1
+        const currentCard = this.card();
+        if (!currentCard) return;
+
+        // Remove the label immutably
+        const updatedLabels = currentCard.labels.filter(
+            (cardLabel) => cardLabel.id !== label.id
         );
+        const updatedCard = {...currentCard, labels: updatedLabels};
+
+        this.card.set(updatedCard);
 
         // Update the card form data
-        this.cardForm.get('labels').patchValue(this.card().labels);
-
-        // Mark for check
-        this._changeDetectorRef.markForCheck();
+        this.cardForm.get('labels').patchValue(updatedLabels);
     }
 
     /**
@@ -277,11 +254,9 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
      * @param event
      */
     filterMembers(event): void {
-        // Get the value
-        const value = event.target.value.toLowerCase();
-
-        // Filter the members
-        this.filteredMembers.set(this.members().filter((assignee: Member) => assignee.name.toLowerCase().includes(value)));
+        // Get the value and update the filter term signal
+        const value = event.target.value;
+        this._memberFilterTerm.set(value);
     }
 
     /**
@@ -295,24 +270,24 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
             return;
         }
 
-        // If there is no label available...
-        if (this.filteredLabels.length === 0) {
+        // If there is no member available...
+        if (this.filteredMembers().length === 0) {
             // Return
             return;
         }
 
-        // If there is a label...
+        // If there is a member...
         const assignee = this.filteredMembers()[0];
-        const isLabelApplied = this.card().assignees.find(
+        const isAssigneeApplied = this.card().assignees?.find(
             (cardAssignee) => cardAssignee.id === assignee.id
         );
 
-        // If the found label is already applied to the card...
-        if (isLabelApplied) {
-            // Remove the label from the card
+        // If the found assignee is already applied to the card...
+        if (isAssigneeApplied) {
+            // Remove the assignee from the card
             this.removeAssigneeFromCard(assignee);
         } else {
-            // Otherwise add the label to the card
+            // Otherwise add the assignee to the card
             this.addAssigneeToCard(assignee);
         }
     }
@@ -337,18 +312,18 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
      * @param assignee
      */
     addAssigneeToCard(assignee: Member): void {
-        if (!this.card().assignees) {
-            this.card().assignees = [];
-        }
+        const currentCard = this.card();
+        if (!currentCard) return;
 
-        // Add the label
-        this.card().assignees.unshift(assignee);
+        // Add the assignee immutably
+        const currentAssignees = currentCard.assignees || [];
+        const updatedAssignees = [ assignee, ...currentAssignees ];
+        const updatedCard = {...currentCard, assignees: updatedAssignees};
+
+        this.card.set(updatedCard);
 
         // Update the card form data
-        this.cardForm.get('assignees').patchValue(this.card().assignees);
-
-        // Mark for check
-        this._changeDetectorRef.markForCheck();
+        this.cardForm.get('assignees').patchValue(updatedAssignees);
     }
 
     /**
@@ -357,19 +332,19 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
      * @param assignee
      */
     removeAssigneeFromCard(assignee: Member): void {
-        // Remove the label
-        this.card().assignees.splice(
-            this.card().assignees.findIndex(
-                (cardAssignee) => cardAssignee.id === assignee.id
-            ),
-            1
+        const currentCard = this.card();
+        if (!currentCard || !currentCard.assignees) return;
+
+        // Remove the assignee immutably
+        const updatedAssignees = currentCard.assignees.filter(
+            (cardAssignee) => cardAssignee.id !== assignee.id
         );
+        const updatedCard = {...currentCard, assignees: updatedAssignees};
+
+        this.card.set(updatedCard);
 
         // Update the card form data
-        this.cardForm.get('assignees').patchValue(this.card().assignees);
-
-        // Mark for check
-        this._changeDetectorRef.markForCheck();
+        this.cardForm.get('assignees').patchValue(updatedAssignees);
     }
 
     /**
@@ -396,21 +371,25 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
      * Add a new checklist
      */
     addChecklist(): void {
+        const currentCard = this.card();
+        if (!currentCard) return;
+
         // Create a new checklist with a default title
         const checklist = new Checklist({
             id    : null,
-            cardId: this.card().id,
+            cardId: currentCard.id,
             title : 'Nueva Lista de Verificación',
             items : []
         });
 
-        // Add the checklist to the card
-        this.card().checklists.push(checklist);
+        // Add the checklist to the card immutably
+        const updatedChecklists = [ ...(currentCard.checklists || []), checklist ];
+        const updatedCard = {...currentCard, checklists: updatedChecklists};
+
+        this.card.set(updatedCard);
 
         // Update the card
-        this._scrumboardService.updateCard(this.card().id, this.card())
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe();
+        this.#boardService.updateCard(updatedCard.id, updatedCard);
     }
 
     /**
@@ -419,13 +398,17 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
      * @param checklist
      */
     removeChecklist(checklist: Checklist): void {
-        // Remove the checklist from the card
-        this.card().checklists = this.card().checklists.filter(item => item.id !== checklist.id);
+        const currentCard = this.card();
+        if (!currentCard || !currentCard.checklists) return;
+
+        // Remove the checklist from the card immutably
+        const updatedChecklists = currentCard.checklists.filter(item => item.id !== checklist.id);
+        const updatedCard = {...currentCard, checklists: updatedChecklists};
+
+        this.card.set(updatedCard);
 
         // Update the card
-        this._scrumboardService.updateCard(this.card().id, this.card())
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe();
+        this.#boardService.updateCard(updatedCard.id, updatedCard);
     }
 
     /**
@@ -439,6 +422,9 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
             return;
         }
 
+        const currentCard = this.card();
+        if (!currentCard || !currentCard.checklists) return;
+
         // Create a new checklist item
         const item = new ChecklistItem({
             id         : null,
@@ -447,13 +433,18 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
             checked    : false
         });
 
-        // Add the item to the checklist
-        checklist.items.push(item);
+        // Update the checklist and card immutably
+        const updatedChecklists = currentCard.checklists.map(cl =>
+            cl.id === checklist.id
+                ? {...cl, items: [ ...(cl.items || []), item ]}
+                : cl
+        );
+        const updatedCard = {...currentCard, checklists: updatedChecklists};
+
+        this.card.set(updatedCard);
 
         // Update the card
-        this._scrumboardService.updateCard(this.card().id, this.card())
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe();
+        this.#boardService.updateCard(updatedCard.id, updatedCard);
     }
 
     /**
@@ -464,13 +455,28 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
      * @param change
      */
     toggleChecklistItem(checklist: Checklist, item: ChecklistItem, change: MatCheckboxChange): void {
-        // Update the item
-        item.checked = change.checked;
+        const currentCard = this.card();
+        if (!currentCard || !currentCard.checklists) return;
+
+        // Update the item and card immutably
+        const updatedChecklists = currentCard.checklists.map(cl =>
+            cl.id === checklist.id
+                ? {
+                    ...cl,
+                    items: cl.items.map(it =>
+                        it.id === item.id
+                            ? {...it, checked: change.checked}
+                            : it
+                    )
+                }
+                : cl
+        );
+        const updatedCard = {...currentCard, checklists: updatedChecklists};
+
+        this.card.set(updatedCard);
 
         // Update the card
-        this._scrumboardService.updateCard(this.card().id, this.card())
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe();
+        this.#boardService.updateCard(updatedCard.id, updatedCard);
     }
 
     /**
@@ -491,10 +497,13 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
 
             // Read the file
             this._readAsDataURL(file).then((dataURL) => {
+                const currentCard = this.card();
+                if (!currentCard) return;
+
                 // Create a new attachment
                 const attachment = new Attachment({
                     id       : null,
-                    cardId   : this.card().id,
+                    cardId: currentCard.id,
                     name     : file.name,
                     url      : dataURL as string,
                     type     : file.type,
@@ -502,13 +511,14 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
                     createdAt: DateTime.now().toISO()
                 });
 
-                // Add the attachment to the card
-                this.card().attachments.push(attachment);
+                // Add the attachment to the card immutably
+                const updatedAttachments = [ ...(currentCard.attachments || []), attachment ];
+                const updatedCard = {...currentCard, attachments: updatedAttachments};
+
+                this.card.set(updatedCard);
 
                 // Update the card
-                this._scrumboardService.updateCard(this.card().id, this.card())
-                    .pipe(takeUntil(this._unsubscribeAll))
-                    .subscribe();
+                this.#boardService.updateCard(updatedCard.id, updatedCard);
             });
         });
     }
@@ -519,13 +529,17 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
      * @param attachment
      */
     removeAttachment(attachment: Attachment): void {
-        // Remove the attachment from the card
-        this.card().attachments = this.card().attachments.filter(item => item.id !== attachment.id);
+        const currentCard = this.card();
+        if (!currentCard || !currentCard.attachments) return;
+
+        // Remove the attachment from the card immutably
+        const updatedAttachments = currentCard.attachments.filter(item => item.id !== attachment.id);
+        const updatedCard = {...currentCard, attachments: updatedAttachments};
+
+        this.card.set(updatedCard);
 
         // Update the card
-        this._scrumboardService.updateCard(this.card().id, this.card())
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe();
+        this.#boardService.updateCard(updatedCard.id, updatedCard);
     }
 
     /**
@@ -538,45 +552,54 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
             return;
         }
 
+        const currentCard = this.card();
+        const currentUser = this.currentUser();
+        if (!currentCard || !currentUser) return;
+
         // Create a new comment
         const comment = new Comment({
             id       : null,
-            cardId   : this.card().id,
-            memberId : this.currentUser().id,
-            member   : this.currentUser(),
+            cardId  : currentCard.id,
+            memberId: currentUser.id,
+            member  : currentUser,
             message  : message.trim(),
             createdAt: DateTime.now().toISO()
         });
 
-        // Add the comment to the card
-        this.card().comments.push(comment);
+        // Add the comment to the card immutably
+        const updatedComments = [ ...(currentCard.comments || []), comment ];
+        const updatedCard = {...currentCard, comments: updatedComments};
+
+        this.card.set(updatedCard);
 
         // Update the card
-        this._scrumboardService.updateCard(this.card().id, this.card())
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe();
+        this.#boardService.updateCard(updatedCard.id, updatedCard);
     }
 
     /**
      * Add a new custom field
      */
     addCustomField(): void {
+        const currentCard = this.card();
+        if (!currentCard) return;
+
         // Create a new custom field
         const field = new CustomField({
             id    : null,
-            cardId: this.card().id,
+            cardId: currentCard.id,
             type  : 'text',
             title : 'Nuevo Campo',
             value : null
         });
 
-        // Add the field to the card
-        this.card().customFields.push(field);
+        // Add the field to the card immutably
+        const updatedCustomFields = [ ...(currentCard.customFields || []), field ];
+        const updatedCard = {...currentCard, customFields: updatedCustomFields};
+
+        this.card.set(updatedCard);
 
         // Update the card
-        this._scrumboardService.updateCard(this.card().id, this.card())
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe();
+        this.#boardService.updateCard(updatedCard.id, updatedCard);
     }
 
     /**
@@ -585,13 +608,17 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
      * @param field
      */
     removeCustomField(field: CustomField): void {
-        // Remove the field from the card
-        this.card().customFields = this.card().customFields.filter(item => item.id !== field.id);
+        const currentCard = this.card();
+        if (!currentCard || !currentCard.customFields) return;
+
+        // Remove the field from the card immutably
+        const updatedCustomFields = currentCard.customFields.filter(item => item.id !== field.id);
+        const updatedCard = {...currentCard, customFields: updatedCustomFields};
+
+        this.card.set(updatedCard);
 
         // Update the card
-        this._scrumboardService.updateCard(this.card().id, this.card())
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe();
+        this.#boardService.updateCard(updatedCard.id, updatedCard);
     }
 
     /**
@@ -616,22 +643,27 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
      * @param change
      */
     toggleUserSelection(field: CustomField, user: Member, change: MatCheckboxChange): void {
-        // Initialize the value if it doesn't exist
-        if (!field.value) {
-            field.value = [];
-        }
+        const currentCard = this.card();
+        if (!currentCard || !currentCard.customFields) return;
 
-        // Add or remove the user
-        if (change.checked) {
-            field.value.push(user.id);
-        } else {
-            field.value = field.value.filter(id => id !== user.id);
-        }
+        // Update the field and card immutably
+        const updatedCustomFields = currentCard.customFields.map(cf => {
+            if (cf.id === field.id) {
+                const currentValue = cf.value || [];
+                const updatedValue = change.checked
+                    ? [ ...currentValue, user.id ]
+                    : currentValue.filter(id => id !== user.id);
+
+                return {...cf, value: updatedValue};
+            }
+            return cf;
+        });
+
+        const updatedCard = {...currentCard, customFields: updatedCustomFields};
+        this.card.set(updatedCard);
 
         // Update the card
-        this._scrumboardService.updateCard(this.card().id, this.card())
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe();
+        this.#boardService.updateCard(updatedCard.id, updatedCard);
     }
 
     // -----------------------------------------------------------------------------------------------------

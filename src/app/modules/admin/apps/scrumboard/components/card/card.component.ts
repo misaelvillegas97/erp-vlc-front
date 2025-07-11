@@ -28,15 +28,18 @@ export class ScrumboardCardComponent implements OnInit {
      * On init
      */
     ngOnInit(): void {
-        // Launch the modal
+        // Launch the side panel (drawer-style modal)
         this._matDialog
-            .open(ScrumboardCardDetailsComponent, {autoFocus: false})
+            .open(ScrumboardCardDetailsComponent, {
+                autoFocus  : false,
+                maxWidth   : '100vw',
+                width      : '920px',
+                hasBackdrop: true,
+            })
             .afterClosed()
             .subscribe(() => {
                 // Go up twice because card routes are set up like this; "card/CARD_ID"
-                this._router.navigate([ './../..' ], {
-                    relativeTo: this._activatedRoute,
-                });
+                this._router.navigate([ './../..' ], {relativeTo: this._activatedRoute});
             });
     }
 }

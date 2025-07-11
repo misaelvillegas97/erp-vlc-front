@@ -1,4 +1,4 @@
-<div *transloco="let t; read: 'scrumboard.boards.details'" [class.h-15]="!formVisible" class="mt-11 w-64 px-2 py-2.5">
+<div [class.h-15]="!formVisible" class="mt-11 w-64 px-2 py-2.5">
     <div class="relative flex h-full w-full overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-700"
     >
         <button
@@ -25,10 +25,10 @@
                     (click)="save()"
                     [color]="'primary'"
                     [type]="'button'"
-                    [innerText]="t('add-a-list')"
                     class="h-8 min-h-8"
                     mat-flat-button
                 >
+                    Agregar
                 </button>
                 <button
                     (click)="toggleFormVisibility()"

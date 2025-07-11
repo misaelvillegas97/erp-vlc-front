@@ -4,7 +4,6 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Even
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, }                                                               from '@angular/forms';
 import { MatButtonModule }                                                                                                                       from '@angular/material/button';
 import { MatIconModule }                                                                                                                         from '@angular/material/icon';
-import { TranslocoDirective }                                                                                                                    from '@ngneat/transloco';
 
 @Component({
     selector       : 'scrumboard-board-add-card',
@@ -12,14 +11,14 @@ import { TranslocoDirective }                                                   
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone     : true,
-    imports        : [
+    imports: [
         MatButtonModule,
         NgClass,
         MatIconModule,
         FormsModule,
         ReactiveFormsModule,
         TextFieldModule,
-        TranslocoDirective,
+
     ],
 })
 export class ScrumboardBoardAddCardComponent implements OnInit {

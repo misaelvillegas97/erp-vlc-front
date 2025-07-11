@@ -1,6 +1,6 @@
 import { AsyncPipe }                                                             from '@angular/common';
-import { Component, DestroyRef, inject, OnInit }                                 from '@angular/core';
-import { takeUntilDestroyed }                                                    from '@angular/core/rxjs-interop';
+import { Component, computed, DestroyRef, inject, signal }                       from '@angular/core';
+import { toSignal }                                                              from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatAutocomplete, MatAutocompleteTrigger, MatOption }                    from '@angular/material/autocomplete';
 import { MatButton, MatIconButton }                                              from '@angular/material/button';
@@ -10,9 +10,9 @@ import { MatInput }                                                             
 import { MatProgressSpinner }                                                    from '@angular/material/progress-spinner';
 import { MatTooltip }                                                            from '@angular/material/tooltip';
 
-import { TranslocoDirective, TranslocoPipe }             from '@ngneat/transloco';
-import { Notyf }                                         from 'notyf';
-import { BehaviorSubject, combineLatestWith, map, take } from 'rxjs';
+import { TranslocoDirective, TranslocoPipe } from '@ngneat/transloco';
+import { Notyf }                             from 'notyf';
+import { BehaviorSubject, firstValueFrom }   from 'rxjs';
 
 import { UserService }                  from '@core/user/user.service';
 import { displayWithFn, filterByValue } from '@core/utils';
@@ -44,10 +44,14 @@ import { User }                         from '@core/user/user.types';
     animations : fuseAnimations,
     templateUrl: './members.component.html',
 })
-export class MembersComponent implements OnInit {
-    board: Board;
+export class MembersComponent {
+    readonly #fb = inject(UntypedFormBuilder);
+
+    board = signal<Board>(undefined);
     deleting$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-    form: UntypedFormGroup;
+    form: UntypedFormGroup = this.#fb.group({
+        member: [ '', Validators.required ]
+    });
 
     protected readonly trackByFn = trackByFn;
     protected readonly displayWithFn = displayWithFn<Member>;
@@ -55,97 +59,57 @@ export class MembersComponent implements OnInit {
     private _notyf = new Notyf();
 
     constructor(
-        private readonly _fb: UntypedFormBuilder,
         private readonly _userService: UserService,
         private readonly _boardService: ScrumboardService
-    ) {
-        this.form = this._fb.group({
-            member: [ '', Validators.required ]
-        });
-    }
+    ) {}
 
-    private _availableMembers$: BehaviorSubject<User[]> = new BehaviorSubject([]);
+    filterField = toSignal<string>(this.form.get('member').valueChanges);
 
-    private _filteredMembers$: BehaviorSubject<User[]> = new BehaviorSubject([]);
+    availableMembers = signal<User[]>([]);
+    filteredMembers = computed(() => {
+        let availableMembers = this.availableMembers();
+        const loggedUser = this._userService.userSignal();
+        const filterFieldValue = this.filterField();
 
-    get filteredMembers$() {
-        return this._filteredMembers$.asObservable();
-    }
+        if (!this.availableMembers().length) {
+            return [];
+        }
 
-    ngOnInit() {
-        this._userService.user$
-            .pipe(
-                takeUntilDestroyed(this._destroy),
-                combineLatestWith(this._boardService.board$),
-                // remove me from the list by the id
-                map(([ me, board ]) => {
-                    this.board = board;
+        if (filterFieldValue) availableMembers = filterByValue<User>(availableMembers, filterFieldValue, 'name');
 
-                    // Find the current user in the board members, and set it as disabled to delete it
-                    const currentUser = board.members.find((member) => member.id === me.id);
-                    if (currentUser) {
-                        currentUser.deletable = true;
-                    }
-
-                    return board.members
-                        // filter out the current user
-                        .filter((member) => member.id !== me.id);
-                }),
-            )
-            .subscribe((availableMembers) => {
-                this._availableMembers$.next(availableMembers);
-                this._filteredMembers$.next(availableMembers);
-            });
-    }
+        return availableMembers.filter(member => member.id !== loggedUser.id);
+    });
 
     public addMember() {
-        if (this.form.invalid)
-            return;
+        if (this.form.invalid) return;
 
         this.form.disable();
         const member = this.form.value.member;
 
-        this._boardService.addMember(this.board.id, member.id)
-            .pipe(takeUntilDestroyed(this._destroy), take(1))
-            .subscribe({
-                next : () => {
-                    this._notyf.success(`Member added successfully`);
-                    this.form.reset();
-                    this.form.markAsPristine();
-                    this.form.enable();
-                },
-                error: (error) => {
-                    this._notyf.error(`Error adding member: ${ error }`);
-                    this.form.enable();
-                }
+        firstValueFrom(this._boardService.addMember(this.board().id, member.id))
+            .then(() => {
+                this._notyf.success(`Member added successfully`);
+                this.form.reset();
+                this.form.markAsPristine();
+                this.form.enable();
+            })
+            .catch((error) => {
+                this._notyf.error(`Error adding member: ${ error }`);
+                this.form.enable();
             });
     }
 
     public deleteMember(memberId: string) {
         this.deleting$.next(true);
 
-        this._boardService.removeMember(this.board.id, memberId)
-            .pipe(takeUntilDestroyed(this._destroy), take(1))
-            .subscribe({
-                next : () => {
-                    this._notyf.success(`Member removed successfully`);
-                    this.deleting$.next(false);
-                },
-                error: (error) => {
-                    this._notyf.error(`Error removing member: ${ error }`);
-                    this.deleting$.next(false);
-                }
+        firstValueFrom(this._boardService.removeMember(this.board().id, memberId))
+            .then(() => {
+                this._notyf.success(`Member removed successfully`);
+                this.deleting$.next(false);
+            })
+            .catch((error) => {
+                this._notyf.error(`Error removing member: ${ error }`);
+                this.deleting$.next(false);
             });
-    }
-
-    public filter(target: any) {
-        const filterValue = target.value;
-        if (!filterValue) {
-            this._filteredMembers$.next(this._availableMembers$.value);
-            return;
-        }
-
-        const filtered = filterByValue<User>(this._availableMembers$.value, filterValue, 'name');
-        this._filteredMembers$.next(filtered);
     }
 }

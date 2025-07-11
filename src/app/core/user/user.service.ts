@@ -6,12 +6,14 @@ import { User }                           from '@core/user/user.types';
 import { InfinityPagination }             from '@shared/domain/model/infinity-pagination';
 import { DriverLicenseDto }               from '@modules/admin/maintainers/users/models/driver-license.model';
 import { CreateUserDto }                  from '@modules/admin/maintainers/users/models/create-user.dto';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toSignal }                       from '@angular/core/rxjs-interop';
 
 @Injectable({providedIn: 'root'})
 export class UserService {
     private _httpClient = inject(HttpClient);
     private _user: ReplaySubject<User> = new ReplaySubject<User>(1);
+
+    userSignal = toSignal<User>(this._user.asObservable());
 
     set user(value: User) {
         // Store the value
@@ -20,10 +22,6 @@ export class UserService {
 
     get user$(): Observable<User> {
         return this._user.asObservable();
-    }
-
-    get userSignal() {
-        return toSignal(this._user.asObservable());
     }
 
     update(user: User): Observable<any> {

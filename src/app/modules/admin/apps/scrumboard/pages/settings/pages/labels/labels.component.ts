@@ -1,5 +1,5 @@
 import { AsyncPipe }                                                             from '@angular/common';
-import { Component }                                                             from '@angular/core';
+import { Component, inject }                                                     from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatButton, MatIconButton }                                              from '@angular/material/button';
 import { MatFormField }                                                          from '@angular/material/form-field';
@@ -9,7 +9,7 @@ import { MatProgressSpinner }                                                   
 import { MatTooltip }                                                            from '@angular/material/tooltip';
 
 import { TranslocoDirective, TranslocoPipe } from '@ngneat/transloco';
-import { BehaviorSubject, take }             from 'rxjs';
+import { BehaviorSubject, firstValueFrom }   from 'rxjs';
 
 import { trackByFn }         from '@libs/ui/utils/utils';
 import { Board, Label }      from '@modules/admin/apps/scrumboard/models/scrumboard.models';
@@ -34,57 +34,43 @@ import { ScrumboardService } from '@modules/admin/apps/scrumboard/services/scrum
     templateUrl: './labels.component.html'
 })
 export class LabelsComponent {
+    readonly #boardService = inject(ScrumboardService);
+    readonly #fb = inject(UntypedFormBuilder);
+
     board: Board;
     deleting$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-    form: UntypedFormGroup;
+    form: UntypedFormGroup = this.#fb.group({
+        title: [ '', Validators.required ],
+    });
 
     protected readonly trackByFn = trackByFn;
-
-    constructor(
-        private readonly _fb: UntypedFormBuilder,
-        private readonly _boardService: ScrumboardService
-    ) {
-        this.form = this._fb.group({
-            title: [ '', Validators.required ],
-        });
-
-        this._boardService.board$
-            .pipe(take(1))
-            .subscribe((board) => {
-                this.board = board;
-            });
-    }
 
     submit() {
         if (this.form.invalid) return;
 
         this.form.disable();
 
-        this._boardService.addLabel(this.board.id, this.form.getRawValue())
-            .pipe(take(1))
-            .subscribe({
-                next : () => {
-                    this.form.enable();
-                    this.form.reset();
-                },
-                error: () => {
-                    this.form.enable();
-                }
+        firstValueFrom(this.#boardService.addLabel(this.board.id, this.form.getRawValue()))
+            .then((label: Label) => {
+                this.board.labels.push(label);
+                this.form.enable();
+                this.form.reset();
+            })
+            .catch(() => {
+                this.form.enable();
             });
     }
 
     remove(label: Label) {
         this.deleting$.next(true);
 
-        this._boardService.removeLabel(this.board.id, label.id)
-            .pipe(take(1))
-            .subscribe({
-                next : () => {
-                    this.deleting$.next(false);
-                },
-                error: () => {
-                    this.deleting$.next(false);
-                }
+        firstValueFrom(this.#boardService.removeLabel(this.board.id, label.id))
+            .then(() => {
+                this.board.labels = this.board.labels.filter(l => l.id !== label.id);
+                this.deleting$.next(false);
+            })
+            .catch(() => {
+                this.deleting$.next(false);
             });
     }
 }

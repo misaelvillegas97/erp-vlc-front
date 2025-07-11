@@ -1,4 +1,4 @@
-<div *transloco="let t; read: 'scrumboard.boards.details'" [class.h-13]="!formVisible" class="p-3 pt-0">
+<div [class.h-13]="!formVisible" class="p-3 pt-0">
     <div class="relative flex h-full w-full rounded-lg">
         <button
             (click)="toggleFormVisibility()"
@@ -18,7 +18,7 @@
             [ngClass]="{ 'opacity-0': !formVisible }"
             class="flex w-full flex-col items-start"
         >
-            <div class="bg-card flex w-full rounded-lg p-5 shadow">
+            <div class="bg-white dark:bg-gray-800 flex w-full rounded-lg p-5 shadow">
                 <textarea
                     #titleAutosize="cdkTextareaAutosize"
                     #titleInput
@@ -36,10 +36,10 @@
                     (click)="save()"
                     [color]="'primary'"
                     [type]="'button'"
-                    [innerText]="t('add-a-card')"
                     class="h-8 min-h-8"
                     mat-flat-button
                 >
+                    Agregar
                 </button>
                 <button
                     (click)="toggleFormVisibility()"

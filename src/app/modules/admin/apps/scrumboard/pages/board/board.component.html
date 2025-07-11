@@ -1,13 +1,18 @@
-<div class="absolute inset-0 flex min-w-0 flex-col overflow-hidden">
+<!-- Trello-like Board Container with Blurred Background -->
+<div class="absolute inset-0 flex min-w-0 flex-col overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800">
+    <!-- Background Image with Blur Effect -->
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30 blur-sm"
+         style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+    </div>
     <!-- Header -->
-    <div class="bg-card flex flex-0 flex-col border-b p-6 dark:bg-transparent sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:py-8">
+    <div class="relative z-10 flex flex-0 flex-col backdrop-blur-md bg-white/10 border-b border-white/20 p-6 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:py-8">
         <!-- Title -->
         <div class="min-w-0 flex-1 space-x-4 flex">
             <a [routerLink]="'../'" mat-icon-button>
                 <mat-icon [svgIcon]="'heroicons_outline:chevron-left'"></mat-icon>
             </a>
-            <h2 class="truncate text-3xl font-extrabold leading-7 tracking-tight sm:leading-10 md:text-4xl">
-                {{ board.title }}
+            <h2 class="truncate text-3xl font-extrabold leading-7 tracking-tight sm:leading-10 md:text-4xl text-white drop-shadow-lg">
+                {{ boardTitle() }}
             </h2>
         </div>
         <!-- Actions -->
@@ -30,24 +35,25 @@
     </div>
 
     <!-- Main -->
-    <div cdkScrollable class="flex-auto overflow-y-auto p-6 sm:p-8 sm:pt-4">
+    <div cdkScrollable class="relative z-10 flex-auto overflow-y-auto p-6 sm:p-8 sm:pt-4">
         <!-- Lists -->
         <div
             (cdkDropListDropped)="listDropped($event)"
-            [cdkDropListData]="board.lists"
+            [cdkDropListData]="boardLists()"
             [cdkDropListOrientation]="'horizontal'"
             cdkDropList
-            class="flex"
+            class="flex overflow-x-auto pb-4"
+            style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.3) transparent;"
         >
             <!-- Group all cdkDropList's after this point together so that the cards can be transferred between lists -->
             <div cdkDropListGroup class="flex items-start space-x-4">
                 <!-- List -->
-                @for (list of board.lists; track trackByFn($index, list)) {
-                    <div class="w-72 flex-0 rounded-2xl p-2"
-                         [ngStyle]="{'background-color': list.color ? list.color : 'var(--fuse-bg-default)'}"
+                @for (list of boardLists(); track list.id) {
+                    <div class="w-72 flex-0 rounded-xl p-3 backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 shadow-lg border border-white/20 dark:border-gray-600/20 min-h-fit"
+                         [style.background-color]="list.color ? list.color + '90' : 'rgba(255,255,255,0.9)'"
                          cdkDrag>
                         <div class="flex items-center justify-between" cdkDragHandle>
-                            <div class="flex w-full cursor-text items-center rounded-md border border-transparent px-3 py-2 focus-within:border-primary focus-within:bg-white focus-within:shadow-sm dark:focus-within:bg-gray-900">
+                            <div class="flex w-full cursor-text items-center rounded-lg border border-transparent px-3 py-2 focus-within:border-blue-500 focus-within:bg-white/95 dark:focus-within:bg-gray-700/95 focus-within:shadow-md transition-all duration-200">
                                 @if (list.icon) {
                                     <mat-icon class="mr-2 text-current" [svgIcon]="list.icon"></mat-icon>
                                 }
@@ -60,7 +66,7 @@
                                     #listTitleInput
                                 />
                             </div>
-                            <div class="text-secondary ml-4 flex min-w-6 items-center justify-center rounded-full bg-gray-300 text-sm font-semibold leading-6 dark:bg-gray-700">
+                            <div class="ml-4 flex min-w-6 items-center justify-center rounded-full bg-gray-500/20 dark:bg-gray-400/20 text-gray-700 dark:text-gray-300 text-sm font-semibold leading-6 backdrop-blur-sm">
                                 {{ list.cards.length }}
                             </div>
                             <div class="ml-1">
@@ -85,7 +91,7 @@
                         </div>
 
                         <!-- Cards -->
-                        <div class="mt-2 rounded-xl bg-gray-400 bg-opacity-12 dark:border dark:bg-transparent">
+                        <div class="mt-3 rounded-lg bg-black/5 backdrop-blur-sm border border-white/10">
                             <div
                                 class="p-3 pb-0 min-h-22"
                                 cdkDropList
@@ -94,28 +100,30 @@
                                 (cdkDropListDropped)="cardDropped($event)"
                             >
                                 <!-- Card -->
-                                @for (card of list.cards; track trackByFn($index, card)) {
+                                @for (card of list.cards; track card.id) {
                                     <div cdkDrag>
                                         <a
-                                            class="bg-card mb-3 flex flex-col items-start space-y-3 overflow-hidden rounded-lg p-5 shadow hover:shadow-lg transition-shadow duration-200"
+                                            class="bg-white dark:bg-gray-800 mb-3 flex flex-col items-start space-y-3 overflow-hidden rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02] border border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm"
                                             [routerLink]="['card', card.id]"
                                         >
                                             <!-- Cover image -->
                                             @if (card.coverImage) {
-                                                <div class="-mx-5 -mt-5 mb-2">
-                                                    <img class="w-full object-cover" [src]="card.coverImage"/>
+                                                <div class="-mx-4 -mt-4 mb-2">
+                                                    <img class="w-full h-32 object-cover rounded-t-lg" [src]="card.coverImage"/>
                                                 </div>
                                             }
 
                                             <!-- Card type badge (if available) -->
                                             @if (card.type) {
-                                                <div class="absolute top-2 right-2 px-2 py-1 text-xs font-semibold rounded-md"
-                                                     [ngClass]="{
-                                                        'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100': card.type === 'task',
-                                                        'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100': card.type === 'bug',
-                                                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100': card.type === 'note',
-                                                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100': card.type === 'feature'
-                                                     }">
+                                                <div class="absolute top-2 right-2 px-2 py-1 text-xs font-semibold rounded-md backdrop-blur-sm"
+                                                     [class.bg-blue-100]="card.type === 'task'"
+                                                     [class.text-blue-800]="card.type === 'task'"
+                                                     [class.bg-red-100]="card.type === 'bug'"
+                                                     [class.text-red-800]="card.type === 'bug'"
+                                                     [class.bg-yellow-100]="card.type === 'note'"
+                                                     [class.text-yellow-800]="card.type === 'note'"
+                                                     [class.bg-green-100]="card.type === 'feature'"
+                                                     [class.text-green-800]="card.type === 'feature'">
                                                     {{ card.type }}
                                                 </div>
                                             }
@@ -128,7 +136,7 @@
                                             <!-- Activity icons -->
                                             <div class="flex items-center space-x-2">
                                                 @if (card.checklists?.length) {
-                                                    <div class="flex items-center text-gray-500"
+                                                    <div class="flex items-center text-gray-500 dark:text-gray-400"
                                                          [matTooltip]="getChecklistCompletionText(card)">
                                                         <mat-icon class="icon-size-4" [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
                                                         <span class="ml-1 text-xs">{{ getChecklistCompletion(card) }}</span>
@@ -136,7 +144,7 @@
                                                 }
 
                                                 @if (card.comments?.length) {
-                                                    <div class="flex items-center text-gray-500"
+                                                    <div class="flex items-center text-gray-500 dark:text-gray-400"
                                                          [matTooltip]="card.comments.length + ' comments'">
                                                         <mat-icon class="icon-size-4" [svgIcon]="'heroicons_outline:chat-bubble-left-right'"></mat-icon>
                                                         <span class="ml-1 text-xs">{{ card.comments.length }}</span>
@@ -144,7 +152,7 @@
                                                 }
 
                                                 @if (card.attachments?.length) {
-                                                    <div class="flex items-center text-gray-500"
+                                                    <div class="flex items-center text-gray-500 dark:text-gray-400"
                                                          [matTooltip]="card.attachments.length + ' attachments'">
                                                         <mat-icon class="icon-size-4" [svgIcon]="'heroicons_outline:paper-clip'"></mat-icon>
                                                         <span class="ml-1 text-xs">{{ card.attachments.length }}</span>
@@ -154,10 +162,8 @@
                                                 @if (card.dueDate) {
                                                     <div
                                                         class="flex items-center text-sm"
-                                                        [ngClass]="{
-                                                            'text-gray-500': !isOverdue(card.dueDate),
-                                                            'text-red-600': isOverdue(card.dueDate)
-                                                        }"
+                                                        [class.text-gray-500]="!isOverdue(card.dueDate)"
+                                                        [class.text-red-600]="isOverdue(card.dueDate)"
                                                         [matTooltip]="'Vencimiento: ' + (card.dueDate | date: 'longDate')"
                                                     >
                                                         <mat-icon class="icon-size-4" [svgIcon]="'heroicons_outline:clock'"></mat-icon>
@@ -169,12 +175,10 @@
                                             @if (card.labels.length) {
                                                 <div>
                                                     <div class="-mx-1 -mb-2 flex flex-wrap max-w-full">
-                                                        @for (label of card.labels; track trackByFn($index, label)) {
-                                                            <div class="shrink-0 mx-1 mb-2 rounded-full px-3 py-0.5 text-sm font-medium"
-                                                                 [ngStyle]="{
-                                                                    'background-color': label.color || '#e5e7eb',
-                                                                    'color': getContrastColor(label.color)
-                                                                 }">
+                                                        @for (label of card.labels; track label.id) {
+                                                            <div class="shrink-0 mx-1 mb-2 rounded-full px-3 py-0.5 text-sm font-medium shadow-sm"
+                                                                 [style.background-color]="label.color || '#e5e7eb'"
+                                                                 [style.color]="getContrastColor(label.color)">
                                                                 {{ label.title }}
                                                             </div>
                                                         }
@@ -185,7 +189,7 @@
                                             <!-- Assignees avatars -->
                                             @if (card.assignees.length) {
                                                 <div class="flex items-center -space-x-2">
-                                                    @for (assignee of card.assignees; track trackByFn($index, assignee)) {
+                                                    @for (assignee of card.assignees; track assignee.id) {
                                                         @if (assignee.avatar) {
                                                             <img
                                                                 class="w-6 h-6 rounded-full border-2 border-white"
@@ -198,7 +202,7 @@
                                                                 class="w-6 h-6 rounded-full border-2 border-white bg-gray-300 text-sm font-medium leading-6 flex items-center justify-center"
                                                                 [matTooltip]="assignee.name"
                                                             >
-                                                                {{ assignee?.name?.charAt(0) }}
+                                                                {{ assignee?.name.charAt(0) }}
                                                             </div>
                                                         }
                                                     }
@@ -222,7 +226,7 @@
                 <!-- New list -->
                 <scrumboard-board-add-list
                     (saved)="addList($event)"
-                    [buttonTitle]=" board.lists.length ? 'Agregar otra lista' : 'Agregar una lista'"
+                    [buttonTitle]=" board()?.lists.length ? 'Agregar otra lista' : 'Agregar una lista'"
                 >
                 </scrumboard-board-add-list>
             </div>

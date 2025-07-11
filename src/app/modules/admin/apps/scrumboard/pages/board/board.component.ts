@@ -1,8 +1,7 @@
 import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, CdkDropListGroup, moveItemInArray, transferArrayItem, } from '@angular/cdk/drag-drop';
 import { CdkScrollable }                                                                                           from '@angular/cdk/scrolling';
-import { DatePipe, NgClass }                                                                                       from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewEncapsulation, }            from '@angular/core';
-import { takeUntilDestroyed }                                                                                      from '@angular/core/rxjs-interop';
+import { DatePipe }                                                                                                from '@angular/common';
+import { ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, OnInit }                               from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup }                                                                    from '@angular/forms';
 import { MatButtonModule }                                                                                         from '@angular/material/button';
 import { MatIconModule }                                                                                           from '@angular/material/icon';
@@ -10,11 +9,11 @@ import { MatMenuModule }                                                        
 import { MatTooltip }                                                                                              from '@angular/material/tooltip';
 import { ActivatedRoute, RouterLink, RouterOutlet }                                                                from '@angular/router';
 
-import { DateTime }           from 'luxon';
-import { Subject, takeUntil } from 'rxjs';
+import { DateTime }       from 'luxon';
+import { firstValueFrom } from 'rxjs';
 
 import { FuseConfirmationService }         from '@fuse/services/confirmation';
-import { Board, Card, List, }              from '@modules/admin/apps/scrumboard/models/scrumboard.models';
+import { Card, List, }                     from '@modules/admin/apps/scrumboard/models/scrumboard.models';
 import { ScrumboardService }               from '@modules/admin/apps/scrumboard/services/scrumboard.service';
 import { WebsocketService }                from '@modules/admin/apps/scrumboard/services/websocket.service';
 import { ScrumboardBoardAddCardComponent } from './add-card/add-card.component';
@@ -24,10 +23,7 @@ import { ScrumboardBoardAddListComponent } from './add-list/add-list.component';
     selector       : 'scrumboard-board',
     templateUrl    : './board.component.html',
     styleUrls      : [ './board.component.scss' ],
-    encapsulation  : ViewEncapsulation.None,
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone     : true,
-    imports        : [
+    imports: [
         MatButtonModule,
         RouterLink,
         MatIconModule,
@@ -37,23 +33,27 @@ import { ScrumboardBoardAddListComponent } from './add-list/add-list.component';
         CdkDrag,
         CdkDragHandle,
         MatMenuModule,
-        NgClass,
         ScrumboardBoardAddCardComponent,
         ScrumboardBoardAddListComponent,
         RouterOutlet,
         DatePipe,
-        MatTooltip,
+        MatTooltip
     ],
 })
 export class ScrumboardBoardComponent implements OnInit, OnDestroy {
-    board: Board;
+    readonly #boardService = inject(ScrumboardService);
+
+    board = this.#boardService.board;
     listTitleForm: UntypedFormGroup;
+
+    // Computed properties for template
+    boardTitle = computed<string>(() => this.board()?.title || '');
+    boardLists = computed<List[]>(() => this.board()?.lists || []);
 
     // Private
     private readonly _positionStep: number = 65536;
     private readonly _maxListCount: number = 200;
     private readonly _maxPosition: number = this._positionStep * 500;
-    private _unsubscribeAll: Subject<any> = new Subject<any>();
 
     /**
      * Constructor
@@ -74,12 +74,13 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
         // Join the board
         this._wsService.joinBoard(this._route.snapshot.params.boardId);
 
-        // Subscribe to the card updated event
-        this._wsService.cardUpdated
-            .pipe(takeUntilDestroyed())
-            .subscribe(card => {
+        // Create an effect to log card updates
+        effect(() => {
+            const card = this._wsService.cardUpdated();
+            if (card) {
                 console.log('cardUpdated', card);
-            });
+            }
+        });
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -95,29 +96,17 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
             title: [ '' ],
         });
 
-        // Get the board
-        this._scrumboardService.board$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((board: Board) => {
-                this.board = {...board};
+        // Get the board ID from the route
+        const boardId = this._route.snapshot.params.boardId;
 
-                this.board.labels.map(label => {
-
-                });
-
-                // Mark for check
-                this._changeDetectorRef.markForCheck();
-            });
+        // Fetch the board data
+        this._scrumboardService.getBoard(boardId).subscribe();
     }
 
     /**
      * On destroy
      */
     ngOnDestroy(): void {
-        // Unsubscribe from all subscriptions
-        this._unsubscribeAll.next(null);
-        this._unsubscribeAll.complete();
-
         this._wsService.disconnect();
     }
 
@@ -143,16 +132,22 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
      * @param title
      */
     addList(title: string): void {
+        const currentBoard = this.board();
+
+        if (!currentBoard) {
+            return;
+        }
+
         // Limit the max list count
-        if (this.board.lists.length >= this._maxListCount) {
+        if (currentBoard.lists.length >= this._maxListCount) {
             return;
         }
 
         // Create a new list model
         const list = new List({
-            boardId : this.board.id,
-            position: this.board.lists.length
-                ? this.board.lists[this.board.lists.length - 1].position +
+            boardId : currentBoard.id,
+            position: currentBoard.lists.length
+                ? currentBoard.lists[currentBoard.lists.length - 1].position +
                 this._positionStep
                 : this._positionStep,
             title   : title,
@@ -221,9 +216,15 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
      * Add new card
      */
     addCard(list: List, title: string): void {
+        const currentBoard = this.board();
+
+        if (!currentBoard) {
+            return;
+        }
+
         // Create a new card model
         const card = new Card({
-            boardId : this.board.id,
+            boardId: currentBoard.id,
             listId  : list.id,
             position: list.cards.length
                 ? list.cards[list.cards.length - 1].position +
@@ -288,7 +289,7 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
         const updated = this._calculatePositions(event);
 
         // Update the cards
-        this._scrumboardService.updateCard(updated[0].id, updated[0]).subscribe();
+        this._scrumboardService.updateCard(updated[0].id, updated[0]);
     }
 
     /**
@@ -415,9 +416,7 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
         }
 
         // Update the list
-        this._scrumboardService.updateList(list)
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe();
+        void firstValueFrom(this._scrumboardService.updateList(list));
     }
 
     /**
@@ -434,11 +433,13 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
      * Subscribe to the board joined event
      */
     subscribeToBoardJoined(): void {
-        // this._wsService.boardJoined
-        //   .pipe(takeUntilDestroyed())
-        //   .subscribe(data => {
-        //   console.log('boardJoined', data);
-        // });
+        // Create an effect to log board joined events
+        effect(() => {
+            const boardId = this._wsService.boardJoined();
+            if (boardId) {
+                console.log('boardJoined', boardId);
+            }
+        });
     }
 
     // -----------------------------------------------------------------------------------------------------

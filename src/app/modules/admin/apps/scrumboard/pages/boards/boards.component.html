@@ -11,7 +11,7 @@
 
         <!-- Boards -->
         <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:mt-16 lg:grid-cols-4">
-            @for (board of boards; track trackByFn($index, board)) {
+            @for (board of boards(); track trackByFn($index, board)) {
                 <a
                     class="bg-card flex w-56 flex-col items-start rounded-lg p-6 shadow transition-shadow duration-150 ease-in-out hover:shadow-xl"
                     [routerLink]="[board.id]"
