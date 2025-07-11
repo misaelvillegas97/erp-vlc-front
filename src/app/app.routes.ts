@@ -6,6 +6,8 @@ import { LayoutComponent }     from 'app/layout/layout.component';
 import { rolesGuard }          from '@core/guards/roles.guard';
 import { RoleEnum }            from '@core/user/role.type';
 import { INVENTORY_FEATURE_KEY } from '@modules/admin/inventory/inventory.permissions';
+import { APPS_FEATURE_KEY }       from '@modules/admin/apps/apps.permissions';
+import { SCRUMBOARD_FEATURE_KEY } from '@modules/admin/apps/scrumboard/scrumboard.permissions';
 
 export const appRoutes: Routes = [
 
@@ -106,6 +108,17 @@ export const appRoutes: Routes = [
                     roles: [ RoleEnum.admin, RoleEnum.inventory_manager, RoleEnum.warehouse_staff ]
                 },
                 loadChildren: () => import('app/modules/admin/inventory/inventory.routes')
+            },
+            {
+                path    : APPS_FEATURE_KEY,
+                title   : 'Aplicaciones',
+                children: [
+                    {
+                        path        : SCRUMBOARD_FEATURE_KEY,
+                        title       : 'Tablero Scrum',
+                        loadChildren: () => import('app/modules/admin/apps/scrumboard/scrumboard.routes')
+                    }
+                ]
             },
             {
                 path    : 'maintainers',

@@ -1,0 +1,110 @@
+<mat-form-field class="w-full {{ controlClasses() }}" [floatLabel]="floatLabel()" [subscriptSizing]="subscriptSizing()">
+    <mat-label>{{ label() }}</mat-label>
+
+    <!-- For single selection -->
+    @if (!multiple()) {
+        <input type="text"
+               matInput
+               [formControl]="searchControl"
+               [placeholder]="placeholder()"
+               [matAutocomplete]="auto"
+               (blur)="onBlur()">
+
+        <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayMemberFn" (optionSelected)="onMemberSelected($event.option.value)">
+            @if (loading()) {
+                <mat-option disabled>
+                    <span class="flex items-center">
+                        <mat-icon class="mr-2 animate-spin">refresh</mat-icon>
+                        Loading...
+                    </span>
+                </mat-option>
+            }
+
+            @for (member of filteredMembers(); track member.id) {
+                <mat-option [value]="member">
+                    <div class="flex items-center">
+                        @if (member.avatar) {
+                            <img [src]="member.avatar" [alt]="member.name" class="w-8 h-8 rounded-full mr-2">
+                        } @else {
+                            <div class="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center text-white font-medium mr-2">
+                                {{ member.name.charAt(0) }}
+                            </div>
+                        }
+                        <span>{{ member.name }}</span>
+                    </div>
+                </mat-option>
+            } @empty {
+                <mat-option disabled>
+                    No members found
+                </mat-option>
+            }
+        </mat-autocomplete>
+    }
+
+    <!-- For multiple selection -->
+    @if (multiple()) {
+        <input type="text"
+               matInput
+               [formControl]="searchControl"
+               [placeholder]="placeholder()"
+               [matAutocomplete]="autoMultiple"
+               (blur)="onBlur()">
+
+        <mat-autocomplete #autoMultiple="matAutocomplete" [displayWith]="displayMemberFn" (optionSelected)="onMemberSelected($event.option.value)">
+            @if (loading()) {
+                <mat-option disabled>
+                    <span class="flex items-center">
+                        <mat-icon class="mr-2 animate-spin">refresh</mat-icon>
+                        Loading...
+                    </span>
+                </mat-option>
+            }
+
+            @for (member of filteredMembers(); track member.id) {
+                <mat-option [value]="member">
+                    <div class="flex items-center">
+                        @if (member.avatar) {
+                            <img [src]="member.avatar" [alt]="member.name" class="w-8 h-8 rounded-full mr-2">
+                        } @else {
+                            <div class="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center text-white font-medium mr-2">
+                                {{ member.name.charAt(0) }}
+                            </div>
+                        }
+                        <span>{{ member.name }}</span>
+                    </div>
+                </mat-option>
+            } @empty {
+                <mat-option disabled>
+                    No members found
+                </mat-option>
+            }
+        </mat-autocomplete>
+
+        <!-- Display selected members for multiple selection -->
+        @if (selectedMembers().length > 0) {
+            <div class="flex flex-wrap gap-2 mt-2">
+                @for (member of selectedMembers(); track member.id) {
+                    <div class="flex items-center bg-gray-200 dark:bg-gray-700 rounded-full px-3 py-1">
+                        @if (member.avatar) {
+                            <img [src]="member.avatar" [alt]="member.name" class="w-6 h-6 rounded-full mr-2">
+                        } @else {
+                            <div class="w-6 h-6 rounded-full bg-gray-500 flex items-center justify-center text-white font-medium mr-2">
+                                {{ member.name.charAt(0) }}
+                            </div>
+                        }
+                        <span class="mr-1">{{ member.name }}</span>
+                        <button type="button" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" (click)="removeMember(member)">
+                            <mat-icon class="icon-size-4">close</mat-icon>
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+    }
+
+    <mat-icon matSuffix svgIcon="mat_solid:person"></mat-icon>
+
+    <mat-error *ngIf="searchControl.hasError('required')">
+        Member is required
+    </mat-error>
+</mat-form-field>

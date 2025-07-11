@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject, viewChild } from '@angular/core';
-import { RouterLink, RouterLinkActive }                                                                                                                      from '@angular/router';
-import { MatDrawer, MatSidenavModule }                                                                                                    from '@angular/material/sidenav';
-import { MatButtonModule }                                                                                                                from '@angular/material/button';
-import { MatIconModule }                                                                                                                  from '@angular/material/icon';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { RouterLink, RouterLinkActive }                                                                                                           from '@angular/router';
+import { MatDrawer, MatSidenavModule }                                                                                                            from '@angular/material/sidenav';
+import { MatButtonModule }                                                                                                                        from '@angular/material/button';
+import { MatIconModule }                                                                                                                          from '@angular/material/icon';
 
 import { Subject, takeUntil } from 'rxjs';
 
@@ -28,9 +28,9 @@ import { RoleEnum }                                                             
     ],
     templateUrl    : './drawer-listing.component.html',
     styles         : `:host {
-    width: 100%;
-    height: 100%;
-  }`,
+        width: 100%;
+        height: 100%;
+    }`,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DrawerListingComponent implements OnInit, OnDestroy {
@@ -106,6 +106,9 @@ export class DrawerListingComponent implements OnInit, OnDestroy {
 
         return panels
             .filter(panel => {
+                // If no requiredRoles, show the panel
+                if (!panel.requiredRoles || panel.requiredRoles.length === 0) return true;
+
                 // If the panel has requiredRoles, check if the user has the role
                 if (panel.requiredRoles && !panel.requiredRoles.includes(roleId)) {
                     return false;

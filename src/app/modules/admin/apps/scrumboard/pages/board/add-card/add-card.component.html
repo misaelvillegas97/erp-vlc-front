@@ -1,0 +1,58 @@
+<div *transloco="let t; read: 'scrumboard.boards.details'" [class.h-13]="!formVisible" class="p-3 pt-0">
+    <div class="relative flex h-full w-full rounded-lg">
+        <button
+            (click)="toggleFormVisibility()"
+            [ngClass]="{ 'pointer-events-none opacity-0': formVisible }"
+            class="absolute inset-0 w-full justify-start rounded-lg"
+            disableRipple
+            mat-button
+        >
+            <mat-icon
+                [svgIcon]="'heroicons_outline:plus-circle'"
+                class="icon-size-5"
+            ></mat-icon>
+            <span class="text-secondary ml-2">{{ buttonTitle }}</span>
+        </button>
+        <form
+            [formGroup]="form"
+            [ngClass]="{ 'opacity-0': !formVisible }"
+            class="flex w-full flex-col items-start"
+        >
+            <div class="bg-card flex w-full rounded-lg p-5 shadow">
+                <textarea
+                    #titleAutosize="cdkTextareaAutosize"
+                    #titleInput
+                    (keydown.enter)="save()"
+                    [formControlName]="'title'"
+                    [placeholder]="'Enter card title...'"
+                    [spellcheck]="'off'"
+                    cdkTextareaAutosize
+                    class="w-full text-md font-medium leading-5"
+                >
+                </textarea>
+            </div>
+            <div class="mt-2 flex items-center">
+                <button
+                    (click)="save()"
+                    [color]="'primary'"
+                    [type]="'button'"
+                    [innerText]="t('add-a-card')"
+                    class="h-8 min-h-8"
+                    mat-flat-button
+                >
+                </button>
+                <button
+                    (click)="toggleFormVisibility()"
+                    [type]="'button'"
+                    class="ml-1 h-8 min-h-8 w-8"
+                    mat-icon-button
+                >
+                    <mat-icon
+                        [svgIcon]="'heroicons_solid:x-mark'"
+                        class="icon-size-4"
+                    ></mat-icon>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -27,6 +27,7 @@ import { mockApiServices }        from 'app/mock-api';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { logisticsPermissions }   from '@modules/admin/logistics/logistics.permissions';
 import { inventoryPermissions }   from '@modules/admin/inventory/inventory.permissions';
+import { appsPermissions } from '@modules/admin/apps/apps.permissions';
 
 const config: SocketIoConfig = {
     url    : 'localhost:5000/ws/board',
@@ -130,11 +131,13 @@ export const appConfig: ApplicationConfig = {
         // Administration
         provideModulePermissions(administrationPermissions),
         // Dashboards
-        provideModulePermissions(dashboardsPermissions),
+        // provideModulePermissions(dashboardsPermissions),
         // Logistics
         provideModulePermissions(logisticsPermissions),
         // Inventory
         provideModulePermissions(inventoryPermissions),
+        // Apps
+        provideModulePermissions(appsPermissions),
         // Maintainers
         provideModulePermissions(maintainersPermissions),
 

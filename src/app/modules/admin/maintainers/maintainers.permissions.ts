@@ -1,4 +1,4 @@
-import { RoutePermission } from '@core/permissions/permissions.service';
+import { RoutePermission } from '@core/permissions/models/route-permission';
 import { RoleEnum }        from '@core/user/role.type';
 
 export const maintainersPermissions: RoutePermission[] = [

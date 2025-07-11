@@ -1,0 +1,86 @@
+<div *transloco="let t; read: 'scrumboard.settings.members'" class="flex flex-col min-w-0 w-full">
+    <div class="flex flex-col justify-center w-full sm:max-w-5xl mx-auto py-6 px-4 space-y-4">
+        <div class="">
+            <h2 [innerText]="t('list.title')" class="font-semibold text-xl"></h2>
+            <p [innerText]="t('heading-description')" class="text-hint"></p>
+        </div>
+
+        <!-- Search and add member to board -->
+        <form (ngSubmit)="addMember()" [formGroup]="form" class="w-full flex-center flex-row gap-4">
+            <!-- Members autocomplete -->
+            <mat-form-field class="w-full fuse-mat-dense fuse-mat-rounded" floatLabel="always" subscriptSizing="dynamic">
+                <input
+                    (input)="filter($event.target)"
+                    [matAutocomplete]="auto"
+                    formControlName="member"
+                    matInput
+                    placeholder="{{ t('add-member-input.placeholder') }}"
+                    type="text"
+                />
+                <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayWithFn('name')" requireSelection="true">
+                    @for (member of filteredMembers$ | async; track trackByFn($index, member)) {
+                        <mat-option [value]="member">
+                            <span>{{ member.name }}</span>
+                        </mat-option>
+                    } @empty {
+                        <mat-option [disabled]="true">
+                            <span>{{ t('add-member-input.no-results') }}</span>
+                        </mat-option>
+                    }
+                </mat-autocomplete>
+            </mat-form-field>
+            <button [disabled]="form.disabled || form.invalid || form.pending" class="hidden md:inline-flex shrink-0" color="primary" mat-flat-button type="submit">
+                    <span class="flex-center gap-x-1 w-fit transition-all duration-300">
+                        @if (form.disabled) {
+                            <mat-spinner diameter="20" mode="indeterminate"></mat-spinner>
+                        } @else {
+                            <mat-icon>add</mat-icon> {{ t('add-member-input.add') }}
+                        }
+                    </span>
+            </button>
+            <button [disabled]="form.disabled || form.invalid || form.pending" class="md:hidden" color="primary" mat-icon-button type="submit">
+                <mat-icon>add</mat-icon>
+            </button>
+        </form>
+
+        <div class="bg-card flex flex-col shadow w-full rounded-lg overflow-hidden">
+            <!-- Members list -->
+            <div class="flex flex-col divide-y">
+                @for (member of board.members; track trackByFn($index, member)) {
+                    <div class="flex flex-row items-center justify-between px-4 py-2 hover:bg-hover transition-all duration-300">
+                        <div class="flex flex-row items-center gap-4">
+                            @if (member.avatar) {
+                                <img [src]="member.avatar.fileUrl" alt="avatar" class="rounded-full w-8 h-8"/>
+                            } @else {
+                                <div class="rounded-full w-8 h-8 bg-gray-200 flex-center">
+                                    <!-- <mat-icon>person</mat-icon>-->
+                                    <span>{{ member.name[0].charAt(0).toUpperCase() }}</span>
+                                </div>
+                            }
+                            <div class="flex flex-col">
+                                <span>{{ member.name }}</span>
+                                <span class="text-hint text-sm">{{ member.position }}</span>
+                            </div>
+                        </div>
+                        @if (!member.deletable) {
+                            <button
+                                mat-icon-button
+                                class="group"
+                                [disabled]="deleting$ | async"
+                                [matTooltip]="'actions.delete' | transloco"
+                                (click)="deleteMember(member.id)"
+                            >
+                                <mat-icon svgIcon="heroicons_outline:trash" class="icon-size-5 text-secondary group-hover:text-red-400"></mat-icon>
+                            </button>
+                        }
+                    </div>
+                } @empty {
+                    <p>{{ t('list.no-content') }}</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

@@ -1,6 +1,6 @@
 import { Provider }           from '@angular/core';
-import { RoutePermission }    from './permissions.service';
 import { MODULE_PERMISSIONS } from './permissions.tokens';
+import { RoutePermission } from '@core/permissions/models/route-permission';
 
 export function provideModulePermissions(permissions: RoutePermission[]): Provider {
     return {

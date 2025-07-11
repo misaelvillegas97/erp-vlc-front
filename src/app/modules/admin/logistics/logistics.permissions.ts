@@ -1,4 +1,4 @@
-import { RoutePermission }                  from '@core/permissions/permissions.service';
+import { RoutePermission } from '@core/permissions/models/route-permission';
 import { fleetManagementPermissions }       from '@modules/admin/logistics/fleet-management/fleet-management.permissions';
 import { fuelManagementPermissions }        from '@modules/admin/logistics/fuel-management/fuel-management.permissions';
 import { preventiveMaintenancePermissions } from '@modules/admin/logistics/preventive-maintenance/preventive-maintenance.permissions';

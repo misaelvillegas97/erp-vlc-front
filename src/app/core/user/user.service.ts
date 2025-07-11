@@ -6,6 +6,7 @@ import { User }                           from '@core/user/user.types';
 import { InfinityPagination }             from '@shared/domain/model/infinity-pagination';
 import { DriverLicenseDto }               from '@modules/admin/maintainers/users/models/driver-license.model';
 import { CreateUserDto }                  from '@modules/admin/maintainers/users/models/create-user.dto';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Injectable({providedIn: 'root'})
 export class UserService {
@@ -19,6 +20,10 @@ export class UserService {
 
     get user$(): Observable<User> {
         return this._user.asObservable();
+    }
+
+    get userSignal() {
+        return toSignal(this._user.asObservable());
     }
 
     update(user: User): Observable<any> {

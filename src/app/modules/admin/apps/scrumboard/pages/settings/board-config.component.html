@@ -1,0 +1,33 @@
+<div class="absolute inset-0 flex min-w-0 flex-col overflow-hidden">
+    <!-- Header -->
+    <div class="bg-card flex flex-0 flex-col border-b p-6 dark:bg-transparent sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:py-8">
+        <!-- Title -->
+        <div class="min-w-0 flex-1 space-x-4 flex">
+            <a [routerLink]="'../'" mat-icon-button>
+                <mat-icon [svgIcon]="'heroicons_outline:chevron-left'"></mat-icon>
+            </a>
+            <h2 class="truncate text-3xl font-extrabold leading-7 tracking-tight sm:leading-10 md:text-4xl">
+                {{ board.title }}
+            </h2>
+        </div>
+    </div>
+    <drawer-listing
+        (panelSelected)="onPanelSelected($event)"
+        *transloco="let t; read: 'admin.benefits'"
+        [panels]="panels"
+        [selectedPanel]="selectedPanel.id"
+        class="relative"
+    >
+        <!--  <drawer-header>-->
+        <!--    <page-header-->
+        <!--      [description]="t('description')"-->
+        <!--      [subtitle]="t('subtitle')"-->
+        <!--      [title]="t('title')"-->
+        <!--    ></page-header>-->
+        <!--  </drawer-header>-->
+        <drawer-content>
+            <router-outlet></router-outlet>
+        </drawer-content>
+    </drawer-listing>
+
+</div>

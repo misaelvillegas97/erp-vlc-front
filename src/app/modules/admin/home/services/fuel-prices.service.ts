@@ -209,7 +209,7 @@ export class FuelPricesService {
         });
 
         return this.http.get<Root[]>(this.stationsUrl, {headers}).pipe(
-            timeout(10000),
+            timeout(90000),
             shareReplay({
                 bufferSize: 1,
                 refCount  : false

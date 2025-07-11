@@ -61,17 +61,31 @@ export class ScrumboardMockApi {
                 // Find the board
                 const board = this._boards.find(item => item.id === id);
 
+                board.members = board.members.map(boardMember => this._members.find(member => boardMember === member.id));
+
                 // Attach the board lists
                 board.lists = this._lists.filter(item => item.boardId === id).sort((a, b) => a.position - b.position);
 
                 // Grab all cards that belong to this board and attach labels to them
                 let cards = this._cards.filter(item => item.boardId === id);
-                cards = cards.map(card => (
-                    {
+
+                cards = cards.map(card => {
+                    // Create a new card with labels converted to objects
+                    const newCard = {
                         ...card,
                         labels: card.labels.map(cardLabelId => this._labels.find(label => label.id === cardLabelId)),
+                    };
+
+                    // If the card has members, convert them to objects
+                    if (newCard.members) {
+                        newCard.members = newCard.members.map(memberId => this._members.find(member => member.id === memberId));
+                    } else {
+                        // If the card doesn't have members, initialize with empty array
+                        newCard.members = [];
                     }
-                ));
+
+                    return newCard;
+                });
 
                 // Attach the board cards into corresponding lists
                 board.lists.forEach((list, index, array) => {
@@ -224,7 +238,16 @@ export class ScrumboardMockApi {
                 let updatedCard = null;
 
                 // Go through the labels and leave only ids of them
-                card.labels = card.labels.map(itemLabel => itemLabel.id);
+                card.labels = card.labels.map(itemLabel =>
+                    typeof itemLabel === 'string' ? itemLabel : itemLabel.id
+                );
+
+                // Go through the members and leave only ids of them (if members exist)
+                if (card.members && card.members.length > 0) {
+                    card.members = card.members.map(itemMember =>
+                        typeof itemMember === 'string' ? itemMember : itemMember.id
+                    );
+                }
 
                 // Find the card and update it
                 this._cards.forEach((item, index, cards) => {
@@ -239,6 +262,14 @@ export class ScrumboardMockApi {
 
                 // Attach the labels of the card
                 updatedCard.labels = updatedCard.labels.map(cardLabelId => this._labels.find(label => label.id === cardLabelId));
+
+                // Attach the members of the card (if members exist)
+                if (updatedCard.members && updatedCard.members.length > 0) {
+                    updatedCard.members = updatedCard.members.map(memberId => this._members.find(member => member.id === memberId));
+                } else {
+                    // Ensure members is always an array
+                    updatedCard.members = [];
+                }
 
                 return [
                     200,
@@ -264,13 +295,30 @@ export class ScrumboardMockApi {
                     const index = this._cards.findIndex(card => item.id === card.id);
 
                     // Go through the labels and leave only ids of them
-                    item.labels = item.labels.map(itemLabel => itemLabel.id);
+                    item.labels = item.labels.map(itemLabel =>
+                        typeof itemLabel === 'string' ? itemLabel : itemLabel.id
+                    );
+
+                    // Go through the members and leave only ids of them (if members exist)
+                    if (item.members && item.members.length > 0) {
+                        item.members = item.members.map(itemMember =>
+                            typeof itemMember === 'string' ? itemMember : itemMember.id
+                        );
+                    }
 
                     // Update the card
                     this._cards[index] = assign({}, this._cards[index], item);
 
                     // Attach the labels of the card
                     item.labels = item.labels.map(cardLabelId => this._labels.find(label => label.id === cardLabelId));
+
+                    // Attach the members of the card (if members exist)
+                    if (item.members && item.members.length > 0) {
+                        item.members = item.members.map(memberId => this._members.find(member => member.id === memberId));
+                    } else {
+                        // Ensure members is always an array
+                        item.members = [];
+                    }
 
                     // Store in the updated cards
                     updatedCards.push(item);

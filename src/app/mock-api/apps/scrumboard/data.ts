@@ -87,6 +87,12 @@ export const cards = [
             'f9eeb436-13a3-4208-a239-0d555960a567',
         ],
         dueDate    : now.startOf('day').minus({day: 10}).toISO(),
+        members: [
+            '6f6a1c34-390b-4b2e-97c8-ff0e0d787839',
+            '4ce4be48-c8c0-468d-9df8-ddfda14cdb37',
+            '9c510cf3-460d-4a8c-b3be-bcc3db578c08',
+            '7ec887d9-b01a-4057-b5dc-aaed18637cc1',
+        ]
     },
     {
         id      : 'ed58add1-45a7-41db-887d-3ca7ee7f2719',
@@ -98,6 +104,12 @@ export const cards = [
             'e0175175-2784-48f1-a519-a1d2e397c9b3',
         ],
         dueDate : null,
+        members: [
+            '74975a82-addb-427b-9b43-4d2e03331b68',
+            'fe0fec0d-002b-406f-87ab-47eb87ba577c',
+            '23a47d2c-c6cb-40cc-af87-e946a9df5028',
+            'baa88231-0ee6-4028-96d5-7f187e0f4cd5',
+        ],
     },
     {
         id      : 'cd6897cb-acfd-4016-8b53-3f66a5b5fc68',
@@ -211,26 +223,31 @@ export const labels = [
         id     : 'e0175175-2784-48f1-a519-a1d2e397c9b3',
         boardId: '2c82225f-2a6c-45d3-b18a-1132712a4234',
         title  : 'Research',
+        color: '#F44336',
     },
     {
         id     : '51779701-818a-4a53-bc16-137c3bd7a564',
         boardId: '2c82225f-2a6c-45d3-b18a-1132712a4234',
         title  : 'Wireframing',
+        color: '#E91E63',
     },
     {
         id     : 'e8364d69-9595-46ce-a0f9-ce428632a0ac',
         boardId: '2c82225f-2a6c-45d3-b18a-1132712a4234',
         title  : 'Design',
+        color: '#9C27B0',
     },
     {
         id     : 'caff9c9b-a198-4564-b1f4-8b3df1d345bb',
         boardId: '2c82225f-2a6c-45d3-b18a-1132712a4234',
         title  : 'Development',
+        color: '#3F51B5',
     },
     {
         id     : 'f9eeb436-13a3-4208-a239-0d555960a567',
         boardId: '2c82225f-2a6c-45d3-b18a-1132712a4234',
         title  : 'Bug',
+        color: '#2196F3',
     },
 ];
 export const members = [

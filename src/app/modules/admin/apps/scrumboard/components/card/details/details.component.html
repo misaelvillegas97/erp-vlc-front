@@ -1,0 +1,418 @@
+<div class="flex max-h-160 flex-auto flex-col md:w-160 md:min-w-160">
+    <!-- Header -->
+    <div class="flex h-16 flex-0 items-center justify-between bg-primary pl-6 pr-3 text-on-primary sm:pl-8 sm:pr-5">
+        <div class="text-lg font-medium">
+            @if (card().type) {
+                <span class="mr-2 px-2 py-1 text-xs font-semibold rounded-md"
+                      [ngClass]="{
+                        'bg-blue-100 text-blue-800': card().type === 'task',
+                        'bg-red-100 text-red-800': card().type === 'bug',
+                        'bg-yellow-100 text-yellow-800': card().type === 'note',
+                        'bg-green-100 text-green-800': card().type === 'feature'
+                      }">
+                    {{ card().type }}
+                </span>
+            }
+            Tarjeta
+        </div>
+        <button (click)="matDialogRef.close()" [tabIndex]="-1" mat-icon-button>
+            <mat-icon
+                [svgIcon]="'heroicons_outline:x-mark'"
+                class="text-current"
+            ></mat-icon>
+        </button>
+    </div>
+
+    <!-- Card form -->
+    <form
+        [formGroup]="cardForm"
+        class="flex w-full flex-1 flex-col items-start space-y-6 overflow-y-auto p-6 sm:p-8"
+    >
+        <!-- Title -->
+        <mat-form-field [subscriptSizing]="'dynamic'" class="w-full">
+            <mat-label>Título</mat-label>
+            <textarea
+                [cdkAutosizeMinRows]="1"
+                [formControlName]="'title'"
+                [rows]="1"
+                placeholder="Ingrese un título para la tarjeta"
+                cdkTextareaAutosize
+                matInput
+            >
+            </textarea>
+        </mat-form-field>
+
+        <!-- Description -->
+        <mat-form-field [subscriptSizing]="'dynamic'" class="w-full">
+            <mat-label>Descripción</mat-label>
+            <textarea
+                [cdkAutosizeMinRows]="1"
+                [formControlName]="'description'"
+                [rows]="1"
+                placeholder="Ingrese una descripción para la tarjeta"
+                cdkTextareaAutosize
+                matInput
+            >
+            </textarea>
+        </mat-form-field>
+
+        <!-- Due date -->
+        <div>
+            <span class="font-medium">Fecha de vencimiento</span>
+            <div
+                (click)="dueDatePicker.open()"
+                [ngClass]="{
+                    'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300':
+                        !card().dueDate,
+                    'bg-green-200 text-green-800 dark:bg-green-500 dark:text-green-100':
+                        card().dueDate && !isOverdue(card().dueDate),
+                    'bg-red-200 text-red-800 dark:bg-red-500 dark:text-red-100':
+                        card().dueDate && isOverdue(card().dueDate),
+                }"
+                class="relative mt-1.5 flex cursor-pointer items-center rounded-full px-4 leading-9"
+            >
+                <mat-icon [svgIcon]="'heroicons_solid:calendar'" class="text-current icon-size-5"></mat-icon>
+                <span class="ml-2 text-md font-medium">
+                    @if (card().dueDate) {
+                        {{ card().dueDate | date: 'longDate' }}
+                    }
+                    @if (!card().dueDate) {
+                        Not set
+                    }
+                </span>
+                <mat-form-field
+                    [subscriptSizing]="'dynamic'"
+                    class="fuse-mat-dense pointer-events-none invisible absolute inset-0 -mt-2.5 opacity-0"
+                >
+                    <input
+                        [formControlName]="'dueDate'"
+                        [matDatepicker]="dueDatePicker"
+                        matInput
+                    />
+                    <mat-datepicker #dueDatePicker>
+                        <mat-datepicker-actions>
+                            <button
+                                (click)="cardForm.get('dueDate').setValue(null)"
+                                mat-button
+                                matDatepickerCancel
+                            >
+                                Limpiar
+                            </button>
+                            <button
+                                [color]="'primary'"
+                                mat-flat-button
+                                matDatepickerApply
+                            >
+                                Seleccionar
+                            </button>
+                        </mat-datepicker-actions>
+                    </mat-datepicker>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <!-- Members -->
+        <div class="w-full">
+            <span class="font-medium">Asignados</span>
+            <div class="mt-1 overflow-hidden rounded-md border border-gray-300 shadow-sm">
+                <!-- Header -->
+                <div class="mx-3 my-2 flex items-center">
+                    <div class="flex min-w-0 flex-auto items-center">
+                        <mat-icon
+                            [svgIcon]="'heroicons_solid:magnifying-glass'"
+                            class="icon-size-5"
+                        ></mat-icon>
+                        <input
+                            (input)="filterMembers($event)"
+                            (keydown)="filterMembersInputKeyDown($event)"
+                            [maxLength]="50"
+                            placeholder="Buscar miembros"
+                            class="ml-2 min-w-0 border-0 py-1"
+                            type="text"
+                        />
+                    </div>
+                </div>
+                <!-- Available members -->
+                <div class="max-h-40 overflow-y-auto border-t leading-none py-1">
+                    <!-- Labels -->
+                    @for (member of filteredMembers(); track trackByFn($index, member)) {
+                        <mat-checkbox
+                            class="flex h-10 min-h-10 items-center pl-1 pr-4 hover:bg-hover"
+                            [color]="'primary'"
+                            [checked]="hasMember(member)"
+                            (change)="toggleCardAssignee(member, $event)"
+                        >
+                            {{ member.name }}
+                        </mat-checkbox>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Labels -->
+        <div class="w-full">
+            <span class="font-medium">Etiquetas</span>
+            <div class="mt-1 overflow-hidden rounded-md border border-gray-300 shadow-sm">
+                <!-- Header -->
+                <div class="mx-3 my-2 flex items-center">
+                    <div class="flex min-w-0 flex-auto items-center">
+                        <mat-icon
+                            [svgIcon]="'heroicons_solid:magnifying-glass'"
+                            class="icon-size-5"
+                        ></mat-icon>
+                        <input
+                            (input)="filterLabels($event)"
+                            (keydown)="filterLabelsInputKeyDown($event)"
+                            [maxLength]="50"
+                            [placeholder]="'Filtrar etiquetas'"
+                            class="ml-2 min-w-0 border-0 py-1"
+                            type="text"
+                        />
+                    </div>
+                </div>
+                <!-- Available labels -->
+                <div class="max-h-40 overflow-y-auto border-t leading-none py-1">
+                    <!-- Labels -->
+                    @for (label of filteredLabels(); track trackByFn($index, label)) {
+                        <mat-checkbox
+                            class="flex h-10 min-h-10 items-center pl-1 pr-4 hover:bg-hover"
+                            [color]="'primary'"
+                            [checked]="hasLabel(label)"
+                            (change)="toggleProductTag(label, $event)"
+                        >
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 rounded-full mr-2"
+                                     [ngStyle]="{'background-color': label.color || '#e5e7eb'}"></div>
+                                {{ label.title }}
+                            </div>
+                        </mat-checkbox>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Type -->
+        <div class="w-full">
+            <span class="font-medium">Tipo de Tarjeta</span>
+            <div class="mt-1">
+                <mat-form-field [subscriptSizing]="'dynamic'" class="w-full">
+                    <mat-select [formControlName]="'type'">
+                        <mat-option value="task">Tarea</mat-option>
+                        <mat-option value="bug">Error</mat-option>
+                        <mat-option value="note">Nota</mat-option>
+                        <mat-option value="feature">Característica</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <!-- Checklists -->
+        <div class="w-full">
+            <div class="flex justify-between items-center">
+                <span class="font-medium">Listas de Verificación</span>
+                <button mat-stroked-button class="h-8 min-h-8" (click)="addChecklist()">
+                    <mat-icon class="icon-size-5 mr-1" [svgIcon]="'heroicons_solid:plus'"></mat-icon>
+                    Agregar Lista
+                </button>
+            </div>
+
+            @if (card().checklists?.length) {
+                <div class="mt-2 space-y-4">
+                    @for (checklist of card().checklists; track trackByFn($index, checklist)) {
+                        <div class="border border-gray-300 rounded-md p-3">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="font-medium">{{ checklist.title }}</div>
+                                <button mat-icon-button (click)="removeChecklist(checklist)">
+                                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:trash'"></mat-icon>
+                                </button>
+                            </div>
+
+                            <div class="space-y-2">
+                                @for (item of checklist.items; track trackByFn($index, item)) {
+                                    <div class="flex items-center">
+                                        <mat-checkbox
+                                            [checked]="item.checked"
+                                            (change)="toggleChecklistItem(checklist, item, $event)">
+                                            {{ item.title }}
+                                        </mat-checkbox>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="mt-2 flex items-center">
+                                <input
+                                    #newItemInput
+                                    class="flex-1 border border-gray-300 rounded-md px-2 py-1 text-sm"
+                                    placeholder="Agregar un elemento"
+                                    (keydown.enter)="addChecklistItem(checklist, newItemInput.value); newItemInput.value = ''"
+                                />
+                                <button
+                                    mat-icon-button
+                                    (click)="addChecklistItem(checklist, newItemInput.value); newItemInput.value = ''">
+                                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:plus'"></mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Attachments -->
+        <div class="w-full">
+            <div class="flex justify-between items-center">
+                <span class="font-medium">Adjuntos</span>
+                <button mat-stroked-button class="h-8 min-h-8" (click)="addAttachment()">
+                    <mat-icon class="icon-size-5 mr-1" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+                    Agregar Adjunto
+                </button>
+            </div>
+
+            @if (card().attachments?.length) {
+                <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    @for (attachment of card().attachments; track trackByFn($index, attachment)) {
+                        <div class="border border-gray-300 rounded-md p-2 flex items-center">
+                            <mat-icon class="icon-size-5 mr-2" [svgIcon]="'heroicons_solid:document'"></mat-icon>
+                            <div class="flex-1 overflow-hidden">
+                                <div class="truncate">{{ attachment.name }}</div>
+                                <div class="text-xs text-gray-500">
+                                    {{ attachment.createdAt | date: 'shortDate' }}
+                                </div>
+                            </div>
+                            <button mat-icon-button (click)="removeAttachment(attachment)">
+                                <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:trash'"></mat-icon>
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Comments -->
+        <div class="w-full">
+            <div class="flex justify-between items-center">
+                <span class="font-medium">Comentarios</span>
+            </div>
+
+            <div class="mt-2 space-y-3">
+                @if (card().comments?.length) {
+                    @for (comment of card().comments; track trackByFn($index, comment)) {
+                        <div class="border border-gray-300 rounded-md p-3">
+                            <div class="flex items-start">
+                                @if (comment.member?.avatar) {
+                                    <img
+                                        class="w-8 h-8 rounded-full mr-2"
+                                        [src]="comment.member.avatar.fileUrl"
+                                        [alt]="comment.member.name"
+                                    />
+                                } @else {
+                                    <div class="w-8 h-8 rounded-full mr-2 bg-gray-300 flex items-center justify-center">
+                                        {{ comment.member?.name?.charAt(0) || '?' }}
+                                    </div>
+                                }
+
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-center">
+                                        <div class="font-medium">{{ comment.member?.name || 'Desconocido' }}</div>
+                                        <div class="text-xs text-gray-500">
+                                            {{ comment.createdAt | date: 'medium' }}
+                                        </div>
+                                    </div>
+                                    <div class="mt-1">{{ comment.message }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+
+                <div class="flex items-start mt-3">
+                    <div class="w-8 h-8 rounded-full mr-2 bg-gray-300 flex items-center justify-center">
+                        {{ currentUser?.name?.charAt(0) || '?' }}
+                    </div>
+                    <div class="flex-1">
+                        <textarea
+                            #commentInput
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 min-h-[80px]"
+                            placeholder="Escribe un comentario..."
+                        ></textarea>
+                        <div class="mt-2 flex justify-end">
+                            <button
+                                mat-flat-button
+                                color="primary"
+                                (click)="addComment(commentInput.value); commentInput.value = ''">
+                                Agregar Comentario
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Fields -->
+        <div class="w-full">
+            <div class="flex justify-between items-center">
+                <span class="font-medium">Campos Personalizados</span>
+                <button mat-stroked-button class="h-8 min-h-8" (click)="addCustomField()">
+                    <mat-icon class="icon-size-5 mr-1" [svgIcon]="'heroicons_solid:plus'"></mat-icon>
+                    Agregar Campo
+                </button>
+            </div>
+
+            @if (card().customFields?.length) {
+                <div class="mt-2 space-y-3">
+                    @for (field of card().customFields; track trackByFn($index, field)) {
+                        <div class="border border-gray-300 rounded-md p-3">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="font-medium">{{ field.title }}</div>
+                                <div class="flex items-center">
+                                    <div class="text-xs text-gray-500 mr-2">{{ field.type }}</div>
+                                    <button mat-icon-button (click)="removeCustomField(field)">
+                                        <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:trash'"></mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div [ngSwitch]="field.type">
+                                <input *ngSwitchCase="'text'"
+                                       class="w-full border border-gray-300 rounded-md px-3 py-2"
+                                       [(ngModel)]="field.value"
+                                       [ngModelOptions]="{standalone: true}"/>
+
+                                <input *ngSwitchCase="'number'"
+                                       type="number"
+                                       class="w-full border border-gray-300 rounded-md px-3 py-2"
+                                       [(ngModel)]="field.value"
+                                       [ngModelOptions]="{standalone: true}"/>
+
+                                <input *ngSwitchCase="'date'"
+                                       type="date"
+                                       class="w-full border border-gray-300 rounded-md px-3 py-2"
+                                       [(ngModel)]="field.value"
+                                       [ngModelOptions]="{standalone: true}"/>
+
+                                <select *ngSwitchCase="'select'"
+                                        class="w-full border border-gray-300 rounded-md px-3 py-2"
+                                        [(ngModel)]="field.value"
+                                        [ngModelOptions]="{standalone: true}">
+                                    <option *ngFor="let option of field.options" [value]="option.id">
+                                        {{ option.value }}
+                                    </option>
+                                </select>
+
+                                <div *ngSwitchCase="'multiuser'" class="space-y-2">
+                                    @for (member of board().members; track trackByFn($index, member)) {
+                                        <mat-checkbox
+                                            [checked]="isUserSelected(field, member)"
+                                            (change)="toggleUserSelection(field, member, $event)">
+                                            {{ member.name }}
+                                        </mat-checkbox>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </form>
+</div>

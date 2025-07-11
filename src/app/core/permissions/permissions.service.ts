@@ -4,18 +4,7 @@ import { MODULE_PERMISSIONS }           from './permissions.tokens';
 import { FuseNavigationItem }           from '../../../@fuse/components/navigation';
 import { UserService }                  from '@core/user/user.service';
 import { PanelType } from '@shared/components/drawer-listing/panel.type';
-
-export interface RoutePermission {
-    path: string;
-    allowedRoles: RoleEnum[];
-    title?: string;
-    description?: string;
-    icon?: string;
-    selectedIcon?: string;
-    children?: RoutePermission[];
-    navOptions?: Partial<FuseNavigationItem>;
-    hideInMainNav?: boolean;
-}
+import { RoutePermission } from '@core/permissions/models/route-permission';
 
 @Injectable({providedIn: 'root'})
 export class PermissionsService {
@@ -56,11 +45,11 @@ export class PermissionsService {
     }
 
     /**
-     * Verify if a route has children with permitted roles
+     * Verify if a route has children with permitted roles or if children haven't allowedRoles, it is considered permitted
      */
     private _hasPermittedChild(route: RoutePermission, role: RoleEnum): boolean {
         return !!route.children?.some(child =>
-            child.allowedRoles.includes(role) ||
+            child.allowedRoles.length === 0 || child.allowedRoles.includes(role) ||
             (child.children && this._hasPermittedChild(child, role))
         );
     }
@@ -221,7 +210,7 @@ export class PermissionsService {
      */
     private _filterPermissionsRecursively(routes: RoutePermission[]): RoutePermission[] {
         return routes
-            .filter(route => route.allowedRoles && route.allowedRoles.length > 0)
+            .filter(route => route.allowedRoles)
             .map(route => {
                 // If it has children, filter them recursively too
                 if (route.children && route.children.length > 0) {

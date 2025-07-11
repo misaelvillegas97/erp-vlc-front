@@ -1,0 +1,80 @@
+<form (ngSubmit)="submit()" [formGroup]="form">
+    <div class="flex max-h-screen max-w-240 flex-col md:min-w-160 h-full">
+        <!-- Header -->
+        <div class="flex h-16 flex-0 items-center justify-between bg-primary pl-6 pr-3 text-on-primary sm:pl-8 sm:pr-5">
+            <div class="text-lg font-medium">Nuevo Tablero</div>
+            <button mat-dialog-close mat-icon-button>
+                <mat-icon
+                    [svgIcon]="'heroicons_outline:x-mark'"
+                    class="text-current"
+                ></mat-icon>
+            </button>
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 flex flex-col overflow-y-auto p-6 sm:p-8 h-full space-y-2">
+            <!-- Name -->
+            <mat-form-field floatLabel="always">
+                <mat-label>Nombre</mat-label>
+                <input placeholder="Ingrese un nombre para el tablero" autocapitalize="sentences" formControlName="title" matInput/>
+                <mat-error *ngIf="form.get('title').hasError('required')">El nombre es obligatorio</mat-error>
+            </mat-form-field>
+
+            <!-- Description -->
+            <mat-form-field floatLabel="always">
+                <mat-label>Descripción</mat-label>
+                <textarea autocapitalize="sentences" cdkTextareaAutosize formControlName="description" matInput></textarea>
+                <mat-error *ngIf="form.get('description').hasError('required')">La descripción es obligatoria</mat-error>
+            </mat-form-field>
+
+            <mat-form-field floatLabel="always">
+                <mat-label>Miembros</mat-label>
+                <mat-select #memberSelect="matSelect" placeholder="Seleccionar miembros" disableOptionCentering formControlName="members" multiple="true">
+                    <mat-select-trigger>
+                        {{ memberSelect?.value ? memberSelect.value[0]?.name : '' }}
+                        <span *ngIf="memberSelect?.value?.length > 1" class="text-hint">
+                        (+{{ memberSelect?.value?.length - 1 }} más)
+                    </span>
+                    </mat-select-trigger>
+
+                    @for (member of members$ | async; track member.id) {
+                        <mat-option [value]="member">
+                            <div class="flex flex-col py-2">
+                                <span class="font-medium" [innerText]="member.name"></span>
+                                <span class="text-hint" [innerText]="member.position"></span>
+                            </div>
+                        </mat-option>
+                    }
+                </mat-select>
+
+                @if (form.get('members').hasError('required')) {
+                    <mat-error>Los miembros son obligatorios</mat-error>
+                }
+            </mat-form-field>
+        </div>
+
+        <!-- Actions -->
+        <div class="pb-6 sm:pb-8 flex flex-col justify-between sm:flex-row sm:items-center space-y-4 md:space-y-0 px-6 sm:px-8">
+            <!-- Discard -->
+            <button
+                (click)="_matDialogRef.close()"
+                class="w-full md:w-30 "
+                mat-stroked-button
+                type="button"
+            >Descartar
+            </button>
+
+            <!-- Save -->
+            <button
+                [disabled]="form.invalid || form.disabled"
+                class="md:min-w-30"
+                color="primary"
+                mat-raised-button
+                type="submit"
+            >
+                <span *ngIf="!form.disabled">Crear</span>
+                <mat-progress-spinner *ngIf="form.disabled" [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
+            </button>
+        </div>
+    </div>
+</form>
