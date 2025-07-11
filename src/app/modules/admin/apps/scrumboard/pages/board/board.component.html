@@ -97,10 +97,9 @@
         <div
             (cdkDropListDropped)="listDropped($event)"
             [cdkDropListData]="boardLists()"
-            [cdkDropListOrientation]="'horizontal'"
             cdkDropList
-            class="flex overflow-x-auto pb-4"
-            style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.3) transparent;"
+            cdkDropListOrientation="horizontal"
+            class="flex h-full flex-nowrap items-start p-4 overflow-x-auto relative z-10 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
         >
             <!-- Group all cdkDropList's after this point together so that the cards can be transferred between lists -->
             <div cdkDropListGroup class="flex items-start space-x-4">
