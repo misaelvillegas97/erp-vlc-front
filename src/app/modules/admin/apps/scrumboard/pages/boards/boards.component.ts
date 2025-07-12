@@ -8,7 +8,6 @@ import { DateTime }                                                             
 import { MatTooltip }                                                                        from '@angular/material/tooltip';
 import { MatDialog }                                                                         from '@angular/material/dialog';
 import { NewBoardComponent }                                                                 from '@modules/admin/apps/scrumboard/dialogs/new-board/new-board.component';
-import { trackByFn }                                                                         from '@libs/ui/utils/utils';
 
 @Component({
     selector       : 'scrumboard-boards',
@@ -24,7 +23,6 @@ export class ScrumboardBoardsComponent {
     readonly #cdr = inject(ChangeDetectorRef);
 
     boards = this.#boardService.boards;
-    protected readonly trackByFn = trackByFn;
 
     /**
      * Format the given ISO_8601 date as a relative date
@@ -33,6 +31,16 @@ export class ScrumboardBoardsComponent {
      */
     formatDateAsRelative(date: string): string {
         return DateTime.fromISO(date).toRelative();
+    }
+
+    /**
+     * Get user initial for avatar fallback
+     */
+    getUserInitial(name: string): string {
+        if (!name || name.trim().length === 0) {
+            return '?';
+        }
+        return name.trim().charAt(0).toUpperCase();
     }
 
     openNewBoardDialog(): void {

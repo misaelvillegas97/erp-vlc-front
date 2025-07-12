@@ -11,7 +11,7 @@
 
         <!-- Boards -->
         <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:mt-16 lg:grid-cols-4">
-            @for (board of boards(); track trackByFn($index, board)) {
+            @for (board of boards(); track board.id) {
                 <a
                     class="bg-card flex w-56 flex-col items-start rounded-lg p-6 shadow transition-shadow duration-150 ease-in-out hover:shadow-xl"
                     [routerLink]="[board.id]"
@@ -34,18 +34,19 @@
                     @if (board.members?.length) {
                         <div class="mt-6 h-1 w-12 border-t-2"></div>
                         <div class="mt-6 flex items-center -space-x-1.5">
-                            @for (member of board.members.slice(0, 5); track trackByFn($index, member)) {
-                                @if ($any(member).avatar?.fileUrl) {
+                            @for (member of board.members.slice(0, 5); track member.id) {
+                                @if ($any(member).avatar) {
                                     <img
                                         [matTooltip]="$any(member).name"
                                         class="ring-bg-card h-8 w-8 flex-0 rounded-full object-cover ring ring-offset-1 ring-offset-transparent"
                                         [src]="$any(member).avatar?.fileUrl"
                                         alt="Member avatar"
                                     />
-                                }
-                                @if (!$any(member).avatar?.fileUrl) {
-                                    <div [matTooltip]="$any(member).name" class="ring-bg-card flex h-8 w-8 flex-0 items-center justify-center rounded-full bg-gray-200 text-gray-500 ring ring-offset-1 ring-offset-transparent">
-                                        {{ member.name.charAt(0) }}
+                                } @else {
+                                    <div
+                                        [matTooltip]="$any(member).name"
+                                        class="ring-bg-card flex h-8 w-8 flex-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-semibold ring ring-offset-1 ring-offset-transparent">
+                                        {{ getUserInitial($any(member).name) }}
                                     </div>
                                 }
                             }

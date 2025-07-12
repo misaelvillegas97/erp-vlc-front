@@ -22,12 +22,20 @@ import { Board }                    from '@modules/admin/apps/scrumboard/models/
             <div class="flex items-center mt-4 sm:mt-0">
                 <!-- Board members -->
                 <div class="flex items-center -space-x-1.5 mr-4">
-                    @for (member of board()?.members; track trackByFn($index, member)) {
-                        <img
-                            class="w-8 h-8 rounded-full ring-2 ring-bg-card"
-                            [src]="member.avatar"
-                            [alt]="member.name"
-                            [matTooltip]="member.name">
+                    @for (member of board()?.members; track member.id) {
+                        @if (member.avatar) {
+                            <img
+                                class="w-8 h-8 rounded-full ring-2 ring-bg-card object-cover"
+                                [src]="member.avatar"
+                                [alt]="member.name"
+                                [matTooltip]="member.name">
+                        } @else {
+                            <div
+                                class="w-8 h-8 rounded-full ring-2 ring-bg-card bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-semibold flex items-center justify-center"
+                                [matTooltip]="member.name">
+                                {{ getUserInitial(member.name) }}
+                            </div>
+                        }
                     }
                 </div>
 
@@ -87,10 +95,13 @@ export class ScrumboardBoardHeaderComponent {
     deleteBoard = output<void>();
 
     /**
-     * Track by function for ngFor loops
+     * Get user initial for avatar fallback
      */
-    trackByFn(index: number, item: any): any {
-        return item.id || index;
+    getUserInitial(name: string): string {
+        if (!name || name.trim().length === 0) {
+            return '?';
+        }
+        return name.trim().charAt(0).toUpperCase();
     }
 
     /**
