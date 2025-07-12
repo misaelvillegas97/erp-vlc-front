@@ -1,54 +1,52 @@
-// Enhanced drag preview styles for professional Trello-like appearance
+// Optimized drag preview styles for better performance
 
-// List drag preview - elevated and rotated for visual feedback
+// List drag preview - simplified for better performance
 .list-drag-preview {
-    @apply shadow-2xl ring-4 ring-blue-500/30 backdrop-blur-md;
-    opacity: 0.95;
+    @apply shadow-xl ring-2 ring-blue-500/40 transition-all duration-300 ease-in-out;
+    opacity: 0.9;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(8px);
-    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    // Removed backdrop-filter for better performance
+    transform: rotate(2deg) scale(1.02);
 }
 
-// List drag placeholder - subtle dashed outline
+// List drag placeholder - simplified for better performance
 .list-drag-placeholder {
-    @apply border-2 border-dashed border-blue-400/60 bg-blue-50/30 rounded-xl;
+    @apply border-2 border-dashed border-blue-400/60 bg-blue-50/30 rounded-xl transition-all duration-300 ease-in-out;
     opacity: 0.6;
-    backdrop-filter: blur(4px);
     min-height: 200px;
-    transition: all 200ms ease-in-out;
+    // Removed backdrop-filter and transition for better performance
 }
 
-// Card drag preview - clean elevation with subtle rotation
+// Card drag preview - optimized for performance
 .card-drag-preview {
-    @apply shadow-xl ring-2 ring-blue-400/40 rounded-lg;
-    opacity: 0.92;
+    @apply shadow-lg ring-1 ring-blue-400/30 rounded-lg ;
+    opacity: 0.9;
     background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(6px);
-    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    // Removed backdrop-filter and complex transitions for better performance
+    transform: rotate(1deg) scale(1.01);
     z-index: 1000;
 }
 
-// Card drag placeholder - minimal dashed outline
+// Card drag placeholder - simplified
 .card-drag-placeholder {
     @apply border-2 border-dashed border-blue-300/50 bg-blue-50/20 rounded-lg;
     opacity: 0.5;
     min-height: 60px;
     margin-bottom: 12px;
-    transition: all 150ms ease-in-out;
+    // Removed transition for better performance
 }
 
 
-// Smooth transitions for non-dragged items
+// Simplified transitions for better performance
 .cdk-drop-list-dragging div:not(.cdk-drag-placeholder) {
-    transition: transform 250ms cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: transform 150ms ease-out;
 }
 
-// Hover states for better UX
-.cdk-drag:hover {
-    @apply shadow-lg;
-    transform: translateY(-1px);
-    transition: all 200ms ease-out;
+// Simplified hover states for better performance
+.cdk-drag:hover:not(.cdk-drag-dragging) {
+    @apply shadow-md;
+    // Removed transform for better performance during drag
 }
 
 // Active drag state
@@ -94,36 +92,17 @@
     @apply opacity-50 cursor-not-allowed;
 }
 
-// Smooth scaling animation for drag start
+// Removed expensive animations for better drag performance
+// Simple drag start indication without animation
 .cdk-drag-dragging {
-    animation: dragStart 150ms ease-out;
+    transform: scale(1.02);
 }
 
-@keyframes dragStart {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
-    100% {
-        transform: scale(1.03);
-    }
-}
-
-// Pulse animation for drop zones when dragging
+// Removed infinite pulse animation for better performance
+// Simple drop zone highlighting without animation
 .cdk-drop-list-dragging {
     .cdk-drop-list:not(.cdk-drop-list-disabled) {
-        animation: dropZonePulse 2s ease-in-out infinite;
-    }
-}
-
-@keyframes dropZonePulse {
-    0%, 100% {
-        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.1);
-    }
-    50% {
-        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
     }
 }
 

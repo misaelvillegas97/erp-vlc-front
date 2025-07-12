@@ -1,43 +1,39 @@
-import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, CdkDropListGroup, moveItemInArray, transferArrayItem, } from '@angular/cdk/drag-drop';
-import { CdkScrollable }                                                                                           from '@angular/cdk/scrolling';
-import { DatePipe }                                                                                                from '@angular/common';
-import { ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, OnInit }                               from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup }                                                                    from '@angular/forms';
-import { MatButtonModule }                                                                                         from '@angular/material/button';
-import { MatIconModule }                                                                                           from '@angular/material/icon';
-import { MatMenuModule }                                                                                           from '@angular/material/menu';
-import { MatTooltip }                                                                                              from '@angular/material/tooltip';
-import { ActivatedRoute, RouterLink, RouterOutlet }                                                                from '@angular/router';
+import { CdkDragDrop, CdkDropList, CdkDropListGroup, moveItemInArray, transferArrayItem, }                    from '@angular/cdk/drag-drop';
+import { CdkScrollable }                                                                                      from '@angular/cdk/scrolling';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, OnInit } from '@angular/core';
+import { UntypedFormBuilder, UntypedFormGroup }                                                               from '@angular/forms';
+import { MatButtonModule }                                                                                    from '@angular/material/button';
+import { MatIconModule }                                                                                      from '@angular/material/icon';
+import { MatMenuModule }                                                                                      from '@angular/material/menu';
+import { ActivatedRoute, RouterOutlet }                                                                       from '@angular/router';
+import { debounceTime, firstValueFrom, Subject }                                                              from 'rxjs';
 
-import { DateTime }       from 'luxon';
-import { firstValueFrom } from 'rxjs';
-
-import { FuseConfirmationService }         from '@fuse/services/confirmation';
-import { Card, List, }                     from '@modules/admin/apps/scrumboard/models/scrumboard.models';
-import { ScrumboardService }               from '@modules/admin/apps/scrumboard/services/scrumboard.service';
-import { WebsocketService }                from '@modules/admin/apps/scrumboard/services/websocket.service';
-import { ScrumboardBoardAddCardComponent } from './add-card/add-card.component';
-import { ScrumboardBoardAddListComponent } from './add-list/add-list.component';
+import { FuseConfirmationService }            from '@fuse/services/confirmation';
+import { Card, List, }                        from '@modules/admin/apps/scrumboard/models/scrumboard.models';
+import { ScrumboardService }                  from '@modules/admin/apps/scrumboard/services/scrumboard.service';
+import { WebsocketService }                   from '@modules/admin/apps/scrumboard/services/websocket.service';
+import { ScrumboardBoardAddListComponent }    from './add-list/add-list.component';
+import { ScrumboardBoardHeaderComponent }     from './components/board-header/board-header.component';
+import { ScrumboardBoardNavigationComponent } from './components/board-navigation/board-navigation.component';
+import { ScrumboardBoardListComponent }       from './components/board-list/board-list.component';
 
 @Component({
     selector       : 'scrumboard-board',
     templateUrl    : './board.component.html',
     styleUrls      : [ './board.component.scss' ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         MatButtonModule,
-        RouterLink,
         MatIconModule,
         CdkScrollable,
         CdkDropList,
         CdkDropListGroup,
-        CdkDrag,
-        CdkDragHandle,
         MatMenuModule,
-        ScrumboardBoardAddCardComponent,
         ScrumboardBoardAddListComponent,
-        RouterOutlet,
-        DatePipe,
-        MatTooltip
+        ScrumboardBoardHeaderComponent,
+        ScrumboardBoardNavigationComponent,
+        ScrumboardBoardListComponent,
+        RouterOutlet
     ],
 })
 export class ScrumboardBoardComponent implements OnInit, OnDestroy {
@@ -54,6 +50,10 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
     private readonly _positionStep: number = 65536;
     private readonly _maxListCount: number = 200;
     private readonly _maxPosition: number = this._positionStep * 500;
+
+    // Debounced update subjects for performance optimization
+    private readonly _cardUpdateSubject = new Subject<{ id: string, card: Card }>();
+    private readonly _listUpdateSubject = new Subject<List[]>();
 
     /**
      * Constructor
@@ -80,6 +80,25 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
             if (card) {
                 console.log('cardUpdated', card);
             }
+        });
+
+        // Setup debounced API calls for better performance
+        this._cardUpdateSubject.pipe(
+            debounceTime(300) // Wait 300ms after last drag operation
+        ).subscribe(async ({id, card}) => {
+            try {
+                await this._scrumboardService.updateCard(id, card);
+            } catch (error) {
+                console.error('Error updating card:', error);
+            }
+        });
+
+        this._listUpdateSubject.pipe(
+            debounceTime(300) // Wait 300ms after last drag operation
+        ).subscribe((lists) => {
+            this._scrumboardService.updateLists(lists).subscribe({
+                error: (error) => console.error('Error updating lists:', error)
+            });
         });
     }
 
@@ -108,6 +127,10 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
      */
     ngOnDestroy(): void {
         this._wsService.disconnect();
+
+        // Clean up subjects to prevent memory leaks
+        this._cardUpdateSubject.complete();
+        this._listUpdateSubject.complete();
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -253,8 +276,8 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
         // Calculate the positions
         const updated = this._calculatePositions(event);
 
-        // Update the lists
-        this._scrumboardService.updateLists(updated).subscribe();
+        // Use debounced subject for better performance
+        this._listUpdateSubject.next(updated);
     }
 
     /**
@@ -288,93 +311,10 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
         // Calculate the positions
         const updated = this._calculatePositions(event);
 
-        // Update the cards
-        this._scrumboardService.updateCard(updated[0].id, updated[0]);
+        // Use debounced subject for better performance
+        this._cardUpdateSubject.next({id: updated[0].id, card: updated[0]});
     }
 
-    /**
-     * Check if the given ISO_8601 date string is overdue
-     *
-     * @param date
-     */
-    isOverdue(date: string): boolean {
-        return (
-            DateTime.fromISO(date).startOf('day') <
-            DateTime.now().startOf('day')
-        );
-    }
-
-    /**
-     * Get checklist completion percentage
-     *
-     * @param card
-     */
-    getChecklistCompletion(card: Card): string {
-        if (!card.checklists || !card.checklists.length) {
-            return '0/0';
-        }
-
-        let completed = 0;
-        let total = 0;
-
-        card.checklists.forEach(checklist => {
-            if (checklist.items && checklist.items.length) {
-                total += checklist.items.length;
-                completed += checklist.items.filter(item => item.checked).length;
-            }
-        });
-
-        return `${ completed }/${ total }`;
-    }
-
-    /**
-     * Get checklist completion text
-     *
-     * @param card
-     */
-    getChecklistCompletionText(card: Card): string {
-        if (!card.checklists || !card.checklists.length) {
-            return 'Sin listas de verificación';
-        }
-
-        let completed = 0;
-        let total = 0;
-
-        card.checklists.forEach(checklist => {
-            if (checklist.items && checklist.items.length) {
-                total += checklist.items.length;
-                completed += checklist.items.filter(item => item.checked).length;
-            }
-        });
-
-        const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
-        return `Lista de verificación: ${ completed }/${ total } (${ percentage }% completado)`;
-    }
-
-    /**
-     * Get contrast color (black or white) based on background color
-     *
-     * @param hexColor
-     */
-    getContrastColor(hexColor: string | null): string {
-        if (!hexColor) {
-            return '#000000';
-        }
-
-        // Remove the # if it exists
-        hexColor = hexColor.replace('#', '');
-
-        // Convert to RGB
-        const r = parseInt(hexColor.substr(0, 2), 16);
-        const g = parseInt(hexColor.substr(2, 2), 16);
-        const b = parseInt(hexColor.substr(4, 2), 16);
-
-        // Calculate luminance
-        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-
-        // Return black for bright colors, white for dark colors
-        return luminance > 0.5 ? '#000000' : '#FFFFFF';
-    }
 
     /**
      * Edit list properties
@@ -440,6 +380,34 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
                 console.log('boardJoined', boardId);
             }
         });
+    }
+
+    /**
+     * Board header event handlers
+     */
+    onAddMember(): void {
+        // TODO: Implement add member functionality
+        console.log('Add member clicked');
+    }
+
+    onEditBoard(): void {
+        // TODO: Implement edit board functionality
+        console.log('Edit board clicked');
+    }
+
+    onChangeBackground(): void {
+        // TODO: Implement change background functionality
+        console.log('Change background clicked');
+    }
+
+    onArchiveBoard(): void {
+        // TODO: Implement archive board functionality
+        console.log('Archive board clicked');
+    }
+
+    onDeleteBoard(): void {
+        // TODO: Implement delete board functionality
+        console.log('Delete board clicked');
     }
 
     // -----------------------------------------------------------------------------------------------------

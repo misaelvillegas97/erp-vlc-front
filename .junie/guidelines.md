@@ -177,20 +177,6 @@ The Table Builder component is a flexible and powerful table component that supp
 10. Write unit and end-to-end tests
 11. Optimize performance and bundle size
 
-### Testing
-
-When implementing new features or fixing bugs, ensure that:
-
-1. Unit tests are written for new functionality
-2. Existing tests pass
-3. The application builds without errors
-
-To run tests:
-
-```
-ng test
-```
-
 ## Additional Guidelines
 
 - Follow Angular's naming conventions (e.g., `feature.component.ts`, `feature.service.ts`)
