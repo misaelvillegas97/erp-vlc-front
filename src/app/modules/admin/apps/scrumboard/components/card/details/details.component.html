@@ -1,32 +1,30 @@
-<div class="flex flex-auto flex-col w-full h-full overflow-hidden bg-card">
-    <!-- Header -->
-    <div class="flex-0 flex h-16 items-center justify-between border-b border-divider px-6 sticky top-0 z-10 bg-card">
-        <div class="flex items-center">
-            @if (card().type) {
-                <span class="mr-3 px-2 py-1 text-xs font-semibold rounded-md"
-                      [class.bg-blue-100]="card().type === 'task'"
-                      [class.text-blue-800]="card().type === 'task'"
-                      [class.bg-red-100]="card().type === 'bug'"
-                      [class.text-red-800]="card().type === 'bug'"
-                      [class.bg-yellow-100]="card().type === 'note'"
-                      [class.text-yellow-800]="card().type === 'note'"
-                      [class.bg-green-100]="card().type === 'feature'"
-                      [class.text-green-800]="card().type === 'feature'">
+<div class="flex border-b border-divider bg-card items-center py-2" mat-dialog-title>
+    <div class="flex items-center">
+        @if (card().type) {
+            <span class="mr-3 px-2 py-1 text-xs font-semibold rounded-md"
+                  [class.bg-blue-100]="card().type === 'task'"
+                  [class.text-blue-800]="card().type === 'task'"
+                  [class.bg-red-100]="card().type === 'bug'"
+                  [class.text-red-800]="card().type === 'bug'"
+                  [class.bg-yellow-100]="card().type === 'note'"
+                  [class.text-yellow-800]="card().type === 'note'"
+                  [class.bg-green-100]="card().type === 'feature'"
+                  [class.text-green-800]="card().type === 'feature'">
                     {{ card().type }}
                 </span>
-            }
-            <mat-icon class="mr-2 text-gray-600 dark:text-gray-400" [svgIcon]="'heroicons_outline:credit-card'"></mat-icon>
-            <span class="text-lg font-medium text-gray-900 dark:text-gray-100">Detalles de la tarjeta</span>
-        </div>
-        <button (click)="matDialogRef.close()" [tabIndex]="-1" mat-icon-button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-            <mat-icon [svgIcon]="'heroicons_outline:x-mark'" class="icon-size-5"></mat-icon>
-        </button>
+        }
+        <mat-icon [svgIcon]="'heroicons_outline:credit-card'" class="icon-size-5 mr-2"></mat-icon>
+        <span class="text-lg font-medium text-gray-900 dark:text-gray-100">Detalles de la tarjeta</span>
     </div>
-
+    <button (click)="matDialogRef.close()" [tabIndex]="-1" mat-icon-button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 absolute right-4 top-1/2 -translate-y-1/2">
+        <mat-icon [svgIcon]="'heroicons_outline:x-mark'" class="icon-size-5"></mat-icon>
+    </button>
+</div>
+<mat-dialog-content class="flex flex-auto flex-col w-full h-full bg-card p-0">
     <!-- Main Content - Two Column Layout -->
-    <div class="flex flex-1 overflow-hidden">
+    <div class="flex flex-1 flex-col md:flex-row md:overflow-hidden">
         <!-- Left Column - Editable Fields -->
-        <div class="flex-1 overflow-y-auto">
+        <div class="flex-1 md:overflow-y-auto">
             <form
                 [formGroup]="cardForm"
                 class="flex w-full flex-1 flex-col items-start space-y-6 p-6 sm:p-8"
@@ -365,7 +363,7 @@
         </div>
 
         <!-- Right Column - Comments and Activity -->
-        <div class="w-80 border-l border-divider overflow-y-auto bg-gray-50 dark:bg-gray-900">
+        <div class="w-full md:w-80 border-l border-divider overflow-y-auto bg-gray-50 dark:bg-gray-900">
             <div class="p-6 space-y-6">
                 <!-- Activity Section -->
                 <div class="w-full">
@@ -451,4 +449,4 @@
             </div>
         </div>
     </div>
-</div>
+</mat-dialog-content>

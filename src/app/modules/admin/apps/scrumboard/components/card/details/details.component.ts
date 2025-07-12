@@ -5,7 +5,7 @@ import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup,
 import { MatButtonModule }                                                                                                            from '@angular/material/button';
 import { MatCheckboxChange, MatCheckboxModule, }                                                                                      from '@angular/material/checkbox';
 import { MatDatepickerModule }                                                                                                        from '@angular/material/datepicker';
-import { MatDialogRef }                                                                                                               from '@angular/material/dialog';
+import { MatDialogContent, MatDialogRef, MatDialogTitle }                                                                             from '@angular/material/dialog';
 import { MatFormFieldModule }                                                                                                         from '@angular/material/form-field';
 import { MatIconModule }                                                                                                              from '@angular/material/icon';
 import { MatInputModule }                                                                                                             from '@angular/material/input';
@@ -36,7 +36,9 @@ import { toSignal }                                                             
         DatePipe,
         MatSelectModule,
         NgSwitch,
-        NgSwitchCase
+        NgSwitchCase,
+        MatDialogTitle,
+        MatDialogContent
     ],
 })
 export class ScrumboardCardDetailsComponent implements OnDestroy {
