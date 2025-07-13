@@ -8,7 +8,6 @@ import { environment }                                                          
 import { provideModulePermissions }                                                                                                     from '@core/permissions/permissions.providers';
 import { homePermissions }                                                                                                              from '@modules/admin/home/home.permissions';
 import { administrationPermissions }                                                                                                    from '@modules/admin/administration/administration.permissions';
-import { dashboardsPermissions }                                                                                                        from '@modules/admin/dashboards/dashboards.permissions';
 import { maintainersPermissions }                                                                                                       from '@modules/admin/maintainers/maintainers.permissions';
 
 import { IonicStorageModule }                 from '@ionic/storage-angular';
@@ -27,7 +26,7 @@ import { mockApiServices }        from 'app/mock-api';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { logisticsPermissions }   from '@modules/admin/logistics/logistics.permissions';
 import { inventoryPermissions }   from '@modules/admin/inventory/inventory.permissions';
-import { appsPermissions } from '@modules/admin/apps/apps.permissions';
+import { appsPermissions }        from '@modules/admin/apps/apps.permissions';
 
 const config: SocketIoConfig = {
     url    : 'localhost:5000/ws/board',
@@ -50,7 +49,7 @@ export const appConfig: ApplicationConfig = {
         provideRouter(appRoutes,
             withComponentInputBinding(),
             withPreloading(PreloadAllModules),
-            withInMemoryScrolling({scrollPositionRestoration: 'disabled'}),
+            withInMemoryScrolling({scrollPositionRestoration: 'enabled'}),
             withViewTransitions()
         ),
         importProvidersFrom(
@@ -58,10 +57,6 @@ export const appConfig: ApplicationConfig = {
             IonicStorageModule.forRoot({
                 name: 'erpDB'
             }),
-            // CalendarCommonModule.forRoot({
-            //     provide   : DateAdapterAC,
-            //     useFactory: adapterFactory
-            // }),
         ),
 
         {

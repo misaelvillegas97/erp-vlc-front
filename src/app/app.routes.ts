@@ -1,11 +1,10 @@
-import { Routes }              from '@angular/router';
-import { initialDataResolver } from 'app/app.resolvers';
-import { AuthGuard }           from 'app/core/auth/guards/auth.guard';
-import { NoAuthGuard }         from 'app/core/auth/guards/noAuth.guard';
-import { LayoutComponent }     from 'app/layout/layout.component';
-import { rolesGuard }          from '@core/guards/roles.guard';
-import { RoleEnum }            from '@core/user/role.type';
-import { INVENTORY_FEATURE_KEY } from '@modules/admin/inventory/inventory.permissions';
+import { Routes }                 from '@angular/router';
+import { initialDataResolver }    from 'app/app.resolvers';
+import { AuthGuard }              from 'app/core/auth/guards/auth.guard';
+import { NoAuthGuard }            from 'app/core/auth/guards/noAuth.guard';
+import { rolesGuard }             from '@core/guards/roles.guard';
+import { RoleEnum }               from '@core/user/role.type';
+import { INVENTORY_FEATURE_KEY }  from '@modules/admin/inventory/inventory.permissions';
 import { APPS_FEATURE_KEY }       from '@modules/admin/apps/apps.permissions';
 import { SCRUMBOARD_FEATURE_KEY } from '@modules/admin/apps/scrumboard/scrumboard.permissions';
 
@@ -24,7 +23,7 @@ export const appRoutes: Routes = [
         path            : '',
         canActivate     : [ NoAuthGuard ],
         canActivateChild: [ NoAuthGuard ],
-        component       : LayoutComponent,
+        loadComponent: () => import('app/layout/layout.component').then(m => m.LayoutComponent),
         data            : {
             layout: 'empty'
         },
@@ -43,7 +42,7 @@ export const appRoutes: Routes = [
         path            : '',
         canActivate     : [ AuthGuard ],
         canActivateChild: [ AuthGuard ],
-        component       : LayoutComponent,
+        loadComponent: () => import('app/layout/layout.component').then(m => m.LayoutComponent),
         data            : {
             layout: 'empty'
         },
@@ -55,12 +54,12 @@ export const appRoutes: Routes = [
 
     // Landing routes
     {
-        path     : '',
-        component: LayoutComponent,
-        data     : {
+        path         : '',
+        loadComponent: () => import('app/layout/layout.component').then(m => m.LayoutComponent),
+        data         : {
             layout: 'empty'
         },
-        children : [
+        children     : [
             {path: 'homs', loadChildren: () => import('app/modules/landing/home/home.routes')},
         ]
     },
@@ -70,7 +69,7 @@ export const appRoutes: Routes = [
         path            : '',
         canActivate     : [ AuthGuard ],
         canActivateChild: [ AuthGuard ],
-        component       : LayoutComponent,
+        loadComponent   : () => import('app/layout/layout.component').then(m => m.LayoutComponent),
         resolve         : {
             initialData: initialDataResolver
         },

@@ -39,7 +39,7 @@ import { toSignal }                                                             
         NgSwitchCase,
         MatDialogTitle,
         MatDialogContent
-    ],
+    ]
 })
 export class ScrumboardCardDetailsComponent implements OnDestroy {
     readonly #userService = inject(UserService);

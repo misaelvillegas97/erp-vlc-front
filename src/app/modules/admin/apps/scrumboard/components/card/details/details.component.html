@@ -1,7 +1,7 @@
-<div class="flex border-b border-divider bg-card items-center py-2" mat-dialog-title>
-    <div class="flex items-center">
+<div class="flex border-b border-divider bg-card items-center py-3 px-4 sm:py-2 sm:px-6" mat-dialog-title>
+    <div class="flex items-center min-w-0 flex-1 pr-12">
         @if (card().type) {
-            <span class="mr-3 px-2 py-1 text-xs font-semibold rounded-md"
+            <span class="mr-2 sm:mr-3 px-2 py-1 text-xs font-semibold rounded-md flex-shrink-0"
                   [class.bg-blue-100]="card().type === 'task'"
                   [class.text-blue-800]="card().type === 'task'"
                   [class.bg-red-100]="card().type === 'bug'"
@@ -13,21 +13,21 @@
                     {{ card().type }}
                 </span>
         }
-        <mat-icon [svgIcon]="'heroicons_outline:credit-card'" class="icon-size-5 mr-2"></mat-icon>
-        <span class="text-lg font-medium text-gray-900 dark:text-gray-100">Detalles de la tarjeta</span>
+        <mat-icon [svgIcon]="'heroicons_outline:credit-card'" class="icon-size-5 mr-2 flex-shrink-0"></mat-icon>
+        <span class="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100 truncate">Detalles de la tarjeta</span>
     </div>
     <button (click)="matDialogRef.close()" [tabIndex]="-1" mat-icon-button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 absolute right-4 top-1/2 -translate-y-1/2">
         <mat-icon [svgIcon]="'heroicons_outline:x-mark'" class="icon-size-5"></mat-icon>
     </button>
 </div>
 <mat-dialog-content class="flex flex-auto flex-col w-full h-full bg-card p-0">
-    <!-- Main Content - Two Column Layout -->
-    <div class="flex flex-1 flex-col md:flex-row md:overflow-hidden">
-        <!-- Left Column - Editable Fields -->
-        <div class="flex-1 md:overflow-y-auto">
+    <!-- Main Content - Responsive Layout -->
+    <div class="flex flex-1 flex-col lg:flex-row lg:overflow-hidden">
+        <!-- Main Content - Editable Fields -->
+        <div class="flex-1 overflow-y-auto">
             <form
                 [formGroup]="cardForm"
-                class="flex w-full flex-1 flex-col items-start space-y-6 p-6 sm:p-8"
+                class="flex w-full flex-1 flex-col items-start space-y-4 sm:space-y-6 p-4 sm:p-6 lg:p-8"
             >
                 <!-- Title -->
                 <mat-form-field [subscriptSizing]="'dynamic'" class="w-full">
@@ -363,8 +363,8 @@
         </div>
 
         <!-- Right Column - Comments and Activity -->
-        <div class="w-full md:w-80 border-l border-divider overflow-y-auto bg-gray-50 dark:bg-gray-900">
-            <div class="p-6 space-y-6">
+        <div class="w-full lg:w-80 border-t lg:border-t-0 lg:border-l border-divider overflow-y-auto bg-gray-50 dark:bg-gray-900">
+            <div class="p-4 sm:p-6 space-y-4 sm:space-y-6">
                 <!-- Activity Section -->
                 <div class="w-full">
                     <div class="flex justify-between items-center mb-4">

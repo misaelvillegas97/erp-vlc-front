@@ -2,12 +2,8 @@ import { inject }                                                       from '@a
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, Routes, } from '@angular/router';
 
 import { catchError, Observable, throwError } from 'rxjs';
-
-import { ScrumboardCardComponent }   from '@modules/admin/apps/scrumboard/components/card/card.component';
-import { ScrumboardBoardComponent }  from '@modules/admin/apps/scrumboard/pages/board/board.component';
-import { ScrumboardBoardsComponent } from '@modules/admin/apps/scrumboard/pages/boards/boards.component';
-import { Board }                     from '@modules/admin/apps/scrumboard/models/scrumboard.models';
-import { ScrumboardService }         from '@modules/admin/apps/scrumboard/services/scrumboard.service';
+import { Board }                              from '@modules/admin/apps/scrumboard/models/scrumboard.models';
+import { ScrumboardService }                  from '@modules/admin/apps/scrumboard/services/scrumboard.service';
 
 /**
  * Board resolver
@@ -74,21 +70,21 @@ const cardResolver = (
 export default [
     {
         path     : '',
-        component: ScrumboardBoardsComponent,
+        loadComponent: () => import('./pages/boards/boards.component').then(m => m.ScrumboardBoardsComponent),
         resolve  : {
             boards: () => inject(ScrumboardService).getBoards(),
         },
     },
     {
         path     : ':boardId',
-        component: ScrumboardBoardComponent,
+        loadComponent: () => import('./pages/board/board.component').then(m => m.ScrumboardBoardComponent),
         resolve  : {
             board: boardResolver,
         },
         children : [
             {
                 path     : 'card/:cardId',
-                component: ScrumboardCardComponent,
+                loadComponent: () => import('./components/card/card.component').then(m => m.ScrumboardCardComponent),
                 resolve  : {
                     card: cardResolver,
                 },
