@@ -33,6 +33,7 @@ export class ScrumboardCardComponent implements OnInit {
         this._matDialog
             .open(ScrumboardCardDetailsComponent, {
                 autoFocus  : false,
+                width: '1350px',
                 hasBackdrop: true,
             })
             .afterClosed()

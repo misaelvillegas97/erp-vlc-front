@@ -5,6 +5,7 @@ import { MatTooltip }       from '@angular/material/tooltip';
 import { RouterLink }       from '@angular/router';
 import { DateTime }         from 'luxon';
 import { Card }             from '@modules/admin/apps/scrumboard/models/scrumboard.models';
+import { UserAvatarComponent } from '@shared/components/user-avatar';
 
 @Component({
     selector: 'scrumboard-board-card',
@@ -94,21 +95,11 @@ import { Card }             from '@modules/admin/apps/scrumboard/models/scrumboa
             @if (card().assignees.length) {
                 <div class="flex items-center -space-x-2">
                     @for (assignee of card().assignees; track trackByFn($index, assignee)) {
-                        @if (assignee.avatar) {
-                            <img
-                                class="w-6 h-6 rounded-full border-2 border-white"
-                                [src]="assignee.avatar.fileUrl"
-                                [alt]="assignee.name"
-                                [matTooltip]="assignee.name"
-                            />
-                        } @else {
-                            <div
-                                class="w-6 h-6 rounded-full border-2 border-white bg-gray-300 text-sm font-medium leading-6 flex items-center justify-center"
-                                [matTooltip]="assignee.name"
-                            >
-                                {{ assignee?.name.charAt(0) }}
-                            </div>
-                        }
+                        <user-avatar
+                            class="w-6 h-6"
+                            [name]="assignee.name"
+                            [avatar]="assignee.avatar">
+                        </user-avatar>
                     }
                 </div>
             }
@@ -118,7 +109,8 @@ import { Card }             from '@modules/admin/apps/scrumboard/models/scrumboa
         MatIconModule,
         MatTooltip,
         RouterLink,
-        DatePipe
+        DatePipe,
+        UserAvatarComponent
     ]
 })
 export class ScrumboardBoardCardComponent {

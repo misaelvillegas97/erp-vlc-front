@@ -10,7 +10,10 @@ export enum RoleEnum {
     'driver' = 4,
     'accountant' = 5,
     'inventory_manager' = 6,
-    'warehouse_staff' = 7
+    'warehouse_staff' = 7,
+    'quality_manager' = 8,
+    'supervisor' = 9,
+    'operator' = 10,
 }
 
 export const roleNames = {
@@ -20,5 +23,8 @@ export const roleNames = {
     [RoleEnum.driver]    : 'driver',
     [RoleEnum.accountant]: 'accountant',
     [RoleEnum.inventory_manager]: 'inventory_manager',
-    [RoleEnum.warehouse_staff]  : 'warehouse_staff'
+    [RoleEnum.warehouse_staff]: 'warehouse_staff',
+    [RoleEnum.quality_manager]: 'quality_manager',
+    [RoleEnum.supervisor]     : 'supervisor',
+    [RoleEnum.operator]       : 'operator',
 };

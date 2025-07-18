@@ -1,0 +1,196 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        [title]="isEditMode() ? 'Editar Grupo de Checklist' : 'Nuevo Grupo de Checklist'"
+        [subtitle]="isEditMode() ? 'Actualiza los detalles del grupo y asignación de plantillas' : 'Crea un nuevo grupo de checklist y asigna plantillas'">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-6xl mx-auto py-10 gap-y-6 sm:px-4">
+
+        <!-- Header with back button -->
+        <div class="flex flex-row w-full items-center gap-4">
+            <button mat-icon-button routerLink="../" [matTooltip]="'Volver a grupos'">
+                <mat-icon svgIcon="heroicons_outline:arrow-left"></mat-icon>
+            </button>
+            <div class="flex-1">
+                <h2 class="font-bold text-secondary text-xl">
+                    {{ isEditMode() ? 'Editar Grupo' : 'Nuevo Grupo' }}
+                </h2>
+                <p class="text-sm text-gray-600">
+                    {{ isEditMode() ? 'Modifica los detalles del grupo existente' : 'Configura el nuevo grupo y asigna plantillas' }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Loading indicator -->
+        @if (loading) {
+            <div class="w-full">
+                <div class="animate-pulse bg-gray-200 h-2 rounded mb-4"></div>
+            </div>
+        }
+
+        <form [formGroup]="groupForm" (ngSubmit)="onSubmit()" class="w-full space-y-6">
+
+            <!-- Basic Information Section -->
+            <div class="w-full bg-card rounded-md shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Información Básica</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>Nombre del grupo</mat-label>
+                        <input matInput formControlName="name" placeholder="Ingrese el nombre del grupo">
+                        @if (groupForm.get('name')?.hasError('required') && groupForm.get('name')?.touched) {
+                            <mat-error>El nombre del grupo es requerido</mat-error>
+                        }
+                        @if (groupForm.get('name')?.hasError('minlength')) {
+                            <mat-error>El nombre debe tener al menos 2 caracteres</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>Peso</mat-label>
+                        <input matInput type="number" formControlName="weight"
+                               min="0" max="1" step="0.01" placeholder="0.00">
+                        <mat-hint>Peso como decimal (0.0 - 1.0)</mat-hint>
+                        @if (groupForm.get('weight')?.hasError('required') && groupForm.get('weight')?.touched) {
+                            <mat-error>El peso es requerido</mat-error>
+                        }
+                        @if (groupForm.get('weight')?.hasError('min') || groupForm.get('weight')?.hasError('max')) {
+                            <mat-error>El peso debe estar entre 0 y 1</mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+
+                <mat-form-field class="w-full fuse-mat-dense">
+                    <mat-label>Descripción</mat-label>
+                    <textarea matInput formControlName="description"
+                              rows="3" placeholder="Descripción opcional del grupo"></textarea>
+                </mat-form-field>
+
+                <div class="flex items-center mt-4">
+                    <mat-slide-toggle formControlName="isActive">
+                        Grupo activo
+                    </mat-slide-toggle>
+                    <span class="ml-2 text-sm text-gray-600">
+            {{ groupForm.get('isActive')?.value ? 'El grupo está activo y disponible para uso' : 'El grupo está inactivo' }}
+          </span>
+                </div>
+            </div>
+
+            <!-- Template Assignment Section -->
+            <div class="w-full bg-card rounded-md shadow p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Asignación de Plantillas</h3>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-600">Peso total:</span>
+                        <span [class]="getWeightValidationClass()" class="font-medium">
+              {{ totalTemplateWeight() | number:'1.2-2' }}
+            </span>
+                        @if (getWeightValidationClass() === 'weight-valid') {
+                            <mat-icon class="text-green-600 text-sm">check_circle</mat-icon>
+                        } @else {
+                            <mat-icon class="text-red-600 text-sm">error</mat-icon>
+                        }
+                    </div>
+                </div>
+
+                @if (availableTemplates().length === 0) {
+                    <div class="text-center py-8">
+                        <mat-icon class="text-gray-400 text-4xl mb-2">assignment</mat-icon>
+                        <p class="text-gray-600 mb-4">No hay plantillas disponibles</p>
+                        <button mat-button color="primary" routerLink="../../templates/new">
+                            <mat-icon>add</mat-icon>
+                            Crear Plantilla
+                        </button>
+                    </div>
+                } @else {
+                    <div class="space-y-4">
+                        @for (template of availableTemplates(); track template.id) {
+                            <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                                <div class="flex items-center space-x-4">
+                                    <mat-checkbox
+                                        [checked]="isTemplateSelected(template.id!)"
+                                        (change)="onTemplateSelectionChange(template, $event.checked)">
+                                    </mat-checkbox>
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">{{ template.name }}</h4>
+                                        <p class="text-sm text-gray-600">{{ template.type | titlecase }} • v{{ template.version }}</p>
+                                        @if (template.description) {
+                                            <p class="text-sm text-gray-500 mt-1">{{ template.description }}</p>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-right">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ template.categories?.length || 0 }} categorías
+                                        </div>
+                                        <div class="text-sm text-gray-600">
+                                            {{ getTotalQuestions(template) }} preguntas
+                                        </div>
+                                    </div>
+                                    @if (isTemplateSelected(template.id!)) {
+                                        <mat-form-field class="w-24 fuse-mat-dense">
+                                            <mat-label>Peso</mat-label>
+                                            <input matInput type="number"
+                                                   [value]="getTemplateWeight(template.id!)"
+                                                   (input)="onTemplateWeightChange(template.id!, $event)"
+                                                   min="0" max="1" step="0.01">
+                                        </mat-form-field>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Validation Messages -->
+            @if (validationResult()) {
+                <div class="w-full bg-card rounded-md shadow p-6"
+                     [class]="validationResult()!.isValid ? 'border-l-4 border-green-500' : 'border-l-4 border-red-500'">
+                    <div class="flex items-start space-x-3">
+                        <mat-icon [class]="validationResult()!.isValid ? 'text-green-600' : 'text-red-600'">
+                            {{ validationResult()!.isValid ? 'check_circle' : 'error' }}
+                        </mat-icon>
+                        <div class="flex-1">
+                            <h4 class="font-medium" [class]="validationResult()!.isValid ? 'text-green-800' : 'text-red-800'">
+                                {{ validationResult()!.isValid ? 'Validación Exitosa' : 'Problemas de Validación' }}
+                            </h4>
+
+                            @if (validationResult()!.errors.length > 0) {
+                                <ul class="mt-2 text-sm text-red-700 space-y-1">
+                                    @for (error of validationResult()!.errors; track error) {
+                                        <li>• {{ error }}</li>
+                                    }
+                                </ul>
+                            }
+
+                            @if (validationResult()!.warnings.length > 0) {
+                                <ul class="mt-2 text-sm text-yellow-700 space-y-1">
+                                    @for (warning of validationResult()!.warnings; track warning) {
+                                        <li>• {{ warning }}</li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Form Actions -->
+            <div class="flex justify-end gap-4 pt-6">
+                <button mat-button type="button" routerLink="../">
+                    Cancelar
+                </button>
+                <button
+                    mat-raised-button
+                    color="primary"
+                    type="submit"
+                    [disabled]="!canSubmit()">
+                    <mat-icon>{{ isEditMode() ? 'save' : 'add' }}</mat-icon>
+                    {{ isEditMode() ? 'Actualizar Grupo' : 'Crear Grupo' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,13 @@
+@if (avatar()) {
+    <img
+        class="rounded-full h-full w-full ring-2 ring-bg-card object-cover"
+        [src]="avatar()"
+        [alt]="name()"
+        [matTooltip]="tooltip() || name()">
+} @else {
+    <div
+        class="rounded-full h-full w-full ring-2 ring-bg-card bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-semibold flex items-center justify-center"
+        [matTooltip]="tooltip() || name()">
+        {{ getUserInitial(name()) }}
+    </div>
+}

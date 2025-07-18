@@ -141,6 +141,7 @@ export interface ColumnConfig<T> {
     header: string;
     display?: ColumnDisplayConfig<T>;
     filter?: ColumnFilterConfig;
+    render?: (value: any, row?: T) => string | number | boolean | DateTime | TemplateRef<any>;
 
     // Nuevas propiedades generales, por ejemplo, para ordenamiento
     sortable?: boolean;

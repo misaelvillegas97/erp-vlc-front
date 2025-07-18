@@ -1,0 +1,372 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        [title]="isEditMode() ? 'Editar Plantilla de Checklist' : 'Nueva Plantilla de Checklist'"
+        [subtitle]="isEditMode() ? 'Actualiza la configuración de la plantilla' : 'Crea una nueva plantilla de checklist con categorías y preguntas'">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-6xl mx-auto py-10 gap-y-6 sm:px-4">
+
+        <!-- Header with back button -->
+        <div class="flex flex-row w-full items-center gap-4">
+            <button mat-icon-button routerLink="../" [matTooltip]="'Volver a plantillas'">
+                <mat-icon svgIcon="heroicons_outline:arrow-left"></mat-icon>
+            </button>
+            <div class="flex-1">
+                <h2 class="font-bold text-secondary text-xl">
+                    {{ isEditMode() ? 'Editar Plantilla' : 'Nueva Plantilla' }}
+                </h2>
+                <p class="text-sm text-gray-600">
+                    {{ isEditMode() ? 'Modifica la configuración de la plantilla existente' : 'Configura las categorías, preguntas y validaciones' }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Loading indicator -->
+        @if (checklistService.loading()) {
+            <div class="w-full">
+                <div class="animate-pulse bg-hover h-2 rounded mb-4"></div>
+            </div>
+        }
+
+        <form [formGroup]="templateForm" (ngSubmit)="onSubmit()" class="w-full space-y-6">
+
+            <!-- Basic Information Section -->
+            <div class="w-full bg-card rounded-md shadow p-6">
+                <h3 class="text-lg font-semibold mb-4">Información Básica</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>Nombre de la plantilla</mat-label>
+                        <input matInput formControlName="name" placeholder="Ej: Inspección de vehículos">
+                        @if (templateForm.get('name').hasError('required') && templateForm.get('name')?.touched) {
+                            <mat-error>El nombre es requerido</mat-error>
+                        }
+                        @if (templateForm.get('name').hasError('minlength')) {
+                            <mat-error>El nombre debe tener al menos 2 caracteres</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>Tipo de checklist</mat-label>
+                        <mat-select formControlName="type">
+                            @for (type of checklistTypes; track type.value) {
+                                <mat-option [value]="type.value">{{ type.label }}</mat-option>
+                            }
+                        </mat-select>
+                        @if (templateForm.get('type').hasError('required') && templateForm.get('type')?.touched) {
+                            <mat-error>El tipo es requerido</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>Versión</mat-label>
+                        <input matInput formControlName="version" placeholder="1.0">
+                        @if (templateForm.get('version').hasError('required') && templateForm.get('version')?.touched) {
+                            <mat-error>La versión es requerida</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>Peso</mat-label>
+                        <input matInput type="number" formControlName="weight" min="0" max="1" step="0.01" placeholder="0.00">
+                        <mat-hint>Peso dentro del grupo (0.0 - 1.0)</mat-hint>
+                        @if (templateForm.get('weight').hasError('required') && templateForm.get('weight')?.touched) {
+                            <mat-error>El peso es requerido</mat-error>
+                        }
+                        @if (templateForm.get('weight').hasError('min') || templateForm.get('weight').hasError('max')) {
+                            <mat-error>El peso debe estar entre 0 y 1</mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+
+                <mat-form-field class="w-full fuse-mat-dense">
+                    <mat-label>Descripción</mat-label>
+                    <textarea matInput formControlName="description" rows="3" placeholder="Descripción opcional de la plantilla"></textarea>
+                </mat-form-field>
+
+                <mat-form-field class="w-full fuse-mat-dense">
+                    <mat-label>Umbral de puntuación</mat-label>
+                    <input matInput type="number" formControlName="scoreThreshold" min="0" max="1" step="0.01" placeholder="0.70">
+                    <mat-hint>Puntuación mínima para aprobar (0.0 - 1.0)</mat-hint>
+                    @if (templateForm.get('scoreThreshold').hasError('min') || templateForm.get('scoreThreshold').hasError('max')) {
+                        <mat-error>El umbral debe estar entre 0 y 1</mat-error>
+                    }
+                </mat-form-field>
+
+                <div class="flex items-center mt-4">
+                    <mat-slide-toggle formControlName="isActive">
+                        Plantilla activa
+                    </mat-slide-toggle>
+                    <span class="ml-2 text-sm text-gray-600">
+            {{ templateForm.get('isActive')?.value ? 'La plantilla está activa y disponible para uso' : 'La plantilla está inactiva' }}
+          </span>
+                </div>
+            </div>
+
+            <!-- Vehicle and Role Assignment Section -->
+            <div class="w-full bg-card rounded-md shadow p-6">
+                <h3 class="text-lg font-semibold mb-4">Asignación</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>Vehículos</mat-label>
+                        <mat-select formControlName="vehicleIds" multiple>
+                            @for (vehicle of availableVehicles(); track vehicle.id) {
+                                <mat-option [value]="vehicle.id">{{ vehicle.name }} ({{ vehicle.plate }})</mat-option>
+                            }
+                        </mat-select>
+                        <mat-hint>Selecciona los vehículos aplicables</mat-hint>
+                        @if (templateForm.get('vehicleIds').hasError('required') && templateForm.get('vehicleIds')?.touched) {
+                            <mat-error>Debe seleccionar al menos un vehículo</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full fuse-mat-dense">
+                        <mat-label>Roles</mat-label>
+                        <mat-select formControlName="roleIds" multiple>
+                            @for (role of availableRoles(); track role.id) {
+                                <mat-option [value]="role.id">{{ role.name }}</mat-option>
+                            }
+                        </mat-select>
+                        <mat-hint>Selecciona los roles que pueden ejecutar</mat-hint>
+                        @if (templateForm.get('roleIds').hasError('required') && templateForm.get('roleIds')?.touched) {
+                            <mat-error>Debe seleccionar al menos un rol</mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <!-- Categories Section -->
+            <div class="w-full bg-card rounded-md shadow p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">Categorías</h3>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-600">Peso total:</span>
+                            <span [class]="categoryWeightValidation().class" class="font-medium">
+                {{ categoryWeightValidation().total | number:'1.2-2' }}
+              </span>
+                            @if (categoryWeightValidation().isValid) {
+                                <mat-icon class="text-green-600 text-sm">check_circle</mat-icon>
+                            } @else {
+                                <mat-icon class="text-red-600 text-sm">error</mat-icon>
+                            }
+                        </div>
+                        <button mat-raised-button color="primary" type="button" (click)="addCategory()">
+                            <mat-icon svgIcon="mat_outline:add"></mat-icon>
+                            Agregar Categoría
+                        </button>
+                    </div>
+                </div>
+
+                @if (categoriesArray().length === 0) {
+                    <div class="text-center py-8">
+                        <mat-icon class="text-gray-400 text-4xl mb-2">folder_open</mat-icon>
+                        <p class="text-gray-600 mb-4">No hay categorías definidas</p>
+                        <button mat-raised-button color="primary" type="button" (click)="addCategory()">
+                            <mat-icon svgIcon="mat_outline:add"></mat-icon>
+                            Crear Primera Categoría
+                        </button>
+                    </div>
+                } @else {
+                    <mat-accordion formArrayName="categories">
+                        @for (categoryControl of categoriesArray().controls; track $index; let categoryIndex = $index) {
+                            <mat-expansion-panel [formGroupName]="$index" class="bg-hover">
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title>
+                                        <div class="flex items-center gap-2">
+                                            <mat-icon svgIcon="mat_outline:folder"></mat-icon>
+                                            <span>{{ categoryControl.get('title')?.value || 'Nueva Categoría' }}</span>
+                                            <div class="flex items-center gap-1 ml-auto">
+                        <span class="text-xs px-2 py-1 rounded-full"
+                              [class]="getCategoryWeightValidation(categoryIndex).class">
+                          Peso: {{ getCategoryWeightValidation(categoryIndex).total | number:'1.2-2' }}
+                        </span>
+                                                <span class="text-xs text-gray-500">
+                          {{ getQuestionsArray(categoryIndex).length }} preguntas
+                        </span>
+                                            </div>
+                                        </div>
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+
+                                <div class="space-y-4">
+                                    <!-- Category Basic Info -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <mat-form-field class="w-full fuse-mat-dense">
+                                            <mat-label>Título de la categoría</mat-label>
+                                            <input matInput formControlName="title" placeholder="Ej: Inspección exterior">
+                                            @if (categoryControl.get('title').hasError('required') && categoryControl.get('title')?.touched) {
+                                                <mat-error>El título es requerido</mat-error>
+                                            }
+                                        </mat-form-field>
+
+                                        <mat-form-field class="w-full fuse-mat-dense">
+                                            <mat-label>Peso de la categoría</mat-label>
+                                            <input matInput type="number" formControlName="weight" min="0" max="1" step="0.01">
+                                            <mat-hint>Peso dentro de la plantilla (0.0 - 1.0)</mat-hint>
+                                            @if (categoryControl.get('weight').hasError('required') && categoryControl.get('weight')?.touched) {
+                                                <mat-error>El peso es requerido</mat-error>
+                                            }
+                                        </mat-form-field>
+                                    </div>
+
+                                    <mat-form-field class="w-full fuse-mat-dense">
+                                        <mat-label>Descripción de la categoría</mat-label>
+                                        <textarea matInput formControlName="description" rows="2" placeholder="Descripción opcional"></textarea>
+                                    </mat-form-field>
+
+                                    <!-- Questions Section -->
+                                    <div class="border-t pt-4">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <h4 class="font-medium">Preguntas</h4>
+                                            <div class="flex items-center gap-4">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-sm text-gray-600">Peso total:</span>
+                                                    <span [class]="getCategoryWeightValidation(categoryIndex).class" class="font-medium">
+                            {{ getCategoryWeightValidation(categoryIndex).total | number:'1.2-2' }}
+                          </span>
+                                                </div>
+                                                <button mat-button color="primary" type="button" (click)="addQuestion(categoryIndex)">
+                                                    <mat-icon svgIcon="mat_outline:add"></mat-icon>
+                                                    Agregar Pregunta
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        @if (getQuestionsArray(categoryIndex).length === 0) {
+                                            <div class="text-center py-4 bg-hover rounded">
+                                                <mat-icon class="text-gray-400 text-2xl mb-2">help_outline</mat-icon>
+                                                <p class="text-gray-600 text-sm mb-2">No hay preguntas en esta categoría</p>
+                                                <button mat-button color="primary" type="button" (click)="addQuestion(categoryIndex)">
+                                                    <mat-icon svgIcon="mat_outline:add"></mat-icon>
+                                                    Crear Primera Pregunta
+                                                </button>
+                                            </div>
+                                        } @else {
+                                            <div class="space-y-4" formArrayName="questions">
+                                                @for (questionControl of getQuestionsArray(categoryIndex).controls; track $index; let questionIndex = $index) {
+                                                    <div class="border rounded-lg p-4 bg-hover" [formGroupName]="$index">
+                                                        <div class="flex items-center justify-between mb-4">
+                                                            <h5 class="font-medium text-gray-800">
+                                                                Pregunta {{ questionIndex + 1 }}
+                                                            </h5>
+                                                            <button mat-icon-button color="warn" type="button"
+                                                                    (click)="removeQuestion(categoryIndex, questionIndex)"
+                                                                    [matTooltip]="'Eliminar pregunta'">
+                                                                <mat-icon svgIcon="mat_solid:delete"></mat-icon>
+                                                            </button>
+                                                        </div>
+
+                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                            <mat-form-field class="w-full fuse-mat-dense">
+                                                                <mat-label>Título de la pregunta</mat-label>
+                                                                <input matInput formControlName="title" placeholder="Ej: ¿El vehículo tiene daños visibles?">
+                                                                @if (questionControl.get('title').hasError('required') && questionControl.get('title')?.touched) {
+                                                                    <mat-error>El título es requerido</mat-error>
+                                                                }
+                                                            </mat-form-field>
+
+                                                            <mat-form-field class="w-full fuse-mat-dense">
+                                                                <mat-label>Peso de la pregunta</mat-label>
+                                                                <input matInput type="number" formControlName="weight" min="0" max="1" step="0.01">
+                                                                <mat-hint>Peso dentro de la categoría</mat-hint>
+                                                            </mat-form-field>
+                                                        </div>
+
+                                                        <mat-form-field class="w-full mb-4">
+                                                            <mat-label>Descripción</mat-label>
+                                                            <textarea matInput formControlName="description" rows="2" placeholder="Descripción opcional"></textarea>
+                                                        </mat-form-field>
+
+                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                            <mat-form-field class="w-full fuse-mat-dense">
+                                                                <mat-label>Tipo de respuesta</mat-label>
+                                                                <mat-select formControlName="responseType"
+                                                                            (selectionChange)="onResponseTypeChange(categoryIndex, questionIndex, $event.value)">
+                                                                    @for (responseType of responseTypes; track responseType.value) {
+                                                                        <mat-option [value]="responseType.value">{{ responseType.label }}</mat-option>
+                                                                    }
+                                                                </mat-select>
+                                                            </mat-form-field>
+
+                                                            <div class="flex items-center">
+                                                                <mat-checkbox formControlName="required">
+                                                                    Pregunta obligatoria
+                                                                </mat-checkbox>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Conditional fields based on response type -->
+                                                        @if (questionControl.get('responseType')?.value === 'numeric') {
+                                                            <div formGroupName="numericRange" class="grid grid-cols-2 gap-4 mb-4">
+                                                                <mat-form-field>
+                                                                    <mat-label>Valor mínimo</mat-label>
+                                                                    <input matInput type="number" formControlName="min">
+                                                                </mat-form-field>
+                                                                <mat-form-field>
+                                                                    <mat-label>Valor máximo</mat-label>
+                                                                    <input matInput type="number" formControlName="max">
+                                                                </mat-form-field>
+                                                            </div>
+                                                        }
+
+                                                        @if (questionControl.get('responseType')?.value === 'multipleChoice') {
+                                                            <div class="mb-4">
+                                                                <div class="flex items-center justify-between mb-2">
+                                                                    <label class="text-sm font-medium text-gray-700">Opciones</label>
+                                                                    <button mat-button type="button" (click)="addOption(categoryIndex, questionIndex)">
+                                                                        <mat-icon svgIcon="mat_outline:add"></mat-icon>
+                                                                        Agregar Opción
+                                                                    </button>
+                                                                </div>
+                                                                <div class="space-y-2" formArrayName="options">
+                                                                    @for (optionControl of getOptionsArray(categoryIndex, questionIndex).controls; track $index; let optionIndex = $index) {
+                                                                        <div class="flex items-center gap-2 mb-2">
+                                                                            <mat-form-field class="flex-1">
+                                                                                <mat-label>Opción {{ optionIndex + 1 }}</mat-label>
+                                                                                <input matInput [formControlName]="optionIndex" placeholder="Texto de la opción">
+                                                                            </mat-form-field>
+                                                                            <button mat-icon-button type="button"
+                                                                                    (click)="removeOption(categoryIndex, questionIndex, optionIndex)"
+                                                                                    [disabled]="getOptionsArray(categoryIndex, questionIndex).length <= 2">
+                                                                                <mat-icon svgIcon="mat_solid:remove"></mat-icon>
+                                                                            </button>
+                                                                        </div>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <!-- Category Actions -->
+                                    <div class="flex justify-end pt-4 border-t">
+                                        <button mat-button color="warn" type="button" (click)="removeCategory(categoryIndex)">
+                                            <mat-icon svgIcon="mat_solid:delete"></mat-icon>
+                                            Eliminar Categoría
+                                        </button>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                        }
+                    </mat-accordion>
+                }
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-end gap-4 pt-6">
+                <button mat-button type="button" routerLink="../">
+                    Cancelar
+                </button>
+                <button mat-raised-button color="primary" type="submit" [disabled]="!canSubmit()">
+                    <mat-icon svgIcon="mat_outline:{{ isEditMode() ? 'save' : 'add' }}"></mat-icon>
+                    {{ isEditMode() ? 'Actualizar Plantilla' : 'Crear Plantilla' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

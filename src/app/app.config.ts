@@ -27,6 +27,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { logisticsPermissions }   from '@modules/admin/logistics/logistics.permissions';
 import { inventoryPermissions }   from '@modules/admin/inventory/inventory.permissions';
 import { appsPermissions }        from '@modules/admin/apps/apps.permissions';
+import { checklistsPermissions } from '@modules/admin/checklists/checklists.permissions';
 
 const config: SocketIoConfig = {
     url    : 'localhost:5000/ws/board',
@@ -133,6 +134,7 @@ export const appConfig: ApplicationConfig = {
         provideModulePermissions(inventoryPermissions),
         // Apps
         provideModulePermissions(appsPermissions),
+        provideModulePermissions(checklistsPermissions),
         // Maintainers
         provideModulePermissions(maintainersPermissions),
 

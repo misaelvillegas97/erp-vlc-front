@@ -140,7 +140,7 @@
                         <!-- Available members -->
                         <div class="max-h-40 overflow-y-auto border-t leading-none py-1">
                             <!-- Labels -->
-                            @for (member of filteredMembers(); track trackByFn($index, member)) {
+                            @for (member of filteredMembers(); track member.id) {
                                 <mat-checkbox
                                     class="flex h-10 min-h-10 items-center pl-1 pr-4 hover:bg-hover"
                                     [color]="'primary'"
@@ -178,7 +178,7 @@
                         <!-- Available labels -->
                         <div class="max-h-40 overflow-y-auto border-t leading-none py-1">
                             <!-- Labels -->
-                            @for (label of filteredLabels(); track trackByFn($index, label)) {
+                            @for (label of filteredLabels(); track label.id) {
                                 <mat-checkbox
                                     class="flex h-10 min-h-10 items-center pl-1 pr-4 hover:bg-hover"
                                     [color]="'primary'"
@@ -223,7 +223,7 @@
 
                     @if (card().checklists?.length) {
                         <div class="mt-2 space-y-4">
-                            @for (checklist of card().checklists; track trackByFn($index, checklist)) {
+                            @for (checklist of card().checklists; track checklist.id) {
                                 <div class="border border-gray-300 rounded-md p-3">
                                     <div class="flex justify-between items-center mb-2">
                                         <div class="font-medium">{{ checklist.title }}</div>
@@ -233,7 +233,7 @@
                                     </div>
 
                                     <div class="space-y-2">
-                                        @for (item of checklist.items; track trackByFn($index, item)) {
+                                        @for (item of checklist.items; track item.id) {
                                             <div class="flex items-center">
                                                 <mat-checkbox
                                                     [checked]="item.checked"
@@ -275,7 +275,7 @@
 
                     @if (card().attachments?.length) {
                         <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            @for (attachment of card().attachments; track trackByFn($index, attachment)) {
+                            @for (attachment of card().attachments; track attachment.id) {
                                 <div class="border border-gray-300 rounded-md p-2 flex items-center">
                                     <mat-icon class="icon-size-5 mr-2" [svgIcon]="'heroicons_solid:document'"></mat-icon>
                                     <div class="flex-1 overflow-hidden">
@@ -305,7 +305,7 @@
 
                     @if (card().customFields?.length) {
                         <div class="mt-2 space-y-3">
-                            @for (field of card().customFields; track trackByFn($index, field)) {
+                            @for (field of card().customFields; track field.id) {
                                 <div class="border border-gray-300 rounded-md p-3">
                                     <div class="flex justify-between items-center mb-2">
                                         <div class="font-medium">{{ field.title }}</div>
@@ -339,13 +339,13 @@
                                                 class="w-full border border-gray-300 rounded-md px-3 py-2"
                                                 [(ngModel)]="field.value"
                                                 [ngModelOptions]="{standalone: true}">
-                                            @for (option of field.options; track trackByFn($index, option)) {
+                                            @for (option of field.options; track option) {
                                                 <option [value]="option.id">{{ option.value }}</option>
                                             }
                                         </select>
 
                                         <div *ngSwitchCase="'multiuser'" class="space-y-2">
-                                            @for (member of board().members; track trackByFn($index, member)) {
+                                            @for (member of board().members; track member.id) {
                                                 <mat-checkbox
                                                     [checked]="isUserSelected(field, member)"
                                                     (change)="toggleUserSelection(field, member, $event)">

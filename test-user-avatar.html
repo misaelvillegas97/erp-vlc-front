@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Avatar Component Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-8 bg-gray-100">
+<h1 class="text-2xl font-bold mb-6">User Avatar Component Test</h1>
+
+<div class="space-y-4">
+    <h2 class="text-lg font-semibold">Different Sizes:</h2>
+
+    <!-- Small avatar (w-8 h-8) -->
+    <div class="flex items-center space-x-2">
+        <span class="text-sm">Small (w-8 h-8):</span>
+        <div class="w-8 h-8 rounded-full ring-2 ring-gray-300 bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-semibold flex items-center justify-center">
+            J
+        </div>
+    </div>
+
+    <!-- Medium avatar (w-12 h-12) -->
+    <div class="flex items-center space-x-2">
+        <span class="text-sm">Medium (w-12 h-12):</span>
+        <div class="w-12 h-12 rounded-full ring-2 ring-gray-300 bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-semibold flex items-center justify-center">
+            J
+        </div>
+    </div>
+
+    <!-- Large avatar (w-14 h-14) -->
+    <div class="flex items-center space-x-2">
+        <span class="text-sm">Large (w-14 h-14):</span>
+        <div class="w-14 h-14 rounded-full ring-2 ring-gray-300 bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-semibold flex items-center justify-center">
+            J
+        </div>
+    </div>
+
+    <!-- Extra Large avatar (w-16 h-16) -->
+    <div class="flex items-center space-x-2">
+        <span class="text-sm">Extra Large (w-16 h-16):</span>
+        <div class="w-16 h-16 rounded-full ring-2 ring-gray-300 bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-semibold flex items-center justify-center">
+            J
+        </div>
+    </div>
+</div>
+
+<div class="mt-8">
+    <h2 class="text-lg font-semibold mb-4">Usage Examples:</h2>
+    <div class="bg-gray-800 text-green-400 p-4 rounded font-mono text-sm">
+        <div>&lt;user-avatar class="w-8 h-8" [name]="'John Doe'" [avatar]="null"&gt;&lt;/user-avatar&gt;</div>
+        <div>&lt;user-avatar class="w-12 h-12" [name]="'Jane Smith'" [avatar]="'path/to/image.jpg'"&gt;&lt;/user-avatar&gt;</div>
+        <div>&lt;user-avatar class="w-14 h-14" [name]="'Bob Wilson'" [tooltip]="'Project Manager'"&gt;&lt;/user-avatar&gt;</div>
+    </div>
+</div>
+</body>
+</html>

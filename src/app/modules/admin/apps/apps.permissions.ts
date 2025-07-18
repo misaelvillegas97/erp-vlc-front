@@ -11,7 +11,7 @@ export const appsPermissions: RoutePermission[] = [
         selectedIcon: 'heroicons_solid:squares-2x2',
         allowedRoles: [],
         children    : [
-            ...scrumboardPermissions
+            ...scrumboardPermissions,
         ]
     }
 ] satisfies RoutePermission[];

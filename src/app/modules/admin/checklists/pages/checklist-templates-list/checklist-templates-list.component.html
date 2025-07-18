@@ -1,0 +1,110 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        title="Plantillas de Checklists"
+        subtitle="Gestión de plantillas de checklists y sus configuraciones">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-10 gap-y-4 sm:px-4">
+        <div class="flex flex-row w-full">
+            <h2 class="flex-1 font-bold text-secondary text-xl self-center">Plantillas de Checklists</h2>
+
+            <button
+                (click)="templatesResource.reload()"
+                [matTooltip]="'Recargar'"
+                mat-icon-button
+            >
+                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:arrow-path"></mat-icon>
+            </button>
+            <a
+                [matTooltip]="'Nueva plantilla'"
+                [routerLink]="['./new']"
+                class="flex-0 font-bold py-2 px-4 rounded"
+                color="primary"
+                mat-icon-button
+            >
+                <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+            </a>
+        </div>
+
+        <!-- Panel de filtros -->
+        <div class="w-full bg-card rounded-md shadow p-4 mb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <mat-form-field class="w-full">
+                    <mat-label>Buscar</mat-label>
+                    <input matInput [formControl]="searchControl" placeholder="Buscar por nombre">
+                    <mat-icon matSuffix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+                </mat-form-field>
+
+                <mat-form-field class="w-full">
+                    <mat-label>Tipo</mat-label>
+                    <mat-select [formControl]="typeControl">
+                        <mat-option value="">Todos los tipos</mat-option>
+                        @for (type of checklistTypes; track type.value) {
+                            <mat-option [value]="type.value">{{ type.label }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field class="w-full">
+                    <mat-label>Grupo</mat-label>
+                    <mat-select [formControl]="groupControl">
+                        <mat-option value="">Todos los grupos</mat-option>
+                        <mat-option value="unassigned">Sin asignar</mat-option>
+                        @for (group of groupsResource.value() || []; track group.id) {
+                            <mat-option [value]="group.id">{{ group.name }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- Botones de acción -->
+                <div class="flex justify-end items-center gap-2">
+                    <div class="flex items-center">
+                        <mat-checkbox [formControl]="showActiveOnly" color="primary">
+                            Solo activos
+                        </mat-checkbox>
+                    </div>
+                    <button mat-button color="warn" type="button" (click)="clearFilters()">
+                        Limpiar filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de plantillas -->
+        <div class="relative max-w-full overflow-auto w-full">
+            @if (columnsConfig()) {
+                <table-builder [columns]="columnsConfig()"
+                               [data]="templatesResource.value() || []"
+                               class="w-full"
+                ></table-builder>
+            }
+        </div>
+    </div>
+
+    <!-- Template para la columna de acciones -->
+    <ng-template #actionsCell let-template="row">
+        <div class="flex gap-2">
+            <button mat-icon-button [matMenuTriggerFor]="menu">
+                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:ellipsis-vertical"></mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+                <a mat-menu-item [routerLink]="['./edit', template.id]">
+                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil"></mat-icon>
+                    <span>Editar</span>
+                </a>
+                <button mat-menu-item (click)="duplicateTemplate(template)">
+                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:document-duplicate"></mat-icon>
+                    <span>Duplicar</span>
+                </button>
+                <button mat-menu-item (click)="toggleTemplateStatus(template)">
+                    <mat-icon class="icon-size-5" [svgIcon]="template.isActive ? 'heroicons_outline:eye-slash' : 'heroicons_outline:eye'"></mat-icon>
+                    <span>{{ template.isActive ? 'Desactivar' : 'Activar' }}</span>
+                </button>
+                <button mat-menu-item (click)="deleteTemplate(template)">
+                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:trash"></mat-icon>
+                    <span>Eliminar</span>
+                </button>
+            </mat-menu>
+        </div>
+    </ng-template>
+</div>

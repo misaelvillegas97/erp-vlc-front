@@ -4,6 +4,7 @@ import { MatIconModule }            from '@angular/material/icon';
 import { MatMenuModule }            from '@angular/material/menu';
 import { MatTooltip }               from '@angular/material/tooltip';
 import { Board }                    from '@modules/admin/apps/scrumboard/models/scrumboard.models';
+import { UserAvatarComponent } from '@shared/components/user-avatar';
 
 @Component({
     selector: 'scrumboard-board-header',
@@ -23,19 +24,11 @@ import { Board }                    from '@modules/admin/apps/scrumboard/models/
                 <!-- Board members -->
                 <div class="flex items-center -space-x-1.5 mr-4">
                     @for (member of board()?.members; track member.id) {
-                        @if (member.avatar) {
-                            <img
-                                class="w-8 h-8 rounded-full ring-2 ring-bg-card object-cover"
-                                [src]="member.avatar"
-                                [alt]="member.name"
-                                [matTooltip]="member.name">
-                        } @else {
-                            <div
-                                class="w-8 h-8 rounded-full ring-2 ring-bg-card bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-semibold flex items-center justify-center"
-                                [matTooltip]="member.name">
-                                {{ getUserInitial(member.name) }}
-                            </div>
-                        }
+                        <user-avatar
+                            class="w-8 h-8"
+                            [name]="member.name"
+                            [avatar]="member.avatar">
+                        </user-avatar>
                     }
                 </div>
 
@@ -80,7 +73,8 @@ import { Board }                    from '@modules/admin/apps/scrumboard/models/
         MatButtonModule,
         MatIconModule,
         MatMenuModule,
-        MatTooltip
+        MatTooltip,
+        UserAvatarComponent
     ]
 })
 export class ScrumboardBoardHeaderComponent {
@@ -93,16 +87,6 @@ export class ScrumboardBoardHeaderComponent {
     changeBackground = output<void>();
     archiveBoard = output<void>();
     deleteBoard = output<void>();
-
-    /**
-     * Get user initial for avatar fallback
-     */
-    getUserInitial(name: string): string {
-        if (!name || name.trim().length === 0) {
-            return '?';
-        }
-        return name.trim().charAt(0).toUpperCase();
-    }
 
     /**
      * Event handlers

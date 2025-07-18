@@ -1,0 +1,85 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        title="Grupos de Checklists"
+        subtitle="Gestión de grupos de checklists y sus plantillas asignadas">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-10 gap-y-4 sm:px-4">
+        <div class="flex flex-row w-full">
+            <h2 class="flex-1 font-bold text-secondary text-xl self-center">Grupos de Checklists</h2>
+
+            <button
+                (click)="groupsResource.reload()"
+                [matTooltip]="'Recargar'"
+                mat-icon-button
+            >
+                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:arrow-path"></mat-icon>
+            </button>
+            <a
+                [matTooltip]="'Nuevo grupo'"
+                [routerLink]="['./new']"
+                class="flex-0 font-bold py-2 px-4 rounded"
+                color="primary"
+                mat-icon-button
+            >
+                <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+            </a>
+        </div>
+
+        <!-- Panel de filtros -->
+        <div class="w-full bg-card rounded-md shadow p-4 mb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <mat-form-field class="w-full">
+                    <mat-label>Buscar</mat-label>
+                    <input matInput [formControl]="searchControl" placeholder="Buscar por nombre">
+                    <mat-icon matSuffix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+                </mat-form-field>
+
+                <!-- Botones de acción -->
+                <div class="flex justify-end items-center gap-2">
+                    <div class="flex items-center">
+                        <mat-checkbox [formControl]="showActiveOnly" color="primary">
+                            Solo activos
+                        </mat-checkbox>
+                    </div>
+                    <button mat-button color="warn" type="button" (click)="clearFilters()">
+                        Limpiar filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de grupos -->
+        <div class="relative max-w-full overflow-auto w-full">
+            @if (columnsConfig()) {
+                <table-builder [columns]="columnsConfig()"
+                               [data]="groupsResource.value() || []"
+                               class="w-full"
+                ></table-builder>
+            }
+        </div>
+    </div>
+
+    <!-- Template para la columna de acciones -->
+    <ng-template #actionsCell let-group="row">
+        <div class="flex gap-2">
+            <button mat-icon-button [matMenuTriggerFor]="menu">
+                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:ellipsis-vertical"></mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+                <a mat-menu-item [routerLink]="['./edit', group.id]">
+                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil"></mat-icon>
+                    <span>Editar</span>
+                </a>
+                <button mat-menu-item (click)="toggleGroupStatus(group)">
+                    <mat-icon class="icon-size-5" [svgIcon]="group.isActive ? 'heroicons_outline:eye-slash' : 'heroicons_outline:eye'"></mat-icon>
+                    <span>{{ group.isActive ? 'Desactivar' : 'Activar' }}</span>
+                </button>
+                <button mat-menu-item (click)="deleteGroup(group)">
+                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:trash"></mat-icon>
+                    <span>Eliminar</span>
+                </button>
+            </mat-menu>
+        </div>
+    </ng-template>
+</div>
