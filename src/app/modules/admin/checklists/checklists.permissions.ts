@@ -29,7 +29,7 @@ export const checklistsPermissions: RoutePermission[] = [
                 allowedRoles: [ RoleEnum.admin, RoleEnum.quality_manager ],
                 children    : [
                     {
-                        path        : 'list',
+                        path: '',
                         title       : 'Lista de Grupos',
                         description : 'Consulta y gestiona los grupos de checklists',
                         icon        : 'heroicons_outline:queue-list',
@@ -56,7 +56,7 @@ export const checklistsPermissions: RoutePermission[] = [
                 allowedRoles: [ RoleEnum.admin, RoleEnum.quality_manager ],
                 children    : [
                     {
-                        path        : 'list',
+                        path: '',
                         title       : 'Lista de Plantillas',
                         description : 'Consulta y gestiona las plantillas de checklists',
                         icon        : 'heroicons_outline:queue-list',

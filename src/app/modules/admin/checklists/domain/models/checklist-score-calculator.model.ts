@@ -2,49 +2,37 @@ import { ChecklistQuestion, ChecklistQuestionResponse } from '../interfaces/chec
 import { ChecklistCategory, ChecklistCategoryScore }    from '../interfaces/checklist-category.interface';
 import { ChecklistTemplate, ChecklistTemplateScore }    from '../interfaces/checklist-template.interface';
 import { ChecklistGroupScore }                          from '../interfaces/checklist-group.interface';
-import { ResponseType }                                 from '../enums/response-type.enum';
 
 export class ChecklistScoreCalculator {
 
     /**
      * Calculate normalized score for a question response (0-1)
+     * Uses the new approval-based scoring system
      */
     static calculateQuestionScore(question: ChecklistQuestion, response: ChecklistQuestionResponse): number {
+        // If no response and question is required, return 0
         if (!response.value && question.required) {
             return 0;
         }
 
-        switch (question.responseType) {
-            case ResponseType.CHECKBOX:
-                return response.value ? 1 : 0;
-
-            case ResponseType.NUMERIC:
-                if (question.numericRange) {
-                    const {min, max} = question.numericRange;
-                    const value = Number(response.value);
-                    if (isNaN(value)) return 0;
-                    return Math.max(0, Math.min(1, (value - min) / (max - min)));
-                }
-                return response.value > 0 ? 1 : 0;
-
-            case ResponseType.MULTIPLE_CHOICE:
-                // Assume first option is best, last is worst
-                if (question.options && question.options.length > 0) {
-                    const selectedIndex = question.options.indexOf(response.value);
-                    if (selectedIndex === -1) return 0;
-                    return 1 - (selectedIndex / (question.options.length - 1));
-                }
-                return response.value ? 1 : 0;
-
-            case ResponseType.TEXT:
-                return response.value && response.value.trim().length > 0 ? 1 : 0;
-
-            case ResponseType.FILE_UPLOAD:
-                return response.files && response.files.length > 0 ? 1 : 0;
-
-            default:
-                return 0;
+        // If no response but question is not required, return 1 (neutral)
+        if (!response.value && !question.required) {
+            return 1;
         }
+
+        // ✅ NEW: Approval-based scoring system
+        // The response.value contains the numeric score directly:
+        // - 1.0 for "Aprobado"
+        // - question.intermediateValue for "Parcial" (if hasIntermediateApproval is true)
+        // - 0.0 for "No Aprobado"
+        const numericValue = Number(response.value);
+
+        // Validate the numeric value is within expected range
+        if (isNaN(numericValue) || numericValue < 0 || numericValue > 1) {
+            return 0;
+        }
+
+        return numericValue;
     }
 
     /**
@@ -69,7 +57,7 @@ export class ChecklistScoreCalculator {
         return {
             categoryId        : category.id!,
             title             : category.title,
-            weight            : category.weight,
+            weight: totalWeight, // ✅ CHANGED: Use sum of question weights instead of category.weight
             score,
             maxPossibleScore  : 1,
             questionsCompleted: questionScores.filter(qs => qs.response).length,
@@ -81,19 +69,24 @@ export class ChecklistScoreCalculator {
      * Calculate template score based on category scores
      */
     static calculateTemplateScore(template: ChecklistTemplate, categoryScores: ChecklistCategoryScore[]): ChecklistTemplateScore {
-        const totalWeight = template.categories.reduce((sum, c) => sum + c.weight, 0);
+        // ✅ CHANGED: Calculate total weight as sum of all question weights across all categories
+        const totalWeight = template.categories.reduce((sum, category) => {
+            const categoryQuestionWeight = category.questions.reduce((qSum, question) => qSum + question.weight, 0);
+            return sum + categoryQuestionWeight;
+        }, 0);
+
+        // ✅ CHANGED: Calculate weighted sum using category weights (which are now sum of question weights)
         const weightedSum = categoryScores.reduce((sum, cs) => {
-            const category = template.categories.find(c => c.id === cs.categoryId);
-            return sum + (cs.score * (category?.weight || 0));
+            return sum + (cs.score * cs.weight); // cs.weight is now the sum of question weights in that category
         }, 0);
 
         const score = totalWeight > 0 ? weightedSum / totalWeight : 0;
-        const passed = template.scoreThreshold ? score >= template.scoreThreshold : true;
+        const passed = template.performanceThreshold ? score >= (template.performanceThreshold / 100) : true;
 
         return {
             templateId    : template.id!,
             name          : template.name,
-            weight        : template.weight,
+            weight: template.weight || 1.0, // Default weight for standalone templates
             score,
             passed,
             categoryScores: categoryScores.map(cs => ({
@@ -108,12 +101,12 @@ export class ChecklistScoreCalculator {
     /**
      * Calculate group score based on template scores
      */
-    static calculateGroupScore(groupId: string, groupName: string, groupWeight: number, templateScores: ChecklistTemplateScore[], scoreThreshold?: number): ChecklistGroupScore {
+    static calculateGroupScore(groupId: string, groupName: string, groupWeight: number, templateScores: ChecklistTemplateScore[], performanceThreshold?: number): ChecklistGroupScore {
         const totalWeight = templateScores.reduce((sum, ts) => sum + ts.weight, 0);
         const weightedSum = templateScores.reduce((sum, ts) => sum + (ts.score * ts.weight), 0);
 
         const score = totalWeight > 0 ? weightedSum / totalWeight : 0;
-        const passed = scoreThreshold ? score >= scoreThreshold : templateScores.every(ts => ts.passed);
+        const passed = performanceThreshold ? score >= (performanceThreshold / 100) : templateScores.every(ts => ts.passed);
 
         return {
             groupId,

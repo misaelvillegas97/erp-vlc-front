@@ -7,7 +7,7 @@ export interface ChecklistGroup {
     weight: number; // Overall weight of the group (0-1)
     templates: ChecklistTemplate[];
     isActive: boolean;
-    scoreThreshold?: number; // Minimum group score to pass (0-1)
+    performanceThreshold?: number; // Minimum group score to pass (0-100)
     createdAt?: Date;
     updatedAt?: Date;
     createdBy?: string;

@@ -1,0 +1,110 @@
+<div class="evidence-upload-container">
+    <!-- Drop Zone -->
+    <div
+        class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-gray-400 dark:hover:border-gray-500 transition-colors cursor-pointer"
+        [class.border-blue-500]="isDragOver()"
+        [class.bg-blue-50]="isDragOver()"
+        (click)="triggerFileInput()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)">
+
+        @if (selectedFiles().length === 0) {
+            <div class="space-y-2">
+                <mat-icon class="text-gray-400 dark:text-gray-500 text-4xl">cloud_upload</mat-icon>
+                <div class="text-sm text-gray-600 dark:text-gray-300">
+                    <span class="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">Haga clic para subir</span>
+                    o arrastre y suelte archivos aquí
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                    PNG, JPG, PDF hasta {{ maxFileSize() / (1024 * 1024) }}MB
+                </p>
+            </div>
+        } @else {
+            <div class="space-y-2">
+                <mat-icon class="text-green-500 text-4xl">check_circle</mat-icon>
+                <div class="text-sm text-gray-600 dark:text-gray-300">
+                    {{ selectedFiles().length }} archivo(s) seleccionado(s)
+                </div>
+                <button
+                    mat-button
+                    color="primary"
+                    type="button"
+                    (click)="$event.stopPropagation(); triggerFileInput()">
+                    Cambiar archivos
+                </button>
+            </div>
+        }
+    </div>
+
+    <!-- Hidden File Input -->
+    <input
+        #fileInput
+        type="file"
+        class="hidden"
+        [multiple]="allowMultiple()"
+        [accept]="acceptedTypes().join(',')"
+        (change)="onFileSelected($event)">
+
+    <!-- Selected Files List -->
+    @if (selectedFiles().length > 0) {
+        <div class="mt-4 space-y-2">
+            <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100">Archivos seleccionados:</h4>
+            <div class="space-y-2">
+                @for (file of selectedFiles(); track file.name) {
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <mat-icon class="text-gray-500 dark:text-gray-400">{{ getFileIcon(file.type) }}</mat-icon>
+                            <div>
+                                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ file.name }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ formatFileSize(file.size) }}</div>
+                            </div>
+                        </div>
+                        <button
+                            mat-icon-button
+                            color="warn"
+                            type="button"
+                            (click)="removeFile(file)"
+                            [matTooltip]="'Eliminar archivo'">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Upload Progress -->
+    @if (isUploading()) {
+        <div class="mt-4">
+            <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300 mb-2">
+                <span>Subiendo archivos...</span>
+                <span>{{ uploadProgress() }}%</span>
+            </div>
+            <mat-progress-bar
+                mode="determinate"
+                [value]="uploadProgress()"
+                color="primary">
+            </mat-progress-bar>
+        </div>
+    }
+
+    <!-- Error Messages -->
+    @if (errorMessage()) {
+        <div class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <div class="flex items-center gap-2">
+                <mat-icon class="text-red-500 dark:text-red-400 text-sm">error</mat-icon>
+                <span class="text-sm text-red-700 dark:text-red-300">{{ errorMessage() }}</span>
+            </div>
+        </div>
+    }
+
+    <!-- File Validation Info -->
+    <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+        <div>Tipos permitidos: {{ acceptedTypes().join(', ') }}</div>
+        <div>Tamaño máximo: {{ maxFileSize() / (1024 * 1024) }}MB por archivo</div>
+        @if (allowMultiple()) {
+            <div>Máximo {{ maxFiles() }} archivos</div>
+        }
+    </div>
+</div>

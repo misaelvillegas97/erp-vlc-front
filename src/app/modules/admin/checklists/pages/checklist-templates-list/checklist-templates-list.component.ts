@@ -76,12 +76,12 @@ export class ChecklistTemplatesListComponent {
 
     // Data resources
     groupsResource = resource({
-        loader: async () => {
+        loader: () => {
             try {
-                return await firstValueFrom(this.#checklistService.loadGroups());
+                return firstValueFrom(this.#checklistService.loadGroups());
             } catch (error) {
                 this.#notyf.error('Error al cargar los grupos');
-                return [];
+                return undefined;
             }
         }
     });
@@ -196,6 +196,10 @@ export class ChecklistTemplatesListComponent {
                 header  : 'Plantilla',
                 visible : true,
                 sortable: true,
+                display: {
+                    type : 'text',
+                    label: (value, row) => `${ row.name } (${ row.version })`,
+                },
                 render  : (template: ChecklistTemplate) => `
           <div class="flex flex-col">
             <span class="font-medium">${ template.name }</span>
@@ -238,11 +242,11 @@ export class ChecklistTemplatesListComponent {
             ` : '<span class="text-gray-500 italic">Sin asignar</span>' }
             <div class="flex items-center gap-2 mt-1">
               <mat-icon class="text-gray-500 text-sm">directions_car</mat-icon>
-              <span>${ template.vehicleIds?.length || 0 } vehículos</span>
+              <span>${ template.vehicleTypes?.length || 0 } vehículos</span>
             </div>
             <div class="flex items-center gap-2 mt-1">
               <mat-icon class="text-gray-500 text-sm">person</mat-icon>
-              <span>${ template.roleIds?.length || 0 } roles</span>
+              <span>${ template.userRoles?.length || 0 } roles</span>
             </div>
           </div>
         `

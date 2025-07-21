@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed }                  from '@angular/core';
+import { Injectable, inject, signal, computed, resource } from '@angular/core';
 import { HttpClient, HttpParams }                                from '@angular/common/http';
 import { Observable, BehaviorSubject, map, tap, catchError, of } from 'rxjs';
 
@@ -7,6 +7,7 @@ import { ChecklistTemplate, ChecklistTemplateMetadata }                         
 import { ChecklistExecution, ChecklistExecutionMetadata, ChecklistExecutionReport, ExecutionStatus } from '../domain/interfaces/checklist-execution.interface';
 import { ChecklistScoreCalculator }                                                                  from '../domain/models/checklist-score-calculator.model';
 import { ChecklistType }                                                                             from '../domain/enums/checklist-type.enum';
+import { ExecuteChecklistDto, ExecuteChecklistAnswers }   from '../domain/interfaces/execute-checklist.dto';
 
 export interface ChecklistFilters {
     type?: ChecklistType;
@@ -38,6 +39,9 @@ export class ChecklistService {
     private readonly _loading = signal<boolean>(false);
     private readonly _error = signal<string | null>(null);
 
+    // Execution state management
+    private readonly _executionSignal = signal<ChecklistExecution | null>(null);
+
     // Filters and pagination
     private readonly _groupFilters = signal<ChecklistFilters>({});
     private readonly _templateFilters = signal<ChecklistFilters>({});
@@ -50,6 +54,7 @@ export class ChecklistService {
     readonly executions = this._executions.asReadonly();
     readonly loading = this._loading.asReadonly();
     readonly error = this._error.asReadonly();
+    readonly currentExecution = this._executionSignal.asReadonly();
 
     // Computed signals
     readonly filteredGroups = computed(() => {
@@ -78,10 +83,10 @@ export class ChecklistService {
             if (filters.groupId && template.groupId !== filters.groupId) {
                 return false;
             }
-            if (filters.vehicleId && !template.vehicleIds.includes(filters.vehicleId)) {
+            if (filters.vehicleId && !template.vehicleTypes?.includes(filters.vehicleId)) {
                 return false;
             }
-            if (filters.roleId && !template.roleIds.includes(filters.roleId)) {
+            if (filters.roleId && !template.userRoles?.includes(filters.roleId)) {
                 return false;
             }
             if (filters.search && !template.name.toLowerCase().includes(filters.search.toLowerCase())) {
@@ -273,6 +278,24 @@ export class ChecklistService {
         );
     }
 
+    getTemplate(id: string): Observable<ChecklistTemplate> {
+        return this.http.get<ChecklistTemplate>(`${ this.baseUrl }/templates/${ id }`).pipe(
+            catchError(error => {
+                this._error.set('Failed to load checklist template');
+                throw error;
+            })
+        );
+    }
+
+    getGroup(id: string): Observable<ChecklistGroup> {
+        return this.http.get<ChecklistGroup>(`${ this.baseUrl }/groups/${ id }`).pipe(
+            catchError(error => {
+                this._error.set('Failed to load checklist group');
+                throw error;
+            })
+        );
+    }
+
     // Execution Management
     loadExecutions(): Observable<ChecklistExecution[]> {
         this._loading.set(true);
@@ -331,6 +354,140 @@ export class ChecklistService {
         return this.http.get(`${ this.baseUrl }/executions/${ id }/export/${ format }`, {
             responseType: 'blob'
         });
+    }
+
+    // Enhanced execution methods with resource() and signals
+    executeChecklist(payload: ExecuteChecklistDto) {
+        return resource({
+            request: () => payload,
+            loader : async ({request}) => {
+                try {
+                    this._loading.set(true);
+                    this._error.set(null);
+
+                    const execution = await this.http.post<ChecklistExecution>(
+                        `${ this.baseUrl }/executions/execute`,
+                        request
+                    ).toPromise();
+
+                    if (execution) {
+                        this._executionSignal.set(execution);
+                        this._executions.update(executions => [ ...executions, execution ]);
+                    }
+
+                    this._loading.set(false);
+                    return execution!;
+                } catch (error) {
+                    this._error.set('Failed to execute checklist');
+                    this._loading.set(false);
+                    throw error;
+                }
+            }
+        });
+    }
+
+    getExecutionById(id: string) {
+        return resource({
+            request: () => id,
+            loader : async ({request}) => {
+                try {
+                    this._loading.set(true);
+                    this._error.set(null);
+
+                    const execution = await this.http.get<ChecklistExecution>(
+                        `${ this.baseUrl }/executions/${ request }`
+                    ).toPromise();
+
+                    if (execution) {
+                        this._executionSignal.set(execution);
+                    }
+
+                    this._loading.set(false);
+                    return execution!;
+                } catch (error) {
+                    this._error.set('Failed to load execution');
+                    this._loading.set(false);
+                    throw error;
+                }
+            }
+        });
+    }
+
+    // Score calculation methods
+    calculateScore(template: ChecklistTemplate, answers: ExecuteChecklistAnswers): number {
+        if (!template.categories || template.categories.length === 0) {
+            return 0;
+        }
+
+        let totalWeightedScore = 0;
+        let totalWeight = 0;
+
+        template.categories.forEach(category => {
+            const categoryAnswers = answers[category.id!] || {};
+            const categoryScore = this.calculateCategoryScore(category, categoryAnswers);
+
+            // ✅ CHANGED: Calculate category weight as sum of question weights
+            const categoryWeight = category.questions.reduce((sum, question) => sum + question.weight, 0);
+
+            totalWeightedScore += categoryScore * categoryWeight;
+            totalWeight += categoryWeight;
+        });
+
+        return totalWeight > 0 ? totalWeightedScore / totalWeight : 0;
+    }
+
+    calculateGroupScore(group: ChecklistGroup, executions: ChecklistExecution[]): number {
+        if (!group.templates || group.templates.length === 0) {
+            return 0;
+        }
+
+        let totalWeightedScore = 0;
+        let totalWeight = 0;
+
+        group.templates.forEach(template => {
+            const templateExecution = executions.find(exec => exec.templateId === template.id);
+            if (templateExecution) {
+                totalWeightedScore += templateExecution.overallScore * template.weight;
+                totalWeight += template.weight;
+            }
+        });
+
+        return totalWeight > 0 ? totalWeightedScore / totalWeight : 0;
+    }
+
+    // Helper method for category score calculation
+    private calculateCategoryScore(category: any, categoryAnswers: any): number {
+        if (!category.questions || category.questions.length === 0) {
+            return 0;
+        }
+
+        let totalWeightedScore = 0;
+        let totalWeight = 0;
+
+        category.questions.forEach((question: any) => {
+            const answer = categoryAnswers[question.id!];
+            if (answer) {
+                const questionScore = this.calculateQuestionScore(question, answer);
+                totalWeightedScore += questionScore * question.weight;
+                totalWeight += question.weight;
+            }
+        });
+
+        return totalWeight > 0 ? totalWeightedScore / totalWeight : 0;
+    }
+
+    // Helper method for question score calculation
+    private calculateQuestionScore(question: any, answer: any): number {
+        // Use the existing ChecklistScoreCalculator for consistency
+        const mockResponse = {
+            questionId     : question.id,
+            value          : answer.value,
+            normalizedScore: answer.normalizedScore,
+            timestamp      : new Date(),
+            files          : answer.files || []
+        };
+
+        return ChecklistScoreCalculator.calculateQuestionScore(question, mockResponse);
     }
 
     // Filter and pagination methods

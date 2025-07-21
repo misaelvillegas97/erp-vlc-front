@@ -4,8 +4,8 @@ export interface ChecklistCategory {
     id?: string;
     title: string;
     description?: string;
-    weight: number;
-    order: number;
+    // weight: number; // ❌ REMOVED - Categories no longer have weight
+    sortOrder: number;
     questions: ChecklistQuestion[];
     templateId?: string;
 }

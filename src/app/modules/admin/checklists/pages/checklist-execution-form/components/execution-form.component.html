@@ -1,0 +1,177 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        title="Ejecutar Checklist"
+        [subtitle]="isGroupExecution() ? 'Ejecutando grupo de checklists' : 'Ejecutando plantilla de checklist'">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-6xl mx-auto py-10 gap-y-6 sm:px-4">
+
+        <!-- Header with back button -->
+        <div class="flex flex-row w-full items-center gap-4">
+            <button mat-icon-button routerLink="../" [matTooltip]="'Volver a selección'">
+                <mat-icon svgIcon="heroicons_outline:arrow-left"></mat-icon>
+            </button>
+            <div class="flex-1">
+                <h2 class="font-bold text-secondary text-xl">
+                    {{ currentTemplate()?.name || 'Checklist' }}
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-300">
+                    {{ currentTemplate()?.description || 'Ejecutando checklist' }}
+                </p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-600 dark:text-gray-300">Progreso:</span>
+                <span class="font-medium">{{ completionPercentage() | number:'1.0-0' }}%</span>
+                <mat-progress-bar
+                    mode="determinate"
+                    [value]="completionPercentage()"
+                    class="w-32"
+                ></mat-progress-bar>
+            </div>
+        </div>
+
+        <form [formGroup]="executionForm" (ngSubmit)="onSubmit()" class="w-full space-y-6">
+
+            <!-- Vehicle Selection -->
+            <div class="w-full bg-card rounded-md shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Información de Ejecución</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <mat-form-field class="w-full">
+                        <mat-label>Vehículo</mat-label>
+                        <mat-select formControlName="vehicleId">
+                            @for (vehicle of availableVehicles(); track vehicle.id) {
+                                <mat-option [value]="vehicle.id">{{ vehicle.name }} ({{ vehicle.plate }})</mat-option>
+                            }
+                        </mat-select>
+                        @if (executionForm.get('vehicleId')?.hasError('required') && executionForm.get('vehicleId')?.touched) {
+                            <mat-error>Debe seleccionar un vehículo</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <div class="flex items-center gap-4">
+                        <div class="text-sm">
+                            <div class="font-medium text-gray-900 dark:text-gray-100">Tipo: {{ currentTemplate()?.type | titlecase }}</div>
+                            <div class="text-gray-600 dark:text-gray-300">Versión: {{ currentTemplate()?.version }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Score Display -->
+            @if (isGroupExecution()) {
+                <div class="w-full bg-card rounded-md shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Puntuación del Grupo</h3>
+                    <div class="flex items-center gap-4">
+                        <div class="flex-1">
+                            <mat-progress-bar
+                                mode="determinate"
+                                [value]="groupScore() * 100"
+                                [color]="groupScore() >= 0.7 ? 'primary' : 'warn'"
+                            ></mat-progress-bar>
+                        </div>
+                        <span class="font-bold text-lg"
+                              [class]="groupScore() >= 0.7 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+              {{ (groupScore() * 100) | number:'1.1-1' }}%
+            </span>
+                    </div>
+                </div>
+            } @else {
+                <div class="w-full bg-card rounded-md shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Puntuación de la Plantilla</h3>
+                    <div class="flex items-center gap-4">
+                        <div class="flex-1">
+                            <mat-progress-bar
+                                mode="determinate"
+                                [value]="templateScore() * 100"
+                                [color]="templateScore() >= 0.7 ? 'primary' : 'warn'"
+                            ></mat-progress-bar>
+                        </div>
+                        <span class="font-bold text-lg"
+                              [class]="templateScore() >= 0.7 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+              {{ (templateScore() * 100) | number:'1.1-1' }}%
+            </span>
+                    </div>
+                </div>
+            }
+
+            <!-- Categories -->
+            <div class="w-full bg-card rounded-md shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Categorías del Checklist</h3>
+
+                <div formArrayName="categories" class="space-y-4">
+                    @for (i of categoriesIndices(); track i) {
+                        <mat-expansion-panel class="shadow-sm">
+                            <mat-expansion-panel-header>
+                                <mat-panel-title>
+                                    <div class="flex items-center gap-3">
+                                        <mat-icon class="text-blue-500 dark:text-blue-400">folder</mat-icon>
+                                        <span>{{ getCategory(i)?.title }}</span>
+                                        <span class="ml-auto px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs">
+                      Peso: {{ (getCategory(i)?.weight * 100).toFixed(0) }}%
+                    </span>
+                                    </div>
+                                </mat-panel-title>
+                                <mat-panel-description>
+                                    <div class="flex items-center gap-4">
+                                        <span class="text-sm">{{ getCategoryCompletionText(i) }}</span>
+                                        <mat-progress-bar
+                                            mode="determinate"
+                                            [value]="getCategoryCompletion(i)"
+                                            class="w-24"
+                                        ></mat-progress-bar>
+                                    </div>
+                                </mat-panel-description>
+                            </mat-expansion-panel-header>
+
+                            <div [formGroupName]="i" class="space-y-4 p-4">
+                                @if (getCategory(i)?.description) {
+                                    <p class="text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 p-3 rounded">{{ getCategory(i)?.description }}</p>
+                                }
+
+                                <div formArrayName="questions" class="space-y-4">
+                                    @for (j of getQuestionIndices(i); track j) {
+                                        <app-question-item
+                                            formGroupName="{{ j }}"
+                                            [question]="getQuestion(i, j)!"
+                                            [required]="getQuestion(i, j)?.required || false"
+                                        ></app-question-item>
+                                    }
+                                </div>
+                            </div>
+                        </mat-expansion-panel>
+                    }
+                </div>
+            </div>
+
+            <!-- Notes Section -->
+            <div class="w-full bg-card rounded-md shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Notas Adicionales</h3>
+                <mat-form-field class="w-full">
+                    <mat-label>Observaciones</mat-label>
+                    <textarea matInput formControlName="notes" rows="4"
+                              placeholder="Agregue cualquier observación adicional sobre la ejecución del checklist..."></textarea>
+                </mat-form-field>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-between gap-4 pt-6">
+                <div class="flex gap-2">
+                    <button mat-button type="button" (click)="cancel()">
+                        <mat-icon>cancel</mat-icon>
+                        Cancelar
+                    </button>
+                    <button mat-button type="button" (click)="saveDraft()" color="accent">
+                        <mat-icon>save</mat-icon>
+                        Guardar Borrador
+                    </button>
+                </div>
+
+                <button mat-raised-button color="primary" type="submit" [disabled]="!canSubmit()">
+                    <mat-icon>check_circle</mat-icon>
+                    Completar Checklist
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

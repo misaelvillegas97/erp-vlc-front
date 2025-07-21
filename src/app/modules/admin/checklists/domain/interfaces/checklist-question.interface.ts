@@ -1,18 +1,17 @@
-import { ResponseType } from '../enums/response-type.enum';
-
 export interface ChecklistQuestion {
     id?: string;
     title: string;
     description?: string;
     weight: number;
     required: boolean;
-    responseType: ResponseType;
-    options?: string[]; // For multiple choice questions
-    numericRange?: {
-        min: number;
-        max: number;
-    };
-    order: number;
+
+    // ✅ NEW: Sistema de aprobación configurable
+    hasIntermediateApproval: boolean; // Si permite valor intermedio
+    intermediateValue: number; // Valor del punto intermedio (0-1)
+
+    extraFields?: Record<string, any>;
+    sortOrder: number;
+    isActive: boolean;
     categoryId?: string;
 }
 

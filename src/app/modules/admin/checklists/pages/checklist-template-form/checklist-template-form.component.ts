@@ -1,7 +1,7 @@
-import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy }                from '@angular/core';
+import { Component, computed, inject, OnInit, signal }                                         from '@angular/core';
 import { CommonModule }                                                                        from '@angular/common';
-import { Router, ActivatedRoute, RouterModule }                                                from '@angular/router';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule }                                                from '@angular/router';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 // Angular Material
 import { MatCardModule }        from '@angular/material/card';
@@ -18,31 +18,19 @@ import { MatTooltipModule }     from '@angular/material/tooltip';
 import { MatExpansionModule }   from '@angular/material/expansion';
 import { MatDividerModule }     from '@angular/material/divider';
 
-import { ChecklistService }         from '../../services/checklist.service';
-import { ChecklistTemplate }        from '../../domain/interfaces/checklist-template.interface';
-import { ChecklistCategory }        from '../../domain/interfaces/checklist-category.interface';
-import { ChecklistQuestion }        from '../../domain/interfaces/checklist-question.interface';
-import { ChecklistType }            from '../../domain/enums/checklist-type.enum';
-import { ResponseType }             from '../../domain/enums/response-type.enum';
-import { ChecklistScoreCalculator } from '../../domain/models/checklist-score-calculator.model';
-import { NotyfService }             from '@shared/services/notyf.service';
-import { PageHeaderComponent }      from '@layout/components/page-header/page-header.component';
+import { ChecklistService }    from '../../services/checklist.service';
+import { ChecklistTemplate }   from '../../domain/interfaces/checklist-template.interface';
+import { ChecklistType }       from '../../domain/enums/checklist-type.enum';
+import { NotyfService }        from '@shared/services/notyf.service';
+import { PageHeaderComponent } from '@layout/components/page-header/page-header.component';
+import { toSignal }            from '@angular/core/rxjs-interop';
 
-// Custom validators
-function weightSumValidator(control: AbstractControl): { [key: string]: any } | null {
-    if (control instanceof FormArray) {
-        const weights = control.controls.map(c => c.get('weight')?.value || 0);
-        const sum = weights.reduce((acc, weight) => acc + weight, 0);
-        const isValid = ChecklistScoreCalculator.validateWeights(weights);
-        return isValid ? null : {weightSum: {actual: sum, expected: 1.0}};
-    }
-    return null;
-}
+// ❌ REMOVED: weightSumValidator - No longer needed with free weight system
 
 @Component({
-    selector       : 'app-checklist-template-form',
-    standalone     : true,
-    imports        : [
+    selector   : 'app-checklist-template-form',
+    standalone : true,
+    imports    : [
         CommonModule,
         RouterModule,
         ReactiveFormsModule,
@@ -61,8 +49,7 @@ function weightSumValidator(control: AbstractControl): { [key: string]: any } | 
         MatDividerModule,
         PageHeaderComponent
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    templateUrl    : './checklist-template-form.component.html'
+    templateUrl: './checklist-template-form.component.html'
 })
 export class ChecklistTemplateFormComponent implements OnInit {
     private readonly fb = inject(FormBuilder);
@@ -86,13 +73,6 @@ export class ChecklistTemplateFormComponent implements OnInit {
         {value: ChecklistType.OPERATIONAL, label: 'Operacional'}
     ];
 
-    readonly responseTypes = [
-        {value: ResponseType.TEXT, label: 'Texto'},
-        {value: ResponseType.NUMERIC, label: 'Numérico'},
-        {value: ResponseType.CHECKBOX, label: 'Checkbox'},
-        {value: ResponseType.MULTIPLE_CHOICE, label: 'Opción múltiple'},
-        {value: ResponseType.FILE_UPLOAD, label: 'Subir archivo'}
-    ];
 
     // Mock data for vehicles and roles (replace with actual service calls)
     readonly availableVehicles = signal([
@@ -108,45 +88,66 @@ export class ChecklistTemplateFormComponent implements OnInit {
         {id: '4', name: 'Técnico de mantenimiento'}
     ]);
 
-    // Form
+    // Form - Structured according to FormTemplate interface
     readonly templateForm: FormGroup = this.fb.group({
-        name          : [ '', [ Validators.required, Validators.minLength(2) ] ],
-        type          : [ '', Validators.required ],
-        version       : [ '1.0', Validators.required ],
-        description   : [ '' ],
-        weight        : [ 0, [ Validators.required, Validators.min(0), Validators.max(1) ] ],
-        scoreThreshold: [ 0.7, [ Validators.min(0), Validators.max(1) ] ],
-        vehicleIds    : [ [], Validators.required ],
-        roleIds       : [ [], Validators.required ],
-        isActive      : [ true ],
-        categories    : this.fb.array([], weightSumValidator)
+        // Section 1: Basic Information
+        basicInfo: this.fb.group({
+            type                : [ '', Validators.required ],
+            name                : [ '', [ Validators.required, Validators.minLength(2) ] ],
+            description         : [ '' ],
+            version             : [ '1.0' ],
+            performanceThreshold: [ 75, [ Validators.min(0), Validators.max(100) ] ],
+            isActive            : [ true ]
+        }),
+
+        // Section 2: Application Filters
+        filters: this.fb.group({
+            vehicleTypes: [ [] ],
+            userRoles   : [ [] ]
+        }),
+
+        // Section 3: Content Structure
+        content: this.fb.group({
+            categories: this.fb.array([]) // ❌ REMOVED weightSumValidator
+        })
     });
 
     // Computed signals
-    readonly categoriesArray = computed(() => this.templateForm.get('categories') as FormArray);
+    readonly categoriesArraySignal = toSignal(this.templateForm.get('content.categories').valueChanges);
+    readonly categoriesArray = computed(() => this.templateForm.get('content.categories') as FormArray);
 
-    readonly totalCategoryWeight = computed(() => {
-        const categories = this.categoriesArray();
+    // ✅ NEW: Calculate total checklist weight (sum of all question weights)
+    readonly totalChecklistWeight = computed(() => {
+        const categories = this.categoriesArraySignal();
         if (!categories) return 0;
-        return categories.controls.reduce((sum, control) => {
-            return sum + (control.get('weight')?.value || 0);
+
+        return categories.reduce((totalWeight, category) => {
+            const questions = category.questions || [];
+            const categoryWeight = questions.reduce((sum, question) => sum + (question.weight || 0), 0);
+            return totalWeight + categoryWeight;
         }, 0);
     });
 
-    readonly categoryWeightValidation = computed(() => {
-        const total = this.totalCategoryWeight();
-        const isValid = Math.abs(total - 1.0) <= 0.01;
+    readonly checklistWeightValidation = computed(() => {
+        const total = this.totalChecklistWeight();
+        const isValid = total > 0; // Only verify that there's positive weight
         return {
             isValid,
             total,
-            class: isValid ? 'text-green-600' : total > 1.0 ? 'text-red-600' : 'text-orange-600'
+            class: isValid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
         };
     });
 
-    readonly canSubmit = computed(() => {
+    // ✅ NEW: Computed signal for form submission validation
+    readonly canSubmitForm = computed(() => {
+        const categories = this.categoriesArraySignal();
+        const hasQuestions = categories?.some(category =>
+            category.questions && category.questions.length > 0
+        ) || false;
+
         return this.templateForm.valid &&
-            this.categoryWeightValidation().isValid &&
-            this.categoriesArray().length > 0 &&
+            hasQuestions &&
+            this.totalChecklistWeight() > 0 &&
             !this.checklistService.loading();
     });
 
@@ -165,16 +166,6 @@ export class ChecklistTemplateFormComponent implements OnInit {
         this.categoriesArray().removeAt(index);
     }
 
-    private createCategoryFormGroup(): FormGroup {
-        return this.fb.group({
-            title      : [ '', Validators.required ],
-            description: [ '' ],
-            weight     : [ 0, [ Validators.required, Validators.min(0), Validators.max(1) ] ],
-            order      : [ this.categoriesArray().length ],
-            questions  : this.fb.array([], weightSumValidator)
-        });
-    }
-
     // Question management
     getQuestionsArray(categoryIndex: number): FormArray {
         return this.categoriesArray().at(categoryIndex).get('questions') as FormArray;
@@ -189,56 +180,17 @@ export class ChecklistTemplateFormComponent implements OnInit {
         this.getQuestionsArray(categoryIndex).removeAt(questionIndex);
     }
 
-    private createQuestionFormGroup(categoryIndex: number): FormGroup {
-        const questionsArray = this.getQuestionsArray(categoryIndex);
-        return this.fb.group({
-            title       : [ '', Validators.required ],
-            description : [ '' ],
-            weight      : [ 0, [ Validators.required, Validators.min(0), Validators.max(1) ] ],
-            required    : [ true ],
-            responseType: [ ResponseType.TEXT, Validators.required ],
-            options     : this.fb.array([]),
-            numericRange: this.fb.group({
-                min: [ 0 ],
-                max: [ 100 ]
-            }),
-            order       : [ questionsArray.length ]
-        });
-    }
-
-    // Response type handling
-    onResponseTypeChange(categoryIndex: number, questionIndex: number, responseType: ResponseType): void {
-        const questionGroup = this.getQuestionsArray(categoryIndex).at(questionIndex) as FormGroup;
-        const optionsArray = questionGroup.get('options') as FormArray;
-
-        // Clear existing options
-        while (optionsArray.length !== 0) {
-            optionsArray.removeAt(0);
-        }
-
-        // Add default options for multiple choice
-        if (responseType === ResponseType.MULTIPLE_CHOICE) {
-            this.addOption(categoryIndex, questionIndex);
-            this.addOption(categoryIndex, questionIndex);
+    // Approval system helpers
+    getApprovalPreview(hasIntermediateApproval: boolean, intermediateValue: number): string {
+        if (hasIntermediateApproval) {
+            return `Aprobado (1.0) | Parcial (${ intermediateValue.toFixed(2) }) | No Aprobado (0.0)`;
+        } else {
+            return 'Aprobado (1.0) | No Aprobado (0.0)';
         }
     }
 
-    // Options management for multiple choice questions
-    getOptionsArray(categoryIndex: number, questionIndex: number): FormArray {
-        return this.getQuestionsArray(categoryIndex).at(questionIndex).get('options') as FormArray;
-    }
-
-    addOption(categoryIndex: number, questionIndex: number): void {
-        const optionsArray = this.getOptionsArray(categoryIndex, questionIndex);
-        optionsArray.push(this.fb.control('', Validators.required));
-    }
-
-    removeOption(categoryIndex: number, questionIndex: number, optionIndex: number): void {
-        this.getOptionsArray(categoryIndex, questionIndex).removeAt(optionIndex);
-    }
-
-    // Weight calculation helpers
-    getCategoryQuestionWeight(categoryIndex: number): number {
+    // ✅ UPDATED: Weight calculation helpers for new free weight system
+    getCategoryTotalWeight(categoryIndex: number): number {
         const questionsArray = this.getQuestionsArray(categoryIndex);
         return questionsArray.controls.reduce((sum, control) => {
             return sum + (control.get('weight')?.value || 0);
@@ -246,44 +198,56 @@ export class ChecklistTemplateFormComponent implements OnInit {
     }
 
     getCategoryWeightValidation(categoryIndex: number): { isValid: boolean; total: number; class: string } {
-        const total = this.getCategoryQuestionWeight(categoryIndex);
-        const isValid = Math.abs(total - 1.0) <= 0.01;
+        const total = this.getCategoryTotalWeight(categoryIndex);
+        const isValid = total > 0; // Only verify that there's positive weight
         return {
             isValid,
             total,
-            class: isValid ? 'text-green-600' : total > 1.0 ? 'text-red-600' : 'text-orange-600'
+            class: isValid ? 'text-green-600' : 'text-red-600'
         };
     }
 
     // Form submission
     onSubmit(): void {
-        if (!this.canSubmit()) return;
+        const hasQuestions = this.categoriesArraySignal()?.some(category =>
+            category.questions && category.questions.length > 0
+        ) || false;
+
+        if (!(this.templateForm.valid &&
+            hasQuestions &&
+            this.totalChecklistWeight() > 0 &&
+            !this.checklistService.loading())) return;
 
         const formValue = this.templateForm.value;
         const templateData: Omit<ChecklistTemplate, 'id'> = {
-            name          : formValue.name,
-            type          : formValue.type,
-            version       : formValue.version,
-            description   : formValue.description,
-            weight        : formValue.weight,
-            scoreThreshold: formValue.scoreThreshold,
-            vehicleIds    : formValue.vehicleIds,
-            roleIds       : formValue.roleIds,
-            isActive      : formValue.isActive,
-            categories    : formValue.categories.map((category: any, categoryIndex: number) => ({
+            // Basic Information
+            type                : formValue.basicInfo.type,
+            name                : formValue.basicInfo.name,
+            description         : formValue.basicInfo.description,
+            version             : formValue.basicInfo.version,
+            performanceThreshold: formValue.basicInfo.performanceThreshold / 100, // Convert percentage to decimal
+            isActive            : formValue.basicInfo.isActive,
+
+            // Application Filters
+            vehicleTypes: formValue.filters.vehicleTypes,
+            userRoles   : formValue.filters.userRoles,
+
+            // Content Structure
+            categories: formValue.content.categories.map((category: any, categoryIndex: number) => ({
                 title      : category.title,
                 description: category.description,
-                weight     : category.weight,
-                order      : categoryIndex,
+                // weight     : category.weight, // ❌ REMOVED - Categories no longer have weight
+                sortOrder  : categoryIndex,
                 questions  : category.questions.map((question: any, questionIndex: number) => ({
-                    title       : question.title,
-                    description : question.description,
-                    weight      : question.weight,
-                    required    : question.required,
-                    responseType: question.responseType,
-                    options     : question.responseType === ResponseType.MULTIPLE_CHOICE ? question.options : undefined,
-                    numericRange: question.responseType === ResponseType.NUMERIC ? question.numericRange : undefined,
-                    order       : questionIndex
+                    title                  : question.title,
+                    description            : question.description,
+                    weight                 : question.weight,
+                    required               : question.required,
+                    hasIntermediateApproval: question.hasIntermediateApproval,
+                    intermediateValue      : question.intermediateValue,
+                    extraFields            : question.extraFields,
+                    sortOrder              : questionIndex,
+                    isActive               : question.isActive
                 }))
             }))
         };
@@ -328,15 +292,18 @@ export class ChecklistTemplateFormComponent implements OnInit {
 
     private populateForm(template: ChecklistTemplate): void {
         this.templateForm.patchValue({
-            name          : template.name,
-            type          : template.type,
-            version       : template.version,
-            description   : template.description,
-            weight        : template.weight,
-            scoreThreshold: template.scoreThreshold,
-            vehicleIds    : template.vehicleIds,
-            roleIds       : template.roleIds,
-            isActive      : template.isActive
+            basicInfo: {
+                name                : template.name,
+                type                : template.type,
+                version             : template.version,
+                description         : template.description,
+                performanceThreshold: template.performanceThreshold ? template.performanceThreshold * 100 : 75, // Convert decimal to percentage
+                isActive            : template.isActive
+            },
+            filters  : {
+                vehicleTypes: template.vehicleTypes || [],
+                userRoles   : template.userRoles || []
+            }
         });
 
         // Clear existing categories
@@ -351,8 +318,8 @@ export class ChecklistTemplateFormComponent implements OnInit {
             categoryGroup.patchValue({
                 title      : category.title,
                 description: category.description,
-                weight     : category.weight,
-                order      : category.order
+                // weight     : category.weight, // ❌ REMOVED - Categories no longer have weight
+                sortOrder: category.sortOrder
             });
 
             // Add questions to category
@@ -360,22 +327,17 @@ export class ChecklistTemplateFormComponent implements OnInit {
             category.questions.forEach(question => {
                 const questionGroup = this.createQuestionFormGroup(0); // Index doesn't matter for creation
                 questionGroup.patchValue({
-                    title       : question.title,
-                    description : question.description,
-                    weight      : question.weight,
-                    required    : question.required,
-                    responseType: question.responseType,
-                    numericRange: question.numericRange,
-                    order       : question.order
-                });
+                    title      : question.title,
+                    description: question.description,
+                    weight     : question.weight,
+                    required   : question.required,
 
-                // Add options for multiple choice questions
-                if (question.responseType === ResponseType.MULTIPLE_CHOICE && question.options) {
-                    const optionsArray = questionGroup.get('options') as FormArray;
-                    question.options.forEach(option => {
-                        optionsArray.push(this.fb.control(option, Validators.required));
-                    });
-                }
+                    // ✅ NEW: Sistema de aprobación configurable
+                    hasIntermediateApproval: question.hasIntermediateApproval || false,
+                    intermediateValue      : question.intermediateValue || 0.5,
+
+                    sortOrder: question.sortOrder
+                });
 
                 questionsArray.push(questionGroup);
             });
@@ -390,5 +352,33 @@ export class ChecklistTemplateFormComponent implements OnInit {
             // Add initial question to the first category
             this.addQuestion(0);
         }
+    }
+
+    private createCategoryFormGroup(): FormGroup {
+        return this.fb.group({
+            title      : [ '', Validators.required ],
+            description: [ '' ],
+            // weight     : [ 0, [ Validators.required, Validators.min(0), Validators.max(1) ] ], // ❌ REMOVED - Categories no longer have weight
+            sortOrder: [ this.categoriesArray().length ],
+            questions: this.fb.array([]) // ❌ REMOVED weightSumValidator
+        });
+    }
+
+    private createQuestionFormGroup(categoryIndex: number): FormGroup {
+        const questionsArray = this.getQuestionsArray(categoryIndex);
+        return this.fb.group({
+            title      : [ '', Validators.required ],
+            description: [ '' ],
+            weight     : [ 1, [ Validators.required, Validators.min(0.1) ] ], // ✅ CHANGED: Default 1, minimum 0.1, removed max limit
+            required   : [ true ],
+
+            // ✅ NEW: Sistema de aprobación configurable
+            hasIntermediateApproval: [ false ],
+            intermediateValue      : [ 0.5, [ Validators.required, Validators.min(0), Validators.max(1) ] ],
+
+            extraFields: [ {} ],
+            sortOrder  : [ questionsArray.length ],
+            isActive   : [ true ]
+        });
     }
 }

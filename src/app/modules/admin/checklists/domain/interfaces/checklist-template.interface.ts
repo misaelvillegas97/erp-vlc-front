@@ -3,17 +3,18 @@ import { ChecklistCategory } from './checklist-category.interface';
 
 export interface ChecklistTemplate {
     id?: string;
-    name: string;
     type: ChecklistType;
-    version: string;
+    name: string;
     description?: string;
-    weight: number; // Weight within a group (0-1)
+    version?: string;
+    vehicleTypes?: string[];
+    userRoles?: string[];
+    isActive?: boolean;
+    performanceThreshold?: number;
     categories: ChecklistCategory[];
-    vehicleIds: string[];
-    roleIds: string[];
+    // Additional fields for internal use
+    weight?: number; // Weight within a group (0-1) - for group management
     groupId?: string;
-    isActive: boolean;
-    scoreThreshold?: number; // Minimum score to pass (0-1)
     createdAt?: Date;
     updatedAt?: Date;
     createdBy?: string;

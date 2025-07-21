@@ -14,7 +14,7 @@ export default [
                 path    : 'groups',
                 children: [
                     {
-                        path         : 'list',
+                        path: '',
                         loadComponent: () => import('./pages/checklist-groups-list/checklist-groups-list.component')
                             .then(c => c.ChecklistGroupsListComponent),
                         title        : 'Checklist Groups'
@@ -33,7 +33,7 @@ export default [
                     },
                     {
                         path      : '**',
-                        redirectTo: 'list',
+                        redirectTo: '',
                         pathMatch : 'full'
                     }
                 ]
@@ -42,7 +42,7 @@ export default [
                 path    : 'templates',
                 children: [
                     {
-                        path         : 'list',
+                        path: '',
                         loadComponent: () => import('./pages/checklist-templates-list/checklist-templates-list.component')
                             .then(c => c.ChecklistTemplatesListComponent),
                         title        : 'Checklist Templates'
@@ -61,39 +61,45 @@ export default [
                     },
                     {
                         path      : '**',
-                        redirectTo: 'list',
+                        redirectTo: '',
                         pathMatch : 'full'
                     }
                 ]
             },
-            // {
-            //   path: 'execute',
-            //   children: [
-            //     {
-            //       path: '',
-            //       loadComponent: () => import('./pages/checklist-execution-form/checklist-execution-form.component')
-            //         .then(c => c.ChecklistExecutionFormComponent),
-            //       title: 'Execute Checklist'
-            //     },
-            //     {
-            //       path: ':id',
-            //       loadComponent: () => import('./pages/checklist-execution-form/checklist-execution-form.component')
-            //         .then(c => c.ChecklistExecutionFormComponent),
-            //       title: 'Continue Checklist'
-            //     }
-            //   ]
-            // },
-            // {
-            //   path: 'reports',
-            //   children: [
-            //     {
-            //       path: ':executionId',
-            //       loadComponent: () => import('./pages/checklist-report/checklist-report.component')
-            //         .then(c => c.ChecklistReportComponent),
-            //       title: 'Checklist Report'
-            //     }
-            //   ]
-            // }
+            {
+                path    : 'execute',
+                children: [
+                    {
+                        path         : '',
+                        loadComponent: () => import('./pages/checklist-execution-form/components/execution-selector.component')
+                            .then(c => c.ExecutionSelectorComponent),
+                        title        : 'Seleccionar Checklist'
+                    },
+                    {
+                        path         : 'template/:id',
+                        loadComponent: () => import('./pages/checklist-execution-form/components/execution-form.component')
+                            .then(c => c.ExecutionFormComponent),
+                        title        : 'Ejecutar Template'
+                    },
+                    {
+                        path         : 'group/:id',
+                        loadComponent: () => import('./pages/checklist-execution-form/components/execution-form.component')
+                            .then(c => c.ExecutionFormComponent),
+                        title        : 'Ejecutar Grupo'
+                    }
+                ]
+            },
+            {
+                path    : 'reports',
+                children: [
+                    {
+                        path         : ':executionId',
+                        loadComponent: () => import('./pages/checklist-report/checklist-report.component')
+                            .then(c => c.ChecklistReportComponent),
+                        title        : 'Checklist Report'
+                    }
+                ]
+            }
         ]
     }
 ] satisfies Routes;

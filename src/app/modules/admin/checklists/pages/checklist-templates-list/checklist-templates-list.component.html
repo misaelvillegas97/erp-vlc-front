@@ -50,8 +50,12 @@
                     <mat-select [formControl]="groupControl">
                         <mat-option value="">Todos los grupos</mat-option>
                         <mat-option value="unassigned">Sin asignar</mat-option>
-                        @for (group of groupsResource.value() || []; track group.id) {
-                            <mat-option [value]="group.id">{{ group.name }}</mat-option>
+                        @if (groupsResource.value()?.length) {
+                            @for (group of groupsResource.value(); track group.id) {
+                                <mat-option [value]="group.id">{{ group.name }}</mat-option>
+                            }
+                        } @else {
+                            <mat-option disabled>No hay grupos disponibles</mat-option>
                         }
                     </mat-select>
                 </mat-form-field>
@@ -72,7 +76,7 @@
 
         <!-- Tabla de plantillas -->
         <div class="relative max-w-full overflow-auto w-full">
-            @if (columnsConfig()) {
+            @if (columnsConfig() && templatesResource.hasValue()) {
                 <table-builder [columns]="columnsConfig()"
                                [data]="templatesResource.value() || []"
                                class="w-full"
