@@ -1,7 +1,7 @@
-import { Component, computed, inject, OnInit, signal }                                         from '@angular/core';
-import { CommonModule }                                                                        from '@angular/common';
-import { ActivatedRoute, Router, RouterModule }                                                from '@angular/router';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, computed, inject, OnInit, signal }                        from '@angular/core';
+import { CommonModule }                                                       from '@angular/common';
+import { ActivatedRoute, Router, RouterModule }                               from '@angular/router';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 // Angular Material
 import { MatCardModule }        from '@angular/material/card';
@@ -24,6 +24,8 @@ import { ChecklistType }       from '../../domain/enums/checklist-type.enum';
 import { NotyfService }        from '@shared/services/notyf.service';
 import { PageHeaderComponent } from '@layout/components/page-header/page-header.component';
 import { toSignal }            from '@angular/core/rxjs-interop';
+import { RoleEnum, roleNames } from '@core/user/role.type';
+import { VehicleType }         from '@modules/admin/maintainers/vehicles/domain/model/vehicle';
 
 // ❌ REMOVED: weightSumValidator - No longer needed with free weight system
 
@@ -87,6 +89,8 @@ export class ChecklistTemplateFormComponent implements OnInit {
         {id: '3', name: 'Inspector de calidad'},
         {id: '4', name: 'Técnico de mantenimiento'}
     ]);
+
+    roles = Object.values(RoleEnum).filter(value => typeof value === 'number');
 
     // Form - Structured according to FormTemplate interface
     readonly templateForm: FormGroup = this.fb.group({
@@ -152,6 +156,7 @@ export class ChecklistTemplateFormComponent implements OnInit {
     });
 
     ngOnInit(): void {
+        console.log(this.roles);
         this.checkRouteParams();
         this.addInitialCategory();
     }
@@ -381,4 +386,7 @@ export class ChecklistTemplateFormComponent implements OnInit {
             isActive   : [ true ]
         });
     }
+
+    protected readonly roleNames = roleNames;
+    protected readonly VehicleType = Object.values(VehicleType);
 }

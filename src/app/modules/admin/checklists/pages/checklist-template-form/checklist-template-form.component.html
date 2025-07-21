@@ -102,11 +102,9 @@
                     <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Tipos de Vehículos</mat-label>
                         <mat-select formControlName="vehicleTypes" multiple>
-                            <mat-option value="TRUCK">Camión</mat-option>
-                            <mat-option value="VAN">Van</mat-option>
-                            <mat-option value="CAR">Automóvil</mat-option>
-                            <mat-option value="MOTORCYCLE">Motocicleta</mat-option>
-                            <mat-option value="BUS">Autobús</mat-option>
+                            @for (vehicleType of VehicleType; track vehicleType) {
+                                <mat-option [value]="vehicleType">{{ vehicleType }}</mat-option>
+                            }
                         </mat-select>
                         <mat-hint>Selecciona los tipos de vehículos aplicables</mat-hint>
                     </mat-form-field>
@@ -114,11 +112,9 @@
                     <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Roles de Usuario</mat-label>
                         <mat-select formControlName="userRoles" multiple>
-                            <mat-option value="driver">Conductor</mat-option>
-                            <mat-option value="supervisor">Supervisor</mat-option>
-                            <mat-option value="inspector">Inspector</mat-option>
-                            <mat-option value="maintenance">Técnico de Mantenimiento</mat-option>
-                            <mat-option value="admin">Administrador</mat-option>
+                            @for (role of roles; track role) {
+                                <mat-option [value]="role">{{ roleNames[role] }}</mat-option>
+                            }
                         </mat-select>
                         <mat-hint>Selecciona los roles que pueden ejecutar esta plantilla</mat-hint>
                     </mat-form-field>

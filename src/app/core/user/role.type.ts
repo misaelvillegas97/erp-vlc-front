@@ -17,14 +17,14 @@ export enum RoleEnum {
 }
 
 export const roleNames = {
-    [RoleEnum.admin]     : 'admin',
-    [RoleEnum.user]      : 'user',
-    [RoleEnum.dispatcher]: 'dispatcher',
-    [RoleEnum.driver]    : 'driver',
-    [RoleEnum.accountant]: 'accountant',
-    [RoleEnum.inventory_manager]: 'inventory_manager',
-    [RoleEnum.warehouse_staff]: 'warehouse_staff',
-    [RoleEnum.quality_manager]: 'quality_manager',
-    [RoleEnum.supervisor]     : 'supervisor',
-    [RoleEnum.operator]       : 'operator',
+    [RoleEnum.admin]            : 'Administrador',
+    [RoleEnum.user]             : 'Usuario',
+    [RoleEnum.dispatcher]       : 'Despachador',
+    [RoleEnum.driver]           : 'Conductor',
+    [RoleEnum.accountant]       : 'Contador',
+    [RoleEnum.inventory_manager]: 'Administrador de inventario',
+    [RoleEnum.warehouse_staff]  : 'Personal de almacén',
+    [RoleEnum.quality_manager]  : 'Gerente de calidad',
+    [RoleEnum.supervisor]       : 'Supervisor',
+    [RoleEnum.operator]         : 'Operador',
 };
