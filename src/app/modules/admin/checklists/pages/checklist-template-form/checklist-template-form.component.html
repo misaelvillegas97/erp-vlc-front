@@ -103,7 +103,7 @@
                         <mat-label>Tipos de Vehículos</mat-label>
                         <mat-select formControlName="vehicleTypes" multiple>
                             @for (vehicleType of VehicleType; track vehicleType) {
-                                <mat-option [value]="vehicleType">{{ vehicleType }}</mat-option>
+                                <mat-option [value]="vehicleType">{{ vehicleType | titlecase }}</mat-option>
                             }
                         </mat-select>
                         <mat-hint>Selecciona los tipos de vehículos aplicables</mat-hint>

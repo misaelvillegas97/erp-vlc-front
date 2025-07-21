@@ -269,6 +269,7 @@ export class ChecklistTemplateFormComponent implements OnInit {
                 this.router.navigate([ '../' ], {relativeTo: this.route});
             },
             error: (error) => {
+                console.log('error', error);
                 this.notyf.error(
                     `Error al ${ this.isEditMode() ? 'actualizar' : 'crear' } la plantilla`
                 );

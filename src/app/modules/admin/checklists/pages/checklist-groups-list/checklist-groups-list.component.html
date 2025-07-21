@@ -53,7 +53,7 @@
         <div class="relative max-w-full overflow-auto w-full">
             @if (columnsConfig()) {
                 <table-builder [columns]="columnsConfig()"
-                               [data]="groupsResource.value() || []"
+                               [data]="groupsResource.value()?.items || []"
                                class="w-full"
                 ></table-builder>
             }

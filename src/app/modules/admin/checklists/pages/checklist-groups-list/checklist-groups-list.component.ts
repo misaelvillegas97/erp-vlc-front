@@ -18,6 +18,7 @@ import { toSignal }                                                             
 import { debounceTime, firstValueFrom }                                                        from 'rxjs';
 import { NotyfService }                                                                        from '@shared/services/notyf.service';
 import { FuseConfirmationService }                                                             from '@fuse/services/confirmation';
+import { FindCount }                                                                           from '@shared/domain/model/find-count';
 
 @Component({
     selector   : 'app-checklist-groups-list',
@@ -72,10 +73,10 @@ export class ChecklistGroupsListComponent {
                     params.isActive = true;
                 }
 
-                return await firstValueFrom(this.#checklistService.loadGroups());
+                return await firstValueFrom<FindCount<ChecklistGroup>>(this.#checklistService.loadGroups());
             } catch (error) {
                 this.#notyf.error('Error al cargar los grupos de checklists');
-                return [];
+                return {items: [], count: 0};
             }
         }
     });

@@ -1,13 +1,14 @@
-import { Injectable, inject, signal, computed, resource } from '@angular/core';
-import { HttpClient, HttpParams }                                from '@angular/common/http';
-import { Observable, BehaviorSubject, map, tap, catchError, of } from 'rxjs';
+import { computed, inject, Injectable, resource, signal } from '@angular/core';
+import { HttpClient }                                     from '@angular/common/http';
+import { catchError, Observable, of, tap }                from 'rxjs';
 
-import { ChecklistGroup, ChecklistGroupMetadata, ChecklistGroupValidation }                          from '../domain/interfaces/checklist-group.interface';
-import { ChecklistTemplate, ChecklistTemplateMetadata }                                              from '../domain/interfaces/checklist-template.interface';
-import { ChecklistExecution, ChecklistExecutionMetadata, ChecklistExecutionReport, ExecutionStatus } from '../domain/interfaces/checklist-execution.interface';
-import { ChecklistScoreCalculator }                                                                  from '../domain/models/checklist-score-calculator.model';
-import { ChecklistType }                                                                             from '../domain/enums/checklist-type.enum';
-import { ExecuteChecklistDto, ExecuteChecklistAnswers }   from '../domain/interfaces/execute-checklist.dto';
+import { ChecklistGroup, ChecklistGroupValidation }     from '../domain/interfaces/checklist-group.interface';
+import { ChecklistTemplate }                            from '../domain/interfaces/checklist-template.interface';
+import { ChecklistExecution, ChecklistExecutionReport } from '../domain/interfaces/checklist-execution.interface';
+import { ChecklistScoreCalculator }                     from '../domain/models/checklist-score-calculator.model';
+import { ChecklistType }                                from '../domain/enums/checklist-type.enum';
+import { ExecuteChecklistAnswers, ExecuteChecklistDto } from '../domain/interfaces/execute-checklist.dto';
+import { FindCount }                                    from '@shared/domain/model/find-count';
 
 export interface ChecklistFilters {
     type?: ChecklistType;
@@ -103,19 +104,19 @@ export class ChecklistService {
     readonly activeTemplates = computed(() => this._templates().filter(t => t.isActive));
 
     // Group Management
-    loadGroups(): Observable<ChecklistGroup[]> {
+    loadGroups(): Observable<FindCount<ChecklistGroup>> {
         this._loading.set(true);
         this._error.set(null);
 
-        return this.http.get<ChecklistGroup[]>(`${ this.baseUrl }/groups`).pipe(
+        return this.http.get<FindCount<ChecklistGroup>>(`${ this.baseUrl }/groups`).pipe(
             tap(groups => {
-                this._groups.set(groups);
+                this._groups.set(groups.items);
                 this._loading.set(false);
             }),
             catchError(error => {
                 this._error.set('Failed to load checklist groups');
                 this._loading.set(false);
-                return of([]);
+                return of({total: 0, items: []});
             })
         );
     }
@@ -199,19 +200,19 @@ export class ChecklistService {
     }
 
     // Template Management
-    loadTemplates(): Observable<ChecklistTemplate[]> {
+    loadTemplates(): Observable<FindCount<ChecklistTemplate>> {
         this._loading.set(true);
         this._error.set(null);
 
-        return this.http.get<ChecklistTemplate[]>(`${ this.baseUrl }/templates`).pipe(
+        return this.http.get<FindCount<ChecklistTemplate>>(`${ this.baseUrl }/templates`).pipe(
             tap(templates => {
-                this._templates.set(templates);
+                this._templates.set(templates.items);
                 this._loading.set(false);
             }),
             catchError(error => {
                 this._error.set('Failed to load checklist templates');
                 this._loading.set(false);
-                return of([]);
+                return of({total: 0, items: []});
             })
         );
     }

@@ -15,12 +15,13 @@ import { TableBuilderComponent }                                                
 import { ColumnConfig }                                                                        from '@shared/components/table-builder/column.type';
 import { ChecklistService }                                                                    from '../../services/checklist.service';
 import { ChecklistTemplate }                                                                   from '../../domain/interfaces/checklist-template.interface';
-import { ChecklistType }                                                                       from '../../domain/enums/checklist-type.enum';
+import { ChecklistType, ChecklistTypeConfig }                                                  from '../../domain/enums/checklist-type.enum';
 import { ChecklistGroup }                                                                      from '../../domain/interfaces/checklist-group.interface';
 import { toSignal }                                                                            from '@angular/core/rxjs-interop';
 import { debounceTime, firstValueFrom }                                                        from 'rxjs';
 import { NotyfService }                                                                        from '@shared/services/notyf.service';
 import { FuseConfirmationService }                                                             from '@fuse/services/confirmation';
+import { FindCount }                                                                           from '@shared/domain/model/find-count';
 
 @Component({
     selector   : 'app-checklist-templates-list',
@@ -76,12 +77,12 @@ export class ChecklistTemplatesListComponent {
 
     // Data resources
     groupsResource = resource({
-        loader: () => {
+        loader: async () => {
             try {
-                return firstValueFrom(this.#checklistService.loadGroups());
+                return firstValueFrom<FindCount<ChecklistGroup>>(this.#checklistService.loadGroups());
             } catch (error) {
                 this.#notyf.error('Error al cargar los grupos');
-                return undefined;
+                return {items: [], total: 0};
             }
         }
     });
@@ -117,10 +118,10 @@ export class ChecklistTemplatesListComponent {
                     params.isActive = true;
                 }
 
-                return await firstValueFrom(this.#checklistService.loadTemplates());
+                return await firstValueFrom<FindCount<ChecklistTemplate>>(this.#checklistService.loadTemplates());
             } catch (error) {
                 this.#notyf.error('Error al cargar las plantillas de checklists');
-                return [];
+                return {items: [], total: 0};
             }
         }
     });
@@ -200,68 +201,27 @@ export class ChecklistTemplatesListComponent {
                     type : 'text',
                     label: (value, row) => `${ row.name } (${ row.version })`,
                 },
-                render  : (template: ChecklistTemplate) => `
-          <div class="flex flex-col">
-            <span class="font-medium">${ template.name }</span>
-            <div class="flex items-center gap-2 mt-1">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ this.getTypeChipClass(template.type) }">${ this.getTypeLabel(template.type) }</span>
-              <span class="text-sm text-gray-600">v${ template.version }</span>
-            </div>
-            ${ template.description ? `<span class="text-sm text-gray-500 mt-1">${ template.description }</span>` : '' }
-          </div>
-        `
+            },
+            {
+                key    : 'type',
+                header : 'Tipo',
+                visible: true,
+                display: {
+                    type : 'badge',
+                    color: (value, row) => ChecklistTypeConfig[row.type]?.color || 'gray',
+                    label: (value, row) => ChecklistTypeConfig[row.type]?.label || row.type
+                }
             },
             {
                 key    : 'structure',
                 header : 'Estructura',
                 visible: true,
-                render : (template: ChecklistTemplate) => `
-          <div class="flex flex-col text-sm">
-            <div class="flex items-center gap-2">
-              <mat-icon class="text-gray-500 text-sm">folder</mat-icon>
-              <span>${ template.categories?.length || 0 } categorías</span>
-            </div>
-            <div class="flex items-center gap-2 mt-1">
-              <mat-icon class="text-gray-500 text-sm">help_outline</mat-icon>
-              <span>${ this.getTotalQuestions(template) } preguntas</span>
-            </div>
-          </div>
-        `
-            },
-            {
-                key    : 'assignment',
-                header : 'Asignación',
-                visible: true,
-                render : (template: ChecklistTemplate) => `
-          <div class="flex flex-col text-sm">
-            ${ template.groupId ? `
-              <div class="flex items-center gap-2">
-                <mat-icon class="text-gray-500 text-sm">group_work</mat-icon>
-                <span>${ this.getGroupName(template.groupId) }</span>
-              </div>
-            ` : '<span class="text-gray-500 italic">Sin asignar</span>' }
-            <div class="flex items-center gap-2 mt-1">
-              <mat-icon class="text-gray-500 text-sm">directions_car</mat-icon>
-              <span>${ template.vehicleTypes?.length || 0 } vehículos</span>
-            </div>
-            <div class="flex items-center gap-2 mt-1">
-              <mat-icon class="text-gray-500 text-sm">person</mat-icon>
-              <span>${ template.userRoles?.length || 0 } roles</span>
-            </div>
-          </div>
-        `
-            },
-            {
-                key     : 'weight',
-                header  : 'Peso',
-                visible : true,
-                sortable: true,
-                render  : (template: ChecklistTemplate) => {
-                    const percentage = (template.weight * 100).toFixed(1);
-                    const colorClass = template.weight >= 0.7 ? 'bg-blue-100 text-blue-800' :
-                        template.weight >= 0.4 ? 'bg-orange-100 text-orange-800' :
-                            'bg-pink-100 text-pink-800';
-                    return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ colorClass }">${ percentage }%</span>`;
+                display: {
+                    type : 'text',
+                    label: (value, row) => {
+                        const totalQuestions = this.getTotalQuestions(row);
+                        return `${ totalQuestions } pregunta${ totalQuestions !== 1 ? 's' : '' }`;
+                    }
                 }
             },
             {
@@ -269,10 +229,11 @@ export class ChecklistTemplatesListComponent {
                 header  : 'Estado',
                 visible : true,
                 sortable: true,
-                render  : (template: ChecklistTemplate) => {
-                    const colorClass = template.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
-                    const label = template.isActive ? 'Activo' : 'Inactivo';
-                    return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ colorClass }">${ label }</span>`;
+                display: {
+                    type : 'text',
+                    label: (value, row) => {
+                        return row.isActive ? 'Activo' : 'Inactivo';
+                    }
                 }
             },
             {
@@ -294,7 +255,7 @@ export class ChecklistTemplatesListComponent {
     }
 
     private getGroupName(groupId: string): string {
-        const group = this.groupsResource.value()?.find(g => g.id === groupId);
+        const group = this.groupsResource.value().items?.find(g => g.id === groupId);
         return group?.name || 'Grupo desconocido';
     }
 
