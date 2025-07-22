@@ -1,31 +1,42 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { CommonModule }                                                 from '@angular/common';
-import { FormControl, ReactiveFormsModule }                             from '@angular/forms';
-import { Router, RouterLink }                                           from '@angular/router';
-import { toSignal }                                                     from '@angular/core/rxjs-interop';
-import { debounceTime }                                                 from 'rxjs';
+import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
+import { CommonModule }                                                         from '@angular/common';
+import { FormControl, ReactiveFormsModule }                                     from '@angular/forms';
+import { Router }                                                               from '@angular/router';
+import { takeUntilDestroyed, toSignal }                                         from '@angular/core/rxjs-interop';
+import { debounceTime, firstValueFrom }                                         from 'rxjs';
 
 // Angular Material
-import { MatCardModule }      from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule }    from '@angular/material/select';
-import { MatInputModule }     from '@angular/material/input';
-import { MatButtonModule }    from '@angular/material/button';
-import { MatIconModule }      from '@angular/material/icon';
-import { MatChipsModule }     from '@angular/material/chips';
-import { MatRadioModule }     from '@angular/material/radio';
-import { MatTooltipModule }   from '@angular/material/tooltip';
+import { MatCardModule }                         from '@angular/material/card';
+import { MatFormFieldModule }                    from '@angular/material/form-field';
+import { MatSelectModule }                       from '@angular/material/select';
+import { MatInputModule }                        from '@angular/material/input';
+import { MatButtonModule }                       from '@angular/material/button';
+import { MatIconModule }                         from '@angular/material/icon';
+import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
+import { MatProgressSpinner }                    from '@angular/material/progress-spinner';
 
 import { ChecklistService }    from '../../../services/checklist.service';
 import { ChecklistTemplate }   from '../../../domain/interfaces/checklist-template.interface';
 import { ChecklistGroup }      from '../../../domain/interfaces/checklist-group.interface';
 import { PageHeaderComponent } from '@layout/components/page-header/page-header.component';
 
-export type ExecutionTarget = ChecklistTemplate | ChecklistGroup;
+export interface ExecutionSelection {
+    templateId?: string;
+    groupId?: string;
+    vehicleId: string;
+    userId: string;
+}
+
+interface ExecutionTarget {
+    type: 'template' | 'group';
+    data: ChecklistTemplate | ChecklistGroup;
+    id: string;
+}
 
 @Component({
     selector       : 'app-execution-selector',
-    standalone     : true,
+    templateUrl    : './execution-selector.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports        : [
         CommonModule,
         ReactiveFormsModule,
@@ -35,24 +46,25 @@ export type ExecutionTarget = ChecklistTemplate | ChecklistGroup;
         MatInputModule,
         MatButtonModule,
         MatIconModule,
-        MatChipsModule,
-        MatRadioModule,
-        MatTooltipModule,
-        RouterLink,
+        MatButtonToggleGroup,
+        MatButtonToggle,
+        MatProgressSpinner,
         PageHeaderComponent
-    ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    templateUrl    : './execution-selector.component.html'
+    ]
 })
 export class ExecutionSelectorComponent {
-    private readonly checklistService = inject(ChecklistService);
+    readonly checklistService = inject(ChecklistService);
     private readonly router = inject(Router);
 
-    // Form Controls
+    // Outputs
+    selectionChanged = output<ExecutionSelection>();
+    cancelled = output<void>();
+
+    // Form controls
     executionTypeControl = new FormControl<'template' | 'group'>('template');
+    searchControl = new FormControl<string>('');
     vehicleFilterControl = new FormControl<string[]>([]);
     roleFilterControl = new FormControl<string[]>([]);
-    searchControl = new FormControl<string>('');
 
     // Signals from form controls
     executionTypeSignal = toSignal(this.executionTypeControl.valueChanges, {initialValue: 'template'});
@@ -60,7 +72,7 @@ export class ExecutionSelectorComponent {
     roleFilterSignal = toSignal(this.roleFilterControl.valueChanges, {initialValue: []});
     searchSignal = toSignal(this.searchControl.valueChanges.pipe(debounceTime(300)), {initialValue: ''});
 
-    // State
+    // Selection state
     selectedTemplateOrGroup = signal<ExecutionTarget | null>(null);
 
     // Mock data (replace with actual service calls)
@@ -77,12 +89,59 @@ export class ExecutionSelectorComponent {
         {id: '4', name: 'Técnico de mantenimiento'}
     ]);
 
-    // Computed filtered lists
+    // Computed properties
+    availableTemplates = computed(() => this.checklistService.templates());
+    availableGroups = computed(() => this.checklistService.groups());
+
+    // Available filters computed from data
+    availableVehicleTypes = computed(() => {
+        const templates = this.availableTemplates();
+        const groups = this.availableGroups();
+
+        const vehicleTypes = new Set<string>();
+
+        // Extract vehicle types from templates
+        templates.forEach(template => {
+            template.vehicleTypes?.forEach(type => vehicleTypes.add(type));
+        });
+
+        // Extract vehicle types from groups
+        groups.forEach(group => {
+            group.templates?.forEach(template => {
+                template.vehicleTypes?.forEach(type => vehicleTypes.add(type));
+            });
+        });
+
+        return Array.from(vehicleTypes).sort();
+    });
+
+    availableUserRoles = computed(() => {
+        const templates = this.availableTemplates();
+        const groups = this.availableGroups();
+
+        const roles = new Set<string>();
+
+        // Extract roles from templates
+        templates.forEach(template => {
+            template.userRoles?.forEach(role => roles.add(role));
+        });
+
+        // Extract roles from groups
+        groups.forEach(group => {
+            group.templates?.forEach(template => {
+                template.userRoles?.forEach(role => roles.add(role));
+            });
+        });
+
+        return Array.from(roles).sort();
+    });
+
+    // Filtered data
     filteredTemplates = computed(() => {
-        const templates = this.checklistService.activeTemplates();
-        const vehicleFilter = this.vehicleFilterSignal();
-        const roleFilter = this.roleFilterSignal();
-        const search = this.searchSignal()?.toLowerCase() || '';
+        const templates = this.availableTemplates();
+        const search = this.searchControl.value?.toLowerCase() || '';
+        const vehicleFilter = this.vehicleFilterControl.value || [];
+        const roleFilter = this.roleFilterControl.value || [];
 
         return templates.filter(template => {
             // Search filter
@@ -90,13 +149,13 @@ export class ExecutionSelectorComponent {
                 return false;
             }
 
-            // Vehicle filter
-            if (vehicleFilter && vehicleFilter.length > 0 && !vehicleFilter.some(vId => template.vehicleTypes?.includes(vId))) {
+            // Vehicle type filter
+            if (vehicleFilter.length > 0 && !vehicleFilter.some(vType => template.vehicleTypes?.includes(vType))) {
                 return false;
             }
 
             // Role filter
-            if (roleFilter && roleFilter.length > 0 && !roleFilter.some(rId => template.userRoles?.includes(rId))) {
+            if (roleFilter.length > 0 && !roleFilter.some(rId => template.userRoles?.includes(rId))) {
                 return false;
             }
 
@@ -105,55 +164,110 @@ export class ExecutionSelectorComponent {
     });
 
     filteredGroups = computed(() => {
-        const groups = this.checklistService.activeGroups();
-        const search = this.searchSignal()?.toLowerCase() || '';
+        const groups = this.availableGroups();
+        const search = this.searchControl.value?.toLowerCase() || '';
+        const vehicleFilter = this.vehicleFilterControl.value || [];
+        const roleFilter = this.roleFilterControl.value || [];
 
         return groups.filter(group => {
+            // Search filter
             if (search && !group.name.toLowerCase().includes(search)) {
                 return false;
             }
+
+            // Vehicle type filter - check within group templates
+            if (vehicleFilter.length > 0) {
+                const hasMatchingVehicle = group.templates?.some(template =>
+                    vehicleFilter.some(vType => template.vehicleTypes?.includes(vType))
+                );
+                if (!hasMatchingVehicle) return false;
+            }
+
+            // Role filter - check within group templates
+            if (roleFilter.length > 0) {
+                const hasMatchingRole = group.templates?.some(template =>
+                    roleFilter.some(role => template.userRoles?.includes(role))
+                );
+                if (!hasMatchingRole) return false;
+            }
+
             return true;
         });
     });
 
-    selectTarget(target: ExecutionTarget): void {
-        this.selectedTemplateOrGroup.set(target);
+    constructor() {
+        this.loadTemplates();
+        this.loadGroups();
+
+        this.executionTypeControl.valueChanges
+            .pipe(takeUntilDestroyed())
+            .subscribe((type) => {
+                if (type === 'template') this.loadTemplates();
+                else if (type === 'group') this.loadGroups();
+            });
+    }
+
+    private loadTemplates(): void {
+        void firstValueFrom(this.checklistService.loadTemplates());
+    }
+
+    private loadGroups(): void {
+        void firstValueFrom(this.checklistService.loadGroups());
+    }
+
+    selectTarget(selection: { type: 'template' | 'group'; data: ChecklistTemplate | ChecklistGroup }): void {
+        this.selectedTemplateOrGroup.set({
+            ...selection,
+            id: selection.data.id!
+        });
     }
 
     clearSelection(): void {
+        console.log('Clearing selection');
         this.selectedTemplateOrGroup.set(null);
-        this.executionTypeControl.setValue('template');
+        this.executionTypeControl.setValue('template', {emitEvent: false});
         this.vehicleFilterControl.setValue([]);
         this.roleFilterControl.setValue([]);
         this.searchControl.setValue('');
     }
 
+    clearFilters(): void {
+        this.searchControl.setValue('');
+        this.vehicleFilterControl.setValue([]);
+        this.roleFilterControl.setValue([]);
+    }
+
     getTotalQuestions(template: ChecklistTemplate): number {
-        return template.categories?.reduce((total, category) => {
-            return total + (category.questions?.length || 0);
-        }, 0) || 0;
+        if (!template.categories) return 0;
+        return template.categories.reduce((total, category) =>
+            total + (category.questions?.length || 0), 0);
     }
 
+    proceedToExecution(): void {
+        const selected = this.selectedTemplateOrGroup();
+
+        console.log('Proceeding with selection:', selected);
+        if (!selected) return;
+
+        const selection: ExecutionSelection = {
+            vehicleId: '', // These will be filled in the next step
+            userId   : ''
+        };
+
+        if (selected.type === 'template') {
+            void this.router.navigate([ 'checklists', 'execute', 'template', selected.data.id ]);
+        } else {
+            void this.router.navigate([ 'checklists', 'execute', 'group', selected.data.id ]);
+        }
+    }
+
+    onCancel(): void {
+        this.cancelled.emit();
+    }
+
+    // Utility method that was referenced but not used
     getVehicleName(vehicleId: string): string {
-        const vehicle = this.availableVehicles().find(v => v.id === vehicleId);
-        return vehicle?.name || `Vehículo ${ vehicleId }`;
-    }
-
-    isSelectedItemGroup(): boolean {
-        const target = this.selectedTemplateOrGroup();
-        if (!target) return false;
-        return 'templates' in target;
-    }
-
-    startExecution(): void {
-        const target = this.selectedTemplateOrGroup();
-        if (!target) return;
-
-        const isGroup = this.isSelectedItemGroup();
-        const route = isGroup
-            ? `/checklists/execute/group/${ target.id }`
-            : `/checklists/execute/template/${ target.id }`;
-
-        this.router.navigate([ route ]);
+        // Implementation would depend on vehicle service
+        return vehicleId;
     }
 }

@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal }                                     from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal }            from '@angular/core';
 import { CommonModule }                                                                    from '@angular/common';
 import { ActivatedRoute, Router, RouterLink }                                              from '@angular/router';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -16,6 +16,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule }          from '@angular/material/snack-bar';
 import { MatSelectModule }            from '@angular/material/select';
 import { MatTooltipModule }           from '@angular/material/tooltip';
+import { MatButtonToggleModule }      from '@angular/material/button-toggle';
 
 import { ChecklistService }                             from '../../../services/checklist.service';
 import { ChecklistTemplate }                            from '../../../domain/interfaces/checklist-template.interface';
@@ -27,7 +28,6 @@ import { ChecklistScoreCalculator }                     from '../../../domain/mo
 import { ChecklistExecution, ExecutionStatus }          from '../../../domain/interfaces/checklist-execution.interface';
 import { NotyfService }                                 from '@shared/services/notyf.service';
 import { PageHeaderComponent }                          from '@layout/components/page-header/page-header.component';
-import { QuestionItemComponent }                        from './question-item.component';
 import { firstValueFrom }                               from 'rxjs';
 import { toSignal }                                     from '@angular/core/rxjs-interop';
 
@@ -56,11 +56,11 @@ interface ExecutionFormData {
         MatSnackBarModule,
         MatSelectModule,
         MatTooltipModule,
+        MatButtonToggleModule,
         RouterLink,
         PageHeaderComponent,
-        QuestionItemComponent
     ],
-    // changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl    : './execution-form.component.html'
 })
 export class ExecutionFormComponent implements OnInit {
@@ -195,6 +195,9 @@ export class ExecutionFormComponent implements OnInit {
     canSubmit = computed(() => {
         return this.executionForm.valid && this.completionPercentage() === 100;
     });
+
+    // State for tracking open comment sections
+    private openCommentSections = signal<Set<string>>(new Set());
 
     ngOnInit(): void {
         this.route.params.subscribe(params => {
@@ -421,4 +424,62 @@ export class ExecutionFormComponent implements OnInit {
     cancel(): void {
         this.router.navigate([ '/checklists/execute' ]);
     }
+
+    // File handling methods
+    onFileSelected(event: Event, categoryIndex: number, questionIndex: number): void {
+        const input = event.target as HTMLInputElement;
+        if (input.files && input.files.length > 0) {
+            const file = input.files[0];
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                this.notyf.error('Solo se permiten archivos de imagen');
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (file.size > maxSize) {
+                this.notyf.error('El archivo no puede ser mayor a 5MB');
+                return;
+            }
+
+            // Update form control
+            const questionFormGroup = this.getQuestionsFormArray(categoryIndex).at(questionIndex);
+            questionFormGroup.get('evidenceFile')?.setValue(file);
+
+            this.notyf.success('Imagen adjuntada correctamente');
+        }
+
+        // Reset input value to allow selecting the same file again
+        input.value = '';
+    }
+
+    removeFile(categoryIndex: number, questionIndex: number): void {
+        const questionFormGroup = this.getQuestionsFormArray(categoryIndex).at(questionIndex);
+        questionFormGroup.get('evidenceFile')?.setValue(null);
+        this.notyf.success('Imagen removida');
+    }
+
+    // Comment section methods
+    toggleCommentSection(categoryIndex: number, questionIndex: number): void {
+        const key = `${ categoryIndex }-${ questionIndex }`;
+        const currentSections = this.openCommentSections();
+        const newSections = new Set(currentSections);
+
+        if (newSections.has(key)) {
+            newSections.delete(key);
+        } else {
+            newSections.add(key);
+        }
+
+        this.openCommentSections.set(newSections);
+    }
+
+    isCommentSectionOpen(categoryIndex: number, questionIndex: number): boolean {
+        const key = `${ categoryIndex }-${ questionIndex }`;
+        return this.openCommentSections().has(key);
+    }
+
+    protected readonly Number = Number;
 }

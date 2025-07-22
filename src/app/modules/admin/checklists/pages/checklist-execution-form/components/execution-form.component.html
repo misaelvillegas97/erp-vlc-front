@@ -8,7 +8,7 @@
 
         <!-- Header with back button -->
         <div class="flex flex-row w-full items-center gap-4">
-            <button mat-icon-button routerLink="../" [matTooltip]="'Volver a selección'">
+            <button mat-icon-button routerLink="../../" [matTooltip]="'Volver a selección'">
                 <mat-icon svgIcon="heroicons_outline:arrow-left"></mat-icon>
             </button>
             <div class="flex-1">
@@ -37,7 +37,7 @@
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Información de Ejecución</h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Vehículo</mat-label>
                         <mat-select formControlName="vehicleId">
                             @if (availableVehicles().length === 0) {
@@ -53,7 +53,7 @@
                         }
                     </mat-form-field>
 
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Usuario</mat-label>
                         <mat-select formControlName="userId">
                             @if (availableUsers().length === 0) {
@@ -119,49 +119,180 @@
             <div class="w-full bg-card rounded-md shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Categorías del Checklist</h3>
 
-                <pre>{{ categoriesArrayValue() }}</pre>
-
-                <div formArrayName="categories" class="space-y-4">
+                <div formArrayName="categories" class="space-y-6">
                     @for (category of $any(executionForm.get('categories')).controls; track category.categoryId; let categoryIndex = $index) {
-                        <mat-expansion-panel class="shadow-sm">
-                            <mat-expansion-panel-header>
-                                <mat-panel-title>
+                        <div [formGroupName]="categoryIndex" class="space-y-4">
+                            <!-- Category Subtitle Header -->
+                            <div class="border-b border-gray-200 dark:border-gray-600 pb-3">
+                                <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3">
-                                        <mat-icon class="text-blue-500 dark:text-blue-400" svgIcon="mat_solid:folder"></mat-icon>
-                                        <span>{{ getCategory(categoryIndex)?.title }}</span>
-                                        <span class="ml-auto px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs">
-                                          Peso: {{ (getCategory(categoryIndex)?.weight * 100).toFixed(0) }}%
+                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                            {{ getCategory(categoryIndex)?.title }}
+                                        </h4>
+                                        <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs font-medium">
+                                            Peso: {{ (getCategory(categoryIndex)?.weight * 100).toFixed(0) }}%
                                         </span>
                                     </div>
-                                </mat-panel-title>
-                                <mat-panel-description>
                                     <div class="flex items-center gap-4">
-                                        <span class="text-sm">{{ getCategoryCompletionText(categoryIndex) }}</span>
+                                        <span class="text-sm text-gray-600 dark:text-gray-300">{{ getCategoryCompletionText(categoryIndex) }}</span>
                                         <mat-progress-bar
                                             mode="determinate"
                                             [value]="getCategoryCompletion(categoryIndex)"
-                                            class="w-24"
+                                            class="w-32"
                                         ></mat-progress-bar>
                                     </div>
-                                </mat-panel-description>
-                            </mat-expansion-panel-header>
-
-                            <div [formGroupName]="categoryIndex" class="space-y-4 p-4">
-                                @if (getCategory(categoryIndex)?.description) {
-                                    <p class="text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 p-3 rounded">{{ getCategory(categoryIndex)?.description }}</p>
-                                }
-
-                                <div formArrayName="questions" class="space-y-4">
-                                    @for (j of getQuestionIndices(categoryIndex); track j; let jIndex = $index) {
-                                        <app-question-item
-                                            [formGroupName]="jIndex"
-                                            [question]="getQuestion(categoryIndex, jIndex)!"
-                                            [required]="getQuestion(categoryIndex, jIndex)?.required || false"
-                                        ></app-question-item>
-                                    }
                                 </div>
+                                @if (getCategory(categoryIndex)?.description) {
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-9">{{ getCategory(categoryIndex)?.description }}</p>
+                                }
                             </div>
-                        </mat-expansion-panel>
+
+                            <!-- Questions List -->
+                            <div formArrayName="questions" class="space-y-2 ml-4">
+                                @for (j of getQuestionIndices(categoryIndex); track j; let jIndex = $index) {
+                                    <div [formGroupName]="jIndex">
+                                        @let question = getQuestion(categoryIndex, jIndex);
+                                        @let required = getQuestion(categoryIndex, jIndex)?.required || false;
+                                        @let currentValue = executionForm.get('categories').get([categoryIndex, 'questions', jIndex, 'complianceStatus']).value;
+
+                                        <!-- Enhanced Question Item -->
+                                        <div class="border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 overflow-hidden">
+                                            <!-- Main Question Row -->
+                                            <div class="flex items-center gap-3 p-4">
+                                                <!-- Question Number -->
+                                                <div class="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-sm font-medium text-blue-600 dark:text-blue-300">
+                                                    {{ question.sortOrder }}
+                                                </div>
+
+                                                <!-- Question Title -->
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="flex items-center gap-2">
+                                                        <h4 class="font-medium text-gray-900 dark:text-gray-100">
+                                                            {{ question.title }}
+                                                            @if (required) {
+                                                                <span class="text-red-500 dark:text-red-400 ml-1">*</span>
+                                                            }
+                                                        </h4>
+                                                        @if (question.description) {
+                                                            <button mat-icon-button
+                                                                    class="w-6 h-6 text-gray-400 hover:text-gray-600"
+                                                                    [matTooltip]="question.description"
+                                                                    matTooltipPosition="above">
+                                                                <mat-icon class="text-sm">info</mat-icon>
+                                                            </button>
+                                                        }
+                                                    </div>
+                                                    @if (question.weight && question.weight !== 1) {
+                                                        <span class="text-xs text-gray-500 dark:text-gray-400">
+                                                            Peso: {{ (question.weight * 100).toFixed(0) }}%
+                                                        </span>
+                                                    }
+                                                </div>
+
+                                                <!-- Toggle Buttons for Approval Status -->
+                                                <div class="flex-shrink-0">
+                                                    <mat-button-toggle-group
+                                                        formControlName="complianceStatus"
+                                                        appearance="legacy"
+                                                        class="shadow-sm">
+
+                                                        <!-- Approved -->
+                                                        <mat-button-toggle
+                                                            value="1.0"
+                                                            [matTooltip]="'Aprobado'"
+                                                            matTooltipPosition="above"
+                                                            class="!border-green-200 hover:!bg-green-50 data-[checked]:!bg-green-100 data-[checked]:!text-green-700">
+                                                            <mat-icon svgIcon="mat_solid:check"></mat-icon>
+                                                        </mat-button-toggle>
+
+                                                        <!-- Intermediate (if available) -->
+                                                        @if (question.hasIntermediateApproval) {
+                                                            @let intermediateValue = Number(question.intermediateValue) || 0;
+                                                            <mat-button-toggle
+                                                                [value]="question.intermediateValue?.toString()"
+                                                                [matTooltip]="'Parcial (' + intermediateValue.toFixed(2) + ')'"
+                                                                matTooltipPosition="above"
+                                                                class="!border-orange-200 hover:!bg-orange-50 data-[checked]:!bg-orange-100 data-[checked]:!text-orange-700">
+                                                                <mat-icon svgIcon="mat_solid:remove"></mat-icon>
+                                                            </mat-button-toggle>
+                                                        }
+
+                                                        <!-- Not Approved -->
+                                                        <mat-button-toggle
+                                                            value="0.0"
+                                                            [matTooltip]="'No Aprobado'"
+                                                            matTooltipPosition="above"
+                                                            class="!border-red-200 hover:!bg-red-50 data-[checked]:!bg-red-100 data-[checked]:!text-red-700">
+                                                            <mat-icon svgIcon="mat_solid:close"></mat-icon>
+                                                        </mat-button-toggle>
+                                                    </mat-button-toggle-group>
+                                                </div>
+
+                                                <!-- Action Buttons -->
+                                                <div class="flex-shrink-0 flex items-center gap-1">
+                                                    <!-- Image Attachment Button -->
+                                                    <button mat-icon-button
+                                                            type="button"
+                                                            [matTooltip]="'Adjuntar imagen'"
+                                                            matTooltipPosition="above"
+                                                            class="text-gray-500 hover:text-blue-600"
+                                                            (click)="fileInput.click()">
+                                                        <mat-icon svgIcon="mat_solid:attach_file"></mat-icon>
+                                                    </button>
+                                                    <input #fileInput
+                                                           type="file"
+                                                           accept="image/*"
+                                                           class="hidden"
+                                                           (change)="onFileSelected($event, categoryIndex, jIndex)">
+
+                                                    <!-- Comments Toggle Button -->
+                                                    <button mat-icon-button
+                                                            type="button"
+                                                            [matTooltip]="'Agregar comentario'"
+                                                            matTooltipPosition="above"
+                                                            class="text-gray-500 hover:text-blue-600"
+                                                            [class.text-blue-600]="executionForm.get('categories').get([categoryIndex, 'questions', jIndex, 'comment']).value"
+                                                            (click)="toggleCommentSection(categoryIndex, jIndex)">
+                                                        <mat-icon svgIcon="mat_solid:comment"></mat-icon>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Expandable Comments Section -->
+                                            @if (isCommentSectionOpen(categoryIndex, jIndex)) {
+                                                <div class="border-t dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 p-4">
+                                                    <mat-form-field class="w-full fuse-mat-dense">
+                                                        <mat-label>Comentario</mat-label>
+                                                        <textarea
+                                                            matInput
+                                                            formControlName="comment"
+                                                            rows="3"
+                                                            placeholder="Agregue observaciones sobre esta pregunta..."></textarea>
+                                                    </mat-form-field>
+                                                </div>
+                                            }
+
+                                            <!-- File Preview Section -->
+                                            @if (executionForm.get('categories').get([categoryIndex, 'questions', jIndex, 'evidenceFile']).value) {
+                                                <div class="border-t dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 p-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <mat-icon class="text-green-600" svgIcon="mat_solid:check_circle"></mat-icon>
+                                                        <span class="text-sm text-gray-700 dark:text-gray-300">Imagen adjuntada</span>
+                                                        <button mat-button
+                                                                type="button"
+                                                                color="warn"
+                                                                size="small"
+                                                                (click)="removeFile(categoryIndex, jIndex)">
+                                                            Remover
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
                     }
                 </div>
             </div>
@@ -169,7 +300,7 @@
             <!-- Notes Section -->
             <div class="w-full bg-card rounded-md shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Notas Adicionales</h3>
-                <mat-form-field class="w-full">
+                <mat-form-field class="w-full fuse-mat-dense">
                     <mat-label>Observaciones</mat-label>
                     <textarea matInput formControlName="notes" rows="4"
                               placeholder="Agregue cualquier observación adicional sobre la ejecución del checklist..."></textarea>
@@ -197,3 +328,4 @@
         </form>
     </div>
 </div>
+
