@@ -42,6 +42,7 @@ export class ChecklistScoreCalculator {
         const questionScores = category.questions.map(question => {
             const response = responses.find(r => r.questionId === question.id);
             const score = response ? this.calculateQuestionScore(question, response) : 0;
+            console.log(`Question: ${ question.title }, Response: ${ response ? response.value : 'No response' }, Score: ${ score }`, response);
             return {
                 question,
                 response,
@@ -50,14 +51,14 @@ export class ChecklistScoreCalculator {
             };
         });
 
-        const totalWeight = category.questions.reduce((sum, q) => sum + q.weight, 0);
+        const totalWeight = category.questions.reduce((sum, q) => sum + Number(q.weight), 0);
         const weightedSum = questionScores.reduce((sum, qs) => sum + qs.weightedScore, 0);
         const score = totalWeight > 0 ? weightedSum / totalWeight : 0;
 
         return {
             categoryId        : category.id!,
             title             : category.title,
-            weight: totalWeight, // ✅ CHANGED: Use sum of question weights instead of category.weight
+            weight: totalWeight,
             score,
             maxPossibleScore  : 1,
             questionsCompleted: questionScores.filter(qs => qs.response).length,
@@ -69,9 +70,8 @@ export class ChecklistScoreCalculator {
      * Calculate template score based on category scores
      */
     static calculateTemplateScore(template: ChecklistTemplate, categoryScores: ChecklistCategoryScore[]): ChecklistTemplateScore {
-        // ✅ CHANGED: Calculate total weight as sum of all question weights across all categories
         const totalWeight = template.categories.reduce((sum, category) => {
-            const categoryQuestionWeight = category.questions.reduce((qSum, question) => qSum + question.weight, 0);
+            const categoryQuestionWeight = category.questions.reduce((qSum, question) => qSum + Number(question.weight), 0);
             return sum + categoryQuestionWeight;
         }, 0);
 

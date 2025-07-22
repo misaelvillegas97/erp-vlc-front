@@ -116,16 +116,20 @@ export class ExecutionFormComponent implements OnInit {
     // Form
     executionForm: FormGroup<ExecutionFormData> = this.fb.group({
         categories: this.fb.array([]),
-        vehicleId : this.fb.control('', {validators: [ Validators.required ], nonNullable: true}),
-        userId: this.fb.control('', {validators: [ Validators.required ], nonNullable: true}),
+        vehicleId: this.fb.control('', {nonNullable: true}),
+        userId   : this.fb.control('', {nonNullable: true}),
         notes     : this.fb.control('', {nonNullable: true})
     });
 
-    categoriesArrayValue = toSignal(this.executionForm.valueChanges, {initialValue: undefined});
+    // Reactive form signals
+    formValue = toSignal(this.executionForm.valueChanges, {initialValue: this.executionForm.value});
+    formStatus = toSignal(this.executionForm.statusChanges, {initialValue: this.executionForm.status});
 
     // Computed arrays for template iteration
     categoriesIndices = computed(() => {
-        const categoriesArray = this.categoriesArrayValue().categories;
+        const formVal = this.formValue();
+        const categoriesArray = formVal?.categories;
+        if (!categoriesArray) return [];
         console.log('Categories array value:', categoriesArray);
         return Array.from({length: categoriesArray.length}, (_, i) => i);
     });
@@ -135,8 +139,8 @@ export class ExecutionFormComponent implements OnInit {
         const template = this.currentTemplate();
         if (!template) return 0;
 
-        const formValue = this.executionForm.value;
-        const categoryResponses = this.buildCategoryResponses(formValue.categories || []);
+        const formVal = this.formValue();
+        const categoryResponses = this.buildCategoryResponses(formVal?.categories || []);
 
         const categoryScores = template.categories.map(category =>
             ChecklistScoreCalculator.calculateCategoryScore(category, categoryResponses[category.id!] || [])
@@ -172,8 +176,8 @@ export class ExecutionFormComponent implements OnInit {
     });
 
     completionPercentage = computed(() => {
-        const formValue = this.executionForm.value;
-        const categories = formValue.categories || [];
+        const formVal = this.formValue();
+        const categories = formVal?.categories || [];
 
         let totalQuestions = 0;
         let answeredQuestions = 0;
@@ -193,7 +197,7 @@ export class ExecutionFormComponent implements OnInit {
     });
 
     canSubmit = computed(() => {
-        return this.executionForm.valid && this.completionPercentage() === 100;
+        return this.formStatus() === 'VALID' && this.completionPercentage() === 100;
     });
 
     // State for tracking open comment sections
@@ -220,14 +224,21 @@ export class ExecutionFormComponent implements OnInit {
     private loadTemplate(id: string): void {
         void firstValueFrom(this.checklistService.getTemplate(id))
             .then((template) => {
-                if (!template) {
-                    throw new Error('Template not found');
-                }
+                if (!template) throw new Error('Template not found');
                 if (!template.categories || template.categories.length === 0) {
                     console.warn('Template has no categories:', template);
                     this.notyf.error('La plantilla no tiene categorías configuradas');
                     return;
                 }
+
+                if (template.vehicleTypes.length > 0) {
+                    this.executionForm.get('vehicleId')?.setValidators([ Validators.required ]);
+                }
+
+                if (template.userRoles.length > 0) {
+                    this.executionForm.get('userId')?.setValidators([ Validators.required ]);
+                }
+
                 this.currentTemplate.set(template);
                 this.buildForm(template.categories);
             })
@@ -345,7 +356,7 @@ export class ExecutionFormComponent implements OnInit {
             if (categoryId && category.questions) {
                 responses[categoryId] = category.questions.map((question: any, questionIndex: number) => ({
                     questionId: this.getQuestion(categoryIndex, questionIndex)?.id!,
-                    value     : question.complianceStatus === 'complies',
+                    value: question.complianceStatus ? Number(question.complianceStatus) : null,
                     timestamp : new Date(),
                     files     : question.evidenceFile ? [ question.evidenceFile ] : []
                 }));

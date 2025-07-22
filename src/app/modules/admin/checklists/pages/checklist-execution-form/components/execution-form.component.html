@@ -161,26 +161,19 @@
                                             <div class="flex items-center gap-3 p-4">
                                                 <!-- Question Number -->
                                                 <div class="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-sm font-medium text-blue-600 dark:text-blue-300">
-                                                    {{ question.sortOrder }}
+                                                    {{ question.sortOrder + 1 }}
                                                 </div>
 
                                                 <!-- Question Title -->
                                                 <div class="flex-1 min-w-0">
-                                                    <div class="flex items-center gap-2">
+                                                    <div class="flex flex-col justify-center gap-2">
                                                         <h4 class="font-medium text-gray-900 dark:text-gray-100">
                                                             {{ question.title }}
                                                             @if (required) {
                                                                 <span class="text-red-500 dark:text-red-400 ml-1">*</span>
                                                             }
                                                         </h4>
-                                                        @if (question.description) {
-                                                            <button mat-icon-button
-                                                                    class="w-6 h-6 text-gray-400 hover:text-gray-600"
-                                                                    [matTooltip]="question.description"
-                                                                    matTooltipPosition="above">
-                                                                <mat-icon class="text-sm">info</mat-icon>
-                                                            </button>
-                                                        }
+                                                        <span class="text-sm line-clamp-2">{{ question.description }}</span>
                                                     </div>
                                                     @if (question.weight && question.weight !== 1) {
                                                         <span class="text-xs text-gray-500 dark:text-gray-400">
@@ -237,7 +230,7 @@
                                                             matTooltipPosition="above"
                                                             class="text-gray-500 hover:text-blue-600"
                                                             (click)="fileInput.click()">
-                                                        <mat-icon svgIcon="mat_solid:attach_file"></mat-icon>
+                                                        <mat-icon svgIcon="heroicons_solid:paper-clip"></mat-icon>
                                                     </button>
                                                     <input #fileInput
                                                            type="file"
@@ -253,7 +246,7 @@
                                                             class="text-gray-500 hover:text-blue-600"
                                                             [class.text-blue-600]="executionForm.get('categories').get([categoryIndex, 'questions', jIndex, 'comment']).value"
                                                             (click)="toggleCommentSection(categoryIndex, jIndex)">
-                                                        <mat-icon svgIcon="mat_solid:comment"></mat-icon>
+                                                        <mat-icon svgIcon="heroicons_solid:chat-bubble-bottom-center-text"></mat-icon>
                                                     </button>
                                                 </div>
                                             </div>
@@ -281,7 +274,6 @@
                                                         <button mat-button
                                                                 type="button"
                                                                 color="warn"
-                                                                size="small"
                                                                 (click)="removeFile(categoryIndex, jIndex)">
                                                             Remover
                                                         </button>
@@ -308,21 +300,21 @@
             </div>
 
             <!-- Form Actions -->
-            <div class="flex justify-between gap-4 pt-6">
+            <div class="flex justify-between gap-4">
                 <div class="flex gap-2">
                     <button mat-button type="button" (click)="cancel()">
                         <mat-icon svgIcon="mat_solid:cancel"></mat-icon>
-                        Cancelar
+                        <span class="ml-2">Cancelar</span>
                     </button>
                     <button mat-button type="button" (click)="saveDraft()" color="accent">
                         <mat-icon svgIcon="mat_solid:save"></mat-icon>
-                        Guardar Borrador
+                        <span class="ml-2">Guardar Borrador</span>
                     </button>
                 </div>
 
                 <button mat-raised-button color="primary" type="submit" [disabled]="!canSubmit()">
                     <mat-icon svgIcon="mat_solid:check_circle"></mat-icon>
-                    Completar Checklist
+                    <span class="ml-2">Completar Checklist</span>
                 </button>
             </div>
         </form>
