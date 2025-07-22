@@ -36,16 +36,36 @@
             <div class="w-full bg-card rounded-md shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Información de Ejecución</h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <mat-form-field class="w-full">
                         <mat-label>Vehículo</mat-label>
                         <mat-select formControlName="vehicleId">
-                            @for (vehicle of availableVehicles(); track vehicle.id) {
-                                <mat-option [value]="vehicle.id">{{ vehicle.name }} ({{ vehicle.plate }})</mat-option>
+                            @if (availableVehicles().length === 0) {
+                                <mat-option disabled>No hay vehículos disponibles para este tipo de checklist</mat-option>
+                            } @else {
+                                @for (vehicle of availableVehicles(); track vehicle.id) {
+                                    <mat-option [value]="vehicle.id">{{ vehicle.name }} ({{ vehicle.plate }})</mat-option>
+                                }
                             }
                         </mat-select>
-                        @if (executionForm.get('vehicleId')?.hasError('required') && executionForm.get('vehicleId')?.touched) {
+                        @if (executionForm.get('vehicleId').hasError('required') && executionForm.get('vehicleId')?.touched) {
                             <mat-error>Debe seleccionar un vehículo</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full">
+                        <mat-label>Usuario</mat-label>
+                        <mat-select formControlName="userId">
+                            @if (availableUsers().length === 0) {
+                                <mat-option disabled>No hay usuarios disponibles para este tipo de checklist</mat-option>
+                            } @else {
+                                @for (user of availableUsers(); track user.id) {
+                                    <mat-option [value]="user.id">{{ user.name }}</mat-option>
+                                }
+                            }
+                        </mat-select>
+                        @if (executionForm.get('userId').hasError('required') && executionForm.get('userId')?.touched) {
+                            <mat-error>Debe seleccionar un usuario</mat-error>
                         }
                     </mat-form-field>
 
@@ -99,42 +119,44 @@
             <div class="w-full bg-card rounded-md shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Categorías del Checklist</h3>
 
+                <pre>{{ categoriesArrayValue() }}</pre>
+
                 <div formArrayName="categories" class="space-y-4">
-                    @for (i of categoriesIndices(); track i) {
+                    @for (category of $any(executionForm.get('categories')).controls; track category.categoryId; let categoryIndex = $index) {
                         <mat-expansion-panel class="shadow-sm">
                             <mat-expansion-panel-header>
                                 <mat-panel-title>
                                     <div class="flex items-center gap-3">
-                                        <mat-icon class="text-blue-500 dark:text-blue-400">folder</mat-icon>
-                                        <span>{{ getCategory(i)?.title }}</span>
+                                        <mat-icon class="text-blue-500 dark:text-blue-400" svgIcon="mat_solid:folder"></mat-icon>
+                                        <span>{{ getCategory(categoryIndex)?.title }}</span>
                                         <span class="ml-auto px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs">
-                      Peso: {{ (getCategory(i)?.weight * 100).toFixed(0) }}%
-                    </span>
+                                          Peso: {{ (getCategory(categoryIndex)?.weight * 100).toFixed(0) }}%
+                                        </span>
                                     </div>
                                 </mat-panel-title>
                                 <mat-panel-description>
                                     <div class="flex items-center gap-4">
-                                        <span class="text-sm">{{ getCategoryCompletionText(i) }}</span>
+                                        <span class="text-sm">{{ getCategoryCompletionText(categoryIndex) }}</span>
                                         <mat-progress-bar
                                             mode="determinate"
-                                            [value]="getCategoryCompletion(i)"
+                                            [value]="getCategoryCompletion(categoryIndex)"
                                             class="w-24"
                                         ></mat-progress-bar>
                                     </div>
                                 </mat-panel-description>
                             </mat-expansion-panel-header>
 
-                            <div [formGroupName]="i" class="space-y-4 p-4">
-                                @if (getCategory(i)?.description) {
-                                    <p class="text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 p-3 rounded">{{ getCategory(i)?.description }}</p>
+                            <div [formGroupName]="categoryIndex" class="space-y-4 p-4">
+                                @if (getCategory(categoryIndex)?.description) {
+                                    <p class="text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 p-3 rounded">{{ getCategory(categoryIndex)?.description }}</p>
                                 }
 
                                 <div formArrayName="questions" class="space-y-4">
-                                    @for (j of getQuestionIndices(i); track j) {
+                                    @for (j of getQuestionIndices(categoryIndex); track j; let jIndex = $index) {
                                         <app-question-item
-                                            formGroupName="{{ j }}"
-                                            [question]="getQuestion(i, j)!"
-                                            [required]="getQuestion(i, j)?.required || false"
+                                            [formGroupName]="jIndex"
+                                            [question]="getQuestion(categoryIndex, jIndex)!"
+                                            [required]="getQuestion(categoryIndex, jIndex)?.required || false"
                                         ></app-question-item>
                                     }
                                 </div>
@@ -158,17 +180,17 @@
             <div class="flex justify-between gap-4 pt-6">
                 <div class="flex gap-2">
                     <button mat-button type="button" (click)="cancel()">
-                        <mat-icon>cancel</mat-icon>
+                        <mat-icon svgIcon="mat_solid:cancel"></mat-icon>
                         Cancelar
                     </button>
                     <button mat-button type="button" (click)="saveDraft()" color="accent">
-                        <mat-icon>save</mat-icon>
+                        <mat-icon svgIcon="mat_solid:save"></mat-icon>
                         Guardar Borrador
                     </button>
                 </div>
 
                 <button mat-raised-button color="primary" type="submit" [disabled]="!canSubmit()">
-                    <mat-icon>check_circle</mat-icon>
+                    <mat-icon svgIcon="mat_solid:check_circle"></mat-icon>
                     Completar Checklist
                 </button>
             </div>

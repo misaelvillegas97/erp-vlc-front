@@ -1,7 +1,7 @@
-import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy }            from '@angular/core';
+import { Component, computed, inject, OnInit, signal }                                     from '@angular/core';
 import { CommonModule }                                                                    from '@angular/common';
-import { ActivatedRoute, Router }                                                          from '@angular/router';
-import { FormBuilder, FormGroup, FormArray, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink }                                              from '@angular/router';
+import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 // Angular Material
 import { MatCardModule }              from '@angular/material/card';
@@ -12,28 +12,29 @@ import { MatIconModule }              from '@angular/material/icon';
 import { MatRadioModule }             from '@angular/material/radio';
 import { MatExpansionModule }         from '@angular/material/expansion';
 import { MatProgressBarModule }       from '@angular/material/progress-bar';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule }          from '@angular/material/snack-bar';
 import { MatSelectModule }            from '@angular/material/select';
 import { MatTooltipModule }           from '@angular/material/tooltip';
-import { RouterLink }                 from '@angular/router';
 
-import { ChecklistService }                    from '../../../services/checklist.service';
-import { ChecklistTemplate }                   from '../../../domain/interfaces/checklist-template.interface';
-import { ChecklistGroup }                      from '../../../domain/interfaces/checklist-group.interface';
-import { ChecklistCategory }                   from '../../../domain/interfaces/checklist-category.interface';
-import { ChecklistQuestion }                   from '../../../domain/interfaces/checklist-question.interface';
-import { ChecklistType }                       from '../../../domain/enums/checklist-type.enum';
-import { ChecklistScoreCalculator }            from '../../../domain/models/checklist-score-calculator.model';
-import { ChecklistExecution, ExecutionStatus } from '../../../domain/interfaces/checklist-execution.interface';
-import { ChecklistQuestionResponse }           from '../../../domain/interfaces/checklist-question.interface';
-import { NotyfService }                        from '@shared/services/notyf.service';
-import { PageHeaderComponent }                 from '@layout/components/page-header/page-header.component';
-import { QuestionItemComponent }               from './question-item.component';
+import { ChecklistService }                             from '../../../services/checklist.service';
+import { ChecklistTemplate }                            from '../../../domain/interfaces/checklist-template.interface';
+import { ChecklistGroup }                               from '../../../domain/interfaces/checklist-group.interface';
+import { ChecklistCategory }                            from '../../../domain/interfaces/checklist-category.interface';
+import { ChecklistQuestion, ChecklistQuestionResponse } from '../../../domain/interfaces/checklist-question.interface';
+import { ChecklistType }                                from '../../../domain/enums/checklist-type.enum';
+import { ChecklistScoreCalculator }                     from '../../../domain/models/checklist-score-calculator.model';
+import { ChecklistExecution, ExecutionStatus }          from '../../../domain/interfaces/checklist-execution.interface';
+import { NotyfService }                                 from '@shared/services/notyf.service';
+import { PageHeaderComponent }                          from '@layout/components/page-header/page-header.component';
+import { QuestionItemComponent }                        from './question-item.component';
+import { firstValueFrom }                               from 'rxjs';
+import { toSignal }                                     from '@angular/core/rxjs-interop';
 
 interface ExecutionFormData {
     categories: FormArray;
     vehicleId: FormControl<string>;
+    userId: FormControl<string>;
     notes: FormControl<string>;
 }
 
@@ -59,7 +60,7 @@ interface ExecutionFormData {
         PageHeaderComponent,
         QuestionItemComponent
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    // changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl    : './execution-form.component.html'
 })
 export class ExecutionFormComponent implements OnInit {
@@ -75,23 +76,57 @@ export class ExecutionFormComponent implements OnInit {
     currentGroup = signal<ChecklistGroup | null>(null);
     isGroupExecution = computed(() => !!this.currentGroup());
 
-    // Mock data
-    availableVehicles = signal([
-        {id: '1', name: 'Camión 001', plate: 'ABC-123'},
-        {id: '2', name: 'Camión 002', plate: 'DEF-456'},
-        {id: '3', name: 'Van 001', plate: 'GHI-789'}
+    // Mock data - all available vehicles and users
+    allVehicles = signal([
+        {id: '1', name: 'Camión 001', plate: 'ABC-123', type: 'truck'},
+        {id: '2', name: 'Camión 002', plate: 'DEF-456', type: 'truck'},
+        {id: '3', name: 'Van 001', plate: 'GHI-789', type: 'van'},
+        {id: '4', name: 'Sedán 001', plate: 'JKL-012', type: 'car'}
     ]);
+
+    allUsers = signal([
+        {id: '1', name: 'Juan Pérez', role: '1'}, // Conductor
+        {id: '2', name: 'María García', role: '2'}, // Supervisor
+        {id: '3', name: 'Carlos López', role: '3'}, // Inspector de calidad
+        {id: '4', name: 'Ana Martínez', role: '4'}, // Técnico de mantenimiento
+        {id: '5', name: 'Pedro Rodríguez', role: '1'}, // Conductor
+    ]);
+
+    // Computed filtered lists based on current template
+    availableVehicles = computed(() => {
+        const template = this.currentTemplate();
+        if (!template || !template.vehicleTypes || template.vehicleTypes.length === 0) {
+            return []; // Don't show vehicles if no vehicle types are specified
+        }
+        return this.allVehicles().filter(vehicle =>
+            template.vehicleTypes!.includes(vehicle.type)
+        );
+    });
+
+    availableUsers = computed(() => {
+        const template = this.currentTemplate();
+        if (!template || !template.userRoles || template.userRoles.length === 0) {
+            return []; // Don't show users if no roles are specified
+        }
+        return this.allUsers().filter(user =>
+            template.userRoles!.includes(user.role)
+        );
+    });
 
     // Form
     executionForm: FormGroup<ExecutionFormData> = this.fb.group({
         categories: this.fb.array([]),
         vehicleId : this.fb.control('', {validators: [ Validators.required ], nonNullable: true}),
+        userId: this.fb.control('', {validators: [ Validators.required ], nonNullable: true}),
         notes     : this.fb.control('', {nonNullable: true})
     });
 
+    categoriesArrayValue = toSignal(this.executionForm.valueChanges, {initialValue: undefined});
+
     // Computed arrays for template iteration
     categoriesIndices = computed(() => {
-        const categoriesArray = this.executionForm.get('categories') as FormArray;
+        const categoriesArray = this.categoriesArrayValue().categories;
+        console.log('Categories array value:', categoriesArray);
         return Array.from({length: categoriesArray.length}, (_, i) => i);
     });
 
@@ -163,33 +198,70 @@ export class ExecutionFormComponent implements OnInit {
 
     ngOnInit(): void {
         this.route.params.subscribe(params => {
-            const type = this.route.snapshot.url[1]?.path; // 'template' or 'group'
+            // Get the type from the URL path - should be the segment before the ID
+            const urlSegments = this.route.snapshot.url;
+            const type = urlSegments.find(segment => segment.path === 'template' || segment.path === 'group')?.path;
             const id = params['id'];
 
-            if (type === 'template') {
+            if (type === 'template' && id) {
                 this.loadTemplate(id);
-            } else if (type === 'group') {
+            } else if (type === 'group' && id) {
                 this.loadGroup(id);
+            } else {
+                console.error('Invalid route configuration. Expected /template/{id} or /group/{id}');
+                this.notyf.error('Configuración de ruta inválida');
             }
         });
     }
 
     private loadTemplate(id: string): void {
-        this.checklistService.getTemplate(id).subscribe(template => {
-            this.currentTemplate.set(template);
-            this.buildForm(template.categories);
-        });
+        void firstValueFrom(this.checklistService.getTemplate(id))
+            .then((template) => {
+                if (!template) {
+                    throw new Error('Template not found');
+                }
+                if (!template.categories || template.categories.length === 0) {
+                    console.warn('Template has no categories:', template);
+                    this.notyf.error('La plantilla no tiene categorías configuradas');
+                    return;
+                }
+                this.currentTemplate.set(template);
+                this.buildForm(template.categories);
+            })
+            .catch((error) => {
+                console.error('Error loading template:', error);
+                this.notyf.error('Error al cargar la plantilla del checklist');
+                this.router.navigate([ '/checklists/execute' ]);
+            });
     }
 
     private loadGroup(id: string): void {
-        this.checklistService.getGroup(id).subscribe(group => {
-            this.currentGroup.set(group);
-            // For group execution, we'll execute the first template or allow selection
-            if (group.templates.length > 0) {
-                this.currentTemplate.set(group.templates[0]);
-                this.buildForm(group.templates[0].categories);
-            }
-        });
+        void firstValueFrom(this.checklistService.getGroup(id))
+            .then((group) => {
+                if (!group) {
+                    throw new Error('Group not found');
+                }
+                if (!group.templates || group.templates.length === 0) {
+                    console.warn('Group has no templates:', group);
+                    this.notyf.error('El grupo no tiene plantillas asignadas');
+                    return;
+                }
+                this.currentGroup.set(group);
+                // For group execution, we'll execute the first template or allow selection
+                const firstTemplate = group.templates[0];
+                if (!firstTemplate.categories || firstTemplate.categories.length === 0) {
+                    console.warn('First template in group has no categories:', firstTemplate);
+                    this.notyf.error('La plantilla del grupo no tiene categorías configuradas');
+                    return;
+                }
+                this.currentTemplate.set(firstTemplate);
+                this.buildForm(firstTemplate.categories);
+            })
+            .catch((error) => {
+                console.error('Error loading group:', error);
+                this.notyf.error('Error al cargar el grupo de checklists');
+                this.router.navigate([ '/checklists/execute' ]);
+            });
     }
 
     private buildForm(categories: ChecklistCategory[]): void {
@@ -197,7 +269,10 @@ export class ExecutionFormComponent implements OnInit {
             categories.map(category => this.createCategoryFormGroup(category))
         );
 
-        this.executionForm.setControl('categories', categoriesArray);
+        console.log('Building form with categories:', categoriesArray.value);
+        this.executionForm.setControl('categories', categoriesArray, {emitEvent: true});
+
+        console.log('Execution form built:', this.executionForm.value);
     }
 
     private createCategoryFormGroup(category: ChecklistCategory): FormGroup {
@@ -308,13 +383,16 @@ export class ExecutionFormComponent implements OnInit {
         const formValue = this.executionForm.value;
         const template = this.currentTemplate();
 
-        if (!template || !formValue.vehicleId) return;
+        if (!template || !formValue.vehicleId || !formValue.userId) {
+            this.notyf.error('Debe seleccionar un vehículo y un usuario');
+            return;
+        }
 
         const execution: Omit<ChecklistExecution, 'id'> = {
             templateId       : template.id,
             groupId          : this.currentGroup()?.id,
             vehicleId        : formValue.vehicleId,
-            userId           : 'current-user-id', // Get from auth service
+            userId: formValue.userId,
             status           : ExecutionStatus.COMPLETED,
             startedAt        : new Date(),
             completedAt      : new Date(),
@@ -327,7 +405,7 @@ export class ExecutionFormComponent implements OnInit {
         this.checklistService.createExecution(execution).subscribe({
             next : (createdExecution) => {
                 this.notyf.success('Ejecución completada exitosamente');
-                this.router.navigate([ '/admin/checklists/reports', createdExecution.id ]);
+                this.router.navigate([ '/checklists/reports', createdExecution.id ]);
             },
             error: (error) => {
                 this.notyf.error('Error al completar la ejecución');
@@ -341,6 +419,6 @@ export class ExecutionFormComponent implements OnInit {
     }
 
     cancel(): void {
-        this.router.navigate([ '/admin/checklists/execute' ]);
+        this.router.navigate([ '/checklists/execute' ]);
     }
 }

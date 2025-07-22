@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule }                                                 from '@angular/common';
 import { FormControl, ReactiveFormsModule }                             from '@angular/forms';
 import { Router, RouterLink }                                           from '@angular/router';
@@ -151,8 +151,8 @@ export class ExecutionSelectorComponent {
 
         const isGroup = this.isSelectedItemGroup();
         const route = isGroup
-            ? `/admin/checklists/execute/group/${ target.id }`
-            : `/admin/checklists/execute/template/${ target.id }`;
+            ? `/checklists/execute/group/${ target.id }`
+            : `/checklists/execute/template/${ target.id }`;
 
         this.router.navigate([ route ]);
     }
