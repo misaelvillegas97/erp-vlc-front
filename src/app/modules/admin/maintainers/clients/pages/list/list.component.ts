@@ -54,8 +54,8 @@ export class ListComponent {
     columnsConfig: WritableSignal<ColumnConfig<Client>[]> = signal(undefined);
 
     clientsResource = resource({
-        request: () => this.searchControlSignal() || '',
-        loader : ({request}) => firstValueFrom(this.#clientService.findAll(request))
+        params: () => this.searchControlSignal() || '',
+        loader: ({params}) => firstValueFrom(this.#clientService.findAll(params))
     });
     readonly #fuseConfirmationService = inject(FuseConfirmationService);
     readonly #notyf = new Notyf();

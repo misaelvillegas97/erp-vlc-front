@@ -33,12 +33,12 @@ import { trackByFn }                                                            
 export class OrderDetailDialog {
     readonly #service = inject(OrdersService);
     readonly data = signal(inject(MAT_DIALOG_DATA));
-    readonly orderResource = resource<Order, any>({
-        request: () => this.data() || '',
-        loader : async ({request}) => {
-            if (!request.id) return;
+    readonly orderResource = resource<Order, unknown>({
+        loader: async () => {
+            const data = this.data();
+            if (!data?.id) return;
 
-            const order = await firstValueFrom(this.#service.findById(request.id));
+            const order = await firstValueFrom(this.#service.findById(data.id));
 
             return {
                 ...order,

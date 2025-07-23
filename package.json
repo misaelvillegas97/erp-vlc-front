@@ -16,19 +16,19 @@
         "test" : "ng test"
     },
     "dependencies" : {
-        "@angular/animations" : "19.1.4",
-        "@angular/cdk" : "^19.1.2",
-        "@angular/common" : "19.1.4",
-        "@angular/compiler" : "19.1.4",
-        "@angular/core" : "19.1.4",
-        "@angular/forms" : "19.1.4",
-        "@angular/google-maps" : "^19.1.2",
-        "@angular/material" : "19.1.2",
-        "@angular/material-luxon-adapter" : "19.1.2",
-        "@angular/platform-browser" : "19.1.4",
-        "@angular/platform-browser-dynamic" : "19.1.4",
-        "@angular/router" : "19.1.4",
-        "@angular/service-worker" : "19.1.4",
+        "@angular/animations" : "20.1.2",
+        "@angular/cdk" : "^20.1.2",
+        "@angular/common" : "20.1.2",
+        "@angular/compiler" : "20.1.2",
+        "@angular/core" : "20.1.2",
+        "@angular/forms" : "20.1.2",
+        "@angular/google-maps" : "^20.1.2",
+        "@angular/material" : "20.1.2",
+        "@angular/material-luxon-adapter" : "20.1.2",
+        "@angular/platform-browser" : "20.1.2",
+        "@angular/platform-browser-dynamic" : "20.1.2",
+        "@angular/router" : "20.1.2",
+        "@angular/service-worker" : "20.1.2",
         "@ionic/storage-angular" : "^4.0.0",
         "@ngneat/transloco" : "6.0.4",
         "@ngx-dropzone/cdk" : "^19.0.0",
@@ -68,9 +68,9 @@
         "zone.js" : "0.15.0"
     },
     "devDependencies" : {
-        "@angular-devkit/build-angular" : "19.1.5",
-        "@angular/cli" : "19.1.5",
-        "@angular/compiler-cli" : "19.1.4",
+        "@angular-devkit/build-angular" : "20.1.2",
+        "@angular/cli" : "20.1.2",
+        "@angular/compiler-cli" : "20.1.2",
         "@faker-js/faker" : "^9.4.0",
         "@tailwindcss/typography" : "0.5.16",
         "@types/chroma-js" : "3.1.0",
@@ -94,6 +94,6 @@
         "tailwind-merge" : "^2.3.0",
         "tailwindcss" : "3.4.17",
         "tailwindcss-animate" : "^1.0.7",
-        "typescript" : "5.7.3"
+        "typescript" : "5.8.3"
     }
 }

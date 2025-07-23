@@ -72,33 +72,33 @@ export class AnalysisComponent {
 
     // Analysis resource
     analysisResource = resource({
-        request: () => ({
+        params: () => ({
             dateFrom : this.dateFromSignal(),
             dateTo   : this.dateToSignal(),
             vehicleId: this.vehicleSignal()
         }),
-        loader : async ({request}) => {
+        loader: async ({params}) => {
             try {
                 this.isLoading.set(true);
 
                 // Apply filters
-                let params: any = {};
+                let query: any = {};
 
-                if (request.dateFrom) {
-                    params.startDate = request.dateFrom.toISOString();
+                if (params.dateFrom) {
+                    query.startDate = params.dateFrom.toISOString();
                 }
 
-                if (request.dateTo) {
-                    params.endDate = request.dateTo.toISOString();
+                if (params.dateTo) {
+                    query.endDate = params.dateTo.toISOString();
                 }
 
-                if (request.vehicleId) {
-                    params.vehicleId = request.vehicleId;
+                if (params.vehicleId) {
+                    query.vehicleId = params.vehicleId;
                 }
 
                 // Get consumption data
-                const consumptionByPeriod = await firstValueFrom(this.fuelRecordsService.getFuelConsumptionByPeriod(params));
-                const consumptionSummary = await firstValueFrom(this.fuelRecordsService.getFuelConsumptionSummary(params));
+                const consumptionByPeriod = await firstValueFrom(this.fuelRecordsService.getFuelConsumptionByPeriod(query));
+                const consumptionSummary = await firstValueFrom(this.fuelRecordsService.getFuelConsumptionSummary(query));
 
                 // Set chart data
                 this.setChartConsumptionByPeriod(consumptionByPeriod);

@@ -278,11 +278,11 @@ export class MaintenanceRecordsComponent implements OnInit, OnDestroy {
 
     // Resource para cargar los datos
     maintenanceResource = resource({
-        request: () => ({filters: this.filters(), pagination: this.pagination()}),
-        loader : async ({request}) => {
-            const paginationRecords = await firstValueFrom(this.#maintenanceService.getMaintenanceRecords(request.filters, {
-                page : request.pagination.page,
-                limit: request.pagination.limit
+        params: () => ({filters: this.filters(), pagination: this.pagination()}),
+        loader: async ({params}) => {
+            const paginationRecords = await firstValueFrom(this.#maintenanceService.getMaintenanceRecords(params.filters, {
+                page : params.pagination.page,
+                limit: params.pagination.limit
             }));
 
             // this.pagination.set({

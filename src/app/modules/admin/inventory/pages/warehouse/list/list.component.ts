@@ -59,16 +59,16 @@ export class WarehouseListComponent {
 
     // Data
     warehousesResource = resource({
-        request: () => ({
+        params: () => ({
             search: this.searchControlSignal()
         }),
-        loader : async ({request}) => {
+        loader: async ({params}) => {
             try {
                 // Apply filters
                 let params: any = {};
 
-                if (request.search?.trim()) {
-                    params.search = request.search.trim();
+                if (params.search?.trim()) {
+                    params.search = params.search.trim();
                 }
 
                 return await firstValueFrom(this.#warehouseService.getWarehouses(params));

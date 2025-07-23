@@ -301,11 +301,11 @@ export class ListComponent implements OnDestroy {
     columns = computed(() => this.columnsConfig().filter(col => col.visible).map((column) => column.key));
 
     ordersResource = resource({
-        request: () => ({filters: this.filters(), pagination: this.pagination()}),
-        loader : async ({request}) => {
-            const paginationOrders = await firstValueFrom(this.#ordersService.findAll(request.filters, {
-                page : request.pagination.page,
-                limit: request.pagination.limit
+        params: () => ({filters: this.filters(), pagination: this.pagination()}),
+        loader: async ({params}) => {
+            const paginationOrders = await firstValueFrom(this.#ordersService.findAll(params.filters, {
+                page : params.pagination.page,
+                limit: params.pagination.limit
             }));
 
             this.pagination.set({

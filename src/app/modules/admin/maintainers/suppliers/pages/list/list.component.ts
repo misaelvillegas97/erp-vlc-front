@@ -31,8 +31,8 @@ export class ListComponent {
     readonly #ts = inject(TranslocoService);
     readonly #supplierService = inject(SuppliersService);
     supplierResource = resource({
-        request: () => '',
-        loader : ({request}) => firstValueFrom(this.#supplierService.findAll(request))
+        params: () => '',
+        loader: ({params}) => firstValueFrom(this.#supplierService.findAll(params))
     });
 
     ngOnInit() {

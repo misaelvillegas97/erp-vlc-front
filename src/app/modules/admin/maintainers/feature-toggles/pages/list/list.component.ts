@@ -78,7 +78,7 @@ export class ListComponent {
 
     // Resource for loading feature toggles in hierarchical structure
     featureTogglesResource = resource({
-        request: () => {
+        params: () => {
             const params: Record<string, string> = {};
 
             // Only add parameters that have values
@@ -100,10 +100,10 @@ export class ListComponent {
 
             return params;
         },
-        loader: async ({request}) => {
+        loader: async ({params}) => {
             // If we're filtering, use findAll with filters
-            if (Object.keys(request).length > 0) {
-                const features = await firstValueFrom(this.#service.findAll(request));
+            if (Object.keys(params).length > 0) {
+                const features = await firstValueFrom(this.#service.findAll(params));
                 this.processFeatures(features);
                 return features;
             }

@@ -79,17 +79,17 @@ export class DriverSelectorComponent implements ControlValueAccessor, OnInit, On
 
     // Resource for fetching drivers
     driversResource = resource({
-        request: () => ({
+        params: () => ({
             search: this.searchControlSignal()
         }),
-        loader : async ({request}) => {
+        loader: async ({params}) => {
             this.loading.set(true);
 
             try {
                 let response: FindCount<Driver>;
 
                 // If search is empty or less than 2 chars, fetch all drivers
-                if (!request.search || request.search['length'] && request.search['length'] < 2) {
+                if (!params.search || params.search['length'] && params.search['length'] < 2) {
                     response = await firstValueFrom(this.driversService.findAll());
                 } else {
                     // Otherwise, search with the term

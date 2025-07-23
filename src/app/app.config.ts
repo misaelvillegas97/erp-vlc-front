@@ -1,5 +1,5 @@
 import { provideHttpClient }                                                                                                            from '@angular/common/http';
-import { ApplicationConfig, importProvidersFrom, inject, LOCALE_ID, provideAppInitializer, provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, inject, LOCALE_ID, provideAppInitializer, provideZonelessChangeDetection } from '@angular/core';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE }                                                                               from '@angular/material/core';
 import { LuxonDateAdapter }                                                                                                             from '@angular/material-luxon-adapter';
 import { PreloadAllModules, provideRouter, withComponentInputBinding, withInMemoryScrolling, withPreloading, withViewTransitions }      from '@angular/router';
@@ -40,7 +40,7 @@ const config: SocketIoConfig = {
 export const appConfig: ApplicationConfig = {
     providers: [
         // provideZoneChangeDetection({eventCoalescing: true}),
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
         provideAnimationsAsync(),
         provideHttpClient(),
         provideServiceWorker('ngsw-worker.js', {

@@ -103,7 +103,7 @@ export class HistoryComponent implements OnDestroy {
 
 
     historyResource = resource({
-        request: () => ({
+        params: () => ({
             search: this.searchFilterSignal(),
             driver    : this.driverFilterSignal(),
             vehicle   : this.vehicleFilterSignal(),
@@ -112,19 +112,19 @@ export class HistoryComponent implements OnDestroy {
             status    : this.statusFilterSignal(),
             pagination: this.pagination(),
         }),
-        loader : async ({request}) => {
+        loader: async ({params}) => {
             // this.isLoading.set(true);
 
             const filter: any = {};
-            if (request.search) filter.search = request.search;
-            if (request.driver) filter.driverId = request.driver;
-            if (request.vehicle) filter.vehicleId = request.vehicle;
-            if (request.dateFrom) filter.startDateFrom = request.dateFrom;
-            if (request.dateTo) filter.startDateTo = request.dateTo;
-            if (request.status) filter.status = request.status;
-            if (request.pagination) {
-                filter.page = request.pagination.page;
-                filter.limit = request.pagination.limit;
+            if (params.search) filter.search = params.search;
+            if (params.driver) filter.driverId = params.driver;
+            if (params.vehicle) filter.vehicleId = params.vehicle;
+            if (params.dateFrom) filter.startDateFrom = params.dateFrom;
+            if (params.dateTo) filter.startDateTo = params.dateTo;
+            if (params.status) filter.status = params.status;
+            if (params.pagination) {
+                filter.page = params.pagination.page;
+                filter.limit = params.pagination.limit;
             }
 
             try {

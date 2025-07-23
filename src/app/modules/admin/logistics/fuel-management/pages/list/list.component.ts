@@ -72,7 +72,7 @@ export class ListComponent {
     columnsConfig: WritableSignal<ColumnConfig<FuelRecord>[]> = signal(undefined);
 
     vehiclesResource = resource({
-        request: () => ({}),
+        params: () => ({}),
         loader : async () => {
             try {
                 const vehicles = await firstValueFrom(this.#vehiclesService.findAll({sortBy: 'licensePlate', sortOrder: 'ASC'}));
@@ -86,31 +86,31 @@ export class ListComponent {
 
     // Data
     fuelRecordsResource = resource({
-        request: () => ({
+        params: () => ({
             search  : this.searchControlSignal(),
             startDate: this.dateFromSignal(),
             endDate  : this.dateToSignal(),
             vehicle : this.vehicleSignal()
         }),
-        loader : async ({request}) => {
+        loader: async ({params}) => {
             try {
                 // Apply filters
                 let params: any = {};
 
-                if (request.search?.trim()) {
-                    params.search = request.search.trim();
+                if (params.search?.trim()) {
+                    params.search = params.search.trim();
                 }
 
-                if (request.startDate) {
-                    params.startDate = request.startDate.toISOString();
+                if (params.startDate) {
+                    params.startDate = params.startDate.toISOString();
                 }
 
-                if (request.endDate) {
-                    params.endDate = request.endDate.toISOString();
+                if (params.endDate) {
+                    params.endDate = params.endDate.toISOString();
                 }
 
-                if (request.vehicle?.trim()) {
-                    params.vehicleId = request.vehicle.trim();
+                if (params.vehicle?.trim()) {
+                    params.vehicleId = params.vehicle.trim();
                 }
 
                 return await firstValueFrom(this.#fuelRecordsService.getFuelRecords(params));

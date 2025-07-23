@@ -88,34 +88,34 @@ export class ChecklistTemplatesListComponent {
     });
 
     templatesResource = resource({
-        request: () => ({
+        params: () => ({
             search    : this.searchControlSignal(),
             type      : this.typeControlSignal(),
             group     : this.groupControlSignal(),
             activeOnly: this.showActiveOnlySignal()
         }),
-        loader : async ({request}) => {
+        loader: async ({params}) => {
             try {
-                let params: any = {};
+                let query: any = {};
 
-                if (request.search?.trim()) {
-                    params.search = request.search.trim();
+                if (params.search?.trim()) {
+                    query.search = params.search.trim();
                 }
 
-                if (request.type) {
-                    params.type = request.type;
+                if (params.type) {
+                    query.type = params.type;
                 }
 
-                if (request.group?.trim()) {
-                    if (request.group === 'unassigned') {
-                        params.groupId = '';
+                if (params.group?.trim()) {
+                    if (params.group === 'unassigned') {
+                        query.groupId = '';
                     } else {
-                        params.groupId = request.group;
+                        query.groupId = params.group;
                     }
                 }
 
-                if (request.activeOnly) {
-                    params.isActive = true;
+                if (params.activeOnly) {
+                    query.isActive = true;
                 }
 
                 return await firstValueFrom<FindCount<ChecklistTemplate>>(this.#checklistService.loadTemplates());

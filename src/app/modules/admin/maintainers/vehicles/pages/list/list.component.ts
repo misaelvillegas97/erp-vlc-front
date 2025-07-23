@@ -54,8 +54,8 @@ export class ListComponent {
 
     // Recurso para cargar los vehículos
     vehiclesResource = resource({
-        request: () => this.searchControl.value || '',
-        loader : ({request}) => firstValueFrom(this.#service.findAll())
+        params: () => this.searchControl.value || '',
+        loader: ({params}) => firstValueFrom(this.#service.findAll())
     });
 
     // Configuración de columnas para el table-builder

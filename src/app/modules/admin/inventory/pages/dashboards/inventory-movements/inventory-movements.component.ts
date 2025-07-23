@@ -87,14 +87,14 @@ export class InventoryMovementsComponent {
     });
 
     movementsResource = resource({
-        request: () => ({
+        params: () => ({
             search     : this.searchControlSignal(),
             startDate  : this.dateFromSignal(),
             endDate    : this.dateToSignal(),
             warehouseId: this.warehouseSignal(),
             type       : this.movementTypeSignal()
         }),
-        loader : async ({request}) => {
+        loader: async ({params}) => {
             try {
                 // In a real application, we would call an API endpoint to get the movements
                 // For now, we'll return a mock response

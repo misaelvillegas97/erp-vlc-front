@@ -124,21 +124,21 @@ export class LowStockComponent {
     });
 
     lowStockResource = resource({
-        request: () => ({
+        params: () => ({
             warehouseId: this.warehouseSignal(),
             search     : this.searchSignal()
         }),
-        loader : async ({request}) => {
+        loader: async ({params}) => {
             try {
                 // Get all inventory items
-                let params: any = {};
+                let query: any = {};
 
-                if (request.warehouseId) {
-                    params.warehouseId = request.warehouseId;
+                if (params.warehouseId) {
+                    query.warehouseId = params.warehouseId;
                 }
 
-                if (request.search?.trim()) {
-                    params.search = request.search.trim();
+                if (params.search?.trim()) {
+                    query.search = params.search.trim();
                 }
 
                 // Use the getLowStockItems method if available, otherwise filter manually
@@ -149,22 +149,22 @@ export class LowStockComponent {
                     items = await firstValueFrom(this.inventoryService.getLowStockItems());
                 } catch (error) {
                     // Fallback to manual filtering
-                    items = await firstValueFrom(this.inventoryService.getInventoryItems(params));
+                    items = await firstValueFrom(this.inventoryService.getInventoryItems(query));
                     items = items.filter(item =>
                         item.minimumStock && item.quantity < item.minimumStock
                     );
                 }
 
                 // Apply additional filtering if needed
-                if (request.search?.trim() || request.warehouseId) {
+                if (params.search?.trim() || params.warehouseId) {
                     items = items.filter(item => {
                         let match = true;
 
-                        if (request.warehouseId && item.warehouseId !== request.warehouseId) {
+                        if (params.warehouseId && item.warehouseId !== params.warehouseId) {
                             match = false;
                         }
 
-                        if (request.search?.trim() && !item.name.toLowerCase().includes(request.search.trim().toLowerCase())) {
+                        if (params.search?.trim() && !item.name.toLowerCase().includes(params.search.trim().toLowerCase())) {
                             match = false;
                         }
 

@@ -71,44 +71,46 @@ export class CreateComponent {
 
     // Clients
     readonly clientInput = toSignal(this.form.get('client').valueChanges.pipe(debounceTime(1_000)));
-    readonly clientsResource = rxResource({
-        request: () => this.clientInput() || '',
-        loader : ({request, abortSignal}) => {
-            if (!request) return this.#clientService.findAll({});
-            if (typeof request === 'object') return this.#clientService.findAll({});
+    readonly clientsResource = resource({
+        loader: () => {
+            const request = this.clientInput() || '';
+            if (!request) return firstValueFrom(this.#clientService.findAll({}));
+            if (typeof request === 'object') return firstValueFrom(this.#clientService.findAll({}));
 
-            return this.#clientService.findAll({fantasyName: request});
+            return firstValueFrom(this.#clientService.findAll({fantasyName: request}));
         },
     });
 
     // Client addresses
     readonly deliveryLocationInput = toSignal(this.form.get('deliveryLocation').valueChanges.pipe(debounceTime(1_000)));
-    readonly deliveryLocationResource = resource<ClientAddress[], any>({
-        request: () => ({client: this.clientInput(), address: this.deliveryLocationInput()}),
-        loader : async ({request}) => {
-            if (!request.client || typeof request.client !== 'object' || !request.client?.address) return [];
+    readonly deliveryLocationResource = resource<ClientAddress[], unknown>({
+        loader: async () => {
+            const client = this.clientInput();
+            const address = this.deliveryLocationInput();
 
-            const addresses = request.client.address;
+            if (!client || typeof client !== 'object' || !client?.address) return [];
 
-            if (!request.address) return addresses;
+            const addresses = client.address;
 
-            const filteredAddresses = addresses.filter((address) => address.street.toLowerCase().includes(request.address.toLowerCase()));
+            if (!address) return addresses;
+
+            const filteredAddresses = addresses.filter((addr) => addr.street.toLowerCase().includes(address.toLowerCase()));
 
             if (filteredAddresses && filteredAddresses.length > 0) return filteredAddresses;
 
-            const address = await firstValueFrom(this.#osmService.search(request.address));
+            const osmAddress = await firstValueFrom(this.#osmService.search(address));
 
-            if (!address) return [];
+            if (!osmAddress) return [];
 
-            return ClientAddressMapper.mapFromPlaceArray(address);
+            return ClientAddressMapper.mapFromPlaceArray(osmAddress);
         },
     });
 
     // Status
     readonly statusInput = toSignal(this.form.get('status').valueChanges.pipe(debounceTime(300)));
-    readonly statusResource = resource({
-        request: () => this.statusInput() || '',
-        loader : async ({request}) => {
+    readonly statusResource = resource<OrderStatusEnum[], unknown>({
+        loader: async () => {
+            const request = this.statusInput() || '';
             if (!request) return this.allowedOrderStatuses;
             return this.allowedOrderStatuses.filter((status) =>
                 this.#translationService.translate(`enums.order-status.${ status }`)
@@ -122,8 +124,8 @@ export class CreateComponent {
     readonly productsInput = toSignal(this.form.get('productInput').valueChanges.pipe(debounceTime(300)));
     readonly selectedProducts = toSignal(this.form.get('products').valueChanges);
     readonly productsResource = rxResource({
-        request: () => this.productsInput() || '',
-        loader : ({request}) => {
+        stream: () => {
+            const request = this.productsInput() || '';
             if (!request) return this.#productsService.findAll({});
 
             return this.#productsService.findAll({name: request});

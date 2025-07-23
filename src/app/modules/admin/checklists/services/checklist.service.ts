@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, resource, signal } from '@angular/core';
-import { HttpClient }                                     from '@angular/common/http';
-import { catchError, Observable, of, tap }                from 'rxjs';
+import { HttpClient }                                      from '@angular/common/http';
+import { catchError, firstValueFrom, Observable, of, tap } from 'rxjs';
 
 import { ChecklistGroup, ChecklistGroupValidation }     from '../domain/interfaces/checklist-group.interface';
 import { ChecklistTemplate }                            from '../domain/interfaces/checklist-template.interface';
@@ -360,16 +360,13 @@ export class ChecklistService {
     // Enhanced execution methods with resource() and signals
     executeChecklist(payload: ExecuteChecklistDto) {
         return resource({
-            request: () => payload,
-            loader : async ({request}) => {
+            params: () => payload,
+            loader: async ({params}) => {
                 try {
                     this._loading.set(true);
                     this._error.set(null);
 
-                    const execution = await this.http.post<ChecklistExecution>(
-                        `${ this.baseUrl }/executions/execute`,
-                        request
-                    ).toPromise();
+                    const execution = await firstValueFrom(this.http.post<ChecklistExecution>(`${ this.baseUrl }/executions/execute`, params));
 
                     if (execution) {
                         this._executionSignal.set(execution);
@@ -389,15 +386,13 @@ export class ChecklistService {
 
     getExecutionById(id: string) {
         return resource({
-            request: () => id,
-            loader : async ({request}) => {
+            params: () => id,
+            loader: async ({params}) => {
                 try {
                     this._loading.set(true);
                     this._error.set(null);
 
-                    const execution = await this.http.get<ChecklistExecution>(
-                        `${ this.baseUrl }/executions/${ request }`
-                    ).toPromise();
+                    const execution = await firstValueFrom(this.http.get<ChecklistExecution>(`${ this.baseUrl }/executions/${ params }`));
 
                     if (execution) {
                         this._executionSignal.set(execution);

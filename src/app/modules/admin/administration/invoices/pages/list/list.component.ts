@@ -145,7 +145,6 @@ export class ListComponent implements OnDestroy {
     });
 
     invoicesResource = resource({
-        request: () => this.filters(),
         loader: async () => firstValueFrom(this.#invoicesService.findAll(this.filters()))
     });
 

@@ -43,8 +43,8 @@ export class ListComponent {
 
     // Recurso para cargar los tipos de gasto. Reemplaza la llamada simulada por la invocación a tu servicio real.
     expenseTypesResource = resource({
-        request: () => this.searchControl.value || '',
-        loader: ({request}) => firstValueFrom(this.#service.findAll())
+        params: () => this.searchControl.value || '',
+        loader: ({params}) => firstValueFrom(this.#service.findAll())
     });
 
     // Configuración de columnas para el table-builder

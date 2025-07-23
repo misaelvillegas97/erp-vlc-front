@@ -160,37 +160,37 @@ export class ExpiringItemsComponent {
     });
 
     expiringItemsResource = resource({
-        request: () => ({
+        params: () => ({
             warehouseId: this.warehouseSignal(),
             search     : this.searchSignal(),
             days       : this.daysSignal()
         }),
-        loader : async ({request}) => {
+        loader: async ({params}) => {
             try {
                 // Use the getExpiringItems method if available, otherwise filter manually
                 let items: InventoryItem[];
 
                 try {
                     // Try to use the specialized endpoint
-                    items = await firstValueFrom(this.inventoryService.getExpiringItems(request.days));
+                    items = await firstValueFrom(this.inventoryService.getExpiringItems(params.days));
                 } catch (error) {
                     // Fallback to manual filtering
-                    let params: any = {};
+                    let query: any = {};
 
-                    if (request.warehouseId) {
-                        params.warehouseId = request.warehouseId;
+                    if (params.warehouseId) {
+                        query.warehouseId = params.warehouseId;
                     }
 
-                    if (request.search?.trim()) {
-                        params.search = request.search.trim();
+                    if (params.search?.trim()) {
+                        query.search = params.search.trim();
                     }
 
-                    items = await firstValueFrom(this.inventoryService.getInventoryItems(params));
+                    items = await firstValueFrom(this.inventoryService.getInventoryItems(query));
 
                     // Filter items with expiration date within the specified days
                     const today = new Date();
                     const futureDate = new Date();
-                    futureDate.setDate(today.getDate() + request.days);
+                    futureDate.setDate(today.getDate() + params.days);
 
                     items = items.filter(item => {
                         if (!item.expirationDate) return false;
@@ -201,15 +201,15 @@ export class ExpiringItemsComponent {
                 }
 
                 // Apply additional filtering if needed
-                if (request.search?.trim() || request.warehouseId) {
+                if (params.search?.trim() || params.warehouseId) {
                     items = items.filter(item => {
                         let match = true;
 
-                        if (request.warehouseId && item.warehouseId !== request.warehouseId) {
+                        if (params.warehouseId && item.warehouseId !== params.warehouseId) {
                             match = false;
                         }
 
-                        if (request.search?.trim() && !item.name.toLowerCase().includes(request.search.trim().toLowerCase())) {
+                        if (params.search?.trim() && !item.name.toLowerCase().includes(params.search.trim().toLowerCase())) {
                             match = false;
                         }
 

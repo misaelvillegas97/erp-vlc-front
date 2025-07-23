@@ -131,18 +131,18 @@ export class WarehouseStocksComponent {
     });
 
     inventoryResource = resource({
-        request: () => ({
+        params: () => ({
             warehouseId: this.warehouseSignal()
         }),
-        loader : async ({request}) => {
+        loader: async ({params}) => {
             try {
-                let params: any = {};
+                let query: any = {};
 
-                if (request.warehouseId) {
-                    params.warehouseId = request.warehouseId;
+                if (params.warehouseId) {
+                    query.warehouseId = params.warehouseId;
                 }
 
-                const items = await firstValueFrom(this.inventoryService.getInventoryItems(params));
+                const items = await firstValueFrom(this.inventoryService.getInventoryItems(query));
 
                 // Process items to add stockStatus
                 return items.map(item => ({

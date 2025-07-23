@@ -127,18 +127,18 @@ export class ProductsStocksComponent {
 
     // Data
     productsResource = resource({
-        request: () => ({
+        params: () => ({
             search: this.searchControlSignal()
         }),
-        loader : async ({request}) => {
+        loader: async ({params}) => {
             try {
-                let params: any = {};
+                let query: any = {};
 
-                if (request.search?.trim()) {
-                    params.search = request.search.trim();
+                if (params.search?.trim()) {
+                    query.search = params.search.trim();
                 }
 
-                const items = await firstValueFrom(this.inventoryService.getInventoryItems(params));
+                const items = await firstValueFrom(this.inventoryService.getInventoryItems(query));
 
                 // Process items to add stockStatus
                 return items.map(item => ({

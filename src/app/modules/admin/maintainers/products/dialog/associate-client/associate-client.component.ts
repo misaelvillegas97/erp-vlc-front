@@ -45,7 +45,7 @@ export class AssociateClientComponent {
         providerCode: [ undefined, [ Validators.required ] ],
     });
     readonly clientsResource = rxResource({
-        loader: () => {
+        stream: () => {
             return this.clientService.findAll();
         },
     });

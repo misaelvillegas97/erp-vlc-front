@@ -40,7 +40,6 @@ export class InvoiceDetailComponent {
     readonly invoiceId = signal(this.data.invoiceId);
 
     readonly invoiceResource = resource<Invoice, unknown>({
-        request: () => this.invoiceId(),
         loader : () => firstValueFrom(this.#service.findOne(this.invoiceId())),
     });
 

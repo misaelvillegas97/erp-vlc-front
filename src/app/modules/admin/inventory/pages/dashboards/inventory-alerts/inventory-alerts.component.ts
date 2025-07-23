@@ -187,23 +187,23 @@ export class InventoryAlertsComponent {
     });
 
     alertsResource = resource({
-        request: () => ({
+        params: () => ({
             warehouseId: this.warehouseSignal(),
             type       : this.typeSignal(),
             severity   : this.severitySignal()
         }),
-        loader : async ({request}) => {
+        loader: async ({params}) => {
             try {
                 // Since there's no specific API for alerts, we'll generate them from inventory data
                 const alerts: AlertItem[] = [];
 
                 // Get inventory items
-                let params: any = {};
-                if (request.warehouseId) {
-                    params.warehouseId = request.warehouseId;
+                let query: any = {};
+                if (params.warehouseId) {
+                    query.warehouseId = params.warehouseId;
                 }
 
-                const items = await firstValueFrom(this.inventoryService.getInventoryItems(params));
+                const items = await firstValueFrom(this.inventoryService.getInventoryItems(query));
                 const warehouses = await firstValueFrom(this.warehouseService.getWarehouses());
                 const warehouseMap = new Map<string, Warehouse>();
 
@@ -229,9 +229,9 @@ export class InventoryAlertsComponent {
                             severity = 'info';
                         }
 
-                        if (request.type && request.type !== 'low-stock') {
+                        if (params.type && params.type !== 'low-stock') {
                             // Skip if filtering by a different type
-                        } else if (request.severity && request.severity !== severity) {
+                        } else if (params.severity && params.severity !== severity) {
                             // Skip if filtering by a different severity
                         } else {
                             alerts.push({
@@ -252,9 +252,9 @@ export class InventoryAlertsComponent {
 
                     // Out of stock alerts
                     if (item.quantity <= 0) {
-                        if (request.type && request.type !== 'out-of-stock') {
+                        if (params.type && params.type !== 'out-of-stock') {
                             // Skip if filtering by a different type
-                        } else if (request.severity && request.severity !== 'critical') {
+                        } else if (params.severity && params.severity !== 'critical') {
                             // Skip if filtering by a different severity
                         } else {
                             alerts.push({
@@ -293,9 +293,9 @@ export class InventoryAlertsComponent {
                             return;
                         }
 
-                        if (request.type && request.type !== 'expiring') {
+                        if (params.type && params.type !== 'expiring') {
                             // Skip if filtering by a different type
-                        } else if (request.severity && request.severity !== severity) {
+                        } else if (params.severity && params.severity !== severity) {
                             // Skip if filtering by a different severity
                         } else {
                             let message = '';

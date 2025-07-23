@@ -52,7 +52,7 @@ export class ListComponent {
     searchControlSignal = toSignal(this.searchControl.valueChanges.pipe(debounceTime(1_000)), {initialValue: ''});
 
     usersResource = resource({
-        request: () => this.searchControlSignal(),
+        params: () => this.searchControlSignal(),
         loader: () => {
             let query = {};
 

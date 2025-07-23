@@ -44,7 +44,7 @@ $light-base: (
 /* Set the base colors for dark themes */
 $dark-base: (
   foreground: (
-    base: #ffffff,
+      base: #DDDDDD,
     divider: rgba(241, 245, 249, 0.12),
     /* slate.100 + opacity */ dividers: rgba(241, 245, 249, 0.12),
     /* slate.100 + opacity */ disabled: #475569,
@@ -202,17 +202,9 @@ $dark-base: (
   }
 
   /* Define a light & dark Angular Material theme with the generated palettes */
-  $light-theme: mat.m2-define-light-theme(
-      (
-        color: $palettes,
-      )
-  );
+    $light-theme: mat.m2-define-light-theme((color: $palettes));
 
-  $dark-theme: mat.m2-define-dark-theme(
-      (
-        color: $palettes,
-      )
-  );
+    $dark-theme: mat.m2-define-dark-theme((color: $palettes));
 
   /* Merge the custom base colors with the generated themes */
   $light-theme-colors: map.merge(map.get($light-theme, color), $light-base);

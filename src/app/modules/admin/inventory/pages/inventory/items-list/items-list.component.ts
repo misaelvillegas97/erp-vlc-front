@@ -82,30 +82,30 @@ export class InventoryItemsComponent {
     });
 
     inventoryItemsResource = resource({
-        request: () => ({
+        params: () => ({
             search      : this.searchControlSignal(),
             warehouseId : this.warehouseSignal(),
             expiringOnly: this.showExpiringOnlySignal()
         }),
-        loader : async ({request}) => {
+        loader: async ({params}) => {
             try {
                 // If expiring only filter is active, use the specific endpoint
-                if (request.expiringOnly) {
+                if (params.expiringOnly) {
                     return await firstValueFrom(this.#inventoryService.getExpiringItems(30));
                 }
 
                 // Otherwise, apply regular filters
-                let params: any = {};
+                let query: any = {};
 
-                if (request.search?.trim()) {
-                    params.search = request.search.trim();
+                if (params.search?.trim()) {
+                    query.search = params.search.trim();
                 }
 
-                if (request.warehouseId?.trim()) {
-                    params.warehouseId = request.warehouseId.trim();
+                if (params.warehouseId?.trim()) {
+                    query.warehouseId = params.warehouseId.trim();
                 }
 
-                return await firstValueFrom(this.#inventoryService.getInventoryItems(params));
+                return await firstValueFrom(this.#inventoryService.getInventoryItems(query));
             } catch (error) {
                 this.#notyf.error('Error al cargar los elementos de inventario');
                 return [];

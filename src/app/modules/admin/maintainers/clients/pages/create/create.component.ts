@@ -78,11 +78,11 @@ export class CreateComponent {
     // Address
     readonly addressInput = toSignal(this.form.get('addressSearch').valueChanges.pipe(debounceTime(500)));
     readonly addressResource: ResourceRef<ReadablePlace[]> = resource<ReadablePlace[], string>({
-        request: () => this.addressInput() || '',
-        loader : async ({request}) => {
-            if (!request) return [];
+        params: () => this.addressInput() || '',
+        loader: async ({params}) => {
+            if (!params) return [];
 
-            const places = await firstValueFrom(this.#osmService.search(request));
+            const places = await firstValueFrom(this.#osmService.search(params));
 
             const readablePlaces: ReadablePlace[] = places.map((place) => ({
                 address: `${ place.address.road }${ place.address.house_number ? ' #' + place.address.house_number : '' }, ${ place.address.city ?? place.address.town }, ${ place.address.state }, ${ place.address.country }`,

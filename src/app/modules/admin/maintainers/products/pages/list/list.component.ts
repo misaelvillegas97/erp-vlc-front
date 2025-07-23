@@ -65,9 +65,9 @@ export class ListComponent {
         return filters;
     });
 
-    productsResource = rxResource<Product[], any>({
-        request: () => this.#filters(),
-        loader: ({request, abortSignal}) => this.#service.findAll(request),
+    productsResource = rxResource({
+        params: () => this.#filters(),
+        stream: ({params}) => this.#service.findAll(params),
     });
 
     filterProducts() {

@@ -57,20 +57,20 @@ export class ChecklistGroupsListComponent {
 
     // Data
     groupsResource = resource({
-        request: () => ({
+        params: () => ({
             search    : this.searchControlSignal(),
             activeOnly: this.showActiveOnlySignal()
         }),
-        loader : async ({request}) => {
+        loader: async ({params}) => {
             try {
-                let params: any = {};
+                let query: any = {};
 
-                if (request.search?.trim()) {
-                    params.search = request.search.trim();
+                if (params.search?.trim()) {
+                    query.search = params.search.trim();
                 }
 
-                if (request.activeOnly) {
-                    params.isActive = true;
+                if (params.activeOnly) {
+                    query.isActive = true;
                 }
 
                 return await firstValueFrom<FindCount<ChecklistGroup>>(this.#checklistService.loadGroups());
