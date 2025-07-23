@@ -43,6 +43,8 @@
         "crypto-js" : "^4.2.0",
         "date-fns" : "^3.6.0",
         "highlight.js" : "11.9.0",
+        "html2canvas" : "^1.4.1",
+        "jspdf" : "^3.0.1",
         "leaflet" : "^1.9.4",
         "leaflet.bigimage" : "^1.0.1",
         "leaflet.locatecontrol" : "^0.81.1",

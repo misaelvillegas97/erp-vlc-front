@@ -32,17 +32,51 @@
             </button>
         </div>
     } @else {
-        <div class="flex-1 flex flex-col w-full max-w-7xl mx-auto py-6 px-4 sm:px-6">
-            <!-- Botón de volver -->
-            <div class="mb-6">
-                <button mat-stroked-button color="primary" class="rounded-lg shadow-sm hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" (click)="goBack()" aria-label="Volver a la página anterior">
+        <div class="flex-1 flex flex-col w-full max-w-7xl mx-auto py-6 px-4 sm:px-6 bg-default" id="session-content">
+            <!-- Botones de acción -->
+            <div class="mb-6 flex flex-wrap gap-3">
+                <button
+                    mat-stroked-button
+                    color="primary"
+                    class="rounded-lg shadow-sm hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                    (click)="goBack()"
+                    data-pdf-hide="back-button"
+                    aria-label="Volver a la página anterior">
                     <div class="flex items-center">
                         <mat-icon svgIcon="heroicons_outline:arrow-left" class="mr-2" aria-hidden="true"></mat-icon>
                         Volver
                     </div>
                 </button>
+
+                <!-- Botones de exportación PDF -->
+                <button
+                    mat-flat-button
+                    color="accent"
+                    class="rounded-lg shadow-sm hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent"
+                    (click)="exportToPdf(true)"
+                    data-pdf-hide="export-buttons"
+                    aria-label="Exportar a PDF con velocidades">
+                    <div class="flex items-center">
+                        <mat-icon svgIcon="heroicons_outline:document-arrow-down" class="mr-2" aria-hidden="true"></mat-icon>
+                        Exportar PDF
+                    </div>
+                </button>
+
+                <button
+                    mat-stroked-button
+                    color="accent"
+                    class="rounded-lg shadow-sm hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent"
+                    (click)="exportToPdf(false)"
+                    data-pdf-hide="export-buttons"
+                    aria-label="Exportar a PDF sin velocidades">
+                    <div class="flex items-center">
+                        <mat-icon svgIcon="heroicons_outline:document-arrow-down" class="mr-2" aria-hidden="true"></mat-icon>
+                        PDF sin velocidades
+                    </div>
+                </button>
             </div>
 
+            <!-- Contenido principal que se exportará -->
             <!-- Encabezado con estado -->
             <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center">
@@ -54,16 +88,16 @@
                     </h1>
                 </div>
                 <div class="mt-4 sm:mt-0">
-                    <span class="px-4 py-2 rounded-full text-sm font-medium text-white shadow-sm flex items-center"
-                          [ngClass]="getStatusClass(session()?.status || SessionStatus.ACTIVE)"
-                          role="status"
-                          aria-label="Estado de la sesión: {{ getStatusText(session()?.status || SessionStatus.ACTIVE) }}">
-                        <mat-icon svgIcon="heroicons_outline:check-circle" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.COMPLETED" aria-hidden="true"></mat-icon>
-                        <mat-icon svgIcon="heroicons_outline:play" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.ACTIVE" aria-hidden="true"></mat-icon>
-                        <mat-icon svgIcon="heroicons_outline:x-circle" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.CANCELLED" aria-hidden="true"></mat-icon>
-                        <mat-icon svgIcon="heroicons_outline:clock" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.EXPIRED" aria-hidden="true"></mat-icon>
-                        {{ getStatusText(session()?.status || SessionStatus.ACTIVE) }}
-                    </span>
+                        <span class="px-4 py-2 rounded-full text-sm font-medium text-white shadow-sm flex items-center"
+                              [ngClass]="getStatusClass(session()?.status || SessionStatus.ACTIVE)"
+                              role="status"
+                              aria-label="Estado de la sesión: {{ getStatusText(session()?.status || SessionStatus.ACTIVE) }}">
+                            <mat-icon svgIcon="heroicons_outline:check-circle" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.COMPLETED" aria-hidden="true"></mat-icon>
+                            <mat-icon svgIcon="heroicons_outline:play" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.ACTIVE" aria-hidden="true"></mat-icon>
+                            <mat-icon svgIcon="heroicons_outline:x-circle" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.CANCELLED" aria-hidden="true"></mat-icon>
+                            <mat-icon svgIcon="heroicons_outline:clock" class="mr-1 text-sm" *ngIf="session()?.status === SessionStatus.EXPIRED" aria-hidden="true"></mat-icon>
+                            {{ getStatusText(session()?.status || SessionStatus.ACTIVE) }}
+                        </span>
                 </div>
             </header>
 

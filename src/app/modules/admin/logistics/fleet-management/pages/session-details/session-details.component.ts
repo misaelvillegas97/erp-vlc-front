@@ -15,6 +15,8 @@ import { VehicleSessionsService }                                               
 import { SessionStatus, VehicleSession }                                                   from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
 import { DateTime }                                                                        from 'luxon';
 import { Subscription }                                                                    from 'rxjs';
+import jsPDF                                                                               from 'jspdf';
+import html2canvas                                                                         from 'html2canvas';
 
 // Reusable components
 import { GpsMapComponent }           from '@shared/components/gps-map/gps-map.component';
@@ -59,6 +61,10 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
     isLoading = signal(true);
     session = signal<VehicleSession | null>(null);
     sessionId = signal<string>('');
+    showSpeedsInPdf = signal(false);
+
+    // Theme state for PDF export
+    private originalThemeState: boolean = false;
 
     SessionStatus = SessionStatus;
 
@@ -191,5 +197,168 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
         } else {
             this.router.navigate([ '/logistics/fleet-management/history' ]);
         }
+    }
+
+    /**
+     * Exporta el contenido de la pantalla a PDF
+     */
+    async exportToPdf(includeSpeed: boolean = true): Promise<void> {
+        try {
+            this.showSpeedsInPdf.set(includeSpeed);
+
+            // Obtener el elemento que contiene el contenido principal
+            const element = document.getElementById('session-content');
+            if (!element) {
+                this.notyf.error('No se pudo encontrar el contenido para exportar');
+                return;
+            }
+
+            // Ocultar elementos que no queremos en el PDF
+            this.hideElementsForPdf();
+
+            // Forzar tema claro para el PDF
+            this.forceLightThemeForPdf();
+
+            // Configurar opciones para html2canvas con optimización para reducir tamaño
+            const canvas = await html2canvas(element, {
+                scale          : 1.2, // Reducido de 2 a 1.2 para menor tamaño
+                useCORS        : true,
+                allowTaint     : true,
+                logging        : false, // Desactivar logs para mejor rendimiento
+                removeContainer: true,
+                imageTimeout   : 15000
+            });
+
+            // Restaurar elementos ocultos y tema original
+            this.showElementsAfterPdf();
+
+            // Crear el PDF con compresión JPEG para reducir tamaño
+            const imgData = canvas.toDataURL('image/jpeg', 0.8); // JPEG con 80% de calidad
+            const pdf = new jsPDF('p', 'mm', 'a4');
+
+            const imgWidth = 210; // A4 width in mm
+            const pageHeight = 295; // A4 height in mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            // Agregar la primera página
+            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            // Agregar páginas adicionales si es necesario
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            // Generar nombre del archivo
+            const sessionId = this.session()?.id?.substring(0, 8) || 'unknown';
+            const fileName = `sesion-${ sessionId }-${ new Date().toISOString().split('T')[0] }.pdf`;
+
+            // Descargar el PDF
+            pdf.save(fileName);
+            this.notyf.success('PDF exportado exitosamente');
+
+        } catch (error) {
+            console.error('Error al exportar PDF:', error);
+            this.notyf.error('Error al exportar el PDF');
+        }
+    }
+
+    /**
+     * Fuerza el tema claro para la exportación de PDF
+     */
+    private forceLightThemeForPdf(): void {
+        // Detectar si el modo oscuro está activo
+        const bodyElement = document.body;
+        this.originalThemeState = bodyElement.classList.contains('dark');
+
+        // Si está en modo oscuro, remover la clase temporalmente
+        if (this.originalThemeState) {
+            console.log('Forzando tema claro para exportación de PDF');
+            bodyElement.classList.remove('dark');
+        }
+    }
+
+    /**
+     * Restaura el tema original después de la exportación de PDF
+     */
+    private restoreOriginalTheme(): void {
+        // Si originalmente estaba en modo oscuro, restaurar la clase
+        if (this.originalThemeState) {
+            const bodyElement = document.body;
+            bodyElement.classList.add('dark');
+        }
+    }
+
+    /**
+     * Oculta elementos que no deben aparecer en el PDF
+     */
+    private hideElementsForPdf(): void {
+        // Ocultar botones de navegación
+        const backButton = document.querySelector('[data-pdf-hide="back-button"]');
+        if (backButton) {
+            (backButton as HTMLElement).style.display = 'none';
+        }
+
+        // Ocultar botones de exportación
+        const exportButtons = document.querySelectorAll('[data-pdf-hide="export-buttons"]');
+        exportButtons.forEach(button => {
+            (button as HTMLElement).style.display = 'none';
+        });
+
+        const pageHeader = document.querySelector('page-header');
+        if (pageHeader) {
+            (pageHeader as HTMLElement).style.display = 'none';
+        }
+
+        // Ocultar columnas de velocidad si no se incluyen
+        if (!this.showSpeedsInPdf()) {
+            const speedColumns = document.querySelectorAll('[data-pdf-speed]');
+            speedColumns.forEach(col => {
+                (col as HTMLElement).style.display = 'none';
+            });
+        }
+    }
+
+    /**
+     * Restaura la visibilidad de elementos después de generar el PDF
+     */
+    private showElementsAfterPdf(): void {
+        // Restaurar tema original
+        this.restoreOriginalTheme();
+
+        // Restaurar botones de navegación
+        const backButton = document.querySelector('[data-pdf-hide="back-button"]');
+        if (backButton) {
+            (backButton as HTMLElement).style.display = '';
+        }
+
+        // Restaurar botones de exportación
+        const exportButtons = document.querySelectorAll('[data-pdf-hide="export-buttons"]');
+        exportButtons.forEach(button => {
+            (button as HTMLElement).style.display = '';
+        });
+
+        // Restaurar indicador offline
+        const offlineIndicator = document.querySelector('app-offline-indicator');
+        if (offlineIndicator) {
+            (offlineIndicator as HTMLElement).style.display = '';
+        }
+
+        // Restaurar header de página
+        const pageHeader = document.querySelector('page-header');
+        if (pageHeader) {
+            (pageHeader as HTMLElement).style.display = '';
+        }
+
+        // Restaurar columnas de velocidad
+        const speedColumns = document.querySelectorAll('[data-pdf-speed]');
+        speedColumns.forEach(col => {
+            (col as HTMLElement).style.display = '';
+        });
     }
 }
