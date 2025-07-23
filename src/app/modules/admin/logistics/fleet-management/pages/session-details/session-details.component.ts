@@ -46,7 +46,15 @@ import { calculateDistance }         from '@shared/utils/gps.utils';
         OfflineIndicatorComponent
     ],
     templateUrl    : './session-details.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    styles         : `
+        @media print, pdf {
+            #session-content {
+                letter-spacing: 0.02em;
+                line-height: 1.4;
+            }
+        }
+    `
 })
 export class SessionDetailsComponent implements OnInit, OnDestroy {
     private readonly route = inject(ActivatedRoute);
@@ -221,18 +229,16 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
 
             // Configurar opciones para html2canvas con optimización para reducir tamaño
             const canvas = await html2canvas(element, {
-                scale          : 1.2, // Reducido de 2 a 1.2 para menor tamaño
+                scale       : 2,
                 useCORS        : true,
                 allowTaint     : true,
                 logging        : false, // Desactivar logs para mejor rendimiento
+                imageTimeout: 15000,
                 removeContainer: true,
-                imageTimeout   : 15000
             });
 
-            // Restaurar elementos ocultos y tema original
             this.showElementsAfterPdf();
 
-            // Crear el PDF con compresión JPEG para reducir tamaño
             const imgData = canvas.toDataURL('image/jpeg', 0.8); // JPEG con 80% de calidad
             const pdf = new jsPDF('p', 'mm', 'a4');
 
@@ -242,11 +248,9 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
             let heightLeft = imgHeight;
             let position = 0;
 
-            // Agregar la primera página
             pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
             heightLeft -= pageHeight;
 
-            // Agregar páginas adicionales si es necesario
             while (heightLeft >= 0) {
                 position = heightLeft - imgHeight;
                 pdf.addPage();
@@ -254,7 +258,6 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
                 heightLeft -= pageHeight;
             }
 
-            // Generar nombre del archivo
             const sessionId = this.session()?.id?.substring(0, 8) || 'unknown';
             const fileName = `sesion-${ sessionId }-${ new Date().toISOString().split('T')[0] }.pdf`;
 
