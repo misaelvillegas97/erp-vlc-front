@@ -8,21 +8,82 @@
 // Function to create M3 palette from custom color map
 @function create-m3-palette($color-map) {
     @return (
-        0: map.get($color-map, 50),
-        10: map.get($color-map, 100),
-        20: map.get($color-map, 200),
-        25: map.get($color-map, 300),
-        30: map.get($color-map, 400),
-        40: map.get($color-map, 500),
-        50: map.get($color-map, 600),
-        60: map.get($color-map, 700),
-        70: map.get($color-map, 800),
-        80: map.get($color-map, 900),
-        90: map.get($color-map, 950),
+        0: #000000,
+        10: map.get($color-map, 950),
+        20: map.get($color-map, 900),
+        25: map.get($color-map, 800),
+        30: map.get($color-map, 700),
+        40: map.get($color-map, 600),
+        50: map.get($color-map, DEFAULT),
+        60: map.get($color-map, 400),
+        70: map.get($color-map, 300),
+        80: map.get($color-map, 200),
+        90: map.get($color-map, 100),
         95: map.get($color-map, 50),
-        98: map.get($color-map, 50),
+        98: #fefefe,
         99: #ffffff,
-        100: #000000,
+        100: #ffffff,
+        // Add required M3 palette properties
+        neutral: (
+            0: #000000,
+            10: #1a1a1a,
+            20: #2e2e2e,
+            30: #424242,
+            40: #616161,
+            50: #757575,
+            60: #9e9e9e,
+            70: #bdbdbd,
+            80: #e0e0e0,
+            90: #f5f5f5,
+            95: #fafafa,
+            99: #ffffff,
+            100: #ffffff,
+        ),
+        neutral-variant: (
+            0: #000000,
+            10: #1c1b1f,
+            20: #313033,
+            30: #484649,
+            40: #605d62,
+            50: #79767d,
+            60: #938f96,
+            70: #aea9b1,
+            80: #cac5cd,
+            90: #e7e0e8,
+            95: #f5eff4,
+            99: #fffbff,
+            100: #ffffff,
+        ),
+        secondary: (
+            0: #000000,
+            10: #1d192b,
+            20: #332d41,
+            30: #4a4458,
+            40: #625b71,
+            50: #7a7289,
+            60: #958da5,
+            70: #b0a7c0,
+            80: #ccc2dc,
+            90: #e8def8,
+            95: #f6edff,
+            99: #fffbff,
+            100: #ffffff,
+        ),
+        error: (
+            0: #000000,
+            10: #410e0b,
+            20: #601410,
+            30: #8c1d18,
+            40: #b3261e,
+            50: #dc362e,
+            60: #e46962,
+            70: #ec928e,
+            80: #f2b8b5,
+            90: #f9dedc,
+            95: #fceeee,
+            99: #fffbf9,
+            100: #ffffff,
+        ),
     );
 }
 
@@ -65,12 +126,15 @@ $dark-custom-tokens: (
     $light-theme: mat.define-theme((
         color: (
             theme-type: light,
-            primary: mat.$azure-palette,
+            primary: mat.$orange-palette,
             tertiary: mat.$blue-palette,
         ),
         typography: (
             brand-family: theme('fontFamily.sans'),
             plain-family: theme('fontFamily.sans'),
+            bold-weight: 800,
+            medium-weight: 600,
+            regular-weight: 400,
         ),
         density: (
             scale: 0
@@ -80,12 +144,15 @@ $dark-custom-tokens: (
     $dark-theme: mat.define-theme((
         color: (
             theme-type: dark,
-            primary: mat.$azure-palette,
+            primary: mat.$orange-palette,
             tertiary: mat.$blue-palette,
         ),
         typography: (
             brand-family: theme('fontFamily.sans'),
             plain-family: theme('fontFamily.sans'),
+            bold-weight: 800,
+            medium-weight: 600,
+            regular-weight: 400,
         ),
         density: (
             scale: 0
@@ -117,6 +184,75 @@ $dark-custom-tokens: (
         --mdc-filled-button-label-text-color: #{map.get(map.get($primary-colors, contrast), DEFAULT)};
         --mdc-outlined-button-label-text-color: #{map.get($primary-colors, DEFAULT)};
         --mdc-outlined-button-outline-color: #{map.get($primary-colors, 200)};
+
+        // Custom typography tokens matching M2 configuration
+        // M2 headline-1 (1.875rem, 2.25rem, 800) -> M3 display-large
+        --mat-sys-display-large-size: 1.875rem;
+        --mat-sys-display-large-line-height: 2.25rem;
+        --mat-sys-display-large-weight: 800;
+
+        // M2 headline-2 (1.25rem, 1.75rem, 700) -> M3 headline-large
+        --mat-sys-headline-large-size: 1.25rem;
+        --mat-sys-headline-large-line-height: 1.75rem;
+        --mat-sys-headline-large-weight: 700;
+
+        // M2 headline-3 (1.125rem, 1.75rem, 600) -> M3 headline-medium
+        --mat-sys-headline-medium-size: 1.125rem;
+        --mat-sys-headline-medium-line-height: 1.75rem;
+        --mat-sys-headline-medium-weight: 600;
+
+        // M2 headline-4 (0.875rem, 1.25rem, 600) -> M3 headline-small
+        --mat-sys-headline-small-size: 0.875rem;
+        --mat-sys-headline-small-line-height: 1.25rem;
+        --mat-sys-headline-small-weight: 600;
+
+        // M2 headline-5 (0.875rem, 1.5rem, 400) -> M3 title-large
+        --mat-sys-title-large-size: 0.875rem;
+        --mat-sys-title-large-line-height: 1.5rem;
+        --mat-sys-title-large-weight: 400;
+
+        // M2 headline-6 (0.875rem, 1.5rem, 400) -> M3 title-medium
+        --mat-sys-title-medium-size: 0.875rem;
+        --mat-sys-title-medium-line-height: 1.5rem;
+        --mat-sys-title-medium-weight: 400;
+
+        // M2 subtitle-1 (1rem, 1.75rem, 400) -> M3 title-small
+        --mat-sys-title-small-size: 1rem;
+        --mat-sys-title-small-line-height: 1.75rem;
+        --mat-sys-title-small-weight: 400;
+
+        // M2 subtitle-2 (0.875rem, 1.25rem, 600) -> M3 label-large
+        --mat-sys-label-large-size: 0.875rem;
+        --mat-sys-label-large-line-height: 1.25rem;
+        --mat-sys-label-large-weight: 600;
+
+        // M2 body-1 (0.875rem, 1.5rem, 400) -> M3 body-large
+        --mat-sys-body-large-size: 0.875rem;
+        --mat-sys-body-large-line-height: 1.5rem;
+        --mat-sys-body-large-weight: 400;
+
+        // M2 body-2 (0.875rem, 1.5rem, 400) -> M3 body-medium
+        --mat-sys-body-medium-size: 0.875rem;
+        --mat-sys-body-medium-line-height: 1.5rem;
+        --mat-sys-body-medium-weight: 400;
+
+        // M2 caption (0.75rem, 1rem, 400) -> M3 body-small
+        --mat-sys-body-small-size: 0.75rem;
+        --mat-sys-body-small-line-height: 1rem;
+        --mat-sys-body-small-weight: 400;
+
+        // M2 button (0.875rem, 0.875rem, 500) -> M3 label-medium
+        --mat-sys-label-medium-size: 0.875rem;
+        --mat-sys-label-medium-line-height: 0.875rem;
+        --mat-sys-label-medium-weight: 500;
+
+        // M2 overline (0.75rem, 2rem, 500) -> M3 label-small
+        --mat-sys-label-small-size: 0.75rem;
+        --mat-sys-label-small-line-height: 2rem;
+        --mat-sys-label-small-weight: 500;
+
+        --mat-form-field-filled-label-text-size: 0.875rem;
+
     }
 
     #{map.get($theme, selector)} .dark,
@@ -143,5 +279,73 @@ $dark-custom-tokens: (
         --mdc-filled-button-label-text-color: #{map.get(map.get($primary-colors, contrast), 600)};
         --mdc-outlined-button-label-text-color: #{map.get($primary-colors, 400)};
         --mdc-outlined-button-outline-color: #{map.get($primary-colors, 700)};
+
+        // Custom typography tokens matching M2 configuration (dark mode)
+        // M2 headline-1 (1.875rem, 2.25rem, 800) -> M3 display-large
+        --mat-sys-display-large-size: 1.875rem;
+        --mat-sys-display-large-line-height: 2.25rem;
+        --mat-sys-display-large-weight: 800;
+
+        // M2 headline-2 (1.25rem, 1.75rem, 700) -> M3 headline-large
+        --mat-sys-headline-large-size: 1.25rem;
+        --mat-sys-headline-large-line-height: 1.75rem;
+        --mat-sys-headline-large-weight: 700;
+
+        // M2 headline-3 (1.125rem, 1.75rem, 600) -> M3 headline-medium
+        --mat-sys-headline-medium-size: 1.125rem;
+        --mat-sys-headline-medium-line-height: 1.75rem;
+        --mat-sys-headline-medium-weight: 600;
+
+        // M2 headline-4 (0.875rem, 1.25rem, 600) -> M3 headline-small
+        --mat-sys-headline-small-size: 0.875rem;
+        --mat-sys-headline-small-line-height: 1.25rem;
+        --mat-sys-headline-small-weight: 600;
+
+        // M2 headline-5 (0.875rem, 1.5rem, 400) -> M3 title-large
+        --mat-sys-title-large-size: 0.875rem;
+        --mat-sys-title-large-line-height: 1.5rem;
+        --mat-sys-title-large-weight: 400;
+
+        // M2 headline-6 (0.875rem, 1.5rem, 400) -> M3 title-medium
+        --mat-sys-title-medium-size: 0.875rem;
+        --mat-sys-title-medium-line-height: 1.5rem;
+        --mat-sys-title-medium-weight: 400;
+
+        // M2 subtitle-1 (1rem, 1.75rem, 400) -> M3 title-small
+        --mat-sys-title-small-size: 1rem;
+        --mat-sys-title-small-line-height: 1.75rem;
+        --mat-sys-title-small-weight: 400;
+
+        // M2 subtitle-2 (0.875rem, 1.25rem, 600) -> M3 label-large
+        --mat-sys-label-large-size: 0.875rem;
+        --mat-sys-label-large-line-height: 1.25rem;
+        --mat-sys-label-large-weight: 600;
+
+        // M2 body-1 (0.875rem, 1.5rem, 400) -> M3 body-large
+        --mat-sys-body-large-size: 0.875rem;
+        --mat-sys-body-large-line-height: 1.5rem;
+        --mat-sys-body-large-weight: 400;
+
+        // M2 body-2 (0.875rem, 1.5rem, 400) -> M3 body-medium
+        --mat-sys-body-medium-size: 0.875rem;
+        --mat-sys-body-medium-line-height: 1.5rem;
+        --mat-sys-body-medium-weight: 400;
+
+        // M2 caption (0.75rem, 1rem, 400) -> M3 body-small
+        --mat-sys-body-small-size: 0.75rem;
+        --mat-sys-body-small-line-height: 1rem;
+        --mat-sys-body-small-weight: 400;
+
+        // M2 button (0.875rem, 0.875rem, 500) -> M3 label-medium
+        --mat-sys-label-medium-size: 0.875rem;
+        --mat-sys-label-medium-line-height: 0.875rem;
+        --mat-sys-label-medium-weight: 500;
+
+        // M2 overline (0.75rem, 2rem, 500) -> M3 label-small
+        --mat-sys-label-small-size: 0.75rem;
+        --mat-sys-label-small-line-height: 2rem;
+        --mat-sys-label-small-weight: 500;
+
+        --mat-form-field-filled-label-text-size: 0.875rem;
     }
 }
