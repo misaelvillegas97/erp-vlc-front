@@ -32,7 +32,7 @@ interface Action {
                 [color]="actions[0].color || 'primary'"
                 [matTooltip]="actions[0].tooltip || actions[0].label || actions[0].action"
                 (click)="onAction(actions[0].action)">
-                <mat-icon>{{ actions[0].icon }}</mat-icon>
+                <mat-icon svgIcon="mat_solid:{{ actions[0].icon }}"></mat-icon>
             </button>
         </ng-container>
 
@@ -42,7 +42,7 @@ interface Action {
                 mat-icon-button
                 [matMenuTriggerFor]="actionsMenu"
                 [matTooltip]="'Actions'">
-                <mat-icon>more_vert</mat-icon>
+                <mat-icon svgIcon="mat_solid:more_vert"></mat-icon>
             </button>
 
             <mat-menu #actionsMenu="matMenu">

@@ -34,12 +34,12 @@
                         @if (form.disabled) {
                             <mat-spinner diameter="20" mode="indeterminate"></mat-spinner>
                         } @else {
-                            <mat-icon>add</mat-icon> {{ t('add-member-input.add') }}
+                            <mat-icon svgIcon="mat_solid:add"></mat-icon> {{ t('add-member-input.add') }}
                         }
                     </span>
             </button>
             <button [disabled]="form.disabled || form.invalid || form.pending" class="md:hidden" color="primary" mat-icon-button type="submit">
-                <mat-icon>add</mat-icon>
+                <mat-icon svgIcon="mat_solid:add"></mat-icon>
             </button>
         </form>
 

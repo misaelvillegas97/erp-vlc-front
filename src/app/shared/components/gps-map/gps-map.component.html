@@ -12,7 +12,7 @@
                         (click)="isPlaying() ? pausePlayback() : startPlayback()"
                         [matTooltip]="isPlaying() ? 'Pausar reproducción' : 'Iniciar reproducción'"
                         class="text-blue-600 dark:text-blue-400">
-                        <mat-icon>{{ isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
+                        <mat-icon svgIcon="mat_solid:{{ isPlaying() ? 'pause' : 'play_arrow' }}"></mat-icon>
                     </button>
 
                     <button
@@ -21,7 +21,7 @@
                         (click)="stopPlayback()"
                         matTooltip="Detener reproducción"
                         class="text-red-600 dark:text-red-400">
-                        <mat-icon>stop</mat-icon>
+                        <mat-icon svgIcon="mat_solid:stop"></mat-icon>
                     </button>
                 </div>
 

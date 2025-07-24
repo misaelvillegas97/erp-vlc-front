@@ -8,6 +8,7 @@ import { MatSelectModule }                                                      
 import { MatTooltipModule }                                                                                                              from '@angular/material/tooltip';
 import { GpsGeneric }                                                                                                                    from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
 import { WebGLPathLayer }                                                                                                                from '@shared/utils/webgl-path-layer';
+import { calculateRotationBetweenPoints, createGpsDataHash, formatDateTime, interpolateGpsPoints, isValidGpsPoint }                      from '@shared/utils/gps.utils';
 
 @Component({
     selector       : 'app-gps-map',
@@ -202,7 +203,7 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
         // Create a simple hash of the GPS data to detect changes
         const currentLength = currentData.length;
-        const currentHash = this.createGpsDataHash(currentData);
+        const currentHash = createGpsDataHash(currentData);
 
         // Only update if data has actually changed
         if (currentLength !== this.lastGpsDataLength() || currentHash !== this.lastGpsDataHash()) {
@@ -218,17 +219,6 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
                 this.setupMapData();
             }
         }
-    }
-
-    private createGpsDataHash(data: GpsGeneric[]): string {
-        if (!data || data.length === 0) return '';
-
-        // Create hash based on first point, last point, and length
-        // This is efficient and catches most changes
-        const first = data[0];
-        const last = data[data.length - 1];
-
-        return `${ first.latitude }_${ first.longitude }_${ first.timestamp }_${ last.latitude }_${ last.longitude }_${ last.timestamp }_${ data.length }`;
     }
 
     private incrementalUpdateMapData(): void {
@@ -257,10 +247,10 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
                     fillOpacity : 0.8,
                     strokeColor : '#FFFFFF',
                     strokeWeight: 2,
-                    rotation    : path.length > 1 ? Math.atan2(
-                        path[path.length - 1].lat - path[path.length - 2].lat,
-                        path[path.length - 1].lng - path[path.length - 2].lng
-                    ) * (180 / Math.PI) : 0
+                    rotation: path.length > 1 ? calculateRotationBetweenPoints(
+                        {latitude: path[path.length - 2].lat, longitude: path[path.length - 2].lng} as GpsGeneric,
+                        {latitude: path[path.length - 1].lat, longitude: path[path.length - 1].lng} as GpsGeneric
+                    ) : 0
                 }
             });
         }
@@ -377,7 +367,7 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
             typeof nextPoint.longitude === 'number') {
 
             // Calculate total time for this segment
-            let segmentDuration = 1000; // Default 1 second
+            let segmentDuration: number; // Default 1 second
             if (typeof currentPoint.timestamp === 'number' &&
                 typeof nextPoint.timestamp === 'number') {
                 const timeDiff = (nextPoint.timestamp - currentPoint.timestamp) * 1000;
@@ -452,19 +442,10 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
         }
 
         // Linear interpolation between start and end points
-        const interpolatedLat = this.lerp(startPoint.latitude, endPoint.latitude, progress);
-        const interpolatedLng = this.lerp(startPoint.longitude, endPoint.longitude, progress);
-
-        const position = {
-            lat: interpolatedLat,
-            lng: interpolatedLng
-        };
+        const position = interpolateGpsPoints(startPoint, endPoint, progress);
 
         // Calculate smooth rotation based on direction of movement
-        const rotation = Math.atan2(
-            endPoint.latitude - startPoint.latitude,
-            endPoint.longitude - startPoint.longitude
-        ) * (180 / Math.PI);
+        const rotation = calculateRotationBetweenPoints(startPoint, endPoint);
 
         // Create or update animation marker with interpolated position
         this.playbackAnimationMarker.set({
@@ -490,10 +471,6 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
                 this.mapInstance().setZoom(this.playbackZoomLevel());
             }
         }
-    }
-
-    private lerp(start: number, end: number, progress: number): number {
-        return start + (end - start) * progress;
     }
 
     // Zoom control methods for playback
@@ -538,7 +515,7 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
         // Update current time display
         const currentPoint = gpsData[currentPosition];
         if (currentPoint && typeof currentPoint.timestamp === 'number') {
-            this.playbackCurrentTime.set(this.formatDateTime(currentPoint.timestamp));
+            this.playbackCurrentTime.set(formatDateTime(currentPoint.timestamp));
         }
     }
 
@@ -565,13 +542,8 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
         let rotation = 0;
         if (currentPosition > 0) {
             const prevPoint = gpsData[currentPosition - 1];
-            if (prevPoint &&
-                typeof prevPoint.latitude === 'number' &&
-                typeof prevPoint.longitude === 'number') {
-                rotation = Math.atan2(
-                    currentPoint.latitude - prevPoint.latitude,
-                    currentPoint.longitude - prevPoint.longitude
-                ) * (180 / Math.PI);
+            if (isValidGpsPoint(prevPoint)) {
+                rotation = calculateRotationBetweenPoints(prevPoint, currentPoint);
             }
         }
 
@@ -711,10 +683,10 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
                     fillOpacity : 0.8,
                     strokeColor : '#FFFFFF',
                     strokeWeight: 2,
-                    rotation: path.length > 1 ? Math.atan2(
-                        path[path.length - 1].lat - path[path.length - 2].lat,
-                        path[path.length - 1].lng - path[path.length - 2].lng
-                    ) * (180 / Math.PI) : 0 // Convert radians to degrees
+                    rotation: path.length > 1 ? calculateRotationBetweenPoints(
+                        {latitude: path[path.length - 2].lat, longitude: path[path.length - 2].lng} as GpsGeneric,
+                        {latitude: path[path.length - 1].lat, longitude: path[path.length - 1].lng} as GpsGeneric
+                    ) : 0
                 }
             });
         }
@@ -789,51 +761,4 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
         }
     }
 
-    private createInfoWindowContent(marker: any): string {
-        const point = marker.point;
-        return `
-      <div class="p-2 min-w-[200px] bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-        <p class="text-sm font-medium mb-1 text-gray-800">Punto GPS #${ marker.index + 1 }</p>
-        <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
-          <p><strong>Fecha y hora:</strong></p>
-          <p>${ this.formatDateTime(point.timestamp) }</p>
-          <p><strong>Coordenadas:</strong></p>
-          <p>${ point.latitude.toFixed(6) }, ${ point.longitude.toFixed(6) }</p>
-          <p><strong>Velocidad:</strong></p>
-          <p>${ this.formatSpeed(point.speed) }</p>
-          <p><strong>Distancia recorrida:</strong></p>
-          <p>${ this.formatDistance(point.totalDistance) }</p>
-        </div>
-      </div>
-    `;
-    }
-
-    formatDateTime(timestamp: number): string {
-        if (!timestamp) {
-            return 'N/A';
-        }
-        const date = new Date(timestamp * 1000);
-        return date.toLocaleString('es-ES', {
-            day   : '2-digit',
-            month : '2-digit',
-            year  : 'numeric',
-            hour  : '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        });
-    }
-
-    formatSpeed(speed: number | undefined): string {
-        if (speed === undefined) {
-            return 'N/A';
-        }
-        return `${ speed.toFixed(1) } km/h`;
-    }
-
-    formatDistance(distance: number | undefined): string {
-        if (distance === undefined) {
-            return 'N/A';
-        }
-        return `${ distance.toFixed(2) } km`;
-    }
 }

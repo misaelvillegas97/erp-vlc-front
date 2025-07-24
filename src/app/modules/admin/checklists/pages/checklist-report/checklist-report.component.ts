@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule }                                                         from '@angular/common';
 import { ActivatedRoute, Router, RouterModule }                                 from '@angular/router';
 
@@ -15,7 +15,6 @@ import { MatBadgeModule }       from '@angular/material/badge';
 
 import { ChecklistService }         from '../../services/checklist.service';
 import { ChecklistExecutionReport } from '../../domain/interfaces/checklist-execution.interface';
-import { ChecklistCategoryScore }   from '../../domain/interfaces/checklist-category.interface';
 import { NotyfService }             from '@shared/services/notyf.service';
 
 @Component({
@@ -65,7 +64,7 @@ import { NotyfService }             from '@shared/services/notyf.service';
               (click)="goBack()"
               matTooltip="Volver"
             >
-              <mat-icon>arrow_back</mat-icon>
+                <mat-icon svgIcon="mat_solid:arrow_back"></mat-icon>
             </button>
             <div>
               <h1 class="text-2xl font-bold text-gray-900">{{ pageTitle() }}</h1>
@@ -80,16 +79,16 @@ import { NotyfService }             from '@shared/services/notyf.service';
               [matMenuTriggerFor]="exportMenu"
               [disabled]="loading()"
             >
-              <mat-icon>download</mat-icon>
+                <mat-icon svgIcon="mat_solid:download"></mat-icon>
               Exportar
             </button>
             <mat-menu #exportMenu="matMenu">
               <button mat-menu-item (click)="exportToPDF()">
-                <mat-icon>picture_as_pdf</mat-icon>
+                  <mat-icon svgIcon="mat_solid:picture_as_pdf"></mat-icon>
                 <span>Exportar PDF</span>
               </button>
               <button mat-menu-item (click)="exportToCSV()">
-                <mat-icon>table_chart</mat-icon>
+                  <mat-icon svgIcon="mat_solid:table_chart"></mat-icon>
                 <span>Exportar CSV</span>
               </button>
             </mat-menu>
@@ -110,7 +109,7 @@ import { NotyfService }             from '@shared/services/notyf.service';
           <mat-card>
             <mat-card-header>
               <mat-card-title class="flex items-center gap-2">
-                <mat-icon>assessment</mat-icon>
+                  <mat-icon svgIcon="mat_solid:assessment"></mat-icon>
                 Resumen de Ejecución
               </mat-card-title>
             </mat-card-header>
@@ -203,7 +202,7 @@ import { NotyfService }             from '@shared/services/notyf.service';
           <mat-card>
             <mat-card-header>
               <mat-card-title class="flex items-center gap-2">
-                <mat-icon>category</mat-icon>
+                  <mat-icon svgIcon="mat_solid:category"></mat-icon>
                 Puntuación por Categoría
               </mat-card-title>
             </mat-card-header>
@@ -243,7 +242,7 @@ import { NotyfService }             from '@shared/services/notyf.service';
           <mat-card>
             <mat-card-header>
               <mat-card-title class="flex items-center gap-2">
-                <mat-icon>quiz</mat-icon>
+                  <mat-icon svgIcon="mat_solid:quiz"></mat-icon>
                 Respuestas Detalladas
               </mat-card-title>
             </mat-card-header>
@@ -253,7 +252,7 @@ import { NotyfService }             from '@shared/services/notyf.service';
                 @for (categoryResponse of reportData()?.execution.categoryResponses; track categoryResponse.categoryId) {
                   <div class="border rounded-lg p-4">
                     <h4 class="font-medium mb-4 flex items-center gap-2">
-                      <mat-icon>folder</mat-icon>
+                        <mat-icon svgIcon="mat_solid:folder"></mat-icon>
                       {{ getCategoryTitle(categoryResponse.categoryId) }}
                     </h4>
                     
@@ -328,7 +327,7 @@ import { NotyfService }             from '@shared/services/notyf.service';
             <mat-card>
               <mat-card-header>
                 <mat-card-title class="flex items-center gap-2">
-                  <mat-icon>note</mat-icon>
+                    <mat-icon svgIcon="mat_solid:note"></mat-icon>
                   Observaciones y Recomendaciones
                 </mat-card-title>
               </mat-card-header>

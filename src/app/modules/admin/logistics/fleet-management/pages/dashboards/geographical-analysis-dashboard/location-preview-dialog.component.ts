@@ -26,7 +26,7 @@ export interface LocationPreviewDialogData {
         <div mat-dialog-title class="flex items-center py-2">
             <h2 class="text-xl font-semibold">Vista previa de ubicación</h2>
             <button mat-icon-button mat-dialog-close class="ml-auto" aria-label="Cerrar diálogo">
-                <mat-icon>close</mat-icon>
+                <mat-icon svgIcon="mat_solid:close"></mat-icon>
             </button>
         </div>
         <mat-dialog-content>

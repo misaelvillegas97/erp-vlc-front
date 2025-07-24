@@ -51,7 +51,7 @@
                             @if (activeSessions().length > 1) {
                                 <button mat-button [matMenuTriggerFor]="sessionMenu" color="primary">
                                     Cambiar sesión
-                                    <mat-icon>arrow_drop_down</mat-icon>
+                                    <mat-icon svgIcon="mat_solid:arrow_drop_down"></mat-icon>
                                 </button>
                                 <mat-menu #sessionMenu="matMenu">
                                     @for (session of activeSessions(); track session.id) {

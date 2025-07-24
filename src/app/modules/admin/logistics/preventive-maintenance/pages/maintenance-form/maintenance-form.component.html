@@ -167,7 +167,7 @@
                                 </mat-form-field>
 
                                 <button mat-icon-button color="warn" type="button" (click)="removePart(i)" matTooltip="Eliminar parte">
-                                    <mat-icon>delete</mat-icon>
+                                    <mat-icon svgIcon="mat_solid:delete"></mat-icon>
                                 </button>
                             </div>
                         </div>
@@ -178,7 +178,7 @@
 
                         <div class="flex justify-center mt-4">
                             <button mat-stroked-button color="primary" type="button" (click)="addPart()">
-                                <mat-icon>add</mat-icon>
+                                <mat-icon svgIcon="mat_solid:add"></mat-icon>
                                 Agregar Parte
                             </button>
                         </div>
@@ -199,13 +199,13 @@
 
                     <div formArrayName="documents" class="mt-4">
                         <div *ngFor="let doc of documentsArray.controls; let i = index" [formGroupName]="i" class="flex items-center gap-4 mb-2 p-2 border rounded">
-                            <mat-icon>description</mat-icon>
+                            <mat-icon svgIcon="mat_solid:description"></mat-icon>
                             <div class="flex-1">
                                 <div class="font-medium">{{ doc.get('name')?.value }}</div>
                                 <a [href]="doc.get('url')?.value" target="_blank" class="text-sm text-blue-600 hover:underline">Ver documento</a>
                             </div>
                             <button mat-icon-button color="warn" type="button" (click)="removeDocument(i)" matTooltip="Eliminar documento">
-                                <mat-icon>delete</mat-icon>
+                                <mat-icon svgIcon="mat_solid:delete"></mat-icon>
                             </button>
                         </div>
 

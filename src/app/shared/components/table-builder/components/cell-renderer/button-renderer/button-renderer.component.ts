@@ -24,7 +24,7 @@ import { NgIf, NgSwitch, NgSwitchCase }              from '@angular/common';
                     [color]="buttonColor"
                     [matTooltip]="tooltip || ''"
                     (click)="onClick && onClick()">
-                <mat-icon>{{ buttonIcon }}</mat-icon>
+                <mat-icon svgIcon="mat_solid:{{ buttonIcon }}"></mat-icon>
             </button>
 
             <!-- FAB button -->

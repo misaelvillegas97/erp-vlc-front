@@ -35,7 +35,7 @@
                 <!-- Botones de acción -->
                 <div class="flex items-end justify-end gap-2">
                     <button mat-raised-button color="primary" (click)="reloadData()">
-                        <mat-icon>search</mat-icon>
+                        <mat-icon svgIcon="mat_solid:search"></mat-icon>
                         Aplicar filtros
                     </button>
                     <button mat-button color="warn" (click)="clearFilters()">
@@ -139,7 +139,7 @@
                                                         (click)="openLocationPreviewDialog(area.latitude, area.longitude)"
                                                         matTooltip="Ver vista previa de ubicación"
                                                     >
-                                                        <mat-icon>visibility</mat-icon>
+                                                        <mat-icon svgIcon="mat_solid:visibility"></mat-icon>
                                                     </button>
                                                 </div>
                                             </td>
@@ -150,7 +150,7 @@
                                                     (click)="openGoogleMaps(area.latitude, area.longitude)"
                                                     matTooltip="Ver en Google Maps"
                                                 >
-                                                    <mat-icon>map</mat-icon>
+                                                    <mat-icon svgIcon="mat_solid:map"></mat-icon>
                                                 </button>
                                             </td>
                                         </tr>

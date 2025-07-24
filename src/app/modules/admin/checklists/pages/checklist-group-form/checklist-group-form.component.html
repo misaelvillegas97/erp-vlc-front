@@ -94,7 +94,7 @@
                         <mat-icon class="text-gray-400 text-4xl mb-2">assignment</mat-icon>
                         <p class="mat-hint mb-4">No hay plantillas disponibles</p>
                         <button mat-button color="primary" routerLink="../../templates/new">
-                            <mat-icon>add</mat-icon>
+                            <mat-icon svgIcon="mat_solid:add"></mat-icon>
                             Crear Plantilla
                         </button>
                     </div>
@@ -183,7 +183,7 @@
                     color="primary"
                     type="submit"
                     [disabled]="!canSubmit()">
-                    <mat-icon>{{ isEditMode() ? 'save' : 'add' }}</mat-icon>
+                    <mat-icon svgIcon="mat_solid:{{isEditMode() ? 'save' : 'add'}}"></mat-icon>
                     {{ isEditMode() ? 'Actualizar Grupo' : 'Crear Grupo' }}
                 </button>
             </div>
