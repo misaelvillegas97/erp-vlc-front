@@ -70,6 +70,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
     session = signal<VehicleSession | null>(null);
     sessionId = signal<string>('');
     showSpeedsInPdf = signal(false);
+    playbackMode = signal(false);
 
     // Theme state for PDF export
     private originalThemeState: boolean = false;
@@ -205,6 +206,10 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
         } else {
             this.router.navigate([ '/logistics/fleet-management/history' ]);
         }
+    }
+
+    togglePlaybackMode(): void {
+        this.playbackMode.set(!this.playbackMode());
     }
 
     /**

@@ -1,6 +1,11 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, computed, input, OnChanges, OnDestroy, signal, SimpleChanges, viewChildren } from '@angular/core';
 import { CommonModule }                                                                                                                  from '@angular/common';
 import { GoogleMapsModule, MapInfoWindow }                                                                                               from '@angular/google-maps';
+import { MatButtonModule }                                                                                                               from '@angular/material/button';
+import { MatIconModule }                                                                                                                 from '@angular/material/icon';
+import { MatSliderModule }                                                                                                               from '@angular/material/slider';
+import { MatSelectModule }                                                                                                               from '@angular/material/select';
+import { MatTooltipModule }                                                                                                              from '@angular/material/tooltip';
 import { GpsGeneric }                                                                                                                    from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
 import { WebGLPathLayer }                                                                                                                from '@shared/utils/webgl-path-layer';
 
@@ -9,7 +14,12 @@ import { WebGLPathLayer }                                                       
     standalone     : true,
     imports        : [
         CommonModule,
-        GoogleMapsModule
+        GoogleMapsModule,
+        MatButtonModule,
+        MatIconModule,
+        MatSliderModule,
+        MatSelectModule,
+        MatTooltipModule
     ],
     templateUrl    : './gps-map.component.html',
     styleUrls      : [ './gps-map.component.scss' ],
@@ -22,6 +32,7 @@ import { WebGLPathLayer }                                                       
 export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     gpsData = input<GpsGeneric[]>();
     isActive = input<boolean>(false);
+    playbackMode = input<boolean>(false);
 
     // Map signals
     mapInstance = signal<google.maps.Map | null>(null);
@@ -39,6 +50,33 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     // WebGL layer for complex routes
     private webGLPathLayer: WebGLPathLayer | null = null;
+
+    // Optimization signals
+    private lastGpsDataLength = signal<number>(0);
+    private lastGpsDataHash = signal<string>('');
+    private userInteracting = signal<boolean>(false);
+    private mapInitialized = signal<boolean>(false);
+    private isFirstDataLoad = signal<boolean>(true);
+
+    // Playback signals
+    isPlaying = signal<boolean>(false);
+    playbackPosition = signal<number>(0); // Current index in GPS data array
+    playbackSpeed = signal<number>(1); // Speed multiplier (1x, 2x, 5x, etc.)
+    playbackProgress = signal<number>(0); // Progress percentage (0-100)
+    playbackCurrentTime = signal<string>(''); // Current timestamp being shown
+    playbackAnimationMarker = signal<any>(null);
+    private playbackTimer: any = null;
+
+    // Smooth interpolation signals
+    private interpolationProgress = signal<number>(0); // Progress between two GPS points (0-1)
+    private interpolationStartPoint = signal<any>(null); // Starting GPS point for interpolation
+    private interpolationEndPoint = signal<any>(null); // Ending GPS point for interpolation
+    private interpolationTimer: any = null;
+
+    // Zoom control signals for playback
+    private originalZoomLevel = signal<number | null>(null); // Original zoom level before playback
+    private playbackZoomLevel = signal<number>(15); // Optimal zoom level for playback viewing
+    private isPlaybackZoomActive = signal<boolean>(false); // Whether playback zoom is currently active
 
     infoWindows = viewChildren(MapInfoWindow);
 
@@ -112,18 +150,454 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['gpsData'] && !changes['gpsData'].firstChange) {
-            this.setupMapData();
+            this.updateMapDataIfNeeded();
+        }
+
+        // Handle playback mode changes
+        if (changes['playbackMode'] && !changes['playbackMode'].firstChange) {
+            const currentPlaybackMode = changes['playbackMode'].currentValue;
+            const previousPlaybackMode = changes['playbackMode'].previousValue;
+
+            // If playback mode was turned off, restore original zoom and stop playback
+            if (previousPlaybackMode && !currentPlaybackMode) {
+                this.stopPlayback();
+                this.restoreOriginalZoom();
+            }
         }
     }
 
     ngOnDestroy(): void {
         this.cleanupMarkers();
+        this.stopPlayback();
+        this.stopInterpolation();
+
+        // Restore original zoom level if playback zoom is active
+        if (this.isPlaybackZoomActive()) {
+            this.restoreOriginalZoom();
+        }
     }
 
     onMapInitialized(map: google.maps.Map): void {
         this.mapInstance.set(map);
+        this.mapInitialized.set(true);
+
+        // Add event listeners to track user interactions
+        map.addListener('dragstart', () => this.userInteracting.set(true));
+        map.addListener('dragend', () => setTimeout(() => this.userInteracting.set(false), 1000));
+        map.addListener('zoom_changed', () => {
+            this.userInteracting.set(true);
+            setTimeout(() => this.userInteracting.set(false), 2000);
+        });
+        
         if (this.gpsData()?.length > 0) {
             this.setupMapData();
+        }
+    }
+
+    private updateMapDataIfNeeded(): void {
+        const currentData = this.gpsData();
+        if (!currentData || currentData.length === 0) {
+            return;
+        }
+
+        // Create a simple hash of the GPS data to detect changes
+        const currentLength = currentData.length;
+        const currentHash = this.createGpsDataHash(currentData);
+
+        // Only update if data has actually changed
+        if (currentLength !== this.lastGpsDataLength() || currentHash !== this.lastGpsDataHash()) {
+            const previousLength = this.lastGpsDataLength();
+
+            this.lastGpsDataLength.set(currentLength);
+            this.lastGpsDataHash.set(currentHash);
+
+            // If only new points were added (common case), use incremental update
+            if (currentLength > previousLength && this.mapInitialized() && previousLength > 0) {
+                this.incrementalUpdateMapData();
+            } else {
+                this.setupMapData();
+            }
+        }
+    }
+
+    private createGpsDataHash(data: GpsGeneric[]): string {
+        if (!data || data.length === 0) return '';
+
+        // Create hash based on first point, last point, and length
+        // This is efficient and catches most changes
+        const first = data[0];
+        const last = data[data.length - 1];
+
+        return `${ first.latitude }_${ first.longitude }_${ first.timestamp }_${ last.latitude }_${ last.longitude }_${ last.timestamp }_${ data.length }`;
+    }
+
+    private incrementalUpdateMapData(): void {
+        if (!this.gpsData() || this.gpsData().length === 0 || !this.mapInstance()) {
+            return;
+        }
+
+        const path = this.gpsData().map(point => ({
+            lat: point.latitude,
+            lng: point.longitude
+        }));
+
+        // Update polyline path
+        this.polylinePath.set(path);
+
+        // Update current position marker if active
+        if (this.isActive()) {
+            const lastPosition = path[path.length - 1];
+            this.currentPositionMarker.set({
+                position: lastPosition,
+                title   : 'Ubicación actual',
+                icon    : {
+                    path        : google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                    scale       : 8,
+                    fillColor   : '#34A853',
+                    fillOpacity : 0.8,
+                    strokeColor : '#FFFFFF',
+                    strokeWeight: 2,
+                    rotation    : path.length > 1 ? Math.atan2(
+                        path[path.length - 1].lat - path[path.length - 2].lat,
+                        path[path.length - 1].lng - path[path.length - 2].lng
+                    ) * (180 / Math.PI) : 0
+                }
+            });
+        }
+
+        // Don't call fitBounds to preserve user's zoom/pan
+    }
+
+    // Playback control methods
+    startPlayback(): void {
+        if (!this.playbackMode() || !this.gpsData() || this.gpsData().length === 0) {
+            return;
+        }
+
+        // Store original zoom level and set playback zoom
+        this.setPlaybackZoom();
+
+        this.isPlaying.set(true);
+        this.animatePlayback();
+    }
+
+    pausePlayback(): void {
+        this.isPlaying.set(false);
+        if (this.playbackTimer) {
+            clearTimeout(this.playbackTimer);
+            this.playbackTimer = null;
+        }
+        // Stop interpolation when pausing
+        this.stopInterpolation();
+    }
+
+    stopPlayback(): void {
+        this.isPlaying.set(false);
+        this.playbackPosition.set(0);
+        this.playbackProgress.set(0);
+        this.playbackCurrentTime.set('');
+
+        if (this.playbackTimer) {
+            clearTimeout(this.playbackTimer);
+            this.playbackTimer = null;
+        }
+
+        // Stop interpolation
+        this.stopInterpolation();
+
+        // Restore original zoom level
+        this.restoreOriginalZoom();
+
+        // Remove animation marker
+        this.playbackAnimationMarker.set(null);
+
+        // Reset to show full route
+        if (this.playbackMode()) {
+            this.setupMapData();
+        }
+    }
+
+    private stopInterpolation(): void {
+        if (this.interpolationTimer) {
+            clearTimeout(this.interpolationTimer);
+            this.interpolationTimer = null;
+        }
+        this.interpolationProgress.set(0);
+        this.interpolationStartPoint.set(null);
+        this.interpolationEndPoint.set(null);
+    }
+
+    setPlaybackSpeed(speed: number): void {
+        this.playbackSpeed.set(speed);
+    }
+
+    setPlaybackPosition(position: number): void {
+        const gpsData = this.gpsData();
+        if (!gpsData || gpsData.length === 0 || position < 0 || position >= gpsData.length) {
+            return;
+        }
+
+        // Additional validation to ensure the GPS point at this position exists and has required properties
+        const gpsPoint = gpsData[position];
+        if (!gpsPoint || typeof gpsPoint.latitude !== 'number' || typeof gpsPoint.longitude !== 'number') {
+            console.warn(`Invalid GPS data at position ${ position }:`, gpsPoint);
+            return;
+        }
+
+        // Stop any ongoing interpolation when manually setting position
+        this.stopInterpolation();
+
+        this.playbackPosition.set(position);
+        this.updatePlaybackProgress();
+        this.updatePlaybackMarker();
+    }
+
+    private animatePlayback(): void {
+        if (!this.isPlaying() || !this.gpsData() || this.gpsData().length === 0) {
+            return;
+        }
+
+        const currentPosition = this.playbackPosition();
+        const gpsData = this.gpsData();
+
+        if (currentPosition >= gpsData.length - 1) {
+            // Playback finished
+            this.stopPlayback();
+            return;
+        }
+
+        // Start smooth interpolation to next point
+        const currentPoint = gpsData[currentPosition];
+        const nextPoint = gpsData[currentPosition + 1];
+
+        if (currentPoint && nextPoint &&
+            typeof currentPoint.latitude === 'number' &&
+            typeof currentPoint.longitude === 'number' &&
+            typeof nextPoint.latitude === 'number' &&
+            typeof nextPoint.longitude === 'number') {
+
+            // Calculate total time for this segment
+            let segmentDuration = 1000; // Default 1 second
+            if (typeof currentPoint.timestamp === 'number' &&
+                typeof nextPoint.timestamp === 'number') {
+                const timeDiff = (nextPoint.timestamp - currentPoint.timestamp) * 1000;
+                segmentDuration = Math.max(500, timeDiff / this.playbackSpeed()); // Minimum 500ms
+            } else {
+                segmentDuration = Math.max(500, 1000 / this.playbackSpeed());
+            }
+
+            // Start smooth interpolation
+            this.startSmoothInterpolation(currentPoint, nextPoint, segmentDuration, () => {
+                // Callback when interpolation is complete
+                this.playbackPosition.set(currentPosition + 1);
+                this.updatePlaybackProgress();
+
+                // Continue to next segment
+                this.playbackTimer = setTimeout(() => {
+                    this.animatePlayback();
+                }, 50); // Small delay before next segment
+            });
+        } else {
+            // Fallback to instant movement if data is invalid
+            this.playbackPosition.set(currentPosition + 1);
+            this.updatePlaybackProgress();
+            this.updatePlaybackMarker();
+
+            this.playbackTimer = setTimeout(() => {
+                this.animatePlayback();
+            }, 1000 / this.playbackSpeed());
+        }
+    }
+
+    private startSmoothInterpolation(startPoint: any, endPoint: any, duration: number, onComplete: () => void): void {
+        this.stopInterpolation(); // Stop any existing interpolation
+
+        this.interpolationStartPoint.set(startPoint);
+        this.interpolationEndPoint.set(endPoint);
+        this.interpolationProgress.set(0);
+
+        const startTime = Date.now();
+        const interpolationStep = 16; // ~60fps (16ms per frame)
+
+        const animate = () => {
+            if (!this.isPlaying()) {
+                return; // Stop if playback was paused
+            }
+
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            this.interpolationProgress.set(progress);
+            this.updateSmoothPlaybackMarker();
+
+            if (progress >= 1) {
+                // Interpolation complete
+                onComplete();
+            } else {
+                // Continue interpolation
+                this.interpolationTimer = setTimeout(animate, interpolationStep);
+            }
+        };
+
+        animate();
+    }
+
+    private updateSmoothPlaybackMarker(): void {
+        const startPoint = this.interpolationStartPoint();
+        const endPoint = this.interpolationEndPoint();
+        const progress = this.interpolationProgress();
+
+        if (!startPoint || !endPoint) {
+            return;
+        }
+
+        // Linear interpolation between start and end points
+        const interpolatedLat = this.lerp(startPoint.latitude, endPoint.latitude, progress);
+        const interpolatedLng = this.lerp(startPoint.longitude, endPoint.longitude, progress);
+
+        const position = {
+            lat: interpolatedLat,
+            lng: interpolatedLng
+        };
+
+        // Calculate smooth rotation based on direction of movement
+        const rotation = Math.atan2(
+            endPoint.latitude - startPoint.latitude,
+            endPoint.longitude - startPoint.longitude
+        ) * (180 / Math.PI);
+
+        // Create or update animation marker with interpolated position
+        this.playbackAnimationMarker.set({
+            position: position,
+            title   : `Reproducción - Punto ${ this.playbackPosition() + 1 }`,
+            icon    : {
+                path        : google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                scale       : 10,
+                fillColor   : '#FF6B35',
+                fillOpacity : 1,
+                strokeColor : '#FFFFFF',
+                strokeWeight: 2,
+                rotation    : rotation
+            }
+        });
+
+        // Smoothly pan map to follow the marker and maintain optimal zoom
+        if (this.mapInstance()) {
+            this.mapInstance().panTo(position);
+
+            // Ensure zoom level remains optimal during playback
+            if (this.isPlaybackZoomActive() && this.mapInstance().getZoom() !== this.playbackZoomLevel()) {
+                this.mapInstance().setZoom(this.playbackZoomLevel());
+            }
+        }
+    }
+
+    private lerp(start: number, end: number, progress: number): number {
+        return start + (end - start) * progress;
+    }
+
+    // Zoom control methods for playback
+    private setPlaybackZoom(): void {
+        if (!this.mapInstance()) {
+            return;
+        }
+
+        // Store the current zoom level if not already stored
+        if (this.originalZoomLevel() === null) {
+            const currentZoom = this.mapInstance().getZoom();
+            this.originalZoomLevel.set(currentZoom || 10); // Default to 10 if getZoom returns undefined
+        }
+
+        // Set the optimal zoom level for playback
+        this.mapInstance().setZoom(this.playbackZoomLevel());
+        this.isPlaybackZoomActive.set(true);
+    }
+
+    private restoreOriginalZoom(): void {
+        if (!this.mapInstance() || this.originalZoomLevel() === null) {
+            return;
+        }
+
+        // Restore the original zoom level
+        this.mapInstance().setZoom(this.originalZoomLevel()!);
+        this.isPlaybackZoomActive.set(false);
+        this.originalZoomLevel.set(null); // Reset for next playback session
+    }
+
+    private updatePlaybackProgress(): void {
+        const gpsData = this.gpsData();
+        const currentPosition = this.playbackPosition();
+
+        if (!gpsData || gpsData.length === 0 || currentPosition < 0 || currentPosition >= gpsData.length) {
+            return;
+        }
+
+        const progress = (currentPosition / (gpsData.length - 1)) * 100;
+        this.playbackProgress.set(Math.min(100, Math.max(0, progress)));
+
+        // Update current time display
+        const currentPoint = gpsData[currentPosition];
+        if (currentPoint && typeof currentPoint.timestamp === 'number') {
+            this.playbackCurrentTime.set(this.formatDateTime(currentPoint.timestamp));
+        }
+    }
+
+    private updatePlaybackMarker(): void {
+        const gpsData = this.gpsData();
+        const currentPosition = this.playbackPosition();
+
+        if (!gpsData || gpsData.length === 0 || currentPosition < 0 || currentPosition >= gpsData.length) {
+            return;
+        }
+
+        const currentPoint = gpsData[currentPosition];
+        if (!currentPoint || typeof currentPoint.latitude !== 'number' || typeof currentPoint.longitude !== 'number') {
+            console.warn(`Invalid GPS data at position ${ currentPosition }:`, currentPoint);
+            return;
+        }
+
+        const position = {
+            lat: currentPoint.latitude,
+            lng: currentPoint.longitude
+        };
+
+        // Calculate rotation based on direction of movement
+        let rotation = 0;
+        if (currentPosition > 0) {
+            const prevPoint = gpsData[currentPosition - 1];
+            if (prevPoint &&
+                typeof prevPoint.latitude === 'number' &&
+                typeof prevPoint.longitude === 'number') {
+                rotation = Math.atan2(
+                    currentPoint.latitude - prevPoint.latitude,
+                    currentPoint.longitude - prevPoint.longitude
+                ) * (180 / Math.PI);
+            }
+        }
+
+        // Create or update animation marker
+        this.playbackAnimationMarker.set({
+            position: position,
+            title   : `Reproducción - Punto ${ currentPosition + 1 }`,
+            icon    : {
+                path        : google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                scale       : 10,
+                fillColor   : '#FF6B35',
+                fillOpacity : 1,
+                strokeColor : '#FFFFFF',
+                strokeWeight: 2,
+                rotation    : rotation
+            }
+        });
+
+        // Center map on current position during playback and maintain optimal zoom
+        if (this.mapInstance()) {
+            this.mapInstance().panTo(position);
+
+            // Ensure zoom level remains optimal during playback
+            if (this.isPlaybackZoomActive() && this.mapInstance().getZoom() !== this.playbackZoomLevel()) {
+                this.mapInstance().setZoom(this.playbackZoomLevel());
+            }
         }
     }
 
@@ -214,7 +688,7 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
         });
 
         // Create end marker if session is completed
-        if (!this.isActive) {
+        if (!this.isActive()) {
             this.endMarker.set({
                 position: lastPosition,
                 title   : 'Fin',
@@ -226,7 +700,7 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
         }
 
         // Create current position marker if session is active
-        if (this.isActive) {
+        if (this.isActive()) {
             this.currentPositionMarker.set({
                 position: lastPosition,
                 title   : 'Ubicación actual',
@@ -237,10 +711,10 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
                     fillOpacity : 0.8,
                     strokeColor : '#FFFFFF',
                     strokeWeight: 2,
-                    rotation    : Math.atan2(
+                    rotation: path.length > 1 ? Math.atan2(
                         path[path.length - 1].lat - path[path.length - 2].lat,
                         path[path.length - 1].lng - path[path.length - 2].lng
-                    ) * (180 / Math.PI) // Convert radians to degrees
+                    ) * (180 / Math.PI) : 0 // Convert radians to degrees
                 }
             });
         }
@@ -281,11 +755,21 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
         this.gpsMarkers.set(gpsMarkerData);
 
-        // Fit bounds to show all markers
-        if (this.mapInstance()) {
+        // Only fit bounds if user is not interacting with the map and it's the first data load
+        if (this.mapInstance() && !this.userInteracting() && this.isFirstDataLoad()) {
             const bounds = new google.maps.LatLngBounds();
             path.forEach(point => bounds.extend(point));
             this.mapInstance().fitBounds(bounds);
+            this.isFirstDataLoad.set(false);
+        } else if (this.mapInstance() && this.mapCenter().lat === 0 && this.mapCenter().lng === 0) {
+            // Set initial center if not set yet, but don't change zoom
+            this.mapCenter.set(path[path.length - 1]);
+            this.mapInstance().setCenter(this.mapCenter());
+        }
+
+        // Mark as no longer first data load if it was
+        if (this.isFirstDataLoad()) {
+            this.isFirstDataLoad.set(false);
         }
     }
 

@@ -1040,6 +1040,7 @@
 /*  @ Inputs
 /* -------------------------------------------------------------------------- */
 .mat-mdc-input-element {
+    font-size: .75rem !important;
 
     &::placeholder {
         transition: none !important;
