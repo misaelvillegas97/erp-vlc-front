@@ -28,10 +28,6 @@
 
 // Custom color tokens for light and dark themes
 $light-custom-tokens: (
-    --mat-sys-surface: #ddd,
-    --mat-sys-surface-variant: #f1f5f9,
-    --mat-sys-on-surface: #1e293b,
-    --mat-sys-on-surface-variant: #334155,
     --mat-app-background-color: #f1f5f9,
     --mat-app-surface-color: #ddd,
     --mat-app-text-color: #1e293b,
@@ -46,10 +42,6 @@ $light-custom-tokens: (
 );
 
 $dark-custom-tokens: (
-    --mat-sys-surface: #1e293b,
-    --mat-sys-surface-variant: #334155,
-    --mat-sys-on-surface: #ddd,
-    --mat-sys-on-surface-variant: #cbd5e1,
     --mat-app-background-color: #0f172a,
     --mat-app-surface-color: #1e293b,
     --mat-app-text-color: #dddddd,
@@ -59,8 +51,8 @@ $dark-custom-tokens: (
     --mat-dialog-container-color: #1e293b,
     --mat-sidenav-container-color: #1e293b,
     --mat-toolbar-container-color: #0f172a,
-    //--mat-card-elevated-container-color: #1e293b,
-    //--mat-table-background-color: #1e293b
+    --mat-card-elevated-container-color: #1e293b,
+    --mat-table-background-color: #1e293b
 );
 
 @each $theme-name, $theme in userThemes.$user-themes {
