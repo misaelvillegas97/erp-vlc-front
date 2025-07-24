@@ -2,235 +2,154 @@
 @use '@angular/material' as mat;
 @use 'user-themes' as userThemes;
 
-/* Set the base colors for light themes */
-$light-base: (
-  foreground: (
-    base: #000000,
-    divider: #e2e8f0,
-    /* slate.200 */ dividers: #e2e8f0,
-    /* slate.200 */ disabled: #94a3b8,
-    /* slate.400 */ disabled-button: #94a3b8,
-    /* slate.400 */ disabled-text: #94a3b8,
-    /* slate.400 */ elevation: #000000,
-    hint-text: #94a3b8,
-    /* slate.400 */ secondary-text: #64748b,
-    /* slate.500 */ icon: #64748b,
-    /* slate.500 */ icons: #64748b,
-    /* slate.500 */ mat-icon: #64748b,
-    /* slate.500 */ text: #1e293b,
-    /* slate.800 */ slider-min: #1e293b,
-    /* slate.800 */ slider-off: #cbd5e1,
-    /* slate.300 */ slider-off-active: #94a3b8 /* slate.400 */,
-  ),
-  background: (
-    status-bar: #cbd5e1,
-    /* slate.300 */ app-bar: #ffffff,
-    background: #f1f5f9,
-    /* slate.100 */ hover: rgba(148, 163, 184, 0.12),
-    /* slate.400 + opacity */ card: #ffffff,
-    dialog: #ffffff,
-    disabled-button: rgba(148, 163, 184, 0.38),
-    /* slate.400 + opacity */ raised-button: #ffffff,
-    focused-button: #64748b,
-    /* slate.500 */ selected-button: #e2e8f0,
-    /* slate.200 */ selected-disabled-button: #e2e8f0,
-    /* slate.200 */ disabled-button-toggle: #cbd5e1,
-    /* slate.300 */ unselected-chip: #e2e8f0,
-    /* slate.200 */ disabled-list-option: #cbd5e1,
-    /* slate.300 */ tooltip: #1e293b /* slate.800 */,
-  ),
-);
-
-/* Set the base colors for dark themes */
-$dark-base: (
-  foreground: (
-      base: #DDDDDD,
-    divider: rgba(241, 245, 249, 0.12),
-    /* slate.100 + opacity */ dividers: rgba(241, 245, 249, 0.12),
-    /* slate.100 + opacity */ disabled: #475569,
-    /* slate.600 */ disabled-button: #1e293b,
-    /* slate.800 */ disabled-text: #475569,
-    /* slate.600 */ elevation: #000000,
-    hint-text: #64748b,
-    /* slate.500 */ secondary-text: #94a3b8,
-    /* slate.400 */ icon: #f1f5f9,
-    /* slate.100 */ icons: #f1f5f9,
-    /* slate.100 */ mat-icon: #94a3b8,
-    /* slate.400 */ text: #ffffff,
-    slider-min: #ffffff,
-    slider-off: #64748b,
-    /* slate.500 */ slider-off-active: #94a3b8 /* slate.400 */,
-  ),
-  background: (
-    status-bar: #0f172a,
-    /* slate.900 */ app-bar: #0f172a,
-    /* slate.900 */ background: #0f172a,
-    /* slate.900 */ hover: rgba(255, 255, 255, 0.05),
-    card: #1e293b,
-    /* slate.800 */ dialog: #1e293b,
-    /* slate.800 */ disabled-button: rgba(15, 23, 42, 0.38),
-    /* slate.900 + opacity */ raised-button: #0f172a,
-    /* slate.900 */ focused-button: #e2e8f0,
-    /* slate.200 */ selected-button: rgba(255, 255, 255, 0.05),
-    selected-disabled-button: #1e293b,
-    /* slate.800 */ disabled-button-toggle: #0f172a,
-    /* slate.900 */ unselected-chip: #475569,
-    /* slate.600 */ disabled-list-option: #e2e8f0,
-    /* slate.200 */ tooltip: #64748b /* slate.500 */,
-  ),
-);
-
-/* Include the core Angular Material styles */
+// Include the core Angular Material styles
 @include mat.core();
 
-/* Create a base theme without any color to set the density and typography */
-@include mat.all-component-themes(
-    (
-      color: null,
-      density: 0,
-      typography:
-      mat.m2-define-typography-config(
-        $font-family: theme('fontFamily.sans'),
-        $headline-1: mat.m2-define-typography-level(
-            1.875rem,
-            2.25rem,
-            800,
-            theme('fontFamily.sans')
-        ),
-        $headline-2: mat.m2-define-typography-level(
-            1.25rem,
-            1.75rem,
-            700,
-            theme('fontFamily.sans')
-        ),
-        $headline-3: mat.m2-define-typography-level(
-            1.125rem,
-            1.75rem,
-            600,
-            theme('fontFamily.sans')
-        ),
-        $headline-4: mat.m2-define-typography-level(
-            0.875rem,
-            1.25rem,
-            600,
-            theme('fontFamily.sans')
-        ),
-        $headline-5: mat.m2-define-typography-level(
-            0.875rem,
-            1.5rem,
-            400,
-            theme('fontFamily.sans')
-        ),
-        $headline-6: mat.m2-define-typography-level(
-            0.875rem,
-            1.5rem,
-            400,
-            theme('fontFamily.sans')
-        ),
-        $subtitle-1: mat.m2-define-typography-level(
-            1rem,
-            1.75rem,
-            400,
-            theme('fontFamily.sans')
-        ),
-        $subtitle-2: mat.m2-define-typography-level(
-            0.875rem,
-            1.25rem,
-            600,
-            theme('fontFamily.sans')
-        ),
-        $body-1: mat.m2-define-typography-level(
-            0.875rem,
-            1.5rem,
-            400,
-            theme('fontFamily.sans')
-        ),
-        $body-2: mat.m2-define-typography-level(
-            0.875rem,
-            1.5rem,
-            400,
-            theme('fontFamily.sans')
-        ),
-        $caption: mat.m2-define-typography-level(
-            0.75rem,
-            1rem,
-            400,
-            theme('fontFamily.sans')
-        ),
-        $button: mat.m2-define-typography-level(
-            0.875rem,
-            0.875rem,
-            500,
-            theme('fontFamily.sans')
-        ),
-        $overline: mat.m2-define-typography-level(
-            0.75rem,
-            2rem,
-            500,
-            theme('fontFamily.sans')
-        )
-      ),
-    )
+// Function to create M3 palette from custom color map
+@function create-m3-palette($color-map) {
+    @return (
+        0: map.get($color-map, 50),
+        10: map.get($color-map, 100),
+        20: map.get($color-map, 200),
+        25: map.get($color-map, 300),
+        30: map.get($color-map, 400),
+        40: map.get($color-map, 500),
+        50: map.get($color-map, 600),
+        60: map.get($color-map, 700),
+        70: map.get($color-map, 800),
+        80: map.get($color-map, 900),
+        90: map.get($color-map, 950),
+        95: map.get($color-map, 50),
+        98: map.get($color-map, 50),
+        99: #ffffff,
+        100: #000000,
+    );
+}
+
+// Custom color tokens for light and dark themes
+$light-custom-tokens: (
+    --mat-sys-surface: #ddd,
+    --mat-sys-surface-variant: #f1f5f9,
+    --mat-sys-on-surface: #1e293b,
+    --mat-sys-on-surface-variant: #334155,
+    --mat-app-background-color: #f1f5f9,
+    --mat-app-surface-color: #ddd,
+    --mat-app-text-color: #1e293b,
+    --mat-app-secondary-text-color: #64748b,
+    --mat-divider-color: #e2e8f0,
+    --mat-card-container-color: #ddd,
+    --mat-dialog-container-color: #ddd,
+    --mat-sidenav-container-color: #ddd,
+    --mat-toolbar-container-color: #ddd,
+    --mat-card-elevated-container-color: #ddd,
+    --mat-table-background-color: #ddd
 );
 
-/* Loop through user themes and generate Angular Material themes */
-@each $name, $theme in userThemes.$user-themes {
-  /* Generate the palettes */
-  $palettes: ();
-  @each $name in (primary, accent, warn) {
-    /* Define the Angular Material theme */
-    $palette: mat.m2-define-palette(map.get($theme, $name));
+$dark-custom-tokens: (
+    --mat-sys-surface: #1e293b,
+    --mat-sys-surface-variant: #334155,
+    --mat-sys-on-surface: #ddd,
+    --mat-sys-on-surface-variant: #cbd5e1,
+    --mat-app-background-color: #0f172a,
+    --mat-app-surface-color: #1e293b,
+    --mat-app-text-color: #dddddd,
+    --mat-app-secondary-text-color: #64748b,
+    --mat-divider-color: rgba(241, 245, 249, 0.12),
+    --mat-card-container-color: #1e293b,
+    --mat-dialog-container-color: #1e293b,
+    --mat-sidenav-container-color: #1e293b,
+    --mat-toolbar-container-color: #0f172a,
+    //--mat-card-elevated-container-color: #1e293b,
+    //--mat-table-background-color: #1e293b
+);
 
-    /* Replace the default colors on the defined Material palette */
-    $palette: map.merge(
-        $palette,
-        (
-          default: map.get(map.get($theme, $name), DEFAULT),
-          lighter: map.get(map.get($theme, $name), 100),
-          darker: map.get(map.get($theme, $name), 700),
-          text: map.get(map.get($theme, $name), DEFAULT),
-          default-contrast:
-          map.get(map.get(map.get($theme, $name), contrast), DEFAULT),
-          lighter-contrast:
-          map.get(map.get(map.get($theme, $name), contrast), 100),
-          darker-contrast:
-          map.get(map.get(map.get($theme, $name), contrast), 700),
+@each $theme-name, $theme in userThemes.$user-themes {
+    // Extract color palettes from user theme
+    $primary-colors: map.get($theme, primary);
+    $accent-colors: map.get($theme, accent);
+    $warn-colors: map.get($theme, warn);
+
+    // Create M3 themes using built-in palettes as base
+    $light-theme: mat.define-theme((
+        color: (
+            theme-type: light,
+            primary: mat.$azure-palette,
+            tertiary: mat.$blue-palette,
+        ),
+        typography: (
+            brand-family: theme('fontFamily.sans'),
+            plain-family: theme('fontFamily.sans'),
+        ),
+        density: (
+            scale: 0
         )
-    );
+    ));
 
-    $palettes: map.merge($palettes, (#{$name}: $palette));
-  }
+    $dark-theme: mat.define-theme((
+        color: (
+            theme-type: dark,
+            primary: mat.$azure-palette,
+            tertiary: mat.$blue-palette,
+        ),
+        typography: (
+            brand-family: theme('fontFamily.sans'),
+            plain-family: theme('fontFamily.sans'),
+        ),
+        density: (
+            scale: 0
+        )
+    ));
 
-  /* Define a light & dark Angular Material theme with the generated palettes */
-    $light-theme: mat.m2-define-light-theme((color: $palettes));
+    // Apply themes with selectors and custom color overrides
+    #{map.get($theme, selector)} .light,
+    #{map.get($theme, selector)}.light {
+        @include mat.all-component-themes($light-theme);
 
-    $dark-theme: mat.m2-define-dark-theme((color: $palettes));
+        // Apply custom color tokens
+        @each $property, $value in $light-custom-tokens {
+            #{$property}: #{$value};
+        }
 
-  /* Merge the custom base colors with the generated themes */
-  $light-theme-colors: map.merge(map.get($light-theme, color), $light-base);
-  $light-theme: map.merge(
-      (
-        color: $light-theme-colors,
-      ),
-      $light-theme-colors
-  );
+        // Override M3 colors with custom theme colors
+        --mat-sys-primary: #{map.get($primary-colors, DEFAULT)};
+        --mat-sys-on-primary: #{map.get(map.get($primary-colors, contrast), DEFAULT)};
+        --mat-sys-primary-container: #{map.get($primary-colors, 100)};
+        --mat-sys-on-primary-container: #{map.get(map.get($primary-colors, contrast), 100)};
+        --mat-sys-tertiary: #{map.get($accent-colors, DEFAULT)};
+        --mat-sys-on-tertiary: #{map.get(map.get($accent-colors, contrast), DEFAULT)};
+        --mat-sys-error: #{map.get($warn-colors, DEFAULT)};
+        --mat-sys-on-error: #{map.get(map.get($warn-colors, contrast), DEFAULT)};
 
-  $dark-theme-colors: map.merge(map.get($dark-theme, color), $dark-base);
-  $dark-theme: map.merge(
-      (
-        color: $dark-theme-colors,
-      ),
-      $dark-theme-colors
-  );
+        // Override component-specific colors
+        --mdc-filled-button-container-color: #{map.get($primary-colors, DEFAULT)};
+        --mdc-filled-button-label-text-color: #{map.get(map.get($primary-colors, contrast), DEFAULT)};
+        --mdc-outlined-button-label-text-color: #{map.get($primary-colors, DEFAULT)};
+        --mdc-outlined-button-outline-color: #{map.get($primary-colors, 200)};
+    }
 
-  /* Generate and encapsulate Angular Material themes */
-  #{map.get($theme, selector)} .light,
-  #{map.get($theme, selector)}.light {
-    @include mat.all-component-colors($light-theme);
-  }
+    #{map.get($theme, selector)} .dark,
+    #{map.get($theme, selector)}.dark {
+        @include mat.all-component-themes($dark-theme);
 
-  #{map.get($theme, selector)} .dark,
-  #{map.get($theme, selector)}.dark {
-    @include mat.all-component-colors($dark-theme);
-  }
+        // Apply custom color tokens
+        @each $property, $value in $dark-custom-tokens {
+            #{$property}: #{$value};
+        }
+
+        // Override M3 colors with custom theme colors for dark mode
+        --mat-sys-primary: #{map.get($primary-colors, 400)};
+        --mat-sys-on-primary: #{map.get(map.get($primary-colors, contrast), 400)};
+        --mat-sys-primary-container: #{map.get($primary-colors, 800)};
+        --mat-sys-on-primary-container: #{map.get(map.get($primary-colors, contrast), 800)};
+        --mat-sys-tertiary: #{map.get($accent-colors, 400)};
+        --mat-sys-on-tertiary: #{map.get(map.get($accent-colors, contrast), 400)};
+        --mat-sys-error: #{map.get($warn-colors, 400)};
+        --mat-sys-on-error: #{map.get(map.get($warn-colors, contrast), 400)};
+
+        // Override component-specific colors for dark mode
+        --mdc-filled-button-container-color: #{map.get($primary-colors, 600)};
+        --mdc-filled-button-label-text-color: #{map.get(map.get($primary-colors, contrast), 600)};
+        --mdc-outlined-button-label-text-color: #{map.get($primary-colors, 400)};
+        --mdc-outlined-button-outline-color: #{map.get($primary-colors, 700)};
+    }
 }

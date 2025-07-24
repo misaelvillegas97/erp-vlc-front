@@ -1,4 +1,4 @@
-import { Component, computed, inject }                                                                       from '@angular/core';
+import { Component, computed, inject, resource }                                                             from '@angular/core';
 import { MatButton }                                                                                         from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { MatError, MatFormField, MatLabel }                                                                  from '@angular/material/form-field';
@@ -12,7 +12,6 @@ import { Notyf }                                                                
 import { Product }                                                                                           from '@modules/admin/maintainers/products/domain/model/product';
 import { ClientService }                                                                                     from '@modules/admin/maintainers/clients/client.service';
 import { firstValueFrom }                                                                                    from 'rxjs';
-import { rxResource }                                                                                        from '@angular/core/rxjs-interop';
 
 @Component({
     selector   : 'app-associate-client',
@@ -44,9 +43,9 @@ export class AssociateClientComponent {
         clientId    : [ undefined, [ Validators.required ] ],
         providerCode: [ undefined, [ Validators.required ] ],
     });
-    readonly clientsResource = rxResource({
-        stream: () => {
-            return this.clientService.findAll();
+    readonly clientsResource = resource({
+        loader: () => {
+            return firstValueFrom(this.clientService.findAll());
         },
     });
 

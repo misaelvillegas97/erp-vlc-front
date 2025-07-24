@@ -10,7 +10,7 @@ import { OrderStatusEnum }                                                      
 import { OrderTypeEnum }                                                                                        from '@modules/admin/administration/orders/domain/enums/order-type.enum';
 import { MatAutocompleteModule }                                                                                from '@angular/material/autocomplete';
 import { ClientService }                                                                                        from '@modules/admin/maintainers/clients/client.service';
-import { rxResource, toSignal }                                                                                 from '@angular/core/rxjs-interop';
+import { toSignal }                                                                                             from '@angular/core/rxjs-interop';
 import { debounceTime, firstValueFrom }                                                                         from 'rxjs';
 import { MatButton, MatIconButton }                                                                             from '@angular/material/button';
 import { MatProgressSpinner }                                                                                   from '@angular/material/progress-spinner';
@@ -123,12 +123,12 @@ export class CreateComponent {
     // Products
     readonly productsInput = toSignal(this.form.get('productInput').valueChanges.pipe(debounceTime(300)));
     readonly selectedProducts = toSignal(this.form.get('products').valueChanges);
-    readonly productsResource = rxResource({
-        stream: () => {
+    readonly productsResource = resource({
+        loader: () => {
             const request = this.productsInput() || '';
-            if (!request) return this.#productsService.findAll({});
+            if (!request) return firstValueFrom(this.#productsService.findAll({}));
 
-            return this.#productsService.findAll({name: request});
+            return firstValueFrom(this.#productsService.findAll({name: request}));
         }
     });
     readonly productsTotal = computed(() => {
