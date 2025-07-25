@@ -1,33 +1,15 @@
-import { Component, forwardRef, inject, input, OnDestroy, OnInit, signal } from '@angular/core';
-import { CommonModule }                                                    from '@angular/common';
-import {
-    ControlValueAccessor,
-    FormControl,
-    FormsModule,
-    NG_VALUE_ACCESSOR,
-    ReactiveFormsModule,
-    Validators
-}                                                                          from '@angular/forms';
-import {
-    FloatLabelType,
-    MatFormFieldModule,
-    SubscriptSizing
-}                                                                          from '@angular/material/form-field';
-import { MatInputModule }                                                  from '@angular/material/input';
-import { MatIconModule }                                                   from '@angular/material/icon';
-import { MatAutocompleteModule }                                           from '@angular/material/autocomplete';
-import {
-    Observable,
-    Subject,
-    debounceTime,
-    distinctUntilChanged,
-    first,
-    takeUntil
-}                                                                          from 'rxjs';
-import { startWith }                                                       from 'rxjs/operators';
-import { toSignal }                                                        from '@angular/core/rxjs-interop';
-import { members as membersData }                                          from 'app/mock-api/apps/scrumboard/data';
-import { Member }                                                          from 'app/modules/admin/apps/scrumboard/models/scrumboard.types';
+import { Component, forwardRef, input, OnDestroy, OnInit, signal }                                            from '@angular/core';
+import { CommonModule }                                                                                       from '@angular/common';
+import { ControlValueAccessor, FormControl, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FloatLabelType, MatFormFieldModule, SubscriptSizing }                                                from '@angular/material/form-field';
+import { MatInputModule }                                                                                     from '@angular/material/input';
+import { MatIconModule }                                                                                      from '@angular/material/icon';
+import { MatAutocompleteModule }                                                                              from '@angular/material/autocomplete';
+import { debounceTime, distinctUntilChanged, Subject, takeUntil }                                             from 'rxjs';
+import { startWith }                                                                                          from 'rxjs/operators';
+import { toSignal }                                                                                           from '@angular/core/rxjs-interop';
+import { members as membersData }                                                                             from 'app/mock-api/apps/scrumboard/data';
+import { Member }                                                                                             from '@modules/admin/apps/scrumboard/models/scrumboard.models';
 
 @Component({
     selector   : 'member-selector',
