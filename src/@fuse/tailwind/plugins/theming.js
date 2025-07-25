@@ -39,6 +39,172 @@ const normalizeTheme = (theme) => {
   );
 };
 
+/**
+ * Create M3 compatible palette from Tailwind color palette
+ * This generates all the required tokens for Material Design 3
+ *
+ * @param {Object} colorPalette - Tailwind color palette object
+ * @returns {Object} M3 compatible palette with all required tokens
+ */
+const createM3Palette = (colorPalette) => {
+    // Extract base colors, ensuring we have all needed shades
+    const baseColors = {
+        50: colorPalette[50] || '#fafafa',
+        100: colorPalette[100] || '#f5f5f5',
+        200: colorPalette[200] || '#eeeeee',
+        300: colorPalette[300] || '#e0e0e0',
+        400: colorPalette[400] || '#bdbdbd',
+        500: colorPalette[500] || colorPalette.DEFAULT || '#9e9e9e',
+        600: colorPalette[600] || '#757575',
+        700: colorPalette[700] || '#616161',
+        800: colorPalette[800] || '#424242',
+        900: colorPalette[900] || '#212121',
+        950: colorPalette[950] || '#0a0a0a',
+        DEFAULT: colorPalette.DEFAULT || colorPalette[500] || '#9e9e9e'
+    };
+
+    // Create M3 tonal palette mapping Tailwind colors to M3 tones
+    const m3Palette = {
+        // Core M3 tones mapped from Tailwind shades
+        0: '#000000',
+        10: baseColors[950],
+        20: baseColors[900],
+        25: baseColors[800],
+        30: baseColors[700],
+        35: baseColors[600],
+        40: baseColors[600],
+        50: baseColors.DEFAULT,
+        60: baseColors[400],
+        70: baseColors[300],
+        80: baseColors[200],
+        90: baseColors[100],
+        95: baseColors[50],
+        98: '#fefefe',
+        99: '#ffffff',
+        100: '#ffffff',
+
+        // Keep original Tailwind structure for backward compatibility
+        ...baseColors,
+
+        // M3 neutral palette (using gray tones)
+        neutral: {
+            0: '#000000',
+            10: '#1e293b',
+            20: '#334155',
+            25: '#475569',
+            30: '#64748b',
+            35: '#64748b',
+            40: '#64748b',
+            50: '#64748b',
+            60: '#94a3b8',
+            70: '#cbd5e1',
+            80: '#e2e8f0',
+            90: '#f1f5f9',
+            95: '#f8fafc',
+            98: '#fdfdfd',
+            99: '#ffffff',
+            100: '#ffffff',
+        },
+
+        // M3 neutral-variant palette (using slate-like tones)
+        'neutral-variant': {
+            0: '#000000',
+            10: '#1e293b',
+            20: '#334155',
+            25: '#475569',
+            30: '#64748b',
+            35: '#64748b',
+            40: '#64748b',
+            50: '#64748b',
+            60: '#94a3b8',
+            70: '#cbd5e1',
+            80: '#e2e8f0',
+            90: '#f1f5f9',
+            95: '#f8fafc',
+            98: '#fdfdfd',
+            99: '#ffffff',
+            100: '#ffffff',
+        },
+
+        // M3 secondary palette (derived from accent/slate)
+        secondary: {
+            0: '#000000',
+            10: '#1e293b',
+            20: '#334155',
+            25: '#475569',
+            30: '#64748b',
+            35: '#64748b',
+            40: '#64748b',
+            50: '#64748b',
+            60: '#94a3b8',
+            70: '#cbd5e1',
+            80: '#e2e8f0',
+            90: '#f1f5f9',
+            95: '#f8fafc',
+            98: '#fdfdfd',
+            99: '#ffffff',
+            100: '#ffffff',
+        },
+
+        // M3 error palette (using red tones)
+        error: {
+            0: '#000000',
+            10: '#7f1d1d',
+            20: '#991b1b',
+            25: '#b91c1c',
+            30: '#dc2626',
+            35: '#dc2626',
+            40: '#dc2626',
+            50: '#ef4444',
+            60: '#f87171',
+            70: '#fca5a5',
+            80: '#fecaca',
+            90: '#fee2e2',
+            95: '#fef2f2',
+            98: '#fffefe',
+            99: '#ffffff',
+            100: '#ffffff',
+        }
+    };
+
+    return m3Palette;
+};
+
+/**
+ * Generate M3 compatible contrast colors for a given palette
+ *
+ * @param {Object} palette - M3 palette object
+ * @returns {Object} Contrast colors object
+ */
+const generateM3Contrasts = (palette) => {
+    const contrasts = {};
+
+    // Generate contrasts for each tone
+    Object.keys(palette).forEach(tone => {
+        if (typeof palette[tone] === 'string' && palette[tone].startsWith('#')) {
+            const color = chroma(palette[tone]);
+            const luminance = color.luminance();
+
+            // Use white text for dark colors, black text for light colors
+            contrasts[tone] = luminance > 0.5 ? '#000000' : '#ffffff';
+        }
+    });
+
+    // Specific contrast overrides for common tones
+    contrasts.DEFAULT = contrasts['50'] || contrasts[500] || '#ffffff';
+    contrasts[200] = '#000000';
+    contrasts[300] = '#000000';
+    contrasts[400] = '#000000';
+    contrasts[500] = '#ffffff';
+    contrasts[600] = '#ffffff';
+    contrasts[700] = '#ffffff';
+    contrasts[800] = '#ffffff';
+    contrasts[900] = '#ffffff';
+    contrasts[950] = '#ffffff';
+
+    return contrasts;
+};
+
 // -----------------------------------------------------------------------------------------------------
 // @ FUSE TailwindCSS Main Plugin
 // -----------------------------------------------------------------------------------------------------
@@ -69,32 +235,40 @@ const theming = plugin.withOptions(
       );
 
       /**
-       * Go through the themes to generate the contrasts and filter the
-       * palettes to only have "primary", "accent" and "warn" objects.
+       * Go through the themes to generate M3 compatible palettes and contrasts,
+       * filtering to only have "primary", "accent" and "warn" objects.
        */
       themes = _.fromPairs(
         _.map(themes, (theme, themeName) => [
           themeName,
           _.pick(
             _.fromPairs(
-              _.map(theme, (palette, paletteName) => [
-                paletteName,
-                {
-                  ...palette,
-                  contrast: _.fromPairs(
-                    _.map(
-                      generateContrasts(palette),
-                      (color, hue) => [
-                        hue,
-                        _.get(userThemes[themeName], [
-                          `on-${paletteName}`,
-                          hue,
-                        ]) || color,
-                      ]
-                    )
-                  ),
-                },
-              ])
+              _.map(theme, (palette, paletteName) => {
+                  // Create M3 compatible palette
+                  const m3Palette = createM3Palette(palette);
+
+                  // Generate contrasts using the M3 palette
+                  const contrasts = generateM3Contrasts(m3Palette);
+
+                  return [
+                      paletteName,
+                      {
+                          ...m3Palette,
+                          contrast: _.fromPairs(
+                            _.map(
+                              contrasts,
+                              (color, hue) => [
+                                  hue,
+                                  _.get(userThemes[themeName], [
+                                      `on-${paletteName}`,
+                                      hue,
+                                  ]) || color,
+                              ]
+                            )
+                          ),
+                      },
+                  ];
+              })
             ),
             ['primary', 'accent', 'warn']
           ),
