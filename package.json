@@ -51,7 +51,7 @@
         "lightgallery" : "^2.7.2",
         "lodash-es" : "4.17.21",
         "luxon" : "3.4.4",
-        "ng-apexcharts" : "1.15.0",
+        "ng-apexcharts" : "1.17.0",
         "ngx-quill" : "28.0.1",
         "ngx-skeleton-loader" : "^11.2.1",
         "ngx-socket-io" : "^4.8.2",
