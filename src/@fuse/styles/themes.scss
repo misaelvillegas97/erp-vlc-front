@@ -1,148 +1,91 @@
 @use 'sass:map';
 @use '@angular/material' as mat;
-@use 'user-themes' as userThemes;
+@use 'theme-colors' as colors;
 
 // Include the core Angular Material styles
 @include mat.core();
 
-// Function to create M3 palette from user theme colors
-@function create-m3-palette($color-map) {
-    @return (
-        0: map.get($color-map, 0) or #000000, 10: map.get($color-map, 10) or map.get($color-map, 950), 20: map.get($color-map, 20) or map.get($color-map, 900), 25: map.get($color-map, 25) or map.get($color-map, 800), 30: map.get($color-map, 30) or map.get($color-map, 700), 35: map.get($color-map, 35) or map.get($color-map, 600), 40: map.get($color-map, 40) or map.get($color-map, 600), 50: map.get($color-map, 50) or map.get($color-map, 500), 60: map.get($color-map, 60) or map.get($color-map, 400), 70: map.get($color-map, 70) or map.get($color-map, 300), 80: map.get($color-map, 80) or map.get($color-map, 200), 90: map.get($color-map, 90) or map.get($color-map, 100), 95: map.get($color-map, 95) or map.get($color-map, 50), 98: map.get($color-map, 98) or #fefefe, 99: map.get($color-map, 99) or #ffffff, 100: map.get($color-map, 100) or #ffffff,
-        neutral: map.get($color-map, neutral) or ( 0: #000000, 4: #0f0f0f, 6: #171717, 10: #1f1f1f, 12: #262626, 17: #2e2e2e, 20: #404040, 22: #444444, 24: #484848, 25: #525252, 30: #525252, 35: #5c5c5c, 40: #666666, 50: #737373, 60: #8a8a8a, 70: #a3a3a3, 80: #c4c4c4, 87: #dedede, 90: #e5e5e5, 92: #ebebeb, 94: #f0f0f0, 95: #f5f5f5, 96: #f7f7f7, 98: #fafafa, 99: #ffffff, 100: #ffffff, ),
-        neutral-variant: map.get($color-map, neutral-variant) or ( 0: #000000, 10: #1e293b, 20: #334155, 25: #475569, 30: #64748b, 35: #64748b, 40: #64748b, 50: #64748b, 60: #94a3b8, 70: #cbd5e1, 80: #e2e8f0, 90: #f1f5f9, 95: #f8fafc, 98: #fdfdfd, 99: #ffffff, 100: #ffffff, ),
-        secondary: map.get($color-map, secondary) or ( 0: #000000, 10: #1e293b, 20: #334155, 25: #475569, 30: #64748b, 35: #64748b, 40: #64748b, 50: #64748b, 60: #94a3b8, 70: #cbd5e1, 80: #e2e8f0, 90: #f1f5f9, 95: #f8fafc, 98: #fdfdfd, 99: #ffffff, 100: #ffffff, ),
-        error: map.get($color-map, error) or ( 0: #000000, 10: #7f1d1d, 20: #991b1b, 25: #b91c1c, 30: #dc2626, 35: #dc2626, 40: #dc2626, 50: #ef4444, 60: #f87171, 70: #fca5a5, 80: #fecaca, 90: #fee2e2, 95: #fef2f2, 98: #fffefe, 99: #ffffff, 100: #ffffff, ),
-    );
+$light-theme: mat.define-theme((
+    color: (
+        theme-type: light,
+        primary: colors.$primary-palette,
+        tertiary: colors.$tertiary-palette,
+    ),
+    typography: (
+        brand-family: 'Poppins, sans-serif',
+        plain-family: 'Poppins, sans-serif',
+        bold-weight: 800,
+        medium-weight: 600,
+        regular-weight: 400,
+    ),
+    density: (
+        scale: 0
+    )
+));
+
+$dark-theme: mat.define-theme((
+    color: (
+        theme-type: dark,
+        primary: colors.$primary-palette,
+        tertiary: colors.$tertiary-palette,
+    ),
+    typography: (
+        brand-family: 'Poppins, sans-serif',
+        plain-family: 'Poppins, sans-serif',
+        bold-weight: 800,
+        medium-weight: 600,
+        regular-weight: 400,
+    ),
+    density: (
+        scale: 0
+    )
+));
+
+// Apply light theme
+body.light {
+    @include mat.all-component-themes($light-theme);
+
+    --mat-sys-primary: #{map.get(colors.$primary-palette, DEFAULT)};
+    --mat-sys-primary-container: #{map.get(colors.$primary-palette, 900)};
+    --mat-sys-tertiary: #{map.get(colors.$primary-palette, neutral, DEFAULT)};
+    --mat-sys-error: #{map.get(colors.$primary-palette, error, DEFAULT)};
+
+    // Override component-specific colors
+    --mdc-filled-button-container-color: #{map.get(colors.$primary-palette, DEFAULT)};
+    --mdc-outlined-button-label-text-color: #{map.get(colors.$primary-palette, DEFAULT)};
+    --mdc-outlined-button-outline-color: #{map.get(colors.$primary-palette, 70)};
+
+    --mdc-elevated-container-color: #ffffff; // bg-card
+    --mdc-sys-color-surface: #f9f9f9; // bg-default
+    --mdc-sys-color-surface-container-high: #ffffff; // bg-dialog
+    --mdc-sys-color-on-surface: #1f2937; // text-default
+    --mdc-sys-color-on-surface-variant: #6b7280; // text-secondary
+    --mdc-sys-color-outline: #d1d5db; // divider
+
+    --mat-form-field-filled-label-text-size: 0.875rem;
 }
 
-$light-custom-tokens: (
-    --mat-app-background-color: #f1f5f9,
-    --mat-app-surface-color: #ddd,
-    --mat-app-text-color: #1e293b,
-    --mat-app-secondary-text-color: #64748b,
-    --mat-divider-color: #e2e8f0,
-    --mat-card-container-color: #ddd,
-    --mat-dialog-container-color: #ddd,
-    --mat-sidenav-container-color: #ddd,
-    --mat-toolbar-container-color: #ddd,
-    --mat-card-elevated-container-color: #ddd,
-    --mat-table-background-color: #ddd
-);
+// Apply dark theme
+body.dark {
+    @include mat.all-component-themes($dark-theme);
 
-$dark-custom-tokens: (
-    --mat-app-background-color: #0f172a,
-    --mat-app-surface-color: #1e293b,
-    --mat-app-text-color: #dddddd,
-    --mat-app-secondary-text-color: #64748b,
-    --mat-divider-color: rgba(241, 245, 249, 0.12),
-    --mat-card-container-color: #1e293b,
-    --mat-dialog-container-color: #1e293b,
-    --mat-sidenav-container-color: #1e293b,
-    --mat-toolbar-container-color: #0f172a,
-    --mat-card-elevated-container-color: #1e293b,
-    --mat-table-background-color: #1e293b
-);
+    --mat-sys-primary: #{map.get(colors.$primary-palette, 50)};
+    --mat-sys-primary-container: #{map.get(colors.$primary-palette, 30)};
+    --mat-sys-error: #{map.get(colors.$primary-palette, error, 60)};
+    --mat-sys-surface-container: #{map.get(colors.$primary-palette, neutral, 20)};
 
-@each $theme-name, $theme in userThemes.$user-themes {
-    // Extract color palettes from user theme
-    $primary-colors: map.get($theme, primary);
-    $accent-colors: map.get($theme, accent);
-    $warn-colors: map.get($theme, warn);
+    --mdc-filled-button-container-color: #{map.get(colors.$primary-palette, 40)};
+    --mdc-outlined-button-label-text-color: #{map.get(colors.$primary-palette, 60)};
+    --mdc-outlined-button-outline-color: #{map.get(colors.$primary-palette, 30)};
 
-    // Create proper M3 palettes
-    $primary-m3-palette: create-m3-palette($primary-colors);
-    $accent-m3-palette: create-m3-palette($accent-colors);
-    $warn-m3-palette: create-m3-palette($warn-colors);
+    --mdc-elevated-container-color: #1f2937;
+    --mdc-sys-color-surface: #111827;
+    --mdc-sys-color-surface-container-high: #1f2937;
+    --mdc-sys-color-on-surface: #ffffff;
+    --mdc-sys-color-on-surface-variant: #9ca3af;
+    --mdc-sys-color-outline: rgba(255, 255, 255, 0.12);
 
-    // Define M3 themes using the generated palettes
-    $light-theme: mat.define-theme((
-        color: (
-            theme-type: light,
-            primary: $primary-m3-palette,
-            tertiary: $accent-m3-palette,
-        ),
-        typography: (
-            brand-family: 'Poppins, sans-serif',
-            plain-family: 'Poppins, sans-serif',
-            bold-weight: 800,
-            medium-weight: 600,
-            regular-weight: 400,
-        ),
-        density: (
-            scale: 0
-        )
-    ));
-
-    $dark-theme: mat.define-theme((
-        color: (
-            theme-type: dark,
-            primary: $primary-m3-palette,
-            tertiary: $accent-m3-palette,
-        ),
-        typography: (
-            brand-family: 'Poppins, sans-serif',
-            plain-family: 'Poppins, sans-serif',
-            bold-weight: 800,
-            medium-weight: 600,
-            regular-weight: 400,
-        ),
-        density: (
-            scale: 0
-        )
-    ));
-
-    // Apply light theme
-    #{map.get($theme, selector)} .light,
-    #{map.get($theme, selector)}.light {
-        @include mat.all-component-themes($light-theme);
-
-        @each $property, $value in $light-custom-tokens {
-            #{$property}: #{$value};
-        }
-
-        --mat-sys-primary: #{map.get($primary-colors, DEFAULT)};
-        --mat-sys-on-primary: #{map.get(map.get($primary-colors, contrast), DEFAULT)};
-        --mat-sys-primary-container: #{map.get($primary-colors, 100)};
-        --mat-sys-on-primary-container: #{map.get(map.get($primary-colors, contrast), 100)};
-        --mat-sys-tertiary: #{map.get($accent-colors, DEFAULT)};
-        --mat-sys-on-tertiary: #{map.get(map.get($accent-colors, contrast), DEFAULT)};
-        --mat-sys-error: #{map.get($warn-colors, DEFAULT)};
-        --mat-sys-on-error: #{map.get(map.get($warn-colors, contrast), DEFAULT)};
-
-        // Override component-specific colors
-        --mdc-filled-button-container-color: #{map.get($primary-colors, DEFAULT)};
-        --mdc-filled-button-label-text-color: #{map.get(map.get($primary-colors, contrast), DEFAULT)};
-        --mdc-outlined-button-label-text-color: #{map.get($primary-colors, DEFAULT)};
-        --mdc-outlined-button-outline-color: #{map.get($primary-colors, 200)};
-
-        --mat-form-field-filled-label-text-size: 0.875rem;
-    }
-
-    // Apply dark theme
-    #{map.get($theme, selector)} .dark,
-    #{map.get($theme, selector)}.dark {
-        @include mat.all-component-themes($dark-theme);
-
-        @each $property, $value in $dark-custom-tokens {
-            #{$property}: #{$value};
-        }
-
-        --mat-sys-primary: #{map.get($primary-colors, 400)};
-        --mat-sys-on-primary: #{map.get(map.get($primary-colors, contrast), 400)};
-        --mat-sys-primary-container: #{map.get($primary-colors, 800)};
-        --mat-sys-on-primary-container: #{map.get(map.get($primary-colors, contrast), 800)};
-        --mat-sys-tertiary: #{map.get($accent-colors, 400)};
-        --mat-sys-on-tertiary: #{map.get(map.get($accent-colors, contrast), 400)};
-        --mat-sys-error: #{map.get($warn-colors, 400)};
-        --mat-sys-on-error: #{map.get(map.get($warn-colors, contrast), 400)};
-        --mat-sys-surface-container: #{map.get($accent-colors, 700)};
-
-        // Override component-specific colors for dark mode
-        --mdc-filled-button-container-color: #{map.get($primary-colors, 600)};
-        --mdc-filled-button-label-text-color: #{map.get(map.get($primary-colors, contrast), 600)};
-        --mdc-outlined-button-label-text-color: #{map.get($primary-colors, 400)};
-        --mdc-outlined-button-outline-color: #{map.get($primary-colors, 700)};
-        --mat-form-field-filled-label-text-size: 0.875rem;
-    }
+    // Override component-specific colors for dark mode
+    --mat-form-field-filled-label-text-size: 0.875rem;
 }
+

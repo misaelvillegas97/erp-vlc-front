@@ -67,101 +67,103 @@
                 </div>
 
                 <!-- Tabla con datos -->
-                <table *ngIf="!isLoading()" mat-table [dataSource]="sessionsHistory()" class="w-full">
-                    <!-- Fecha de inicio -->
-                    <ng-container matColumnDef="startTimestamp">
-                        <th mat-header-cell *matHeaderCellDef> Fecha de inicio</th>
-                        <td mat-cell *matCellDef="let session"> {{ session.startTime | date:'dd-MM-yyyy HH:mm' }}</td>
-                    </ng-container>
+                @if (!isLoading()) {
+                    <table mat-table [dataSource]="sessionsHistory()" class="w-full bg-transparent">
+                        <!-- Fecha de inicio -->
+                        <ng-container matColumnDef="startTimestamp">
+                            <th mat-header-cell *matHeaderCellDef> Fecha de inicio</th>
+                            <td mat-cell *matCellDef="let session"> {{ session.startTime | date:'dd-MM-yyyy HH:mm' }}</td>
+                        </ng-container>
 
-                    <!-- Fecha de finalización -->
-                    <ng-container matColumnDef="endTimestamp">
-                        <th mat-header-cell *matHeaderCellDef> Fecha de fin</th>
-                        <td mat-cell *matCellDef="let session">
-                            {{ session.endTime ? (session.endTime | date:'dd-MM-yyyy HH:mm') : 'En curso' }}
-                        </td>
-                    </ng-container>
+                        <!-- Fecha de finalización -->
+                        <ng-container matColumnDef="endTimestamp">
+                            <th mat-header-cell *matHeaderCellDef> Fecha de fin</th>
+                            <td mat-cell *matCellDef="let session">
+                                {{ session.endTime ? (session.endTime | date:'dd-MM-yyyy HH:mm') : 'En curso' }}
+                            </td>
+                        </ng-container>
 
-                    <!-- Conductor -->
-                    <ng-container matColumnDef="driverName">
-                        <th mat-header-cell *matHeaderCellDef> Conductor</th>
-                        <td mat-cell *matCellDef="let session">
-                            @if (session.driver?.name) {
-                                {{ session.driver.name }}
-                            } @else {
-                                <span class="text-secondary italic">Conductor eliminado</span>
-                            }
-                        </td>
-                    </ng-container>
+                        <!-- Conductor -->
+                        <ng-container matColumnDef="driverName">
+                            <th mat-header-cell *matHeaderCellDef> Conductor</th>
+                            <td mat-cell *matCellDef="let session">
+                                @if (session.driver?.name) {
+                                    {{ session.driver.name }}
+                                } @else {
+                                    <span class="text-secondary italic">Conductor eliminado</span>
+                                }
+                            </td>
+                        </ng-container>
 
-                    <!-- Vehículo -->
-                    <ng-container matColumnDef="vehicleInfo">
-                        <th mat-header-cell *matHeaderCellDef> Vehículo</th>
-                        <td mat-cell *matCellDef="let session">
-                            {{ session.vehicle?.displayName || session.vehicleId }}
-                        </td>
-                    </ng-container>
+                        <!-- Vehículo -->
+                        <ng-container matColumnDef="vehicleInfo">
+                            <th mat-header-cell *matHeaderCellDef> Vehículo</th>
+                            <td mat-cell *matCellDef="let session">
+                                {{ session.vehicle?.displayName || session.vehicleId }}
+                            </td>
+                        </ng-container>
 
-                    <!-- Distancia recorrida -->
-                    <ng-container matColumnDef="distance">
-                        <th mat-header-cell *matHeaderCellDef> Distancia (km)</th>
-                        <td mat-cell *matCellDef="let session">
-                            {{ calculateDistance(session) }} km
-                        </td>
-                    </ng-container>
+                        <!-- Distancia recorrida -->
+                        <ng-container matColumnDef="distance">
+                            <th mat-header-cell *matHeaderCellDef> Distancia (km)</th>
+                            <td mat-cell *matCellDef="let session">
+                                {{ calculateDistance(session) }} km
+                            </td>
+                        </ng-container>
 
-                    <!-- Estado -->
-                    <ng-container matColumnDef="status">
-                        <th mat-header-cell *matHeaderCellDef> Estado</th>
-                        <td mat-cell *matCellDef="let session">
+                        <!-- Estado -->
+                        <ng-container matColumnDef="status">
+                            <th mat-header-cell *matHeaderCellDef> Estado</th>
+                            <td mat-cell *matCellDef="let session">
                             <span class="px-3 py-1 rounded-full text-xs font-medium" [ngClass]="getStatusClass(session.status)">
                               {{ getStatusText(session.status) }}
                             </span>
-                        </td>
-                    </ng-container>
+                            </td>
+                        </ng-container>
 
-                    <!-- Acciones -->
-                    <ng-container matColumnDef="actions">
-                        <th mat-header-cell *matHeaderCellDef></th>
-                        <td mat-cell *matCellDef="let session" class="text-right">
-                            <button mat-icon-button color="primary" (click)="viewDetails(session)" matTooltip="Ver detalles">
-                                <mat-icon svgIcon="mat_solid:visibility"></mat-icon>
-                            </button>
-                        </td>
-                    </ng-container>
-
-                    <!-- Cabeceras y filas -->
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
-                    <!-- Mensaje cuando no hay datos -->
-                    <tr class="mat-row" *matNoDataRow>
-                        <td class="mat-cell py-4 text-center" [attr.colspan]="displayedColumns.length">
-                            <div class="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 shadow rounded-lg">
-                                <mat-icon class="text-gray-400 icon-size-10 mb-4" svgIcon="mat_outline:no_transfer"></mat-icon>
-                                <h3 class="text-xl font-bold mb-2">No hay sesiones activas</h3>
-                                <p class="text-center mb-6 max-w-lg text-gray-500 dark:text-gray-400">
-                                    No se encontraron registros que coincidan con los filtros aplicados.
-                                </p>
-                                <button mat-flat-button color="primary" [routerLink]="['/logistics/fleet-management/fleet-control']">
-                                    Iniciar Nueva Sesión
+                        <!-- Acciones -->
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef></th>
+                            <td mat-cell *matCellDef="let session" class="text-right">
+                                <button mat-icon-button color="primary" (click)="viewDetails(session)" matTooltip="Ver detalles">
+                                    <mat-icon svgIcon="mat_solid:visibility"></mat-icon>
                                 </button>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
+                            </td>
+                        </ng-container>
+
+                        <!-- Cabeceras y filas -->
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                        <!-- Mensaje cuando no hay datos -->
+                        <tr class="mat-row" *matNoDataRow>
+                            <td class="mat-cell py-4 text-center" [attr.colspan]="displayedColumns.length">
+                                <div class="flex flex-col items-center justify-center py-20 shadow rounded-lg">
+                                    <mat-icon class="text-gray-400 icon-size-10 mb-4" svgIcon="mat_outline:no_transfer"></mat-icon>
+                                    <h3 class="text-xl font-bold mb-2">No hay sesiones activas</h3>
+                                    <p class="text-center mb-6 max-w-lg text-gray-500 dark:text-gray-400">
+                                        No se encontraron registros que coincidan con los filtros aplicados.
+                                    </p>
+                                    <button mat-flat-button color="primary" [routerLink]="['/logistics/fleet-management/fleet-control']">
+                                        Iniciar Nueva Sesión
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                }
 
                 <!-- Paginador -->
                 @if (!isLoading() && pagination()?.totalElements > 0) {
-                <mat-paginator
-                    [length]="pagination().totalElements"
-                    [pageSize]="pagination().limit"
-                    [disabled]="pagination().disabled"
-                    [pageIndex]="pagination().page - 1"
-                    [pageSizeOptions]="pageSizeOptions()"
-                    (page)="onPageChange($event)"
-                    showFirstLastButtons>
-                </mat-paginator>
+                    <mat-paginator
+                        [length]="pagination().totalElements"
+                        [pageSize]="pagination().limit"
+                        [disabled]="pagination().disabled"
+                        [pageIndex]="pagination().page - 1"
+                        [pageSizeOptions]="pageSizeOptions()"
+                        (page)="onPageChange($event)"
+                        showFirstLastButtons>
+                    </mat-paginator>
                 }
             </div>
         </div>

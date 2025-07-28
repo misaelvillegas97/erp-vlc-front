@@ -4,9 +4,8 @@ import { ChecklistService }                               from './checklist.serv
 import { ChecklistTemplate }                              from '../domain/interfaces/checklist-template.interface';
 import { ChecklistGroup }                                 from '../domain/interfaces/checklist-group.interface';
 import { ChecklistExecution, ExecutionStatus }            from '../domain/interfaces/checklist-execution.interface';
-import { ExecuteChecklistDto, ExecuteChecklistAnswers }   from '../domain/interfaces/execute-checklist.dto';
+import { ExecuteChecklistAnswers, ExecuteChecklistDto }   from '../domain/interfaces/execute-checklist.dto';
 import { ChecklistType }                                  from '../domain/enums/checklist-type.enum';
-import { ResponseType }                                   from '../domain/enums/response-type.enum';
 
 describe('ChecklistService', () => {
     let service: ChecklistService;
@@ -30,7 +29,6 @@ describe('ChecklistService', () => {
                         title       : 'Question 1',
                         weight      : 0.5,
                         required    : true,
-                        responseType: ResponseType.CHECKBOX,
                         order       : 1
                     },
                     {
@@ -38,7 +36,6 @@ describe('ChecklistService', () => {
                         title       : 'Question 2',
                         weight      : 0.5,
                         required    : false,
-                        responseType: ResponseType.TEXT,
                         order       : 2
                     }
                 ]
@@ -54,7 +51,6 @@ describe('ChecklistService', () => {
                         title       : 'Question 3',
                         weight      : 1.0,
                         required    : true,
-                        responseType: ResponseType.NUMERIC,
                         numericRange: {min: 0, max: 100},
                         order       : 1
                     }

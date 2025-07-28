@@ -6,16 +6,16 @@
             [autoFocus]="false"
             [mode]="drawerMode"
             [opened]="drawerOpened"
-            class="dark:bg-gray-900 sm:w-96 shadow-xl"
+            class="sm:w-96 shadow-xl"
         >
             <!-- Header -->
             @if (title) {
-                <div class="flex flex-0 p-6 items-center justify-between bg-primary dark:bg-primary-700 text-white border-b border-primary-600 dark:border-primary-800 shadow-md">
+                <div class="flex flex-0 p-6 items-center justify-between bg-primary text-white border-b border-primary-600 dark:border-primary-800 shadow-md">
                     <!-- Title -->
                     <h2 [innerText]="title" class="text-2xl font-bold leading-none tracking-tight"></h2>
                     <!-- Close button -->
                     <div class="lg:hidden">
-                        <button (click)="drawer.close()" mat-icon-button class="text-white hover:bg-primary-600 dark:hover:bg-primary-800 rounded-full">
+                        <button (click)="drawer.close()" mat-icon-button class="text-white hover:bg-hover rounded-full">
                             <mat-icon
                                 [svgIcon]="'heroicons_outline:x-mark'"
                             ></mat-icon>
@@ -24,62 +24,60 @@
                 </div>
             }
             <!-- Panel links -->
-            <div class="flex flex-col border-b">
+            <div class="flex flex-col border-b bg-default">
                 @for (panel of visiblePanels; track trackByFn($index, panel)) {
                     @if (panel.children && panel.children.length) {
                         <!-- Group header -->
-                        <div class="py-4 px-8 flex items-center bg-gray-50 dark:bg-gray-800 border-t border-b border-gray-200 dark:border-gray-700">
+                        <div class="py-4 px-8 flex items-center bg-card border-t border-b border-gray-200 dark:border-gray-700">
                             @if (panel.icon) {
                                 <mat-icon class="text-primary mr-3" [svgIcon]="panel.icon"></mat-icon>
                             }
                             <div>
-                                <h3 class="text-lg font-bold text-primary dark:text-primary-400">{{ panel.title }}</h3>
+                                <h3 class="text-lg font-bold text-primary">{{ panel.title }}</h3>
                             </div>
                         </div>
 
                         <!-- Group children -->
-                        <div class="bg-white dark:bg-gray-900">
-                            @for (child of panel.children; track trackByFn($index, child)) {
-                                <a
-                                    class="flex items-center cursor-pointer px-8 py-4 hover:bg-gray-50 dark:hover:bg-gray-800 group border-l-4 border-transparent transition-all duration-200"
-                                    [routerLink]="child.link"
-                                    [routerLinkActive]="['bg-primary-50', 'dark:bg-gray-800', 'border-primary', 'dark:border-primary-400']"
+                        @for (child of panel.children; track trackByFn($index, child)) {
+                            <a
+                                class="flex items-center cursor-pointer px-8 py-4 hover:bg-hover group border-l-4 border-transparent transition-all duration-200"
+                                [routerLink]="child.link"
+                                [routerLinkActive]="['bg-primary-50', 'dark:bg-gray-800', 'border-primary', 'dark:border-primary-400']"
+                                [routerLinkActiveOptions]="{ exact: true }"
+                                ariaCurrentWhenActive="page"
+                                (click)="goToPanel(panel)"
+                                [disabled]="child.disabled"
+                            >
+                                <mat-icon
+                                    class="text-gray-500 dark:text-gray-400 block group-aria-[current]:hidden group-hover:text-primary dark:group-hover:text-primary-400"
+                                    [routerLinkActive]="['text-primary']"
                                     [routerLinkActiveOptions]="{ exact: true }"
-                                    ariaCurrentWhenActive="page"
-                                    (click)="goToPanel(panel)"
-                                    [disabled]="child.disabled"
-                                >
-                                    <mat-icon
-                                        class="text-gray-500 dark:text-gray-400 block group-aria-[current]:hidden group-hover:text-primary dark:group-hover:text-primary-400"
-                                        [routerLinkActive]="['text-primary', 'dark:text-primary-400']"
+                                    [svgIcon]="child.icon"
+                                ></mat-icon>
+                                <mat-icon
+                                    class="text-gray-500 dark:text-gray-400 hidden group-aria-[current]:block group-hover:text-primary dark:group-hover:text-primary-400"
+                                    [routerLinkActive]="['text-primary']"
+                                    [routerLinkActiveOptions]="{ exact: true }"
+                                    [svgIcon]="child.selectedIcon || child.icon"
+                                ></mat-icon>
+                                <div class="ml-3 flex-1">
+                                    <div
+                                        class="font-medium leading-6 group-hover:text-primary dark:group-hover:text-primary-400"
+                                        [routerLinkActive]="['text-primary']"
                                         [routerLinkActiveOptions]="{ exact: true }"
-                                        [svgIcon]="child.icon"
-                                    ></mat-icon>
-                                    <mat-icon
-                                        class="text-gray-500 dark:text-gray-400 hidden group-aria-[current]:block group-hover:text-primary dark:group-hover:text-primary-400"
-                                        [routerLinkActive]="['text-primary', 'dark:text-primary-400']"
-                                        [routerLinkActiveOptions]="{ exact: true }"
-                                        [svgIcon]="child.selectedIcon || child.icon"
-                                    ></mat-icon>
-                                    <div class="ml-3 flex-1">
-                                        <div
-                                            class="font-medium leading-6 group-hover:text-primary dark:group-hover:text-primary-400"
-                                            [routerLinkActive]="['text-primary', 'dark:text-primary-400']"
-                                            [routerLinkActiveOptions]="{ exact: true }"
-                                        >
-                                            {{ child.title }}
-                                        </div>
-                                        <div class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                                            {{ child.description }}
-                                        </div>
+                                    >
+                                        {{ child.title }}
                                     </div>
-                                </a>
-                            }
-                        </div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                                        {{ child.description }}
+                                    </div>
+                                </div>
+                            </a>
+                        }
                     } @else {
                         <!-- Individual item -->
                         <a
-                            class="flex items-center cursor-pointer px-8 py-4 hover:bg-gray-50 dark:hover:bg-gray-800 group border-l-4 border-transparent transition-all duration-200"
+                        class="flex items-center cursor-pointer px-8 py-4 hover:bg-hover group border-l-4 border-transparent transition-all duration-200"
                             [routerLink]="panel.link"
                             [routerLinkActive]="['bg-primary-50', 'dark:bg-gray-800', 'border-primary', 'dark:border-primary-400']"
                             [routerLinkActiveOptions]="{ exact: true }"
@@ -126,9 +124,9 @@
             <!-- Main -->
             <div cdkScrollable class="flex-auto flex flex-col overflow-y-auto">
                 <!-- Panel header -->
-                <div class="xl:hidden flex flex-row items-center w-full max-w-xs sm:max-w-5xl p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+                <div class="xl:hidden flex flex-row items-center w-full p-4 bg-accent-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
                     <!-- Drawer toggle -->
-                    <button (click)="drawer.toggle()" mat-icon-button class="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+                    <button (click)="drawer.toggle()" mat-icon-button class="text-gray-700 dark:text-gray-300 hover:bg-hover rounded-full">
                         <mat-icon [svgIcon]="'heroicons_outline:bars-3'"></mat-icon>
                     </button>
 

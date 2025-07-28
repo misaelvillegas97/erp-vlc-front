@@ -1,14 +1,14 @@
-import { provideHttpClient }                                                                                                            from '@angular/common/http';
-import { ApplicationConfig, importProvidersFrom, inject, LOCALE_ID, provideAppInitializer, provideZonelessChangeDetection } from '@angular/core';
-import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE }                                                                               from '@angular/material/core';
-import { LuxonDateAdapter }                                                                                                             from '@angular/material-luxon-adapter';
-import { PreloadAllModules, provideRouter, withComponentInputBinding, withInMemoryScrolling, withPreloading, withViewTransitions }      from '@angular/router';
-import { provideServiceWorker }                                                                                                         from '@angular/service-worker';
-import { environment }                                                                                                                  from '../environments/environment';
-import { provideModulePermissions }                                                                                                     from '@core/permissions/permissions.providers';
-import { homePermissions }                                                                                                              from '@modules/admin/home/home.permissions';
-import { administrationPermissions }                                                                                                    from '@modules/admin/administration/administration.permissions';
-import { maintainersPermissions }                                                                                                       from '@modules/admin/maintainers/maintainers.permissions';
+import { provideHttpClient }                                                                                                       from '@angular/common/http';
+import { ApplicationConfig, importProvidersFrom, inject, LOCALE_ID, provideAppInitializer, provideZonelessChangeDetection }        from '@angular/core';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE }                                                                          from '@angular/material/core';
+import { LuxonDateAdapter }                                                                                                        from '@angular/material-luxon-adapter';
+import { PreloadAllModules, provideRouter, withComponentInputBinding, withInMemoryScrolling, withPreloading, withViewTransitions } from '@angular/router';
+import { provideServiceWorker }                                                                                                    from '@angular/service-worker';
+import { environment }                                                                                                             from '../environments/environment';
+import { provideModulePermissions }                                                                                                from '@core/permissions/permissions.providers';
+import { homePermissions }                                                                                                         from '@modules/admin/home/home.permissions';
+import { administrationPermissions }                                                                                               from '@modules/admin/administration/administration.permissions';
+import { maintainersPermissions }                                                                                                  from '@modules/admin/maintainers/maintainers.permissions';
 
 import { IonicStorageModule }                 from '@ionic/storage-angular';
 import { provideTransloco, TranslocoService } from '@ngneat/transloco';
@@ -27,7 +27,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { logisticsPermissions }   from '@modules/admin/logistics/logistics.permissions';
 import { inventoryPermissions }   from '@modules/admin/inventory/inventory.permissions';
 import { appsPermissions }        from '@modules/admin/apps/apps.permissions';
-import { checklistsPermissions } from '@modules/admin/checklists/checklists.permissions';
+import { checklistsPermissions }  from '@modules/admin/checklists/checklists.permissions';
 
 const config: SocketIoConfig = {
     url    : 'localhost:5000/ws/board',
@@ -155,7 +155,7 @@ export const appConfig: ApplicationConfig = {
                     lg: '1280px',
                     xl: '1440px',
                 },
-                theme: 'theme-amber',
+                theme: 'default',
                 themes : [
                     {
                         id  : 'theme-default',

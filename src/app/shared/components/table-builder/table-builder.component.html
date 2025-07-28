@@ -94,10 +94,10 @@
         }
 
         <!-- Fila de encabezados de datos -->
-        <tr *matHeaderRowDef="displayedColumns()" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
+        <tr *matHeaderRowDef="displayedColumns()" class="bg-card" mat-header-row></tr>
         <!-- Fila de filtros -->
         @if (containFilters()) {
-            <tr *matHeaderRowDef="displayedFilterColumns()" class="bg-white/25 dark:bg-gray-800/25" mat-header-row></tr>
+            <tr *matHeaderRowDef="displayedFilterColumns()" class="bg-card" mat-header-row></tr>
         }
         <!-- Fila de datos -->
         <tr *matRowDef="let row; columns: displayedColumns();" class="hover:bg-hover transition-all duration-300" mat-row></tr>
