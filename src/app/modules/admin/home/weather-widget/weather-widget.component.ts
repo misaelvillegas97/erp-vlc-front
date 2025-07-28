@@ -98,7 +98,7 @@ import { GeolocationService }                                  from '@modules/ad
     `
 })
 export class WeatherWidgetComponent implements OnInit, OnDestroy {
-    showCount = model<number>(4);
+    showCount = model<number>(0);
 
     readonly #geoService = inject(GeolocationService);
 
