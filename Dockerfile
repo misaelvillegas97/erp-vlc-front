@@ -9,7 +9,7 @@ RUN npm ci
 
 COPY . ./
 
-RUN npm run build
+RUN npm run build:prod
 
 # Stage 2: Serve the app with nginx
 FROM caddy:alpine
