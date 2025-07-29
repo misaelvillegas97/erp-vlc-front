@@ -1,171 +1,173 @@
-<div class="h-full w-full rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative" aria-label="Mapa de ruta GPS" role="application">
+<div class="w-full gap-4 flex flex-col" aria-label="Mapa de ruta GPS" role="application">
 
     <!-- Controles de reproducción -->
-    @if (playbackMode()) {
-        <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
-            <div class="flex items-center justify-between gap-4">
-                <!-- Controles de reproducción -->
-                <div class="flex items-center gap-2">
-                    <button
-                        mat-icon-button
-                        [disabled]="!effectivePlaybackPath() || effectivePlaybackPath().length === 0"
-                        (click)="isPlaying() ? pausePlayback() : startPlayback()"
-                        [matTooltip]="isPlaying() ? 'Pausar reproducción' : 'Iniciar reproducción'"
-                        class="text-blue-600 dark:text-blue-400">
-                        <mat-icon svgIcon="mat_solid:{{ isPlaying() ? 'pause' : 'play_arrow' }}"></mat-icon>
-                    </button>
+    <div class="rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        @if (playbackMode()) {
+            <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+                <div class="flex items-center justify-between gap-4">
+                    <!-- Controles de reproducción -->
+                    <div class="flex items-center gap-2">
+                        <button
+                            mat-icon-button
+                            [disabled]="!effectivePlaybackPath() || effectivePlaybackPath().length === 0"
+                            (click)="isPlaying() ? pausePlayback() : startPlayback()"
+                            [matTooltip]="isPlaying() ? 'Pausar reproducción' : 'Iniciar reproducción'"
+                            class="text-blue-600 dark:text-blue-400">
+                            <mat-icon svgIcon="mat_solid:{{ isPlaying() ? 'pause' : 'play_arrow' }}"></mat-icon>
+                        </button>
 
-                    <button
-                        mat-icon-button
-                        [disabled]="!effectivePlaybackPath() || effectivePlaybackPath().length === 0"
-                        (click)="stopPlayback()"
-                        matTooltip="Detener reproducción"
-                        class="text-red-600 dark:text-red-400">
-                        <mat-icon svgIcon="mat_solid:stop"></mat-icon>
-                    </button>
-                </div>
+                        <button
+                            mat-icon-button
+                            [disabled]="!effectivePlaybackPath() || effectivePlaybackPath().length === 0"
+                            (click)="stopPlayback()"
+                            matTooltip="Detener reproducción"
+                            class="text-red-600 dark:text-red-400">
+                            <mat-icon svgIcon="mat_solid:stop"></mat-icon>
+                        </button>
+                    </div>
 
-                <!-- Barra de progreso -->
-                <div class="flex-1 mx-4">
-                    <mat-slider
-                        [min]="0"
-                        [max]="(effectivePlaybackPath()?.length || 1) - 1"
-                        [step]="1"
-                        [disabled]="!effectivePlaybackPath() || effectivePlaybackPath().length === 0"
-                        class="w-full">
-                        <input
-                            matSliderThumb
-                            [value]="playbackPosition()"
-                            (input)="setPlaybackPosition($event.value)">
-                    </mat-slider>
-                </div>
+                    <!-- Barra de progreso -->
+                    <div class="flex-1 mx-4">
+                        <mat-slider
+                            [min]="0"
+                            [max]="(effectivePlaybackPath()?.length || 1) - 1"
+                            [step]="1"
+                            [disabled]="!effectivePlaybackPath() || effectivePlaybackPath().length === 0"
+                            class="w-full">
+                            <input
+                                matSliderThumb
+                                [value]="playbackPosition()"
+                                (input)="setPlaybackPosition($event.value)">
+                        </mat-slider>
+                    </div>
 
-                <!-- Control de velocidad -->
-                <div class="flex items-center gap-2">
-                    <mat-icon class="text-gray-500 dark:text-gray-400 text-sm">speed</mat-icon>
-                    <mat-select
-                        [value]="playbackSpeed()"
-                        (selectionChange)="setPlaybackSpeed($event.value)"
-                        class="min-w-[80px]">
-                        <mat-option [value]="0.5">0.5x</mat-option>
-                        <mat-option [value]="1">1x</mat-option>
-                        <mat-option [value]="2">2x</mat-option>
-                        <mat-option [value]="5">5x</mat-option>
-                        <mat-option [value]="10">10x</mat-option>
-                    </mat-select>
-                </div>
+                    <!-- Control de velocidad -->
+                    <div class="flex items-center gap-2">
+                        <mat-icon class="text-gray-500 dark:text-gray-400 text-sm">speed</mat-icon>
+                        <mat-select
+                            [value]="playbackSpeed()"
+                            (selectionChange)="setPlaybackSpeed($event.value)"
+                            class="min-w-[80px]">
+                            <mat-option [value]="0.5">0.5x</mat-option>
+                            <mat-option [value]="1">1x</mat-option>
+                            <mat-option [value]="2">2x</mat-option>
+                            <mat-option [value]="5">5x</mat-option>
+                            <mat-option [value]="10">10x</mat-option>
+                        </mat-select>
+                    </div>
 
-                <!-- Información de tiempo y progreso -->
-                <div class="text-sm text-gray-600 dark:text-gray-400 min-w-[200px] text-right">
-                    <div>{{ playbackCurrentTime() || 'Sin datos' }}</div>
-                    <div class="text-xs">
-                        Punto {{ playbackPosition() + 1 }} de {{ effectivePlaybackPath()?.length || 0 }}
-                        ({{ playbackProgress().toFixed(1) }}%)
+                    <!-- Información de tiempo y progreso -->
+                    <div class="text-sm text-gray-600 dark:text-gray-400 min-w-[200px] text-right">
+                        <div>{{ playbackCurrentTime() || 'Sin datos' }}</div>
+                        <div class="text-xs">
+                            Punto {{ playbackPosition() + 1 }} de {{ effectivePlaybackPath()?.length || 0 }}
+                            ({{ playbackProgress().toFixed(1) }}%)
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    }
-    <google-map
-        height="100%"
-        width="100%"
-        [options]="mapOptions"
-        [center]="mapCenter()"
-        (mapInitialized)="onMapInitialized($event)"
-        aria-label="Mapa de ruta GPS">
-
-        <map-polyline
-            [path]="polylinePath()"
-            [options]="{
-        strokeColor: '#4285F4',
-        strokeOpacity: 1.0,
-        strokeWeight: 3
-      }"
-            aria-label="Ruta del vehículo">
-        </map-polyline>
-
-        <!-- Marcadores de inicio y fin -->
-        @let start = startMarker();
-        @if (start) {
-            <map-marker
-                [position]="start.position"
-                [title]="start.title"
-                [icon]="start.icon"
-                [options]="{ clickable: true }"
-                aria-label="Punto de inicio de la ruta">
-            </map-marker>
         }
+        <google-map
+            class="h-96"
+            width="100%"
+            [options]="mapOptions"
+            [center]="mapCenter()"
+            (mapInitialized)="onMapInitialized($event)"
+            aria-label="Mapa de ruta GPS">
 
-        @let end = endMarker();
-        @if (end) {
-            <map-marker
-                [position]="end.position"
-                [title]="end.title"
-                [icon]="end.icon"
-                [options]="{ clickable: true }"
-                aria-label="Punto final de la ruta">
-            </map-marker>
-        }
+            <map-polyline
+                [path]="polylinePath()"
+                [options]="{
+                    strokeColor: '#4285F4',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 3
+                  }"
+                aria-label="Ruta del vehículo">
+            </map-polyline>
 
-        @let currentPosition = currentPositionMarker();
-        @if (currentPosition) {
-            <map-marker
-                [position]="currentPosition.position"
-                [title]="currentPosition.title"
-                [icon]="currentPosition.icon"
-                [options]="{ clickable: true }"
-                aria-label="Ubicación actual del vehículo">
-            </map-marker>
-        }
+            <!-- Marcadores de inicio y fin -->
+            @let start = startMarker();
+            @if (start) {
+                <map-marker
+                    [position]="start.position"
+                    [title]="start.title"
+                    [icon]="start.icon"
+                    [options]="{ clickable: true }"
+                    aria-label="Punto de inicio de la ruta">
+                </map-marker>
+            }
 
-        <!-- Marcador de animación de reproducción -->
-        @let playbackMarker = playbackAnimationMarker();
-        @if (playbackMarker && playbackMode()) {
-            <map-marker
-                [position]="playbackMarker.position"
-                [title]="playbackMarker.title"
-                [icon]="playbackMarker.icon"
-                [options]="{ clickable: true, zIndex: 1000 }"
-                aria-label="Posición actual en la reproducción">
-            </map-marker>
-        }
+            @let end = endMarker();
+            @if (end) {
+                <map-marker
+                    [position]="end.position"
+                    [title]="end.title"
+                    [icon]="end.icon"
+                    [options]="{ clickable: true }"
+                    aria-label="Punto final de la ruta">
+                </map-marker>
+            }
 
-        <!-- Marcadores de puntos GPS -->
-        @for (marker of gpsMarkers(); track marker.index) {
-            <map-marker
-                [position]="marker.position"
-                [title]="marker.title"
-                [options]="marker.options"
-                (mapMouseover)="onMarkerMouseOver(marker)"
-                (mapMouseout)="onMarkerMouseOut()"
-                (mapClick)="onMarkerMouseOver(marker)"
-                aria-label="Punto GPS #{{ marker.index + 1 }}"
-                tabindex="0">
-            </map-marker>
-        }
+            @let currentPosition = currentPositionMarker();
+            @if (currentPosition) {
+                <map-marker
+                    [position]="currentPosition.position"
+                    [title]="currentPosition.title"
+                    [icon]="currentPosition.icon"
+                    [options]="{ clickable: true }"
+                    aria-label="Ubicación actual del vehículo">
+                </map-marker>
+            }
 
-        @if (selectedMarker()) {
-            <map-info-window
-                [position]="selectedMarker().position"
-                [options]="infoWindowOptions()">
-                <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-xs pt-2 pr-2 pb-4">
-                    @let point = selectedMarker().point;
-                    <p class="text-gray-600 dark:text-gray-400"><strong>Fecha y hora:</strong></p>
-                    <p>{{ formatDateTime(+point.timestamp) }}</p>
-                    <p class="text-gray-600 dark:text-gray-400"><strong>Coordenadas:</strong></p>
-                    <p>{{ point.latitude.toFixed(6) }}, {{ point.longitude.toFixed(6) }}</p>
-                    <p class="text-gray-600 dark:text-gray-400"><strong>Velocidad:</strong></p>
-                    <p>{{ formatSpeed(point.speed) }}</p>
-                    <p class="text-gray-600 dark:text-gray-400"><strong>Distancia recorrida:</strong></p>
-                    <p>{{ formatDistance(point.totalDistance) }}</p>
-                </div>
-            </map-info-window>
-        }
-    </google-map>
+            <!-- Marcador de animación de reproducción -->
+            @let playbackMarker = playbackAnimationMarker();
+            @if (playbackMarker && playbackMode()) {
+                <map-marker
+                    [position]="playbackMarker.position"
+                    [title]="playbackMarker.title"
+                    [icon]="playbackMarker.icon"
+                    [options]="{ clickable: true, zIndex: 1000 }"
+                    aria-label="Posición actual en la reproducción">
+                </map-marker>
+            }
+
+            <!-- Marcadores de puntos GPS -->
+            @for (marker of gpsMarkers(); track marker.index) {
+                <map-marker
+                    [position]="marker.position"
+                    [title]="marker.title"
+                    [options]="marker.options"
+                    (mapMouseover)="onMarkerMouseOver(marker)"
+                    (mapMouseout)="onMarkerMouseOut()"
+                    (mapClick)="onMarkerMouseOver(marker)"
+                    aria-label="Punto GPS #{{ marker.index + 1 }}"
+                    tabindex="0">
+                </map-marker>
+            }
+
+            @if (selectedMarker()) {
+                <map-info-window
+                    [position]="selectedMarker().position"
+                    [options]="infoWindowOptions()">
+                    <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-xs pt-2 pr-2 pb-4">
+                        @let point = selectedMarker().point;
+                        <p class="text-gray-600 dark:text-gray-400"><strong>Fecha y hora:</strong></p>
+                        <p>{{ formatDateTime(+point.timestamp) }}</p>
+                        <p class="text-gray-600 dark:text-gray-400"><strong>Coordenadas:</strong></p>
+                        <p>{{ point.latitude.toFixed(6) }}, {{ point.longitude.toFixed(6) }}</p>
+                        <p class="text-gray-600 dark:text-gray-400"><strong>Velocidad:</strong></p>
+                        <p>{{ formatSpeed(point.speed) }}</p>
+                        <p class="text-gray-600 dark:text-gray-400"><strong>Distancia recorrida:</strong></p>
+                        <p>{{ formatDistance(point.totalDistance) }}</p>
+                    </div>
+                </map-info-window>
+            }
+        </google-map>
+    </div>
 
     <!-- Advertencia sobre precisión de las líneas guía -->
     @if (shouldShowPolylineWarning()) {
-        <div class="absolute bottom-4 left-4 right-4 bg-amber-200 bg-opacity-40 border border-amber-200 dark:border-amber-700 rounded-lg p-3 shadow-lg backdrop-blur-sm">
+        <div class=" bg-amber-200 dark:bg-amber-400 border border-amber-200 dark:border-amber-700 rounded-lg p-3 shadow-lg backdrop-blur-sm">
             <div class="flex items-start gap-3">
                 <div class="flex-shrink-0 mt-0.5">
                     <mat-icon svgIcon="heroicons_outline:information-circle" class="text-black text-lg"></mat-icon>

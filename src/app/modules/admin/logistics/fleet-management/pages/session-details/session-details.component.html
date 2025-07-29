@@ -126,7 +126,7 @@
                             Ruta GPS
                         </h2>
                     </div>
-                    <mat-card-content class="p-5">
+                    <mat-card-content class="p-5 flex flex-col gap-4">
                         @if (!session()?.gps || session()?.gps.length === 0) {
                             <div class="flex flex-col items-center justify-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700" role="alert">
                                 <mat-icon svgIcon="heroicons_outline:map-pin" class="text-gray-400 dark:text-gray-500 text-5xl mb-4" aria-hidden="true"></mat-icon>
@@ -136,7 +136,7 @@
                             </div>
                         } @else {
                             <!-- Controles de fuente de polylines -->
-                            <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
                                         <mat-icon svgIcon="heroicons_outline:adjustments-horizontal" class="text-gray-500 dark:text-gray-400 mr-2"></mat-icon>
@@ -172,20 +172,16 @@
                             </div>
 
                             <!-- Mapa de Google -->
-                            <div class="h-96 w-full mb-6">
-                                <app-gps-map
-                                    [session]="session()"
-                                    [gpsData]="session()?.gps || []"
-                                    [isActive]="session()?.status === SessionStatus.ACTIVE"
-                                    [playbackMode]="playbackMode()"
-                                    [polylineSource]="polylineSource()">
-                                </app-gps-map>
-                            </div>
+                            <app-gps-map
+                                [session]="session()"
+                                [gpsData]="session()?.gps || []"
+                                [isActive]="session()?.status === SessionStatus.ACTIVE"
+                                [playbackMode]="playbackMode()"
+                                [polylineSource]="polylineSource()">
+                            </app-gps-map>
 
                             <!-- Resumen de datos GPS -->
-                            <div class="mb-6">
-                                <app-gps-summary [gpsData]="session()?.gps || []"></app-gps-summary>
-                            </div>
+                            <app-gps-summary [gpsData]="session()?.gps || []"></app-gps-summary>
 
                             <!-- Tabla de puntos GPS -->
                             <app-gps-table

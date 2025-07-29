@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit, signal } from '@angular/core';
 import { CommonModule }                                              from '@angular/common';
 import { MatIconModule }                                             from '@angular/material/icon';
+import { ScrollingModule }                                           from '@angular/cdk/scrolling';
 import { GpsGeneric }                                                from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
 
 @Component({
@@ -8,7 +9,8 @@ import { GpsGeneric }                                                from '@modu
     standalone     : true,
     imports        : [
         CommonModule,
-        MatIconModule
+        MatIconModule,
+        ScrollingModule
     ],
     templateUrl    : './gps-table.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -19,6 +21,11 @@ export class GpsTableComponent implements OnInit {
 
     // Responsive settings
     isMobile = signal<boolean>(false);
+
+    // Virtual scrolling configuration
+    readonly DESKTOP_ITEM_HEIGHT = 64; // Height of table row in pixels
+    readonly MOBILE_ITEM_HEIGHT = 120; // Height of mobile card in pixels
+    readonly VIEWPORT_HEIGHT = 400; // Height of the scrollable viewport in pixels
 
     ngOnInit(): void {
         // Check if we're on a mobile device
@@ -72,5 +79,13 @@ export class GpsTableComponent implements OnInit {
             return 'N/A';
         }
         return `${ distance.toFixed(2) } km`;
+    }
+
+    /**
+     * TrackBy function for virtual scrolling optimization
+     * Uses timestamp as unique identifier for each GPS point
+     */
+    trackByTimestamp(index: number, item: GpsGeneric): number {
+        return item.timestamp;
     }
 }
