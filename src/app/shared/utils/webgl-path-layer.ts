@@ -143,7 +143,16 @@ export class WebGLPathLayer {
     setMap(map: google.maps.Map | null): void {
         this.map = map;
         if (this.overlayView) {
-            this.overlayView.setMap(map);
+            try {
+                this.overlayView.setMap(map);
+            } catch (error) {
+                console.warn('WebGL overlay failed, falling back to Canvas overlay:', error);
+                // If WebGL overlay fails, create and use canvas overlay instead
+                this.createCanvasOverlay();
+                if (this.overlayView) {
+                    this.overlayView.setMap(map);
+                }
+            }
         }
     }
 

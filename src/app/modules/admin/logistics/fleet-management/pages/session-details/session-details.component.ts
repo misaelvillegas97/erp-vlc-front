@@ -71,6 +71,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
     sessionId = signal<string>('');
     showSpeedsInPdf = signal(false);
     playbackMode = signal(false);
+    polylineSource = signal<'gps' | 'routePolygon'>('gps'); // Default to GPS data
 
     // Theme state for PDF export
     private originalThemeState: boolean = false;
@@ -210,6 +211,10 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
 
     togglePlaybackMode(): void {
         this.playbackMode.set(!this.playbackMode());
+    }
+
+    setPolylineSource(source: 'gps' | 'routePolygon'): void {
+        this.polylineSource.set(source);
     }
 
     /**

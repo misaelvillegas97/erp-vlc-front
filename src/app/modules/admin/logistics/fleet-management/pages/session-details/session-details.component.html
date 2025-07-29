@@ -135,12 +135,50 @@
                                 </p>
                             </div>
                         } @else {
+                            <!-- Controles de fuente de polylines -->
+                            <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <mat-icon svgIcon="heroicons_outline:adjustments-horizontal" class="text-gray-500 dark:text-gray-400 mr-2"></mat-icon>
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Fuente de datos para polylines:</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button
+                                            mat-button
+                                            [class]="polylineSource() === 'gps' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400'"
+                                            (click)="setPolylineSource('gps')"
+                                            class="px-3 py-1 rounded-md text-sm font-medium transition-colors">
+                                            GPS Data
+                                        </button>
+                                        <button
+                                            mat-button
+                                            [class]="polylineSource() === 'routePolygon' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' : 'text-gray-600 dark:text-gray-400'"
+                                            (click)="setPolylineSource('routePolygon')"
+                                            [disabled]="!session()?.routePolygon"
+                                            class="px-3 py-1 rounded-md text-sm font-medium transition-colors">
+                                            <span class="flex items-center">
+                                                Route Polygon
+                                                <span class="ml-1 px-1.5 py-0.5 text-xs bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200 rounded">Beta</span>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                                @if (polylineSource() === 'routePolygon' && !session()?.routePolygon) {
+                                    <div class="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                                        <mat-icon svgIcon="heroicons_outline:exclamation-triangle" class="text-xs mr-1"></mat-icon>
+                                        No hay datos de Route Polygon disponibles para esta sesión.
+                                    </div>
+                                }
+                            </div>
+
                             <!-- Mapa de Google -->
                             <div class="h-96 w-full mb-6">
                                 <app-gps-map
+                                    [session]="session()"
                                     [gpsData]="session()?.gps || []"
                                     [isActive]="session()?.status === SessionStatus.ACTIVE"
-                                    [playbackMode]="playbackMode()">
+                                    [playbackMode]="playbackMode()"
+                                    [polylineSource]="polylineSource()">
                                 </app-gps-map>
                             </div>
 

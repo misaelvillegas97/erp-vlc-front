@@ -1,14 +1,15 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, computed, input, OnChanges, OnDestroy, signal, SimpleChanges, viewChildren } from '@angular/core';
-import { CommonModule }                                                                                                                  from '@angular/common';
-import { GoogleMapsModule, MapInfoWindow }                                                                                               from '@angular/google-maps';
-import { MatButtonModule }                                                                                                               from '@angular/material/button';
-import { MatIconModule }                                                                                                                 from '@angular/material/icon';
-import { MatSliderModule }                                                                                                               from '@angular/material/slider';
-import { MatSelectModule }                                                                                                               from '@angular/material/select';
-import { MatTooltipModule }                                                                                                              from '@angular/material/tooltip';
-import { GpsGeneric }                                                                                                                    from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
-import { WebGLPathLayer }                                                                                                                from '@shared/utils/webgl-path-layer';
-import { calculateRotationBetweenPoints, createGpsDataHash, formatDateTime, interpolateGpsPoints, isValidGpsPoint }                      from '@shared/utils/gps.utils';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, inject, input, OnChanges, OnDestroy, signal, SimpleChanges, viewChildren } from '@angular/core';
+import { CommonModule }                                                                                                                                  from '@angular/common';
+import { GoogleMapsModule, MapInfoWindow }                                                                                                               from '@angular/google-maps';
+import { MatButtonModule }                                                                                                                               from '@angular/material/button';
+import { MatIconModule }                                                                                                                                 from '@angular/material/icon';
+import { MatSliderModule }                                                                                                                               from '@angular/material/slider';
+import { MatSelectModule }                                                                                                                               from '@angular/material/select';
+import { MatTooltipModule }                                                                                                                              from '@angular/material/tooltip';
+import { GpsGeneric, VehicleSession }                                                                                                                    from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
+import { WebGLPathLayer }                                                                                                                                from '@shared/utils/webgl-path-layer';
+import { calculateRotationBetweenPoints, createGpsDataHash, formatDateTime, formatDistance, formatSpeed }                                                from '@shared/utils/gps.utils';
+import { RoadsApiService }                                                                                                                               from '@shared/services/roads-api.service';
 
 @Component({
     selector       : 'app-gps-map',
@@ -32,8 +33,10 @@ import { calculateRotationBetweenPoints, createGpsDataHash, formatDateTime, inte
 })
 export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     gpsData = input<GpsGeneric[]>();
+    session = input<VehicleSession | null>();
     isActive = input<boolean>(false);
     playbackMode = input<boolean>(false);
+    polylineSource = input<'gps' | 'routePolygon'>('gps'); // Default to GPS data for backward compatibility
 
     // Map signals
     mapInstance = signal<google.maps.Map | null>(null);
@@ -76,10 +79,122 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     // Zoom control signals for playback
     private originalZoomLevel = signal<number | null>(null); // Original zoom level before playback
-    private playbackZoomLevel = signal<number>(15); // Optimal zoom level for playback viewing
+    private playbackZoomLevel = signal<number>(18); // Optimal zoom level for playback viewing
     private isPlaybackZoomActive = signal<boolean>(false); // Whether playback zoom is currently active
 
     infoWindows = viewChildren(MapInfoWindow);
+
+    // Inject services
+    private readonly roadsApiService = inject(RoadsApiService);
+
+    constructor() {
+        // Effect to automatically update map when polyline source or data changes
+        effect(() => {
+            const selectedData = this.selectedPolylineData();
+            const mapInitialized = this.mapInitialized();
+
+            // Only trigger update if map is initialized and we have data
+            if (mapInitialized && selectedData && selectedData.length > 0) {
+                // Use setTimeout to avoid potential circular updates
+                setTimeout(() => {
+                    this.setupMapData();
+                }, 0);
+            }
+        });
+    }
+
+    // Computed properties for data handling
+    effectiveGpsData = computed(() => {
+        // Prioritize session GPS data, then fallback to direct gpsData input
+        const sessionData = this.session();
+        if (sessionData?.gps && sessionData.gps.length > 0) {
+            return sessionData.gps;
+        }
+        return this.gpsData() || [];
+    });
+
+    routePolygonPath = computed(() => {
+        const sessionData = this.session();
+        if (sessionData?.routePolygon?.geometry?.coordinates) {
+            // Convert routePolygon coordinates to LatLngLiteral format
+            // routePolygon.geometry.coordinates is number[][] where each inner array is [lng, lat]
+            return sessionData.routePolygon.geometry.coordinates.map(coord => ({
+                lat: coord[1], // latitude is second element
+                lng: coord[0]  // longitude is first element
+            }));
+        }
+        return null;
+    });
+
+    // Computed property to determine which polyline data to use based on source selection
+    selectedPolylineData = computed(() => {
+        const source = this.polylineSource();
+
+        if (source === 'routePolygon') {
+            const routePolygon = this.routePolygonPath();
+            if (routePolygon && routePolygon.length > 0) {
+                return routePolygon;
+            }
+        }
+
+        // Default to GPS data (either when source is 'gps' or when routePolygon is not available)
+        const gpsData = this.effectiveGpsData();
+        if (gpsData && gpsData.length > 0) {
+            return gpsData.map(point => ({
+                lat: point.latitude,
+                lng: point.longitude
+            }));
+        }
+
+        return [];
+    });
+
+    // Computed property for effective playback path - uses selected polyline data
+    effectivePlaybackPath = computed(() => {
+        return this.selectedPolylineData();
+    });
+
+    // Computed property to determine if polyline warning should be shown
+    // Only show warning when "Beta" mode (routePolygon) is selected
+    shouldShowPolylineWarning = computed(() => {
+        const source = this.polylineSource();
+        const polyline = this.polylinePath();
+        return source === 'routePolygon' && polyline && polyline.length > 0;
+    });
+
+    // Utility functions for LatLngLiteral interpolation and rotation
+    private interpolateLatLngPoints(
+        startPoint: google.maps.LatLngLiteral,
+        endPoint: google.maps.LatLngLiteral,
+        progress: number
+    ): google.maps.LatLngLiteral {
+        if (!startPoint || !endPoint ||
+            typeof startPoint.lat !== 'number' || typeof startPoint.lng !== 'number' ||
+            typeof endPoint.lat !== 'number' || typeof endPoint.lng !== 'number') {
+            return {lat: 0, lng: 0};
+        }
+
+        return {
+            lat: startPoint.lat + (endPoint.lat - startPoint.lat) * progress,
+            lng: startPoint.lng + (endPoint.lng - startPoint.lng) * progress
+        };
+    }
+
+    private calculateRotationBetweenLatLngPoints(
+        fromPoint: google.maps.LatLngLiteral,
+        toPoint: google.maps.LatLngLiteral
+    ): number {
+        if (!fromPoint || !toPoint ||
+            typeof fromPoint.lat !== 'number' || typeof fromPoint.lng !== 'number' ||
+            typeof toPoint.lat !== 'number' || typeof toPoint.lng !== 'number') {
+            return 0;
+        }
+
+        return Math.atan2(
+            toPoint.lat - fromPoint.lat,
+            toPoint.lng - fromPoint.lng
+        ) * (180 / Math.PI);
+    }
 
     // Map options with optimized settings for caching
     mapOptions = {
@@ -95,7 +210,8 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
         clickableIcons: false, // Disable clickable icons to improve performance
         maxZoom       : 18, // Limit max zoom to reduce tile loading
         minZoom       : 3, // Set minimum zoom
-        mapId         : 'gps-tracking-map' // Unique ID for the map
+        mapId        : 'gps-tracking-map', // Unique ID for the map
+        renderingType: 'VECTOR' // Enable vector rendering for WebGLOverlayView support
     };
 
     // Info window options with proper pixelOffset and dark theme support
@@ -144,14 +260,28 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     });
 
     ngAfterViewInit(): void {
-        if (this.gpsData()?.length > 0) {
+        if (this.effectiveGpsData().length > 0 || this.routePolygonPath()) {
             this.setupMapData();
         }
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['gpsData'] && !changes['gpsData'].firstChange) {
+        if ((changes['gpsData'] && !changes['gpsData'].firstChange) ||
+            (changes['session'] && !changes['session'].firstChange)) {
             this.updateMapDataIfNeeded();
+        }
+
+        // Handle polyline source changes - force full map update when switching sources
+        if (changes['polylineSource'] && !changes['polylineSource'].firstChange) {
+            // Reset optimization flags to ensure fresh rendering
+            this.isFirstDataLoad.set(true);
+            this.lastGpsDataLength.set(0);
+            this.lastGpsDataHash.set('');
+
+            // Force full map data setup when source changes
+            if (this.mapInitialized()) {
+                this.setupMapData();
+            }
         }
 
         // Handle playback mode changes
@@ -189,21 +319,35 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
             this.userInteracting.set(true);
             setTimeout(() => this.userInteracting.set(false), 2000);
         });
-        
-        if (this.gpsData()?.length > 0) {
+
+        if (this.effectiveGpsData().length > 0 || this.routePolygonPath()) {
             this.setupMapData();
         }
     }
 
     private updateMapDataIfNeeded(): void {
-        const currentData = this.gpsData();
-        if (!currentData || currentData.length === 0) {
+        const selectedData = this.selectedPolylineData();
+        const polylineSource = this.polylineSource();
+
+        if (!selectedData || selectedData.length === 0) {
+            return;
+        }
+
+        // For route polygon source, always use full setup since data structure is different
+        if (polylineSource === 'routePolygon') {
+            this.setupMapData();
+            return;
+        }
+
+        // For GPS data source, use optimized incremental updates when possible
+        const currentGpsData = this.effectiveGpsData();
+        if (!currentGpsData || currentGpsData.length === 0) {
             return;
         }
 
         // Create a simple hash of the GPS data to detect changes
-        const currentLength = currentData.length;
-        const currentHash = createGpsDataHash(currentData);
+        const currentLength = currentGpsData.length;
+        const currentHash = createGpsDataHash(currentGpsData);
 
         // Only update if data has actually changed
         if (currentLength !== this.lastGpsDataLength() || currentHash !== this.lastGpsDataHash()) {
@@ -222,11 +366,12 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     private incrementalUpdateMapData(): void {
-        if (!this.gpsData() || this.gpsData().length === 0 || !this.mapInstance()) {
+        const currentData = this.effectiveGpsData();
+        if (!currentData || currentData.length === 0 || !this.mapInstance()) {
             return;
         }
 
-        const path = this.gpsData().map(point => ({
+        const path = currentData.map(point => ({
             lat: point.latitude,
             lng: point.longitude
         }));
@@ -260,7 +405,8 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     // Playback control methods
     startPlayback(): void {
-        if (!this.playbackMode() || !this.gpsData() || this.gpsData().length === 0) {
+        const playbackPath = this.effectivePlaybackPath();
+        if (!this.playbackMode() || !playbackPath || playbackPath.length === 0) {
             return;
         }
 
@@ -322,15 +468,15 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     setPlaybackPosition(position: number): void {
-        const gpsData = this.gpsData();
-        if (!gpsData || gpsData.length === 0 || position < 0 || position >= gpsData.length) {
+        const playbackPath = this.effectivePlaybackPath();
+        if (!playbackPath || playbackPath.length === 0 || position < 0 || position >= playbackPath.length) {
             return;
         }
 
-        // Additional validation to ensure the GPS point at this position exists and has required properties
-        const gpsPoint = gpsData[position];
-        if (!gpsPoint || typeof gpsPoint.latitude !== 'number' || typeof gpsPoint.longitude !== 'number') {
-            console.warn(`Invalid GPS data at position ${ position }:`, gpsPoint);
+        // Additional validation to ensure the polyline point at this position exists and has required properties
+        const polylinePoint = playbackPath[position];
+        if (!polylinePoint || typeof polylinePoint.lat !== 'number' || typeof polylinePoint.lng !== 'number') {
+            console.warn(`Invalid polyline data at position ${ position }:`, polylinePoint);
             return;
         }
 
@@ -343,38 +489,32 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     private animatePlayback(): void {
-        if (!this.isPlaying() || !this.gpsData() || this.gpsData().length === 0) {
+        const playbackPath = this.effectivePlaybackPath();
+        if (!this.isPlaying() || !playbackPath || playbackPath.length === 0) {
             return;
         }
 
         const currentPosition = this.playbackPosition();
-        const gpsData = this.gpsData();
 
-        if (currentPosition >= gpsData.length - 1) {
+        if (currentPosition >= playbackPath.length - 1) {
             // Playback finished
             this.stopPlayback();
             return;
         }
 
         // Start smooth interpolation to next point
-        const currentPoint = gpsData[currentPosition];
-        const nextPoint = gpsData[currentPosition + 1];
+        const currentPoint = playbackPath[currentPosition];
+        const nextPoint = playbackPath[currentPosition + 1];
 
         if (currentPoint && nextPoint &&
-            typeof currentPoint.latitude === 'number' &&
-            typeof currentPoint.longitude === 'number' &&
-            typeof nextPoint.latitude === 'number' &&
-            typeof nextPoint.longitude === 'number') {
+            typeof currentPoint.lat === 'number' &&
+            typeof currentPoint.lng === 'number' &&
+            typeof nextPoint.lat === 'number' &&
+            typeof nextPoint.lng === 'number') {
 
-            // Calculate total time for this segment
-            let segmentDuration: number; // Default 1 second
-            if (typeof currentPoint.timestamp === 'number' &&
-                typeof nextPoint.timestamp === 'number') {
-                const timeDiff = (nextPoint.timestamp - currentPoint.timestamp) * 1000;
-                segmentDuration = Math.max(500, timeDiff / this.playbackSpeed()); // Minimum 500ms
-            } else {
-                segmentDuration = Math.max(500, 1000 / this.playbackSpeed());
-            }
+            // Calculate segment duration based on playback speed
+            // Since polyline points don't have timestamps, use consistent timing
+            const segmentDuration = Math.max(100, 500 / this.playbackSpeed()); // Minimum 100ms, default 500ms
 
             // Start smooth interpolation
             this.startSmoothInterpolation(currentPoint, nextPoint, segmentDuration, () => {
@@ -441,11 +581,11 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
             return;
         }
 
-        // Linear interpolation between start and end points
-        const position = interpolateGpsPoints(startPoint, endPoint, progress);
+        // Linear interpolation between start and end points using LatLngLiteral coordinates
+        const position = this.interpolateLatLngPoints(startPoint, endPoint, progress);
 
-        // Calculate smooth rotation based on direction of movement
-        const rotation = calculateRotationBetweenPoints(startPoint, endPoint);
+        // Calculate smooth rotation based on direction of movement using LatLngLiteral coordinates
+        const rotation = this.calculateRotationBetweenLatLngPoints(startPoint, endPoint);
 
         // Create or update animation marker with interpolated position
         this.playbackAnimationMarker.set({
@@ -502,48 +642,56 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     private updatePlaybackProgress(): void {
-        const gpsData = this.gpsData();
+        const playbackPath = this.effectivePlaybackPath();
         const currentPosition = this.playbackPosition();
 
-        if (!gpsData || gpsData.length === 0 || currentPosition < 0 || currentPosition >= gpsData.length) {
+        if (!playbackPath || playbackPath.length === 0 || currentPosition < 0 || currentPosition >= playbackPath.length) {
             return;
         }
 
-        const progress = (currentPosition / (gpsData.length - 1)) * 100;
+        const progress = (currentPosition / (playbackPath.length - 1)) * 100;
         this.playbackProgress.set(Math.min(100, Math.max(0, progress)));
 
-        // Update current time display
-        const currentPoint = gpsData[currentPosition];
-        if (currentPoint && typeof currentPoint.timestamp === 'number') {
-            this.playbackCurrentTime.set(formatDateTime(currentPoint.timestamp));
+        // Update current time display - since polyline points don't have timestamps,
+        // try to get timestamp from corresponding GPS data if available
+        const gpsData = this.effectiveGpsData();
+        if (gpsData && gpsData.length > 0 && currentPosition < gpsData.length) {
+            const currentGpsPoint = gpsData[currentPosition];
+            if (currentGpsPoint && typeof currentGpsPoint.timestamp === 'number') {
+                this.playbackCurrentTime.set(formatDateTime(currentGpsPoint.timestamp));
+            } else {
+                this.playbackCurrentTime.set(`Punto ${ currentPosition + 1 } de ${ playbackPath.length }`);
+            }
+        } else {
+            this.playbackCurrentTime.set(`Punto ${ currentPosition + 1 } de ${ playbackPath.length }`);
         }
     }
 
     private updatePlaybackMarker(): void {
-        const gpsData = this.gpsData();
+        const playbackPath = this.effectivePlaybackPath();
         const currentPosition = this.playbackPosition();
 
-        if (!gpsData || gpsData.length === 0 || currentPosition < 0 || currentPosition >= gpsData.length) {
+        if (!playbackPath || playbackPath.length === 0 || currentPosition < 0 || currentPosition >= playbackPath.length) {
             return;
         }
 
-        const currentPoint = gpsData[currentPosition];
-        if (!currentPoint || typeof currentPoint.latitude !== 'number' || typeof currentPoint.longitude !== 'number') {
-            console.warn(`Invalid GPS data at position ${ currentPosition }:`, currentPoint);
+        const currentPoint = playbackPath[currentPosition];
+        if (!currentPoint || typeof currentPoint.lat !== 'number' || typeof currentPoint.lng !== 'number') {
+            console.warn(`Invalid polyline data at position ${ currentPosition }:`, currentPoint);
             return;
         }
 
         const position = {
-            lat: currentPoint.latitude,
-            lng: currentPoint.longitude
+            lat: currentPoint.lat,
+            lng: currentPoint.lng
         };
 
         // Calculate rotation based on direction of movement
         let rotation = 0;
         if (currentPosition > 0) {
-            const prevPoint = gpsData[currentPosition - 1];
-            if (isValidGpsPoint(prevPoint)) {
-                rotation = calculateRotationBetweenPoints(prevPoint, currentPoint);
+            const prevPoint = playbackPath[currentPosition - 1];
+            if (prevPoint && typeof prevPoint.lat === 'number' && typeof prevPoint.lng === 'number') {
+                rotation = this.calculateRotationBetweenLatLngPoints(prevPoint, currentPoint);
             }
         }
 
@@ -595,25 +743,55 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     private setupMapData(): void {
-        if (!this.gpsData() || this.gpsData().length === 0 || !this.mapInstance()) {
+        const selectedPolylineData = this.selectedPolylineData();
+        const currentGpsData = this.effectiveGpsData();
+        const polylineSource = this.polylineSource();
+
+        if (!selectedPolylineData || selectedPolylineData.length === 0 || !this.mapInstance()) {
             return;
         }
 
         this.cleanupMarkers();
 
-        const path = this.gpsData().map(point => ({
-            lat: point.latitude,
-            lng: point.longitude
-        }));
+        // Use the selected polyline data for rendering
+        if (polylineSource === 'routePolygon') {
+            // Using routePolygon data - render directly
+            this.renderPath(selectedPolylineData);
 
-        const lastPosition = path[path.length - 1];
-        this.mapCenter.set(lastPosition);
+            // Set map center to the last position
+            const lastPosition = selectedPolylineData[selectedPolylineData.length - 1];
+            this.mapCenter.set(lastPosition);
 
-        // Use WebGL for routes with many points (more than 1000)
+            // Create markers using GPS data if available, otherwise use routePolygon endpoints
+            if (currentGpsData && currentGpsData.length > 0) {
+                const gpsPath = currentGpsData.map(point => ({
+                    lat: point.latitude,
+                    lng: point.longitude
+                }));
+                this.createMarkers(gpsPath);
+            } else {
+                // Create basic start/end markers from routePolygon
+                this.createMarkersFromPolygon(selectedPolylineData);
+            }
+        } else {
+            // Using GPS data - apply Roads API if available for smoother visualization
+            const lastPosition = selectedPolylineData[selectedPolylineData.length - 1];
+            this.mapCenter.set(lastPosition);
+
+
+            this.renderPath(selectedPolylineData);
+
+            // Create markers using GPS points
+            this.createMarkers(selectedPolylineData);
+        }
+    }
+
+    private renderPath(path: google.maps.LatLngLiteral[]): void {
+        // Always set the polyline path first to ensure polylines are visible
+        this.polylinePath.set(path);
+
+        // Use WebGL for routes with many points (more than 1000) as an overlay
         if (path.length > 1000) {
-            // Don't set polylinePath for WebGL rendering to avoid duplicate lines
-            this.polylinePath.set([]);
-
             try {
                 // Create and add the WebGL layer
                 if (this.webGLPathLayer) {
@@ -628,30 +806,38 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
                 // Wait for the map to be fully initialized before setting the WebGL layer
                 setTimeout(() => {
                     if (this.webGLPathLayer && this.mapInstance()) {
-                        this.webGLPathLayer.setMap(this.mapInstance());
+                        try {
+                            this.webGLPathLayer.setMap(this.mapInstance());
+                            console.log('WebGL layer set successfully for route with', path.length, 'points');
+                            // For now, keep both WebGL and standard polylines visible to ensure polylines are always shown
+                            // In the future, we could implement better WebGL success detection
+                        } catch (webglError) {
+                            console.warn('Failed to set WebGL layer on map:', webglError);
+                            // Keep standard polyline visible if WebGL fails
+                        }
                     }
                 }, 100);
 
             } catch (error) {
-                console.warn('Failed to create WebGL layer, falling back to polyline:', error);
-                // Fallback to standard polyline if WebGL fails
-                this.polylinePath.set(path);
+                console.warn('Failed to create WebGL layer, using standard polyline:', error);
+                // Keep the standard polyline if WebGL fails
                 this.webGLPathLayer = null;
             }
         } else {
-            // Use standard polyline for smaller routes
-            this.polylinePath.set(path);
-
-            // Make sure no WebGL layer is active
+            // Make sure no WebGL layer is active for smaller routes
             if (this.webGLPathLayer) {
                 this.webGLPathLayer.setMap(null);
                 this.webGLPathLayer = null;
             }
         }
+    }
+
+    private createMarkers(originalPath: google.maps.LatLngLiteral[]): void {
+        const lastPosition = originalPath[originalPath.length - 1];
 
         // Create start marker
         this.startMarker.set({
-            position: path[0],
+            position: originalPath[0],
             title   : 'Inicio',
             icon    : {
                 url       : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzRDQUY1MCI+PHBhdGggZD0iTTEyIDJDOC4xMyAyIDUgNS4xMyA1IDljMCA1LjI1IDcgMTMgNyAxM3M3LTcuNzUgNy0xM2MwLTMuODctMy4xMy03LTctN7ptMCA5LjVjLTEuMzggMC0yLjUtMS4xMi0yLjUtMi41czEuMTItMi41IDIuNS0yLjUgMi41IDEuMTIgMi41IDIuNS0xLjEyIDIuNS0yLjUgMi41eiIvPjwvc3ZnPg==',
@@ -683,9 +869,9 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
                     fillOpacity : 0.8,
                     strokeColor : '#FFFFFF',
                     strokeWeight: 2,
-                    rotation: path.length > 1 ? calculateRotationBetweenPoints(
-                        {latitude: path[path.length - 2].lat, longitude: path[path.length - 2].lng} as GpsGeneric,
-                        {latitude: path[path.length - 1].lat, longitude: path[path.length - 1].lng} as GpsGeneric
+                    rotation: originalPath.length > 1 ? calculateRotationBetweenPoints(
+                        {latitude: originalPath[originalPath.length - 2].lat, longitude: originalPath[originalPath.length - 2].lng} as GpsGeneric,
+                        {latitude: originalPath[originalPath.length - 1].lat, longitude: originalPath[originalPath.length - 1].lng} as GpsGeneric
                     ) : 0
                 }
             });
@@ -693,10 +879,11 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
         // Create GPS point markers
         const gpsMarkerData = [];
+        const currentData = this.effectiveGpsData();
 
-        this.gpsData().forEach((point, index) => {
+        currentData.forEach((point, index) => {
             // Only create markers for selected points if there are too many
-            if (this.gpsData().length > 100 && index % Math.ceil(this.gpsData().length / 100) !== 0) {
+            if (currentData.length > 100 && index % Math.ceil(currentData.length / 100) !== 0) {
                 return;
             }
 
@@ -730,12 +917,83 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
         // Only fit bounds if user is not interacting with the map and it's the first data load
         if (this.mapInstance() && !this.userInteracting() && this.isFirstDataLoad()) {
             const bounds = new google.maps.LatLngBounds();
-            path.forEach(point => bounds.extend(point));
+            originalPath.forEach(point => bounds.extend(point));
             this.mapInstance().fitBounds(bounds);
             this.isFirstDataLoad.set(false);
         } else if (this.mapInstance() && this.mapCenter().lat === 0 && this.mapCenter().lng === 0) {
             // Set initial center if not set yet, but don't change zoom
-            this.mapCenter.set(path[path.length - 1]);
+            this.mapCenter.set(originalPath[originalPath.length - 1]);
+            this.mapInstance().setCenter(this.mapCenter());
+        }
+
+        // Mark as no longer first data load if it was
+        if (this.isFirstDataLoad()) {
+            this.isFirstDataLoad.set(false);
+        }
+    }
+
+    private createMarkersFromPolygon(polygonPath: google.maps.LatLngLiteral[]): void {
+        if (!polygonPath || polygonPath.length === 0) {
+            return;
+        }
+
+        const firstPosition = polygonPath[0];
+        const lastPosition = polygonPath[polygonPath.length - 1];
+
+        // Create start marker
+        this.startMarker.set({
+            position: firstPosition,
+            title   : 'Inicio',
+            icon    : {
+                url       : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzRDQUY1MCI+PHBhdGggZD0iTTEyIDJDOC4xMyAyIDUgNS4xMyA1IDljMCA1LjI1IDcgMTMgNyAxM3M3LTcuNzUgNy0xM2MwLTMuODctMy4xMy03LTctN7ptMCA5LjVjLTEuMzggMC0yLjUtMS4xMi0yLjUtMi41czEuMTItMi41IDIuNS0yLjUgMi41IDEuMTIgMi41IDIuNS0xLjEyIDIuNS0yLjUgMi41eiIvPjwvc3ZnPg==',
+                scaledSize: new google.maps.Size(36, 36)
+            }
+        });
+
+        // Create end marker if session is not active
+        if (!this.isActive()) {
+            this.endMarker.set({
+                position: lastPosition,
+                title   : 'Fin',
+                icon    : {
+                    url       : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0Y0NDMzNiI+PHBhdGggZD0iTTIxIDNMMyA5djFsMi4xIDIuOEwzIDIxaDFsMi44LTIuMUwyMSAyMXYtMWwtMi44LTIuMUwyMSA0VjN6Ii8+PC9zdmc+',
+                    scaledSize: new google.maps.Size(36, 36)
+                }
+            });
+        }
+
+        // Create current position marker if session is active
+        if (this.isActive()) {
+            this.currentPositionMarker.set({
+                position: lastPosition,
+                title   : 'Ubicación actual',
+                icon    : {
+                    path        : google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                    scale       : 8,
+                    fillColor   : '#34A853',
+                    fillOpacity : 0.8,
+                    strokeColor : '#FFFFFF',
+                    strokeWeight: 2,
+                    rotation    : polygonPath.length > 1 ? calculateRotationBetweenPoints(
+                        {latitude: polygonPath[polygonPath.length - 2].lat, longitude: polygonPath[polygonPath.length - 2].lng} as GpsGeneric,
+                        {latitude: polygonPath[polygonPath.length - 1].lat, longitude: polygonPath[polygonPath.length - 1].lng} as GpsGeneric
+                    ) : 0
+                }
+            });
+        }
+
+        // Set empty GPS markers array since we don't have individual GPS points
+        this.gpsMarkers.set([]);
+
+        // Only fit bounds if user is not interacting with the map and it's the first data load
+        if (this.mapInstance() && !this.userInteracting() && this.isFirstDataLoad()) {
+            const bounds = new google.maps.LatLngBounds();
+            polygonPath.forEach(point => bounds.extend(point));
+            this.mapInstance().fitBounds(bounds);
+            this.isFirstDataLoad.set(false);
+        } else if (this.mapInstance() && this.mapCenter().lat === 0 && this.mapCenter().lng === 0) {
+            // Set initial center if not set yet, but don't change zoom
+            this.mapCenter.set(lastPosition);
             this.mapInstance().setCenter(this.mapCenter());
         }
 
@@ -761,4 +1019,7 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
         }
     }
 
+    protected readonly formatDateTime = formatDateTime;
+    protected readonly formatSpeed = formatSpeed;
+    protected readonly formatDistance = formatDistance;
 }

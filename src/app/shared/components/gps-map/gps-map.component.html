@@ -1,4 +1,4 @@
-<div class="h-full w-full rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm" aria-label="Mapa de ruta GPS" role="application">
+<div class="h-full w-full rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative" aria-label="Mapa de ruta GPS" role="application">
 
     <!-- Controles de reproducción -->
     @if (playbackMode()) {
@@ -8,7 +8,7 @@
                 <div class="flex items-center gap-2">
                     <button
                         mat-icon-button
-                        [disabled]="!gpsData() || gpsData().length === 0"
+                        [disabled]="!effectivePlaybackPath() || effectivePlaybackPath().length === 0"
                         (click)="isPlaying() ? pausePlayback() : startPlayback()"
                         [matTooltip]="isPlaying() ? 'Pausar reproducción' : 'Iniciar reproducción'"
                         class="text-blue-600 dark:text-blue-400">
@@ -17,7 +17,7 @@
 
                     <button
                         mat-icon-button
-                        [disabled]="!gpsData() || gpsData().length === 0"
+                        [disabled]="!effectivePlaybackPath() || effectivePlaybackPath().length === 0"
                         (click)="stopPlayback()"
                         matTooltip="Detener reproducción"
                         class="text-red-600 dark:text-red-400">
@@ -29,9 +29,9 @@
                 <div class="flex-1 mx-4">
                     <mat-slider
                         [min]="0"
-                        [max]="(gpsData()?.length || 1) - 1"
+                        [max]="(effectivePlaybackPath()?.length || 1) - 1"
                         [step]="1"
-                        [disabled]="!gpsData() || gpsData().length === 0"
+                        [disabled]="!effectivePlaybackPath() || effectivePlaybackPath().length === 0"
                         class="w-full">
                         <input
                             matSliderThumb
@@ -59,7 +59,7 @@
                 <div class="text-sm text-gray-600 dark:text-gray-400 min-w-[200px] text-right">
                     <div>{{ playbackCurrentTime() || 'Sin datos' }}</div>
                     <div class="text-xs">
-                        Punto {{ playbackPosition() + 1 }} de {{ gpsData()?.length || 0 }}
+                        Punto {{ playbackPosition() + 1 }} de {{ effectivePlaybackPath()?.length || 0 }}
                         ({{ playbackProgress().toFixed(1) }}%)
                     </div>
                 </div>
@@ -162,4 +162,25 @@
             </map-info-window>
         }
     </google-map>
+
+    <!-- Advertencia sobre precisión de las líneas guía -->
+    @if (shouldShowPolylineWarning()) {
+        <div class="absolute bottom-4 left-4 right-4 bg-amber-200 bg-opacity-40 border border-amber-200 dark:border-amber-700 rounded-lg p-3 shadow-lg backdrop-blur-sm">
+            <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 mt-0.5">
+                    <mat-icon svgIcon="heroicons_outline:information-circle" class="text-black text-lg"></mat-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-medium text-black mb-1">
+                        Información sobre las líneas de ruta
+                    </p>
+                    <p class="text-sm text-black leading-relaxed">
+                        Las líneas guía mostradas en el mapa son calculadas automáticamente y representan una aproximación de la ruta real.
+                        Aunque proporcionan la representación más cercana posible a la realidad basada en los datos disponibles,
+                        pueden no coincidir exactamente con el recorrido físico realizado.
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
 </div>

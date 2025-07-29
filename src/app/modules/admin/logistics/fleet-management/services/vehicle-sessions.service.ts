@@ -118,7 +118,7 @@ export class VehicleSessionsService {
      * Inicia una nueva sesión de vehículo
      * @param session Datos de la sesión a iniciar
      */
-    public startSession(session: Omit<VehicleSession, 'id' | 'status' | 'startTime'>): Observable<VehicleSession> {
+    public startSession(session: Omit<VehicleSession, 'id' | 'status' | 'startTime' | 'routePolygon'>): Observable<VehicleSession> {
         return this.http.post<VehicleSession>(`${ this.apiUrl }`, session);
     }
 
