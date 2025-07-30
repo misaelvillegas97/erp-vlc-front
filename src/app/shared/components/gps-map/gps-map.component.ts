@@ -115,10 +115,12 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     routePolygonPath = computed(() => {
         const sessionData = this.session();
-        if (sessionData?.routePolygon?.geometry?.coordinates) {
+
+        console.log(`Route polygon path it is present: ${ !!sessionData?.routeDetails?.geometry?.coordinates }`);
+        if (sessionData?.routeDetails?.geometry?.coordinates) {
             // Convert routePolygon coordinates to LatLngLiteral format
             // routePolygon.geometry.coordinates is number[][] where each inner array is [lng, lat]
-            return sessionData.routePolygon.geometry.coordinates.map(coord => ({
+            return sessionData.routeDetails.geometry.coordinates.map(coord => ({
                 lat: coord[1], // latitude is second element
                 lng: coord[0]  // longitude is first element
             }));

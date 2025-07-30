@@ -54,13 +54,11 @@ export interface VehicleSession {
     gps?: GpsGeneric[];              // Datos GPS genéricos
     driver?: Driver;
     vehicle?: Vehicle;
-    routePolygon?: {
+    routeDetails?: {
         geometry: {
             coordinates: number[][];
             type: string;
         };
-        distance: number;
-        duration: number;
     };
 }
 

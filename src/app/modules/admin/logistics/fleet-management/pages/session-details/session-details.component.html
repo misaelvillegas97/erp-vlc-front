@@ -154,7 +154,7 @@
                                             mat-button
                                             [class]="polylineSource() === 'routePolygon' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' : 'text-gray-600 dark:text-gray-400'"
                                             (click)="setPolylineSource('routePolygon')"
-                                            [disabled]="!session()?.routePolygon"
+                                            [disabled]="!session()?.routeDetails"
                                             class="px-3 py-1 rounded-md text-sm font-medium transition-colors">
                                             <span class="flex items-center">
                                                 Route Polygon
@@ -163,7 +163,7 @@
                                         </button>
                                     </div>
                                 </div>
-                                @if (polylineSource() === 'routePolygon' && !session()?.routePolygon) {
+                            @if (polylineSource() === 'routePolygon' && !session()?.routeDetails) {
                                     <div class="mt-2 text-xs text-amber-600 dark:text-amber-400">
                                         <mat-icon svgIcon="heroicons_outline:exclamation-triangle" class="text-xs mr-1"></mat-icon>
                                         No hay datos de Route Polygon disponibles para esta sesión.
