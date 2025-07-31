@@ -9,7 +9,7 @@ import { MatTooltipModule }                                                     
 import { MatMenuModule }                                                                       from '@angular/material/menu';
 import { MatCheckboxModule }                                                                   from '@angular/material/checkbox';
 import { MatSelectModule }                                                                     from '@angular/material/select';
-import { MatDialogModule }                                                                                                                from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { RouterLink }                                                                          from '@angular/router';
 import { PageHeaderComponent }                                                                 from '@layout/components/page-header/page-header.component';
 import { TableBuilderComponent }                                                               from '@shared/components/table-builder/table-builder.component';
@@ -162,14 +162,14 @@ export class ChecklistTemplatesListComponent {
 
     duplicateTemplate(template: ChecklistTemplate): void {
         const dialog = this.#confirmationService.open({
-            title      : 'Duplicar plantilla',
-            message    : `¿Desea duplicar la plantilla "${ template.name }"?`,
-            icon       : {
+            title  : 'Duplicar plantilla',
+            message: `¿Desea duplicar la plantilla "${ template.name }"?`,
+            icon   : {
                 show : true,
                 name : 'heroicons_outline:document-duplicate',
                 color: 'info'
             },
-            actions    : {
+            actions: {
                 confirm: {
                     show : true,
                     label: 'Duplicar',

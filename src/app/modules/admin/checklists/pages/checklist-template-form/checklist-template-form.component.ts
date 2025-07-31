@@ -75,21 +75,6 @@ export class ChecklistTemplateFormComponent implements OnInit {
         {value: ChecklistType.OPERATIONAL, label: 'Operacional'}
     ];
 
-
-    // Mock data for vehicles and roles (replace with actual service calls)
-    readonly availableVehicles = signal([
-        {id: '1', name: 'Camión 001', plate: 'ABC-123'},
-        {id: '2', name: 'Camión 002', plate: 'DEF-456'},
-        {id: '3', name: 'Van 001', plate: 'GHI-789'}
-    ]);
-
-    readonly availableRoles = signal([
-        {id: '1', name: 'Conductor'},
-        {id: '2', name: 'Supervisor'},
-        {id: '3', name: 'Inspector de calidad'},
-        {id: '4', name: 'Técnico de mantenimiento'}
-    ]);
-
     roles = Object.values(RoleEnum).filter(value => typeof value === 'number');
 
     // Form - Structured according to FormTemplate interface
@@ -112,7 +97,7 @@ export class ChecklistTemplateFormComponent implements OnInit {
 
         // Section 3: Content Structure
         content: this.fb.group({
-            categories: this.fb.array([]) // ❌ REMOVED weightSumValidator
+            categories: this.fb.array([])
         })
     });
 
@@ -127,22 +112,11 @@ export class ChecklistTemplateFormComponent implements OnInit {
 
         return categories.reduce((totalWeight, category) => {
             const questions = category.questions || [];
-            const categoryWeight = questions.reduce((sum, question) => sum + (question.weight || 0), 0);
+            const categoryWeight = questions.reduce((sum, question) => sum + (Number(question.weight) || 0), 0);
             return totalWeight + categoryWeight;
         }, 0);
     });
 
-    readonly checklistWeightValidation = computed(() => {
-        const total = this.totalChecklistWeight();
-        const isValid = total > 0; // Only verify that there's positive weight
-        return {
-            isValid,
-            total,
-            class: isValid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-        };
-    });
-
-    // ✅ NEW: Computed signal for form submission validation
     readonly canSubmitForm = computed(() => {
         const categories = this.categoriesArraySignal();
         const hasQuestions = categories?.some(category =>
@@ -188,28 +162,17 @@ export class ChecklistTemplateFormComponent implements OnInit {
     // Approval system helpers
     getApprovalPreview(hasIntermediateApproval: boolean, intermediateValue: number): string {
         if (hasIntermediateApproval) {
-            return `Aprobado (1.0) | Parcial (${ intermediateValue.toFixed(2) }) | No Aprobado (0.0)`;
+            return `Aprobado (1.0) | Parcial (${ Number(intermediateValue).toFixed(2) }) | No Aprobado (0.0)`;
         } else {
             return 'Aprobado (1.0) | No Aprobado (0.0)';
         }
     }
 
-    // ✅ UPDATED: Weight calculation helpers for new free weight system
     getCategoryTotalWeight(categoryIndex: number): number {
         const questionsArray = this.getQuestionsArray(categoryIndex);
         return questionsArray.controls.reduce((sum, control) => {
-            return sum + (control.get('weight')?.value || 0);
+            return sum + (Number(control.get('weight')?.value) || 0);
         }, 0);
-    }
-
-    getCategoryWeightValidation(categoryIndex: number): { isValid: boolean; total: number; class: string } {
-        const total = this.getCategoryTotalWeight(categoryIndex);
-        const isValid = total > 0; // Only verify that there's positive weight
-        return {
-            isValid,
-            total,
-            class: isValid ? 'text-green-600' : 'text-red-600'
-        };
     }
 
     // Form submission
@@ -241,7 +204,6 @@ export class ChecklistTemplateFormComponent implements OnInit {
             categories: formValue.content.categories.map((category: any, categoryIndex: number) => ({
                 title      : category.title,
                 description: category.description,
-                // weight     : category.weight, // ❌ REMOVED - Categories no longer have weight
                 sortOrder  : categoryIndex,
                 questions  : category.questions.map((question: any, questionIndex: number) => ({
                     title                  : question.title,
@@ -292,6 +254,7 @@ export class ChecklistTemplateFormComponent implements OnInit {
         // For now, we'll use mock data or the existing templates from the service
         const template = this.checklistService.templates().find(t => t.id === id);
         if (template) {
+            console.log('Loaded template:', template);
             this.populateForm(template);
         }
     }
@@ -331,7 +294,7 @@ export class ChecklistTemplateFormComponent implements OnInit {
             // Add questions to category
             const questionsArray = categoryGroup.get('questions') as FormArray;
             category.questions.forEach(question => {
-                const questionGroup = this.createQuestionFormGroup(0); // Index doesn't matter for creation
+                const questionGroup = this.createQuestionFormGroup(); // No index needed during form population
                 questionGroup.patchValue({
                     title      : question.title,
                     description: question.description,
@@ -370,8 +333,20 @@ export class ChecklistTemplateFormComponent implements OnInit {
         });
     }
 
-    private createQuestionFormGroup(categoryIndex: number): FormGroup {
-        const questionsArray = this.getQuestionsArray(categoryIndex);
+    private createQuestionFormGroup(categoryIndex?: number): FormGroup {
+        // Calculate sortOrder safely - if categoryIndex is provided and valid, use the questions array length
+        // Otherwise, default to 0 (for new questions being created during form population)
+        let sortOrder = 0;
+        if (categoryIndex !== undefined && categoryIndex >= 0) {
+            try {
+                const questionsArray = this.getQuestionsArray(categoryIndex);
+                sortOrder = questionsArray.length;
+            } catch (error) {
+                // If we can't access the questions array (e.g., during form population), default to 0
+                sortOrder = 0;
+            }
+        }
+
         return this.fb.group({
             title      : [ '', Validators.required ],
             description: [ '' ],
@@ -383,7 +358,7 @@ export class ChecklistTemplateFormComponent implements OnInit {
             intermediateValue      : [ 0.5, [ Validators.required, Validators.min(0), Validators.max(1) ] ],
 
             extraFields: [ {} ],
-            sortOrder  : [ questionsArray.length ],
+            sortOrder: [ sortOrder ],
             isActive   : [ true ]
         });
     }
