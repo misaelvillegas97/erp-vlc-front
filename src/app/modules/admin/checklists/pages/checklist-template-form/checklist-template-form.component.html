@@ -4,18 +4,18 @@
         [subtitle]="isEditMode() ? 'Actualiza la configuración de la plantilla' : 'Crea una nueva plantilla de checklist con categorías y preguntas'">
     </page-header>
 
-    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-6xl mx-auto py-10 gap-y-6 sm:px-4">
+    <div class="flex flex-col items-center justify-center w-full max-w-full sm:max-w-2xl md:max-w-4xl lg:max-w-6xl mx-auto py-6 sm:py-10 gap-y-4 sm:gap-y-6 px-4 sm:px-6">
 
         <!-- Header with back button -->
-        <div class="flex flex-row w-full items-center gap-4">
-            <button mat-icon-button routerLink="../" [matTooltip]="'Volver a plantillas'">
+        <div class="flex flex-row w-full items-start sm:items-center gap-3 sm:gap-4">
+            <button mat-icon-button routerLink="../" [matTooltip]="'Volver a plantillas'" class="flex-shrink-0 mt-1 sm:mt-0">
                 <mat-icon svgIcon="heroicons_outline:arrow-left"></mat-icon>
             </button>
-            <div class="flex-1">
-                <h2 class="font-bold text-secondary text-xl">
+            <div class="flex-1 min-w-0">
+                <h2 class="font-bold text-secondary text-lg sm:text-xl leading-tight">
                     {{ isEditMode() ? 'Editar Plantilla' : 'Nueva Plantilla' }}
                 </h2>
-                <p class="text-sm text-gray-600">
+                <p class="text-xs sm:text-sm text-gray-600 mt-1 leading-relaxed">
                     {{ isEditMode() ? 'Modifica la configuración de la plantilla existente' : 'Configura las categorías, preguntas y validaciones' }}
                 </p>
             </div>
@@ -31,10 +31,10 @@
         <form [formGroup]="templateForm" (ngSubmit)="onSubmit()" class="w-full space-y-6">
 
             <!-- Basic Information Section -->
-            <div class="w-full bg-card rounded-md shadow p-6" formGroupName="basicInfo">
-                <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Información Básica</h3>
+            <div class="w-full bg-card rounded-md shadow p-4 sm:p-6" formGroupName="basicInfo">
+                <h3 class="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-900 dark:text-gray-100">Información Básica</h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Nombre de la plantilla</mat-label>
                         <input matInput formControlName="name" placeholder="Ej: Inspección de vehículos">
@@ -59,7 +59,7 @@
                     </mat-form-field>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Descripción</mat-label>
                         <textarea matInput formControlName="description" rows="3" placeholder="Descripción opcional de la plantilla"></textarea>
@@ -72,7 +72,7 @@
                     </mat-form-field>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Umbral de rendimiento (%)</mat-label>
                         <input matInput type="number" formControlName="performanceThreshold" min="0" max="100" step="1" placeholder="75">
@@ -82,11 +82,11 @@
                         }
                     </mat-form-field>
 
-                    <div class="flex items-center mt-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:mt-4 space-y-2 sm:space-y-0">
                         <mat-slide-toggle formControlName="isActive">
                             Plantilla activa
                         </mat-slide-toggle>
-                        <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">
+                        <span class="sm:ml-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                             {{ templateForm.get('basicInfo.isActive')?.value ? 'La plantilla está activa y disponible para uso' : 'La plantilla está inactiva' }}
                         </span>
                     </div>
@@ -94,11 +94,11 @@
             </div>
 
             <!-- Application Filters Section -->
-            <div class="w-full bg-card rounded-md shadow p-6" formGroupName="filters">
-                <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Filtros de Aplicación</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">Define los tipos de vehículos y roles de usuario para los cuales aplica esta plantilla</p>
+            <div class="w-full bg-card rounded-md shadow p-4 sm:p-6" formGroupName="filters">
+                <h3 class="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-900 dark:text-gray-100">Filtros de Aplicación</h3>
+                <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-3 sm:mb-4 leading-relaxed">Define los tipos de vehículos y roles de usuario para los cuales aplica esta plantilla</p>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Tipos de Vehículos</mat-label>
                         <mat-select formControlName="vehicleTypes" multiple>
@@ -122,30 +122,32 @@
             </div>
 
             <!-- Content Structure Section -->
-            <div class="w-full bg-card rounded-md shadow p-6" formGroupName="content">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Estructura de Contenido</h3>
-                    <div class="flex items-center gap-4">
+            <div class="w-full bg-card rounded-md shadow p-4 sm:p-6" formGroupName="content">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-3 sm:gap-4">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Estructura de Contenido</h3>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                         <div class="flex items-center gap-2">
-                            <span class="text-sm text-gray-600 dark:text-gray-300">Peso total del checklist:</span>
-                            <span class="font-medium text-blue-600">
+                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Peso total:</span>
+                            <span class="font-medium text-blue-600 text-sm sm:text-base">
                                 {{ totalChecklistWeight() | number:'1.0-0' }} punto/s
                             </span>
                         </div>
-                        <button mat-raised-button color="primary" type="button" (click)="addCategory()">
+                        <button mat-raised-button color="primary" type="button" (click)="addCategory()" class="w-full sm:w-auto">
                             <mat-icon svgIcon="mat_outline:add"></mat-icon>
-                            Agregar Categoría
+                            <span class="hidden sm:inline">Agregar Categoría</span>
+                            <span class="sm:hidden">Agregar</span>
                         </button>
                     </div>
                 </div>
 
                 @if (categoriesArray().length === 0) {
-                    <div class="text-center py-8">
-                        <mat-icon class="text-gray-400 dark:text-gray-500 text-4xl mb-2">folder_open</mat-icon>
-                        <p class="text-gray-600 dark:text-gray-300 mb-4">No hay categorías definidas</p>
-                        <button mat-raised-button color="primary" type="button" (click)="addCategory()">
+                    <div class="text-center py-6 sm:py-8">
+                        <mat-icon class="text-gray-400 dark:text-gray-500 text-3xl sm:text-4xl mb-2">folder_open</mat-icon>
+                        <p class="text-gray-600 dark:text-gray-300 mb-3 sm:mb-4 text-sm sm:text-base">No hay categorías definidas</p>
+                        <button mat-raised-button color="primary" type="button" (click)="addCategory()" class="w-full sm:w-auto">
                             <mat-icon svgIcon="mat_outline:add"></mat-icon>
-                            Crear Primera Categoría
+                            <span class="hidden sm:inline">Crear Primera Categoría</span>
+                            <span class="sm:hidden">Crear Categoría</span>
                         </button>
                     </div>
                 } @else {
@@ -154,25 +156,25 @@
                             <mat-expansion-panel [formGroupName]="$index" class="bg-hover">
                                 <mat-expansion-panel-header>
                                     <mat-panel-title>
-                                        <div class="flex items-center gap-2">
-                                            <mat-icon svgIcon="mat_outline:folder"></mat-icon>
-                                            <span>{{ categoryControl.get('title')?.value || 'Nueva Categoría' }}</span>
-                                            <div class="flex items-center gap-1 ml-auto">
+                                        <div class="flex items-center gap-2 w-full">
+                                            <mat-icon svgIcon="mat_outline:folder" class="flex-shrink-0"></mat-icon>
+                                            <span class="flex-1 min-w-0 truncate text-sm sm:text-base">{{ categoryControl.get('title')?.value || 'Nueva Categoría' }}</span>
+                                            <div class="flex sm:flex-row sm:items-center gap-x-2 ml-2 sm:ml-auto flex-shrink-0">
                                                 @let weight = getCategoryTotalWeight(categoryIndex);
-                                                <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
-                                                  Peso: {{ weight | number:'1.0-0' }} punto{{ weight > 1 ? 's' : '' }}
+                                                <span class="text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-blue-100 text-blue-800 whitespace-nowrap">
+                                                  <span class="hidden sm:inline">Peso: </span>{{ weight | number:'1.0-0' }}p
                                                 </span>
-                                                <span class="text-xs text-gray-500">
-                                                  {{ getQuestionsArray(categoryIndex).length }} preguntas
+                                                <span class="text-xs text-gray-500 whitespace-nowrap">
+                                                  {{ getQuestionsArray(categoryIndex).length }} <span class="hidden sm:inline">preguntas</span><span class="sm:hidden">p</span>
                                                 </span>
                                             </div>
                                         </div>
                                     </mat-panel-title>
                                 </mat-expansion-panel-header>
 
-                                <div class="space-y-4">
+                                <div class="space-y-3 sm:space-y-4">
                                     <!-- Category Basic Info -->
-                                    <div class="grid grid-cols-1 gap-4">
+                                    <div class="grid grid-cols-1 gap-3 sm:gap-4">
                                         <mat-form-field class="w-full fuse-mat-dense">
                                             <mat-label>Título de la categoría</mat-label>
                                             <input matInput formControlName="title" placeholder="Ej: Inspección exterior">
@@ -188,48 +190,51 @@
                                     </mat-form-field>
 
                                     <!-- Questions Section -->
-                                    <div class="border-t pt-4">
-                                        <div class="flex items-center justify-between mb-4">
-                                            <h4 class="font-medium text-gray-900 dark:text-gray-100">Preguntas</h4>
-                                            <div class="flex items-center gap-4">
+                                    <div class="border-t pt-3 sm:pt-4">
+                                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2 sm:gap-4">
+                                            <h4 class="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-base">Preguntas</h4>
+                                            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                                                 <div class="flex items-center gap-2">
-                                                    <span class="text-sm text-gray-600 dark:text-gray-300">Peso de la categoría:</span>
-                                                    <span class="font-medium text-blue-600">
-                                                        {{ getCategoryTotalWeight(categoryIndex) | number:'1.0-0' }} puntos
+                                                    <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Peso:</span>
+                                                    <span class="font-medium text-blue-600 text-sm">
+                                                        {{ getCategoryTotalWeight(categoryIndex) | number:'1.0-0' }} <span class="hidden sm:inline">puntos</span><span class="sm:hidden">p</span>
                                                     </span>
                                                 </div>
-                                                <button mat-button color="primary" type="button" (click)="addQuestion(categoryIndex)">
+                                                <button mat-button color="primary" type="button" (click)="addQuestion(categoryIndex)" class="w-full sm:w-auto">
                                                     <mat-icon svgIcon="mat_outline:add"></mat-icon>
-                                                    Agregar Pregunta
+                                                    <span class="hidden sm:inline">Agregar Pregunta</span>
+                                                    <span class="sm:hidden">Agregar</span>
                                                 </button>
                                             </div>
                                         </div>
 
                                         @if (getQuestionsArray(categoryIndex).length === 0) {
-                                            <div class="text-center py-4 bg-hover rounded">
-                                                <mat-icon class="text-gray-400 text-2xl mb-2">help_outline</mat-icon>
-                                                <p class="text-gray-600 text-sm mb-2">No hay preguntas en esta categoría</p>
-                                                <button mat-button color="primary" type="button" (click)="addQuestion(categoryIndex)">
+                                            <div class="text-center py-3 sm:py-4 bg-hover rounded">
+                                                <mat-icon class="text-gray-400 text-xl sm:text-2xl mb-2">help_outline</mat-icon>
+                                                <p class="text-gray-600 text-xs sm:text-sm mb-2">No hay preguntas en esta categoría</p>
+                                                <button mat-button color="primary" type="button" (click)="addQuestion(categoryIndex)" class="w-full sm:w-auto">
                                                     <mat-icon svgIcon="mat_outline:add"></mat-icon>
-                                                    Crear Primera Pregunta
+                                                    <span class="hidden sm:inline">Crear Primera Pregunta</span>
+                                                    <span class="sm:hidden">Crear Pregunta</span>
                                                 </button>
                                             </div>
                                         } @else {
-                                            <div class="space-y-4" formArrayName="questions">
+                                            <div class="space-y-3 sm:space-y-4" formArrayName="questions">
                                                 @for (questionControl of getQuestionsArray(categoryIndex).controls; track $index; let questionIndex = $index) {
-                                                    <div class="border rounded-lg p-4 bg-hover" [formGroupName]="$index">
-                                                        <div class="flex items-center justify-between mb-4">
-                                                            <h5 class="font-medium text-gray-800">
+                                                    <div class="border rounded-lg p-3 sm:p-4 bg-hover" [formGroupName]="$index">
+                                                        <div class="flex items-center justify-between mb-3 sm:mb-4">
+                                                            <h5 class="font-medium text-gray-800 text-sm sm:text-base">
                                                                 Pregunta {{ questionIndex + 1 }}
                                                             </h5>
                                                             <button mat-icon-button color="warn" type="button"
                                                                     (click)="removeQuestion(categoryIndex, questionIndex)"
-                                                                    [matTooltip]="'Eliminar pregunta'">
+                                                                    [matTooltip]="'Eliminar pregunta'"
+                                                                    class="flex-shrink-0">
                                                                 <mat-icon svgIcon="mat_solid:delete"></mat-icon>
                                                             </button>
                                                         </div>
 
-                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
                                                             <mat-form-field class="w-full fuse-mat-dense">
                                                                 <mat-label>Título de la pregunta</mat-label>
                                                                 <input matInput formControlName="title" placeholder="Ej: ¿El vehículo tiene daños visibles?">
@@ -254,25 +259,25 @@
                                                         </mat-form-field>
 
                                                         <!-- ✅ NEW: Sistema de Aprobación Configurable -->
-                                                        <div class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                                                            <h6 class="text-sm font-medium text-blue-900 dark:text-blue-100 mb-3">Configuración de Aprobación</h6>
+                                                        <div class="mb-3 sm:mb-4 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                                            <h6 class="text-xs sm:text-sm font-medium text-blue-900 dark:text-blue-100 mb-2 sm:mb-3">Configuración de Aprobación</h6>
 
-                                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
                                                                 <div class="flex items-center">
                                                                     <mat-checkbox formControlName="required">
-                                                                        Pregunta obligatoria
+                                                                        <span class="text-sm">Pregunta obligatoria</span>
                                                                     </mat-checkbox>
                                                                 </div>
 
                                                                 <div class="flex items-center">
                                                                     <mat-slide-toggle formControlName="hasIntermediateApproval">
-                                                                        Permitir valor intermedio
+                                                                        <span class="text-sm">Permitir valor intermedio</span>
                                                                     </mat-slide-toggle>
                                                                 </div>
                                                             </div>
 
                                                             @if (questionControl.get('hasIntermediateApproval')?.value) {
-                                                                <mat-form-field class="w-full mb-3">
+                                                                <mat-form-field class="w-full mb-2 sm:mb-3">
                                                                     <mat-label>Valor intermedio</mat-label>
                                                                     <input matInput type="number" formControlName="intermediateValue"
                                                                            min="0" max="1" step="0.01" placeholder="0.5">
@@ -284,9 +289,9 @@
                                                             }
 
                                                             <!-- Preview de opciones -->
-                                                            <div class="bg-white dark:bg-gray-800 p-3 rounded border">
-                                                                <div class="text-xs text-gray-600 dark:text-gray-300 mb-2">Vista previa de opciones:</div>
-                                                                <div class="text-sm font-mono">
+                                                            <div class="bg-white dark:bg-gray-800 p-2 sm:p-3 rounded border">
+                                                                <div class="text-xs text-gray-600 dark:text-gray-300 mb-1 sm:mb-2">Vista previa:</div>
+                                                                <div class="text-xs sm:text-sm font-mono leading-relaxed">
                                                                     {{ getApprovalPreview(questionControl.get('hasIntermediateApproval')?.value, questionControl.get('intermediateValue')?.value || 0.5) }}
                                                                 </div>
                                                             </div>
@@ -298,10 +303,11 @@
                                     </div>
 
                                     <!-- Category Actions -->
-                                    <div class="flex justify-end pt-4 border-t">
-                                        <button mat-button color="warn" type="button" (click)="removeCategory(categoryIndex)">
+                                    <div class="flex justify-end pt-3 sm:pt-4 border-t">
+                                        <button mat-button color="warn" type="button" (click)="removeCategory(categoryIndex)" class="w-full sm:w-auto">
                                             <mat-icon svgIcon="mat_solid:delete"></mat-icon>
-                                            Eliminar Categoría
+                                            <span class="hidden sm:inline">Eliminar Categoría</span>
+                                            <span class="sm:hidden">Eliminar</span>
                                         </button>
                                     </div>
                                 </div>
@@ -312,17 +318,19 @@
             </div>
 
             <!-- Form Actions -->
-            <div class="flex justify-end gap-4 pt-6">
-                <button mat-button type="button" routerLink="../">
+            <div class="flex flex-col sm:flex-row sm:justify-end gap-3 sm:gap-4 pt-4 sm:pt-6">
+                <button mat-button type="button" routerLink="../" class="w-full sm:w-auto order-2 sm:order-1">
                     Cancelar
                 </button>
                 <button mat-raised-button
                         color="primary"
                         type="submit"
                         [disabled]="!canSubmitForm()"
+                        class="w-full sm:w-auto order-1 sm:order-2"
                 >
                     <mat-icon svgIcon="mat_outline:{{ isEditMode() ? 'save' : 'add' }}"></mat-icon>
-                    {{ isEditMode() ? 'Actualizar Plantilla' : 'Crear Plantilla' }}
+                    <span class="hidden sm:inline">{{ isEditMode() ? 'Actualizar Plantilla' : 'Crear Plantilla' }}</span>
+                    <span class="sm:hidden">{{ isEditMode() ? 'Actualizar' : 'Crear' }}</span>
                 </button>
             </div>
         </form>
