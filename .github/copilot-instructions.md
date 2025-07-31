@@ -50,13 +50,13 @@ The Table Builder component is a flexible and powerful table component that supp
 - Use Angular's reactive forms for form handling
 - Use Angular Material components for UI
 - Use TailwindCSS for styling
+- **Always follow mobile-first responsive design approach** - all designs must be optimized for mobile devices first, then enhanced for tablets and desktop
 
 ## TypeScript Best Practices
 
 - Use strict type checking
 - Prefer type inference when the type is obvious
 - Avoid the `any` type; use `unknown` when type is uncertain
--
 
 ## Angular Best Practices
 
@@ -64,8 +64,7 @@ The Table Builder component is a flexible and powerful table component that supp
 - Don't use explicit `standalone: true` (it is implied by default)
 - Use signals for state management
 - Implement lazy loading for feature routes
-- Use `NgOptimizedImage` for all static images.
--
+- Use `NgOptimizedImage` for all static images
 
 ## Components
 
@@ -77,21 +76,18 @@ The Table Builder component is a flexible and powerful table component that supp
 - Prefer Reactive forms instead of Template-driven ones
 - Do NOT use `ngClass`, use `class` bindings instead
 - DO NOT use `ngStyle`, use `style` bindings instead
--
 
 ## State Management
 
 - Use signals for local component state
 - Use `computed()` for derived state
 - Keep state transformations pure and predictable
--
 
 ## Templates
 
 - Keep templates simple and avoid complex logic
 - Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
 - Use the async pipe to handle observables
--
 
 ## Services
 
@@ -193,6 +189,7 @@ ng test
 
 ## Additional Guidelines
 
+- **Always consult the official Angular documentation (https://angular.dev) before making any logic modifications** - ensure you're following the latest Angular best practices and patterns
 - Follow Angular's naming conventions (e.g., `feature.component.ts`, `feature.service.ts`)
 - Use Angular CLI commands for generating boilerplate code
 - Document components and services with clear JSDoc comments

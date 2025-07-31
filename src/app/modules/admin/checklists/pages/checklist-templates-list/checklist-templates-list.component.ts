@@ -1,4 +1,4 @@
-import { Component, inject, resource, Signal, signal, TemplateRef, viewChild, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, resource, Signal, signal, TemplateRef, viewChild, WritableSignal } from '@angular/core';
 import { CommonModule }                                                                        from '@angular/common';
 import { FormControl, ReactiveFormsModule }                                                    from '@angular/forms';
 import { MatButtonModule }                                                                     from '@angular/material/button';
@@ -9,6 +9,7 @@ import { MatTooltipModule }                                                     
 import { MatMenuModule }                                                                       from '@angular/material/menu';
 import { MatCheckboxModule }                                                                   from '@angular/material/checkbox';
 import { MatSelectModule }                                                                     from '@angular/material/select';
+import { MatDialogModule }                                                                                                                from '@angular/material/dialog';
 import { RouterLink }                                                                          from '@angular/router';
 import { PageHeaderComponent }                                                                 from '@layout/components/page-header/page-header.component';
 import { TableBuilderComponent }                                                               from '@shared/components/table-builder/table-builder.component';
@@ -24,9 +25,10 @@ import { FuseConfirmationService }                                              
 import { FindCount }                                                                           from '@shared/domain/model/find-count';
 
 @Component({
-    selector   : 'app-checklist-templates-list',
-    standalone : true,
-    imports    : [
+    selector       : 'app-checklist-templates-list',
+    standalone     : true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports        : [
         CommonModule,
         ReactiveFormsModule,
         MatButtonModule,
@@ -37,11 +39,12 @@ import { FindCount }                                                            
         MatMenuModule,
         MatCheckboxModule,
         MatSelectModule,
+        MatDialogModule,
         RouterLink,
         PageHeaderComponent,
         TableBuilderComponent
     ],
-    templateUrl: './checklist-templates-list.component.html'
+    templateUrl    : './checklist-templates-list.component.html'
 })
 export class ChecklistTemplatesListComponent {
     readonly #checklistService = inject(ChecklistService);
@@ -63,7 +66,14 @@ export class ChecklistTemplatesListComponent {
 
     // Table
     readonly actionsCell: Signal<TemplateRef<any>> = viewChild('actionsCell');
-    columnsConfig: WritableSignal<ColumnConfig<ChecklistTemplate>[]> = signal(undefined);
+
+    // Computed column configuration
+    readonly columnsConfig = computed(() => {
+        const actionsTemplate = this.actionsCell();
+        if (!actionsTemplate) return [];
+
+        return this.buildColumnsConfig();
+    });
 
     // Static data
     readonly checklistTypes = [
@@ -77,48 +87,51 @@ export class ChecklistTemplatesListComponent {
 
     // Data resources
     groupsResource = resource({
-        loader: async () => {
-            try {
-                return firstValueFrom<FindCount<ChecklistGroup>>(this.#checklistService.loadGroups());
-            } catch (error) {
-                this.#notyf.error('Error al cargar los grupos');
+        loader: () => firstValueFrom<FindCount<ChecklistGroup>>(this.#checklistService.loadGroups())
+            .catch((error) => {
+                this.#notyf.error('Error al cargar los grupos de checklists');
+                console.warn('Error loading checklist groups:', error);
                 return {items: [], total: 0};
+            })
+    });
+
+    // Computed query parameters for better performance
+    private readonly queryParams = computed(() => {
+        const params: any = {};
+
+        const search = this.searchControlSignal()?.trim();
+        if (search) {
+            params.search = search;
+        }
+
+        const type = this.typeControlSignal();
+        if (type) {
+            params.type = type;
+        }
+
+        const group = this.groupControlSignal()?.trim();
+        if (group) {
+            if (group === 'unassigned') {
+                params.groupId = '';
+            } else {
+                params.groupId = group;
             }
         }
+
+        if (this.showActiveOnlySignal()) {
+            params.isActive = true;
+        }
+
+        return params;
     });
 
     templatesResource = resource({
-        params: () => ({
-            search    : this.searchControlSignal(),
-            type      : this.typeControlSignal(),
-            group     : this.groupControlSignal(),
-            activeOnly: this.showActiveOnlySignal()
-        }),
+        params: () => this.queryParams(),
         loader: async ({params}) => {
             try {
-                let query: any = {};
-
-                if (params.search?.trim()) {
-                    query.search = params.search.trim();
-                }
-
-                if (params.type) {
-                    query.type = params.type;
-                }
-
-                if (params.group?.trim()) {
-                    if (params.group === 'unassigned') {
-                        query.groupId = '';
-                    } else {
-                        query.groupId = params.group;
-                    }
-                }
-
-                if (params.activeOnly) {
-                    query.isActive = true;
-                }
-
-                return await firstValueFrom<FindCount<ChecklistTemplate>>(this.#checklistService.loadTemplates());
+                return await firstValueFrom<FindCount<ChecklistTemplate>>(
+                    this.#checklistService.loadTemplates()
+                );
             } catch (error) {
                 this.#notyf.error('Error al cargar las plantillas de checklists');
                 return {items: [], total: 0};
@@ -126,9 +139,6 @@ export class ChecklistTemplatesListComponent {
         }
     });
 
-    ngAfterViewInit() {
-        this.columnsConfig.set(this.buildColumnsConfig());
-    }
 
     clearFilters(): void {
         this.searchControl.setValue('');
@@ -151,18 +161,42 @@ export class ChecklistTemplatesListComponent {
     }
 
     duplicateTemplate(template: ChecklistTemplate): void {
-        const newName = prompt(`Ingrese el nombre para la plantilla duplicada:`, `${ template.name } (Copia)`);
-        if (newName && newName.trim()) {
-            this.#checklistService.duplicateTemplate(template.id!, newName.trim()).subscribe({
-                next : () => {
-                    this.#notyf.success('Plantilla duplicada exitosamente');
-                    this.templatesResource.reload();
+        const dialog = this.#confirmationService.open({
+            title      : 'Duplicar plantilla',
+            message    : `¿Desea duplicar la plantilla "${ template.name }"?`,
+            icon       : {
+                show : true,
+                name : 'heroicons_outline:document-duplicate',
+                color: 'info'
+            },
+            actions    : {
+                confirm: {
+                    show : true,
+                    label: 'Duplicar',
+                    color: 'primary'
                 },
-                error: (error) => {
-                    this.#notyf.error('Error al duplicar la plantilla');
+                cancel : {
+                    show : true,
+                    label: 'Cancelar'
                 }
-            });
-        }
+            },
+            dismissible: true
+        });
+
+        dialog.afterClosed().subscribe((result) => {
+            if (result === 'confirmed') {
+                const newName = `${ template.name } (Copia)`;
+                this.#checklistService.duplicateTemplate(template.id!, newName).subscribe({
+                    next : () => {
+                        this.#notyf.success('Plantilla duplicada exitosamente');
+                        this.templatesResource.reload();
+                    },
+                    error: () => {
+                        this.#notyf.error('Error al duplicar la plantilla');
+                    }
+                });
+            }
+        });
     }
 
     deleteTemplate(template: ChecklistTemplate): void {
@@ -257,29 +291,5 @@ export class ChecklistTemplatesListComponent {
     private getGroupName(groupId: string): string {
         const group = this.groupsResource.value().items?.find(g => g.id === groupId);
         return group?.name || 'Grupo desconocido';
-    }
-
-    private getTypeChipClass(type: ChecklistType): string {
-        const typeClasses = {
-            [ChecklistType.INSPECTION] : 'bg-blue-100 text-blue-800',
-            [ChecklistType.MAINTENANCE]: 'bg-orange-100 text-orange-800',
-            [ChecklistType.SAFETY]     : 'bg-red-100 text-red-800',
-            [ChecklistType.QUALITY]    : 'bg-purple-100 text-purple-800',
-            [ChecklistType.COMPLIANCE] : 'bg-green-100 text-green-800',
-            [ChecklistType.OPERATIONAL]: 'bg-pink-100 text-pink-800'
-        };
-        return typeClasses[type] || 'bg-gray-100 text-gray-800';
-    }
-
-    private getTypeLabel(type: ChecklistType): string {
-        const typeLabels = {
-            [ChecklistType.INSPECTION] : 'Inspección',
-            [ChecklistType.MAINTENANCE]: 'Mantenimiento',
-            [ChecklistType.SAFETY]     : 'Seguridad',
-            [ChecklistType.QUALITY]    : 'Calidad',
-            [ChecklistType.COMPLIANCE] : 'Cumplimiento',
-            [ChecklistType.OPERATIONAL]: 'Operacional'
-        };
-        return typeLabels[type] || type;
     }
 }

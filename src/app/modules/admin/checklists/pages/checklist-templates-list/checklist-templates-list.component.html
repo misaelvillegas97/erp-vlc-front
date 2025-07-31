@@ -4,108 +4,148 @@
         subtitle="Gestión de plantillas de checklists y sus configuraciones">
     </page-header>
 
-    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-5xl mx-auto py-10 gap-y-4 sm:px-4">
-        <div class="flex flex-row w-full">
-            <h2 class="flex-1 font-bold text-secondary text-xl self-center">Plantillas de Checklists</h2>
+    <div class="flex flex-col items-center justify-center w-full max-w-full sm:max-w-2xl md:max-w-4xl lg:max-w-6xl mx-auto py-6 sm:py-10 gap-y-4 sm:gap-y-6 px-4 sm:px-6">
+        <div class="flex flex-col sm:flex-row w-full items-start sm:items-center gap-3 sm:gap-4">
+            <div class="flex-1 min-w-0">
+                <h2 class="font-bold text-secondary text-lg sm:text-xl leading-tight">Plantillas de Checklists</h2>
+                <p class="text-xs sm:text-sm text-gray-600 mt-1 leading-relaxed">Gestiona las plantillas de checklists y sus configuraciones</p>
+            </div>
 
-            <button
-                (click)="templatesResource.reload()"
-                [matTooltip]="'Recargar'"
-                mat-icon-button
-            >
-                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:arrow-path"></mat-icon>
-            </button>
-            <a
-                [matTooltip]="'Nueva plantilla'"
-                [routerLink]="['./new']"
-                class="flex-0 font-bold py-2 px-4 rounded"
-                color="primary"
-                mat-icon-button
-            >
-                <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
-            </a>
+            <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                <button
+                    (click)="templatesResource.reload()"
+                    [matTooltip]="'Recargar'"
+                    mat-icon-button
+                    class="flex-shrink-0"
+                >
+                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:arrow-path"></mat-icon>
+                </button>
+                <a
+                    [matTooltip]="'Nueva plantilla'"
+                    [routerLink]="['./new']"
+                    class="flex-shrink-0"
+                    color="primary"
+                    mat-raised-button
+                >
+                    <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+                    <span class="hidden sm:inline ml-2">Nueva Plantilla</span>
+                    <span class="sm:hidden ml-2">Nueva</span>
+                </a>
+            </div>
         </div>
 
         <!-- Panel de filtros -->
-        <div class="w-full bg-card rounded-md shadow p-4 mb-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <mat-form-field class="w-full">
-                    <mat-label>Buscar</mat-label>
-                    <input matInput [formControl]="searchControl" placeholder="Buscar por nombre">
-                    <mat-icon matSuffix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
-                </mat-form-field>
+        <div class="w-full bg-card rounded-md shadow p-4 sm:p-6 mb-4 sm:mb-6">
+            <div class="space-y-4">
+                <!-- Filtros principales -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                    @defer {
+                        <mat-form-field class="w-full fuse-mat-dense">
+                            <mat-label>Buscar</mat-label>
+                            <input matInput [formControl]="searchControl" placeholder="Buscar por nombre">
+                            <mat-icon matSuffix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+                        </mat-form-field>
 
-                <mat-form-field class="w-full">
-                    <mat-label>Tipo</mat-label>
-                    <mat-select [formControl]="typeControl">
-                        <mat-option value="">Todos los tipos</mat-option>
-                        @for (type of checklistTypes; track type.value) {
-                            <mat-option [value]="type.value">{{ type.label }}</mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
+                        <mat-form-field class="w-full fuse-mat-dense">
+                            <mat-label>Tipo</mat-label>
+                            <mat-select [formControl]="typeControl">
+                                <mat-option value="">Todos los tipos</mat-option>
+                                @for (type of checklistTypes; track type.value) {
+                                    <mat-option [value]="type.value">{{ type.label }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
 
-                <mat-form-field class="w-full">
-                    <mat-label>Grupo</mat-label>
-                    <mat-select [formControl]="groupControl">
-                        <mat-option value="">Todos los grupos</mat-option>
-                        <mat-option value="unassigned">Sin asignar</mat-option>
-                        @if (groupsResource.value().items) {
-                            @for (group of groupsResource.value().items; track group.id) {
-                                <mat-option [value]="group.id">{{ group.name }}</mat-option>
-                            }
-                        } @else {
-                            <mat-option disabled>No hay grupos disponibles</mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
+                        <mat-form-field class="w-full fuse-mat-dense">
+                            <mat-label>Grupo</mat-label>
+                            <mat-select [formControl]="groupControl">
+                                <mat-option value="">Todos los grupos</mat-option>
+                                <mat-option value="unassigned">Sin asignar</mat-option>
+                                @if (groupsResource.value().items) {
+                                    @for (group of groupsResource.value().items; track group.id) {
+                                        <mat-option [value]="group.id">{{ group.name }}</mat-option>
+                                    }
+                                } @else {
+                                    <mat-option disabled>No hay grupos disponibles</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
+                </div>
 
                 <!-- Botones de acción -->
-                <div class="flex justify-end items-center gap-2">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 pt-2 border-t border-gray-200 dark:border-gray-700">
                     <div class="flex items-center">
                         <mat-checkbox [formControl]="showActiveOnly" color="primary">
-                            Solo activos
+                            <span class="text-sm">Solo plantillas activas</span>
                         </mat-checkbox>
                     </div>
-                    <button mat-button color="warn" type="button" (click)="clearFilters()">
-                        Limpiar filtros
+                    <button mat-button color="warn" type="button" (click)="clearFilters()" class="w-full sm:w-auto">
+                        <mat-icon svgIcon="heroicons_outline:x-mark" class="mr-1"></mat-icon>
+                        <span class="hidden sm:inline">Limpiar filtros</span>
+                        <span class="sm:hidden">Limpiar</span>
                     </button>
                 </div>
             </div>
         </div>
 
         <!-- Tabla de plantillas -->
-        <div class="relative max-w-full overflow-auto w-full">
-            @if (columnsConfig() && templatesResource.hasValue()) {
-                <table-builder [columns]="columnsConfig()"
-                               [data]="templatesResource.value()?.items || []"
-                               class="w-full"
-                ></table-builder>
+        <div class="w-full bg-card rounded-md shadow overflow-hidden">
+            @if (templatesResource.isLoading()) {
+                <div class="flex items-center justify-center py-8 sm:py-12">
+                    <div class="flex flex-col items-center gap-3">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                        <p class="text-sm text-gray-600">Cargando plantillas...</p>
+                    </div>
+                </div>
+            } @else if (templatesResource.hasValue() && templatesResource.value()?.items?.length === 0) {
+                <div class="flex flex-col items-center justify-center py-8 sm:py-12 px-4">
+                    <mat-icon class="text-gray-400 text-4xl sm:text-5xl mb-3" svgIcon="mat_solid:folder_open"></mat-icon>
+                    <h3 class="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No hay plantillas</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 text-center mb-4">No se encontraron plantillas que coincidan con los filtros aplicados.</p>
+                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                        <button mat-button color="primary" (click)="clearFilters()" class="w-full sm:w-auto">
+                            <mat-icon svgIcon="heroicons_outline:x-mark" class="mr-1"></mat-icon>
+                            Limpiar filtros
+                        </button>
+                        <a mat-raised-button color="primary" [routerLink]="['./new']" class="w-full sm:w-auto">
+                            <mat-icon svgIcon="heroicons_outline:plus" class="mr-1"></mat-icon>
+                            Nueva plantilla
+                        </a>
+                    </div>
+                </div>
+            } @else if (columnsConfig() && templatesResource.hasValue()) {
+                <div class="overflow-x-auto">
+                    <table-builder [columns]="columnsConfig()"
+                                   [data]="templatesResource.value()?.items || []"
+                                   class="w-full min-w-full"
+                    ></table-builder>
+                </div>
             }
         </div>
     </div>
 
     <!-- Template para la columna de acciones -->
     <ng-template #actionsCell let-template="row">
-        <div class="flex gap-2">
-            <button mat-icon-button [matMenuTriggerFor]="menu">
+        <div class="flex justify-center">
+            <button mat-icon-button [matMenuTriggerFor]="menu" class="flex-shrink-0">
                 <mat-icon class="icon-size-5" svgIcon="heroicons_outline:ellipsis-vertical"></mat-icon>
             </button>
-            <mat-menu #menu="matMenu">
-                <a mat-menu-item [routerLink]="['./edit', template.id]">
-                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil"></mat-icon>
-                    <span>Editar</span>
+            <mat-menu #menu="matMenu" class="min-w-48">
+                <a mat-menu-item [routerLink]="['./edit', template.id]" class="flex items-center">
+                    <mat-icon class="icon-size-5 mr-3" svgIcon="heroicons_outline:pencil"></mat-icon>
+                    <span>Editar plantilla</span>
                 </a>
-                <button mat-menu-item (click)="duplicateTemplate(template)">
-                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:document-duplicate"></mat-icon>
-                    <span>Duplicar</span>
+                <button mat-menu-item (click)="duplicateTemplate(template)" class="flex items-center">
+                    <mat-icon class="icon-size-5 mr-3" svgIcon="heroicons_outline:document-duplicate"></mat-icon>
+                    <span>Duplicar plantilla</span>
                 </button>
-                <button mat-menu-item (click)="toggleTemplateStatus(template)">
-                    <mat-icon class="icon-size-5" [svgIcon]="template.isActive ? 'heroicons_outline:eye-slash' : 'heroicons_outline:eye'"></mat-icon>
+                <button mat-menu-item (click)="toggleTemplateStatus(template)" class="flex items-center">
+                    <mat-icon class="icon-size-5 mr-3" [svgIcon]="template.isActive ? 'heroicons_outline:eye-slash' : 'heroicons_outline:eye'"></mat-icon>
                     <span>{{ template.isActive ? 'Desactivar' : 'Activar' }}</span>
                 </button>
-                <button mat-menu-item (click)="deleteTemplate(template)">
-                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:trash"></mat-icon>
+                <button mat-menu-item (click)="deleteTemplate(template)" class="flex items-center text-red-600">
+                    <mat-icon class="icon-size-5 mr-3" svgIcon="heroicons_outline:trash"></mat-icon>
                     <span>Eliminar</span>
                 </button>
             </mat-menu>

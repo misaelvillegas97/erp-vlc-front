@@ -4,28 +4,30 @@
         [subtitle]="isGroupExecution() ? 'Ejecutando grupo de checklists' : 'Ejecutando plantilla de checklist'">
     </page-header>
 
-    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-6xl mx-auto py-10 gap-y-6 sm:px-4">
+    <div class="flex flex-col items-center justify-center w-full max-w-full sm:max-w-2xl lg:max-w-6xl mx-auto py-4 sm:py-10 gap-y-4 sm:gap-y-6 px-4 sm:px-6">
 
         <!-- Header with back button -->
-        <div class="flex flex-row w-full items-center gap-4">
-            <button mat-icon-button routerLink="../../" [matTooltip]="'Volver a selección'">
-                <mat-icon svgIcon="heroicons_outline:arrow-left"></mat-icon>
-            </button>
-            <div class="flex-1">
-                <h2 class="font-bold text-secondary text-xl">
-                    {{ currentTemplate()?.name || 'Checklist' }}
-                </h2>
-                <p class="text-sm text-gray-600 dark:text-gray-300">
-                    {{ currentTemplate()?.description || 'Ejecutando checklist' }}
-                </p>
+        <div class="flex flex-col sm:flex-row w-full items-start sm:items-center gap-3 sm:gap-4">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <button mat-icon-button routerLink="../../" [matTooltip]="'Volver a selección'" class="flex-shrink-0">
+                    <mat-icon svgIcon="heroicons_outline:arrow-left"></mat-icon>
+                </button>
+                <div class="flex-1 min-w-0">
+                    <h2 class="font-bold text-secondary text-lg sm:text-xl truncate">
+                        {{ currentTemplate()?.name || 'Checklist' }}
+                    </h2>
+                    <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+                        {{ currentTemplate()?.description || 'Ejecutando checklist' }}
+                    </p>
+                </div>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-600 dark:text-gray-300">Progreso:</span>
-                <span class="font-medium">{{ completionPercentage() | number:'1.0-0' }}%</span>
+            <div class="flex items-center gap-2 w-full sm:w-auto sm:flex-shrink-0">
+                <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Progreso:</span>
+                <span class="font-medium text-sm sm:text-base">{{ completionPercentage() | number:'1.0-0' }}%</span>
                 <mat-progress-bar
                     mode="determinate"
                     [value]="completionPercentage()"
-                    class="w-32"
+                    class="flex-1 sm:w-24 lg:w-32 min-w-0"
                 ></mat-progress-bar>
             </div>
         </div>
@@ -33,10 +35,10 @@
         <form [formGroup]="executionForm" (ngSubmit)="onSubmit()" class="w-full space-y-6">
 
             <!-- Vehicle Selection -->
-            <div class="w-full bg-card rounded-md shadow p-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Información de Ejecución</h3>
+            <div class="w-full bg-card rounded-md shadow p-4 sm:p-6">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4">Información de Ejecución</h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Vehículo</mat-label>
                         <mat-select formControlName="vehicleId">
@@ -69,8 +71,8 @@
                         }
                     </mat-form-field>
 
-                    <div class="flex items-center gap-4">
-                        <div class="text-sm">
+                    <div class="flex items-center gap-4 sm:col-span-2 lg:col-span-1">
+                        <div class="text-xs sm:text-sm">
                             <div class="font-medium text-gray-900 dark:text-gray-100">Tipo: {{ currentTemplate()?.type | titlecase }}</div>
                             <div class="text-gray-600 dark:text-gray-300">Versión: {{ currentTemplate()?.version }}</div>
                         </div>
@@ -80,75 +82,75 @@
 
             <!-- Score Display -->
             @if (isGroupExecution()) {
-                <div class="w-full bg-card rounded-md shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Puntuación del Grupo</h3>
-                    <div class="flex items-center gap-4">
-                        <div class="flex-1">
+                <div class="w-full bg-card rounded-md shadow p-4 sm:p-6">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4">Puntuación del Grupo</h3>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                        <div class="flex-1 w-full">
                             <mat-progress-bar
                                 mode="determinate"
                                 [value]="groupScore() * 100"
-                                [color]="groupScore() >= 0.7 ? 'primary' : 'warn'"
+                                [color]="groupScore() >= +currentTemplate().performanceThreshold ? 'primary' : 'warn'"
                             ></mat-progress-bar>
                         </div>
-                        <span class="font-bold text-lg"
-                              [class]="groupScore() >= 0.7 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
-              {{ (groupScore() * 100) | number:'1.1-1' }}%
-            </span>
+                        <span class="font-bold text-base sm:text-lg flex-shrink-0"
+                              [class]="groupScore() >= +currentGroup().performanceThreshold ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+                          {{ (groupScore() * 100) | number:'1.1-1' }}% ({{ groupScore() | number:'1.2-2' }})
+                        </span>
                     </div>
                 </div>
             } @else {
-                <div class="w-full bg-card rounded-md shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Puntuación de la Plantilla</h3>
-                    <div class="flex items-center gap-4">
-                        <div class="flex-1">
+                <div class="w-full bg-card rounded-md shadow p-4 sm:p-6">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4">Puntuación de la Plantilla</h3>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                        <div class="flex-1 w-full">
                             <mat-progress-bar
                                 mode="determinate"
                                 [value]="templateScore() * 100"
-                                [color]="templateScore() >= 0.7 ? 'primary' : 'warn'"
+                                [color]="templateScore() >= +currentTemplate().performanceThreshold ? 'primary' : 'warn'"
                             ></mat-progress-bar>
                         </div>
-                        <span class="font-bold text-lg"
-                              [class]="templateScore() >= 0.7 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
-              {{ (templateScore() * 100) | number:'1.1-1' }}%
-            </span>
+                        <span class="font-bold text-base sm:text-lg flex-shrink-0"
+                              [class]="templateScore() >= +currentTemplate().performanceThreshold ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+                          {{ (templateScore() * 100) | number:'1.1-1' }}%
+                        </span>
                     </div>
                 </div>
             }
 
             <!-- Categories -->
-            <div class="w-full bg-card rounded-md shadow p-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Categorías del Checklist</h3>
+            <div class="w-full bg-card rounded-md shadow p-4 sm:p-6">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4">Categorías del Checklist</h3>
 
-                <div formArrayName="categories" class="space-y-6">
+                <div formArrayName="categories" class="space-y-4 sm:space-y-6">
                     @for (category of $any(executionForm.get('categories')).controls; track category.categoryId; let categoryIndex = $index) {
-                        <div [formGroupName]="categoryIndex" class="space-y-4">
+                        <div [formGroupName]="categoryIndex" class="space-y-3 sm:space-y-4">
                             <!-- Category Subtitle Header -->
                             <div class="border-b border-gray-200 dark:border-gray-600 pb-3">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
-                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                                        <h4 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
                                             {{ getCategory(categoryIndex)?.title }}
                                         </h4>
-                                        <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs font-medium">
+                                        <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs font-medium w-fit">
                                             Peso: {{ (getCategory(categoryIndex)?.weight * 100).toFixed(0) }}%
                                         </span>
                                     </div>
-                                    <div class="flex items-center gap-4">
-                                        <span class="text-sm text-gray-600 dark:text-gray-300">{{ getCategoryCompletionText(categoryIndex) }}</span>
+                                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                        <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">{{ getCategoryCompletionText(categoryIndex) }}</span>
                                         <mat-progress-bar
                                             mode="determinate"
                                             [value]="getCategoryCompletion(categoryIndex)"
-                                            class="w-32"
+                                            class="w-full sm:w-24 lg:w-32"
                                         ></mat-progress-bar>
                                     </div>
                                 </div>
                                 @if (getCategory(categoryIndex)?.description) {
-                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-9">{{ getCategory(categoryIndex)?.description }}</p>
+                                    <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-2">{{ getCategory(categoryIndex)?.description }}</p>
                                 }
                             </div>
 
                             <!-- Questions List -->
-                            <div formArrayName="questions" class="space-y-2 ml-4">
+                            <div formArrayName="questions" class="space-y-2 sm:ml-4">
                                 @for (j of getQuestionIndices(categoryIndex); track j; let jIndex = $index) {
                                     <div [formGroupName]="jIndex">
                                         @let question = getQuestion(categoryIndex, jIndex);
@@ -158,122 +160,132 @@
                                         <!-- Enhanced Question Item -->
                                         <div class="border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 overflow-hidden">
                                             <!-- Main Question Row -->
-                                            <div class="flex items-center gap-3 p-4">
-                                                <!-- Question Number -->
-                                                <div class="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-sm font-medium text-blue-600 dark:text-blue-300">
-                                                    {{ question.sortOrder + 1 }}
-                                                </div>
-
-                                                <!-- Question Title -->
-                                                <div class="flex-1 min-w-0">
-                                                    <div class="flex flex-col justify-center gap-2">
-                                                        <h4 class="font-medium text-gray-900 dark:text-gray-100">
-                                                            {{ question.title }}
-                                                            @if (required) {
-                                                                <span class="text-red-500 dark:text-red-400 ml-1">*</span>
-                                                            }
-                                                        </h4>
-                                                        <span class="text-sm line-clamp-2">{{ question.description }}</span>
+                                            <div class="flex flex-col sm:flex-row gap-3 p-3 sm:p-4">
+                                                <!-- Question Header (Mobile: Full Width, Desktop: Left Side) -->
+                                                <div class="flex items-start gap-3 flex-1 min-w-0">
+                                                    <!-- Question Number -->
+                                                    <div class="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-300">
+                                                        {{ question.sortOrder + 1 }}
                                                     </div>
-                                                    @if (question.weight && question.weight !== 1) {
-                                                        <span class="text-xs text-gray-500 dark:text-gray-400">
-                                                            Peso: {{ (question.weight * 100).toFixed(0) }}%
-                                                        </span>
-                                                    }
-                                                </div>
 
-                                                <!-- Toggle Buttons for Approval Status -->
-                                                <div class="flex-shrink-0">
-                                                    <mat-button-toggle-group
-                                                        formControlName="complianceStatus"
-                                                        appearance="legacy"
-                                                        class="shadow-sm">
-
-                                                        <!-- Approved -->
-                                                        <mat-button-toggle
-                                                            value="1.0"
-                                                            [matTooltip]="'Aprobado'"
-                                                            matTooltipPosition="above"
-                                                            class="!border-green-200 hover:!bg-green-50 data-[checked]:!bg-green-100 data-[checked]:!text-green-700">
-                                                            <mat-icon svgIcon="mat_solid:check"></mat-icon>
-                                                        </mat-button-toggle>
-
-                                                        <!-- Intermediate (if available) -->
-                                                        @if (question.hasIntermediateApproval) {
-                                                            @let intermediateValue = Number(question.intermediateValue) || 0;
-                                                            <mat-button-toggle
-                                                                [value]="question.intermediateValue?.toString()"
-                                                                [matTooltip]="'Parcial (' + intermediateValue.toFixed(2) + ')'"
-                                                                matTooltipPosition="above"
-                                                                class="!border-orange-200 hover:!bg-orange-50 data-[checked]:!bg-orange-100 data-[checked]:!text-orange-700">
-                                                                <mat-icon svgIcon="mat_solid:remove"></mat-icon>
-                                                            </mat-button-toggle>
+                                                    <!-- Question Title and Description -->
+                                                    <div class="flex-1 min-w-0">
+                                                        <div class="flex flex-col gap-1 sm:gap-2">
+                                                            <h4 class="font-medium text-sm sm:text-base text-gray-900 dark:text-gray-100 leading-tight">
+                                                                {{ question.title }}
+                                                                @if (required) {
+                                                                    <span class="text-red-500 dark:text-red-400 ml-1">*</span>
+                                                                }
+                                                            </h4>
+                                                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{{ question.description }}</span>
+                                                        </div>
+                                                        @if (question.weight && question.weight !== 1) {
+                                                            <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 block">
+                                                                Peso: {{ (question.weight * 100).toFixed(0) }}%
+                                                            </span>
                                                         }
-
-                                                        <!-- Not Approved -->
-                                                        <mat-button-toggle
-                                                            value="0.0"
-                                                            [matTooltip]="'No Aprobado'"
-                                                            matTooltipPosition="above"
-                                                            class="!border-red-200 hover:!bg-red-50 data-[checked]:!bg-red-100 data-[checked]:!text-red-700">
-                                                            <mat-icon svgIcon="mat_solid:close"></mat-icon>
-                                                        </mat-button-toggle>
-                                                    </mat-button-toggle-group>
+                                                    </div>
                                                 </div>
 
-                                                <!-- Action Buttons -->
-                                                <div class="flex-shrink-0 flex items-center gap-1">
-                                                    <!-- Image Attachment Button -->
-                                                    <button mat-icon-button
-                                                            type="button"
-                                                            [matTooltip]="'Adjuntar imagen'"
-                                                            matTooltipPosition="above"
-                                                            class="text-gray-500 hover:text-blue-600"
-                                                            (click)="fileInput.click()">
-                                                        <mat-icon svgIcon="heroicons_solid:paper-clip"></mat-icon>
-                                                    </button>
-                                                    <input #fileInput
-                                                           type="file"
-                                                           accept="image/*"
-                                                           class="hidden"
-                                                           (change)="onFileSelected($event, categoryIndex, jIndex)">
+                                                <!-- Controls Section (Mobile: Full Width, Desktop: Right Side) -->
+                                                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-2 sm:flex-shrink-0">
+                                                    <!-- Toggle Buttons for Approval Status -->
+                                                    <div class="flex justify-center sm:justify-end">
+                                                        <mat-button-toggle-group
+                                                            formControlName="complianceStatus"
+                                                            appearance="legacy"
+                                                            class="shadow-sm">
 
-                                                    <!-- Comments Toggle Button -->
-                                                    <button mat-icon-button
-                                                            type="button"
-                                                            [matTooltip]="'Agregar comentario'"
-                                                            matTooltipPosition="above"
-                                                            class="text-gray-500 hover:text-blue-600"
-                                                            [class.text-blue-600]="executionForm.get('categories').get([categoryIndex, 'questions', jIndex, 'comment']).value"
-                                                            (click)="toggleCommentSection(categoryIndex, jIndex)">
-                                                        <mat-icon svgIcon="heroicons_solid:chat-bubble-bottom-center-text"></mat-icon>
-                                                    </button>
+                                                            <!-- Approved -->
+                                                            <mat-button-toggle
+                                                                value="1.0"
+                                                                [matTooltip]="'Aprobado'"
+                                                                matTooltipPosition="above"
+                                                                class="!border-green-200 hover:!bg-green-50 data-[checked]:!bg-green-100 data-[checked]:!text-green-700 !min-w-[44px] !h-[44px] sm:!min-w-[40px] sm:!h-[40px]">
+                                                                <mat-icon svgIcon="mat_solid:check" class="!text-lg sm:!text-base"></mat-icon>
+                                                            </mat-button-toggle>
+
+                                                            <!-- Intermediate (if available) -->
+                                                            @if (question.hasIntermediateApproval) {
+                                                                @let intermediateValue = Number(question.intermediateValue) || 0;
+                                                                <mat-button-toggle
+                                                                    [value]="question.intermediateValue?.toString()"
+                                                                    [matTooltip]="'Parcial (' + intermediateValue.toFixed(2) + ')'"
+                                                                    matTooltipPosition="above"
+                                                                    class="!border-orange-200 hover:!bg-orange-50 data-[checked]:!bg-orange-100 data-[checked]:!text-orange-700 !min-w-[44px] !h-[44px] sm:!min-w-[40px] sm:!h-[40px]">
+                                                                    <mat-icon svgIcon="mat_solid:remove" class="!text-lg sm:!text-base"></mat-icon>
+                                                                </mat-button-toggle>
+                                                            }
+
+                                                            <!-- Not Approved -->
+                                                            <mat-button-toggle
+                                                                value="0.0"
+                                                                [matTooltip]="'No Aprobado'"
+                                                                matTooltipPosition="above"
+                                                                class="!border-red-200 hover:!bg-red-50 data-[checked]:!bg-red-100 data-[checked]:!text-red-700 !min-w-[44px] !h-[44px] sm:!min-w-[40px] sm:!h-[40px]">
+                                                                <mat-icon svgIcon="mat_solid:close" class="!text-lg sm:!text-base"></mat-icon>
+                                                            </mat-button-toggle>
+                                                        </mat-button-toggle-group>
+                                                    </div>
+
+                                                    <!-- Action Buttons -->
+                                                    <div class="flex items-center justify-center sm:justify-end gap-1">
+                                                        <!-- Image Attachment Button -->
+                                                        <button mat-icon-button
+                                                                type="button"
+                                                                [matTooltip]="'Adjuntar imagen'"
+                                                                matTooltipPosition="above"
+                                                                class="text-gray-500 hover:text-blue-600 !w-11 !h-11 sm:!w-10 sm:!h-10"
+                                                                (click)="fileInput.click()">
+                                                            <mat-icon svgIcon="heroicons_solid:paper-clip" class="!text-lg sm:!text-base"></mat-icon>
+                                                        </button>
+                                                        <input #fileInput
+                                                               type="file"
+                                                               accept="image/*"
+                                                               class="hidden"
+                                                               (change)="onFileSelected($event, categoryIndex, jIndex)">
+
+                                                        <!-- Comments Toggle Button -->
+                                                        <button mat-icon-button
+                                                                type="button"
+                                                                [matTooltip]="'Agregar comentario'"
+                                                                matTooltipPosition="above"
+                                                                class="text-gray-500 hover:text-blue-600 !w-11 !h-11 sm:!w-10 sm:!h-10"
+                                                                [class.text-blue-600]="executionForm.get('categories').get([categoryIndex, 'questions', jIndex, 'comment']).value"
+                                                                (click)="toggleCommentSection(categoryIndex, jIndex)">
+                                                            <mat-icon svgIcon="heroicons_solid:chat-bubble-bottom-center-text" class="!text-lg sm:!text-base"></mat-icon>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
 
                                             <!-- Expandable Comments Section -->
                                             @if (isCommentSectionOpen(categoryIndex, jIndex)) {
-                                                <div class="border-t dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 p-4">
+                                                <div class="border-t dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 p-3 sm:p-4">
                                                     <mat-form-field class="w-full fuse-mat-dense">
                                                         <mat-label>Comentario</mat-label>
                                                         <textarea
                                                             matInput
                                                             formControlName="comment"
                                                             rows="3"
-                                                            placeholder="Agregue observaciones sobre esta pregunta..."></textarea>
+                                                            placeholder="Agregue observaciones sobre esta pregunta..."
+                                                            class="text-sm sm:text-base"></textarea>
                                                     </mat-form-field>
                                                 </div>
                                             }
 
                                             <!-- File Preview Section -->
                                             @if (executionForm.get('categories').get([categoryIndex, 'questions', jIndex, 'evidenceFile']).value) {
-                                                <div class="border-t dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 p-4">
-                                                    <div class="flex items-center gap-2">
-                                                        <mat-icon class="text-green-600" svgIcon="mat_solid:check_circle"></mat-icon>
-                                                        <span class="text-sm text-gray-700 dark:text-gray-300">Imagen adjuntada</span>
+                                                <div class="border-t dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 p-3 sm:p-4">
+                                                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                                                        <div class="flex items-center gap-2 flex-1">
+                                                            <mat-icon class="text-green-600 !text-lg sm:!text-base" svgIcon="mat_solid:check_circle"></mat-icon>
+                                                            <span class="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Imagen adjuntada</span>
+                                                        </div>
                                                         <button mat-button
                                                                 type="button"
                                                                 color="warn"
+                                                                class="!text-xs sm:!text-sm !min-h-[36px] sm:!min-h-[32px] w-full sm:w-auto"
                                                                 (click)="removeFile(categoryIndex, jIndex)">
                                                             Remover
                                                         </button>
@@ -290,30 +302,34 @@
             </div>
 
             <!-- Notes Section -->
-            <div class="w-full bg-card rounded-md shadow p-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Notas Adicionales</h3>
+            <div class="w-full bg-card rounded-md shadow p-4 sm:p-6">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4">Notas Adicionales</h3>
                 <mat-form-field class="w-full fuse-mat-dense">
                     <mat-label>Observaciones</mat-label>
                     <textarea matInput formControlName="notes" rows="4"
-                              placeholder="Agregue cualquier observación adicional sobre la ejecución del checklist..."></textarea>
+                              placeholder="Agregue cualquier observación adicional sobre la ejecución del checklist..."
+                              class="text-sm sm:text-base"></textarea>
                 </mat-form-field>
             </div>
 
             <!-- Form Actions -->
-            <div class="flex justify-between gap-4">
-                <div class="flex gap-2">
-                    <button mat-button type="button" (click)="cancel()">
-                        <mat-icon svgIcon="mat_solid:cancel"></mat-icon>
+            <div class="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4">
+                <div class="flex flex-col sm:flex-row gap-2 order-2 sm:order-1">
+                    <button mat-button type="button" (click)="cancel()"
+                            class="!min-h-[44px] sm:!min-h-[36px] !text-sm sm:!text-base w-full sm:w-auto">
+                        <mat-icon svgIcon="mat_solid:cancel" class="!text-lg sm:!text-base"></mat-icon>
                         <span class="ml-2">Cancelar</span>
                     </button>
-                    <button mat-button type="button" (click)="saveDraft()" color="accent">
-                        <mat-icon svgIcon="mat_solid:save"></mat-icon>
+                    <button mat-button type="button" (click)="saveDraft()" color="accent"
+                            class="!min-h-[44px] sm:!min-h-[36px] !text-sm sm:!text-base w-full sm:w-auto">
+                        <mat-icon svgIcon="mat_solid:save" class="!text-lg sm:!text-base"></mat-icon>
                         <span class="ml-2">Guardar Borrador</span>
                     </button>
                 </div>
 
-                <button mat-raised-button color="primary" type="submit" [disabled]="!canSubmit()">
-                    <mat-icon svgIcon="mat_solid:check_circle"></mat-icon>
+                <button mat-raised-button color="primary" type="submit" [disabled]="!canSubmit()"
+                        class="!min-h-[48px] sm:!min-h-[40px] !text-sm sm:!text-base w-full sm:w-auto order-1 sm:order-2 !font-medium">
+                    <mat-icon svgIcon="mat_solid:check_circle" class="!text-lg sm:!text-base"></mat-icon>
                     <span class="ml-2">Completar Checklist</span>
                 </button>
             </div>
