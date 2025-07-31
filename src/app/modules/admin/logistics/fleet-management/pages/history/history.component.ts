@@ -1,30 +1,28 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnDestroy, resource, signal } from '@angular/core';
-import { CommonModule }                                                                        from '@angular/common';
-import { FormControl, ReactiveFormsModule }                                                    from '@angular/forms';
-import { MatButtonModule }                                                                     from '@angular/material/button';
-import { MatCardModule }                                                                       from '@angular/material/card';
-import { MatDatepickerModule }                                                                 from '@angular/material/datepicker';
-import { MatNativeDateModule }                                                                 from '@angular/material/core';
-import { MatFormFieldModule }                                                                  from '@angular/material/form-field';
-import { MatIconModule }                                                                       from '@angular/material/icon';
-import { MatInputModule }                                                                      from '@angular/material/input';
-import { MatProgressSpinnerModule }                                                            from '@angular/material/progress-spinner';
-import { MatSelectModule }                                                                     from '@angular/material/select';
-import { MatTableModule }                                                                      from '@angular/material/table';
-import { MatPaginatorModule, PageEvent }                                                       from '@angular/material/paginator';
-import { TranslocoService }                                                                    from '@ngneat/transloco';
-import { PageHeaderComponent }                                                                 from '@layout/components/page-header/page-header.component';
-import { debounceTime, distinctUntilChanged, startWith }                                       from 'rxjs/operators';
-import { VehicleSessionsService }                                                              from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
-import { SessionStatus, VehicleSession }                                                       from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
-import { Router, RouterLink }                                                                  from '@angular/router';
-import { MatTooltip }                                                                          from '@angular/material/tooltip';
-import { NotyfService }                                                                        from '@shared/services/notyf.service';
-import { firstValueFrom, Subscription }                                                        from 'rxjs';
-import { toSignal }                                                                            from '@angular/core/rxjs-interop';
-import BigNumber                                                                               from 'bignumber.js';
-import { VehicleSelectorComponent }                                                            from '@shared/controls/components/vehicle-selector/vehicle-selector.component';
-import { Paginator }                                                                           from '@shared/domain/model/paginator';
+import { ChangeDetectionStrategy, Component, computed, inject, resource, signal } from '@angular/core';
+import { CommonModule }                                                           from '@angular/common';
+import { FormControl, ReactiveFormsModule }                                       from '@angular/forms';
+import { MatButtonModule }                                                        from '@angular/material/button';
+import { MatCardModule }                                                          from '@angular/material/card';
+import { MatDatepickerModule }                                                    from '@angular/material/datepicker';
+import { MatNativeDateModule }                                                    from '@angular/material/core';
+import { MatFormFieldModule }                                                     from '@angular/material/form-field';
+import { MatIconModule }                                                          from '@angular/material/icon';
+import { MatInputModule }                                                         from '@angular/material/input';
+import { MatProgressSpinnerModule }                                               from '@angular/material/progress-spinner';
+import { MatSelectModule }                                                        from '@angular/material/select';
+import { MatTableModule }                                                         from '@angular/material/table';
+import { MatPaginatorModule, PageEvent }                                          from '@angular/material/paginator';
+import { PageHeaderComponent }                                                    from '@layout/components/page-header/page-header.component';
+import { debounceTime, distinctUntilChanged, startWith }                          from 'rxjs/operators';
+import { VehicleSessionsService }                                                 from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
+import { SessionStatus, VehicleSession }                                          from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
+import { Router, RouterLink }                                                     from '@angular/router';
+import { MatTooltip }                                                             from '@angular/material/tooltip';
+import { NotyfService }                                                           from '@shared/services/notyf.service';
+import { firstValueFrom }                                                         from 'rxjs';
+import { toSignal }                                                               from '@angular/core/rxjs-interop';
+import BigNumber                                                                  from 'bignumber.js';
+import { VehicleSelectorComponent }                                               from '@shared/controls/components/vehicle-selector/vehicle-selector.component';
 
 @Component({
     selector       : 'app-history',
@@ -51,15 +49,12 @@ import { Paginator }                                                            
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl    : './history.component.html'
 })
-export class HistoryComponent implements OnDestroy {
-    private subscriptions = new Subscription();
+export class HistoryComponent {
     private readonly router = inject(Router);
-    private readonly translocoService = inject(TranslocoService);
     private readonly sessionsService = inject(VehicleSessionsService);
     private readonly notyf = inject(NotyfService);
-    readonly #destroyRef = inject(DestroyRef);
 
-    // Controles de filtro (se mantienen para los inputs, pero se sincronizan con señales)
+    // Controles de filtro
     searchFilter = new FormControl('');
     driverFilter = new FormControl('');
     vehicleFilter = new FormControl('');
@@ -68,8 +63,6 @@ export class HistoryComponent implements OnDestroy {
     statusFilter = new FormControl('');
 
     // Estados manejados con Signals
-    isLoading = signal(true);
-    sessionsHistory = signal<VehicleSession[]>([]);
     showAdvancedFilters = signal(false);
 
     // Señales para almacenar los valores actuales de cada filtro
@@ -80,15 +73,32 @@ export class HistoryComponent implements OnDestroy {
     dateToSignal = toSignal(this.dateToFilter.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()));
     statusFilterSignal = toSignal(this.statusFilter.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()));
 
-    // Paginación con Signals
+    // Paginación con Signals - Separamos los triggers de los metadatos para evitar loops infinitos
     pageSizeOptions = signal<number[]>([ 5, 10, 25, 50 ]);
-    pagination = signal<Paginator>({
-        page         : 0,
-        limit        : 10,
+
+    // Signals que actúan como triggers para el resource (solo page y limit)
+    currentPage = signal(1);
+    currentLimit = signal(10);
+
+    // Signals para metadatos de paginación (no triggers, solo información)
+    paginationMetadata = signal<{
+        totalElements: number;
+        totalPages: number;
+        disabled: boolean;
+    }>({
         totalElements: 0,
-        totalPages   : 0,
-        disabled     : true
+        totalPages: 0,
+        disabled  : true
     });
+
+    // Computed signal para compatibilidad con el template
+    pagination = computed(() => ({
+        page         : this.currentPage(),
+        limit        : this.currentLimit(),
+        totalElements: this.paginationMetadata().totalElements,
+        totalPages   : this.paginationMetadata().totalPages,
+        disabled     : this.paginationMetadata().disabled
+    }));
 
     // Columnas que se muestran en la tabla (constante)
     displayedColumns: string[] = [
@@ -105,16 +115,16 @@ export class HistoryComponent implements OnDestroy {
     historyResource = resource({
         params: () => ({
             search: this.searchFilterSignal(),
-            driver    : this.driverFilterSignal(),
-            vehicle   : this.vehicleFilterSignal(),
-            dateFrom  : this.dateFromSignal(),
-            dateTo    : this.dateToSignal(),
-            status    : this.statusFilterSignal(),
-            pagination: this.pagination(),
+            driver  : this.driverFilterSignal(),
+            vehicle : this.vehicleFilterSignal(),
+            dateFrom: this.dateFromSignal(),
+            dateTo  : this.dateToSignal(),
+            status  : this.statusFilterSignal(),
+            // Solo usamos los triggers de paginación, no los metadatos
+            page : this.currentPage(),
+            limit: this.currentLimit(),
         }),
         loader: async ({params}) => {
-            // this.isLoading.set(true);
-
             const filter: any = {};
             if (params.search) filter.search = params.search;
             if (params.driver) filter.driverId = params.driver;
@@ -122,39 +132,34 @@ export class HistoryComponent implements OnDestroy {
             if (params.dateFrom) filter.startDateFrom = params.dateFrom;
             if (params.dateTo) filter.startDateTo = params.dateTo;
             if (params.status) filter.status = params.status;
-            if (params.pagination) {
-                filter.page = params.pagination.page;
-                filter.limit = params.pagination.limit;
-            }
+            // Usamos los parámetros directos en lugar del objeto pagination
+            if (params.page) filter.page = params.page;
+            if (params.limit) filter.limit = params.limit;
 
             try {
                 const sessions = await firstValueFrom(this.sessionsService.getHistoricalSessions(filter));
-                this.sessionsHistory.set(sessions.items);
-                this.pagination.set({
-                    page         : sessions.page,
-                    limit        : sessions.limit,
+                // Solo actualizamos los metadatos, no los triggers para evitar el loop infinito
+                this.paginationMetadata.set({
                     totalElements: sessions.totalElements,
-                    totalPages   : sessions.totalPages,
-                    disabled     : sessions.totalElements === 0
+                    totalPages: sessions.totalPages,
+                    disabled  : sessions.totalElements === 0
                 });
-                return this.isLoading.set(false);
-            } catch {
+                return sessions.items;
+            } catch (error) {
                 this.notyf.error('Error al cargar el historial de sesiones');
-                this.isLoading.set(false);
+                throw error;
             }
         }
     });
 
-    ngOnDestroy(): void {
-        this.subscriptions.unsubscribe();
-    }
+    // Computed signals for better performance
+    sessionsHistory = computed(() => this.historyResource.value() || []);
+    isLoading = computed(() => this.historyResource.isLoading());
 
     onPageChange(event: PageEvent): void {
-        this.pagination.update(paginator => ({
-            ...paginator,
-            page : event.pageIndex + 1,
-            limit: event.pageSize,
-        }));
+        // Actualizamos solo los triggers de paginación, no los metadatos
+        this.currentPage.set(event.pageIndex + 1);
+        this.currentLimit.set(event.pageSize);
     }
 
     calculateDistance(session: VehicleSession): string {

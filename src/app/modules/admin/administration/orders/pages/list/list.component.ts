@@ -1,17 +1,17 @@
-import { Component, computed, inject, linkedSignal, OnDestroy, resource, Signal, signal, TemplateRef, viewChild, ViewContainerRef, WritableSignal } from '@angular/core';
-import { BreakpointObserver, Breakpoints }                                                                                                          from '@angular/cdk/layout';
-import { Overlay, OverlayRef }                                                                                                                      from '@angular/cdk/overlay';
-import { toSignal }                                                                                                                                 from '@angular/core/rxjs-interop';
-import { FormControl, FormsModule, ReactiveFormsModule }                                                                                            from '@angular/forms';
-import { MatSlideToggle }                                                                                                                           from '@angular/material/slide-toggle';
-import { MatDialog }                                                                                                                                from '@angular/material/dialog';
-import { MatFormFieldModule }                                                                                                                       from '@angular/material/form-field';
-import { MatInputModule }                                                                                                                           from '@angular/material/input';
-import { MatSelectModule }                                                                                                                          from '@angular/material/select';
-import { MatIcon }                                                                                                                                  from '@angular/material/icon';
-import { MatButton, MatButtonModule, MatIconAnchor }                                                                                                from '@angular/material/button';
-import { MatTooltip }                                                                                                                               from '@angular/material/tooltip';
-import { Router, RouterLink }                                                                                                                       from '@angular/router';
+import { Component, computed, inject, linkedSignal, resource, Signal, signal, TemplateRef, viewChild, ViewContainerRef, WritableSignal } from '@angular/core';
+import { BreakpointObserver, Breakpoints }                                                                                               from '@angular/cdk/layout';
+import { Overlay, OverlayRef }                                                                                                           from '@angular/cdk/overlay';
+import { toSignal }                                                                                                                      from '@angular/core/rxjs-interop';
+import { FormControl, FormsModule, ReactiveFormsModule }                                                                                 from '@angular/forms';
+import { MatSlideToggle }                                                                                                                from '@angular/material/slide-toggle';
+import { MatDialog }                                                                                                                     from '@angular/material/dialog';
+import { MatFormFieldModule }                                                                                                            from '@angular/material/form-field';
+import { MatInputModule }                                                                                                                from '@angular/material/input';
+import { MatSelectModule }                                                                                                               from '@angular/material/select';
+import { MatIcon }                                                                                                                       from '@angular/material/icon';
+import { MatButton, MatButtonModule, MatIconAnchor }                                                                                     from '@angular/material/button';
+import { MatTooltip }                                                                                                                    from '@angular/material/tooltip';
+import { Router, RouterLink }                                                                                                            from '@angular/router';
 
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@ngneat/transloco';
 import { DateTime }                                            from 'luxon';
@@ -60,7 +60,7 @@ import { openOverlay }                        from '@shared/utils/overlay.util';
         '(document:keydown.Alt.n)': 'router.navigate(["/orders", "new"])'
     }
 })
-export class ListComponent implements OnDestroy {
+export class ListComponent {
     readonly #dialog = inject(MatDialog);
     readonly #ts = inject(TranslocoService);
     readonly #ordersService = inject(OrdersService);
@@ -106,8 +106,30 @@ export class ListComponent implements OnDestroy {
     customActionsColumn = viewChild<TemplateRef<any>>('actionsCell');
     showColumnsOverlay = signal(false);
 
-    // Pagination
-    pagination = signal({page: 1, limit: 10, totalElements: 0, totalPages: 0, disabled: true});
+    // Paginación con Signals - Separamos los triggers de los metadatos para evitar loops infinitos
+    // Signals que actúan como triggers para el resource (solo page y limit)
+    currentPage = signal(1);
+    currentLimit = signal(10);
+
+    // Signals para metadatos de paginación (no triggers, solo información)
+    paginationMetadata = signal<{
+        totalElements: number;
+        totalPages: number;
+        disabled: boolean;
+    }>({
+        totalElements: 0,
+        totalPages   : 0,
+        disabled     : true
+    });
+
+    // Computed signal para compatibilidad con el template
+    pagination = computed(() => ({
+        page         : this.currentPage(),
+        limit        : this.currentLimit(),
+        totalElements: this.paginationMetadata().totalElements,
+        totalPages   : this.paginationMetadata().totalPages,
+        disabled     : this.paginationMetadata().disabled
+    }));
 
     filters = computed(() => {
         const filter = {};
@@ -301,19 +323,23 @@ export class ListComponent implements OnDestroy {
     columns = computed(() => this.columnsConfig().filter(col => col.visible).map((column) => column.key));
 
     ordersResource = resource({
-        params: () => ({filters: this.filters(), pagination: this.pagination()}),
+        params: () => ({
+            filters: this.filters(),
+            // Solo usamos los triggers de paginación, no los metadatos
+            page : this.currentPage(),
+            limit: this.currentLimit()
+        }),
         loader: async ({params}) => {
             const paginationOrders = await firstValueFrom(this.#ordersService.findAll(params.filters, {
-                page : params.pagination.page,
-                limit: params.pagination.limit
+                page : params.page,
+                limit: params.limit
             }));
 
-            this.pagination.set({
-                page         : paginationOrders.page,
-                limit        : paginationOrders.limit,
+            // Solo actualizamos los metadatos, no los triggers para evitar el loop infinito
+            this.paginationMetadata.set({
                 totalElements: paginationOrders.totalElements,
-                totalPages   : paginationOrders.totalPages,
-                disabled     : false
+                totalPages: paginationOrders.totalPages,
+                disabled  : paginationOrders.totalElements === 0
             });
 
             return paginationOrders.items;
@@ -327,9 +353,6 @@ export class ListComponent implements OnDestroy {
     protected readonly trackByFn = trackByFn;
     protected readonly Date = Date;
 
-    ngOnDestroy() {
-        if (this.#overlayRef) this.#overlayRef.detach();
-    }
 
     toggleColumn = (columnKey: string) => {
         const currentConfig = this.columnsConfig();
@@ -398,11 +421,8 @@ export class ListComponent implements OnDestroy {
     persistColumnsConfiguration = (): void => localStorage.setItem('ordersListColumnsConfig', JSON.stringify(this.columns()));
 
     handlePagination = (event) => {
-        this.pagination.update((value) => ({
-            ...value,
-            page    : event.pageIndex + 1,
-            limit   : event.pageSize,
-            disabled: true
-        }));
+        // Actualizamos solo los triggers de paginación, no los metadatos
+        this.currentPage.set(event.pageIndex + 1);
+        this.currentLimit.set(event.pageSize);
     };
 }
