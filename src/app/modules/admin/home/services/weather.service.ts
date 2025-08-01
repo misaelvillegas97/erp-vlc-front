@@ -184,11 +184,11 @@ export class WeatherService {
     private getWeatherIconFromCondition(condition: string, isDay: number): string {
         // Map condition to Material icons
         if (condition.includes('Lluvia')) {
-            return 'mat_solid:water_drop';
+            return 'feather:cloud-drizzle';
         } else if (isDay) {
-            return 'mat_solid:wb_sunny';
+            return 'feather:sun';
         } else {
-            return 'mat_solid:nightlight_round';
+            return 'feather:moon';
         }
     }
 

@@ -397,8 +397,13 @@ export class ExecutionFormComponent implements OnInit {
         const formValue = this.executionForm.value;
         const template = this.currentTemplate();
 
-        if (!template || !formValue.vehicleId || !formValue.userId) {
-            this.notyf.error('Debe seleccionar un vehículo y un usuario');
+        if (template?.vehicleTypes?.length > 0 && !formValue.vehicleId) {
+            this.notyf.error('Debe seleccionar un vehículo válido para esta plantilla');
+            return;
+        }
+
+        if (template?.userRoles?.length > 0 && !formValue.userId) {
+            this.notyf.error('Debe seleccionar un usuario válido para esta plantilla');
             return;
         }
 
