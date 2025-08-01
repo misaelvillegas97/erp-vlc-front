@@ -197,8 +197,8 @@ export class ChecklistTemplateFormComponent implements OnInit {
             isActive            : formValue.basicInfo.isActive,
 
             // Application Filters
-            vehicleTypes: formValue.filters.vehicleTypes,
-            userRoles   : formValue.filters.userRoles,
+            vehicleTypes: formValue.filters.vehicleTypes ? formValue.filters.vehicleTypes.map((type: any) => Number(type)) : undefined,
+            userRoles   : formValue.filters.userRoles ? formValue.filters.userRoles.map((role: any) => Number(role)) : undefined,
 
             // Content Structure
             categories: formValue.content.categories.map((category: any, categoryIndex: number) => ({
@@ -250,13 +250,19 @@ export class ChecklistTemplateFormComponent implements OnInit {
     }
 
     private loadTemplate(id: string): void {
-        // In a real implementation, you would load the template from the service
-        // For now, we'll use mock data or the existing templates from the service
-        const template = this.checklistService.templates().find(t => t.id === id);
-        if (template) {
-            console.log('Loaded template:', template);
-            this.populateForm(template);
-        }
+        // Load template from backend instead of checking signal
+        this.checklistService.getTemplate(id).subscribe({
+            next : (template) => {
+                console.log('Loaded template from backend:', template);
+                this.populateForm(template);
+            },
+            error: (error) => {
+                console.error('Error loading template:', error);
+                this.notyf.error('Error al cargar la plantilla');
+                // Navigate back to templates list on error
+                this.router.navigate([ '../' ], {relativeTo: this.route});
+            }
+        });
     }
 
     private populateForm(template: ChecklistTemplate): void {
@@ -271,7 +277,7 @@ export class ChecklistTemplateFormComponent implements OnInit {
             },
             filters  : {
                 vehicleTypes: template.vehicleTypes || [],
-                userRoles   : template.userRoles || []
+                userRoles: (template.userRoles || []).map(role => Number(role)) // Convert string roles to numbers
             }
         });
 

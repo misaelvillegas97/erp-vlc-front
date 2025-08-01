@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
-import { CommonModule }                                                         from '@angular/common';
-import { FormControl, ReactiveFormsModule }                                     from '@angular/forms';
-import { Router }                                                               from '@angular/router';
-import { takeUntilDestroyed, toSignal }                                         from '@angular/core/rxjs-interop';
-import { debounceTime, firstValueFrom }                                         from 'rxjs';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, output, signal } from '@angular/core';
+import { CommonModule }                                                                 from '@angular/common';
+import { FormControl, ReactiveFormsModule }                                             from '@angular/forms';
+import { Router }                                                                       from '@angular/router';
+import { takeUntilDestroyed, toSignal }                                                 from '@angular/core/rxjs-interop';
+import { debounceTime, firstValueFrom, catchError, of }                                 from 'rxjs';
 
 // Angular Material
 import { MatCardModule }                         from '@angular/material/card';
@@ -60,16 +60,16 @@ export class ExecutionSelectorComponent {
     selectionChanged = output<ExecutionSelection>();
     cancelled = output<void>();
 
-    // Form controls
-    executionTypeControl = new FormControl<'template' | 'group'>('template');
-    searchControl = new FormControl<string>('');
-    vehicleFilterControl = new FormControl<string[]>([]);
-    roleFilterControl = new FormControl<string[]>([]);
+    // Form controls with better typing
+    executionTypeControl = new FormControl<'template' | 'group'>('template', {nonNullable: true});
+    searchControl = new FormControl<string>('', {nonNullable: true});
+    vehicleFilterControl = new FormControl<string[]>([], {nonNullable: true});
+    roleFilterControl = new FormControl<string[]>([], {nonNullable: true});
 
     // Signals from form controls
-    executionTypeSignal = toSignal(this.executionTypeControl.valueChanges, {initialValue: 'template'});
-    vehicleFilterSignal = toSignal(this.vehicleFilterControl.valueChanges, {initialValue: []});
-    roleFilterSignal = toSignal(this.roleFilterControl.valueChanges, {initialValue: []});
+    executionTypeSignal = toSignal(this.executionTypeControl.valueChanges, {initialValue: 'template' as const});
+    vehicleFilterSignal = toSignal(this.vehicleFilterControl.valueChanges, {initialValue: [] as string[]});
+    roleFilterSignal = toSignal(this.roleFilterControl.valueChanges, {initialValue: [] as string[]});
     searchSignal = toSignal(this.searchControl.valueChanges.pipe(debounceTime(300)), {initialValue: ''});
 
     // Selection state
@@ -136,12 +136,12 @@ export class ExecutionSelectorComponent {
         return Array.from(roles).sort();
     });
 
-    // Filtered data
+    // Filtered data using signals for proper reactivity
     filteredTemplates = computed(() => {
         const templates = this.availableTemplates();
-        const search = this.searchControl.value?.toLowerCase() || '';
-        const vehicleFilter = this.vehicleFilterControl.value || [];
-        const roleFilter = this.roleFilterControl.value || [];
+        const search = this.searchSignal()?.toLowerCase() || '';
+        const vehicleFilter = this.vehicleFilterSignal() || [];
+        const roleFilter = this.roleFilterSignal() || [];
 
         return templates.filter(template => {
             // Search filter
@@ -165,9 +165,9 @@ export class ExecutionSelectorComponent {
 
     filteredGroups = computed(() => {
         const groups = this.availableGroups();
-        const search = this.searchControl.value?.toLowerCase() || '';
-        const vehicleFilter = this.vehicleFilterControl.value || [];
-        const roleFilter = this.roleFilterControl.value || [];
+        const search = this.searchSignal()?.toLowerCase() || '';
+        const vehicleFilter = this.vehicleFilterSignal() || [];
+        const roleFilter = this.roleFilterSignal() || [];
 
         return groups.filter(group => {
             // Search filter
@@ -199,20 +199,41 @@ export class ExecutionSelectorComponent {
         this.loadTemplates();
         this.loadGroups();
 
-        this.executionTypeControl.valueChanges
-            .pipe(takeUntilDestroyed())
-            .subscribe((type) => {
-                if (type === 'template') this.loadTemplates();
-                else if (type === 'group') this.loadGroups();
-            });
+        // Use effect instead of manual subscription for better signal integration
+        effect(() => {
+            const type = this.executionTypeSignal();
+            if (type === 'template') {
+                this.loadTemplates();
+            } else if (type === 'group') {
+                this.loadGroups();
+            }
+        });
     }
 
     private loadTemplates(): void {
-        void firstValueFrom(this.checklistService.loadTemplates());
+        firstValueFrom(
+            this.checklistService.loadTemplates().pipe(
+                catchError(error => {
+                    console.error('Error loading templates:', error);
+                    return of(() => []);
+                })
+            )
+        ).catch(error => {
+            console.error('Failed to load templates:', error);
+        });
     }
 
     private loadGroups(): void {
-        void firstValueFrom(this.checklistService.loadGroups());
+        firstValueFrom(
+            this.checklistService.loadGroups().pipe(
+                catchError(error => {
+                    console.error('Error loading groups:', error);
+                    return of(() => []);
+                })
+            )
+        ).catch(error => {
+            console.error('Failed to load groups:', error);
+        });
     }
 
     selectTarget(selection: { type: 'template' | 'group'; data: ChecklistTemplate | ChecklistGroup }): void {
@@ -263,11 +284,5 @@ export class ExecutionSelectorComponent {
 
     onCancel(): void {
         this.cancelled.emit();
-    }
-
-    // Utility method that was referenced but not used
-    getVehicleName(vehicleId: string): string {
-        // Implementation would depend on vehicle service
-        return vehicleId;
     }
 }

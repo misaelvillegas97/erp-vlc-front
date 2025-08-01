@@ -4,41 +4,41 @@
         subtitle="Seleccione la plantilla o grupo de checklists a ejecutar">
     </page-header>
 
-    <div class="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-6xl mx-auto py-10 gap-y-6 sm:px-4">
+    <div class="flex flex-col items-center justify-center w-full max-w-full sm:max-w-2xl lg:max-w-6xl mx-auto py-4 sm:py-10 gap-y-4 sm:gap-y-6 px-4 sm:px-6">
 
         <!-- Selection Type Toggle -->
-        <div class="w-full bg-card rounded-md shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Tipo de Ejecución</h3>
+        <div class="w-full bg-card rounded-md shadow p-4 sm:p-6">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4">Tipo de Ejecución</h3>
             <mat-button-toggle-group
                 [formControl]="executionTypeControl"
                 class="w-full">
-                <mat-button-toggle value="template" class="flex-1">
-                    <mat-icon class="mr-2">description</mat-icon>
-                    Plantilla Individual
+                <mat-button-toggle value="template" class="flex-1 !min-h-[48px] sm:!min-h-[40px]">
+                    <mat-icon class="mr-1 sm:mr-2 !text-lg sm:!text-base">description</mat-icon>
+                    <span class="text-sm sm:text-base">Plantilla Individual</span>
                 </mat-button-toggle>
-                <mat-button-toggle value="group" class="flex-1">
-                    <mat-icon class="mr-2">folder</mat-icon>
-                    Grupo de Plantillas
+                <mat-button-toggle value="group" class="flex-1 !min-h-[48px] sm:!min-h-[40px]">
+                    <mat-icon class="mr-1 sm:mr-2 !text-lg sm:!text-base">folder</mat-icon>
+                    <span class="text-sm sm:text-base">Grupo de Plantillas</span>
                 </mat-button-toggle>
             </mat-button-toggle-group>
         </div>
 
         <!-- Filters -->
-        <div class="w-full bg-card rounded-md shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Filtros</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="w-full bg-card rounded-md shadow p-4 sm:p-6">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4">Filtros</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
 
                 <!-- Search -->
-                <mat-form-field class="w-full">
+                <mat-form-field class="w-full fuse-mat-dense">
                     <mat-label>Buscar</mat-label>
-                    <input matInput [formControl]="searchControl" placeholder="Buscar por nombre...">
-                    <mat-icon matSuffix>search</mat-icon>
+                    <input matInput [formControl]="searchControl" placeholder="Buscar por nombre..." class="text-sm sm:text-base">
+                    <mat-icon matSuffix class="!text-lg sm:!text-base">search</mat-icon>
                 </mat-form-field>
 
                 <!-- Vehicle Filter -->
-                <mat-form-field class="w-full">
+                <mat-form-field class="w-full fuse-mat-dense">
                     <mat-label>Tipos de Vehículo</mat-label>
-                    <mat-select [formControl]="vehicleFilterControl" multiple>
+                    <mat-select [formControl]="vehicleFilterControl" multiple class="text-sm sm:text-base">
                         @for (vehicleType of availableVehicleTypes(); track vehicleType) {
                             <mat-option [value]="vehicleType">{{ vehicleType | titlecase }}</mat-option>
                         }
@@ -46,9 +46,9 @@
                 </mat-form-field>
 
                 <!-- Role Filter -->
-                <mat-form-field class="w-full">
+                <mat-form-field class="w-full fuse-mat-dense">
                     <mat-label>Roles de Usuario</mat-label>
-                    <mat-select [formControl]="roleFilterControl" multiple>
+                    <mat-select [formControl]="roleFilterControl" multiple class="text-sm sm:text-base">
                         @for (role of availableUserRoles(); track role) {
                             <mat-option [value]="role">{{ role | titlecase }}</mat-option>
                         }
@@ -59,69 +59,69 @@
 
         <!-- Templates List -->
         @if (executionTypeControl.value === 'template') {
-            <div class="w-full bg-card rounded-md shadow p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <div class="w-full bg-card rounded-md shadow p-4 sm:p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
                         Plantillas de Checklist
                     </h3>
-                    <span class="text-sm text-gray-600 dark:text-gray-300">
+                    <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                         {{ filteredTemplates().length }} plantilla(s) disponible(s)
                     </span>
                 </div>
 
                 @if (checklistService.loading()) {
-                    <div class="flex items-center justify-center py-12">
-                        <mat-spinner diameter="40"></mat-spinner>
-                        <span class="ml-3">Cargando plantillas...</span>
+                    <div class="flex flex-col sm:flex-row items-center justify-center py-8 sm:py-12 gap-2 sm:gap-3">
+                        <mat-spinner diameter="32"></mat-spinner>
+                        <span class="text-sm sm:text-base">Cargando plantillas...</span>
                     </div>
                 } @else if (filteredTemplates().length === 0) {
-                    <div class="text-center py-12 text-gray-500 dark:text-gray-400">
-                        <mat-icon class="text-6xl mb-4">description</mat-icon>
-                        <p>No se encontraron plantillas con los filtros aplicados</p>
-                        <button mat-button (click)="clearFilters()" class="mt-2">
+                    <div class="text-center py-8 sm:py-12 text-gray-500 dark:text-gray-400">
+                        <mat-icon class="text-4xl sm:text-6xl mb-3 sm:mb-4">description</mat-icon>
+                        <p class="text-sm sm:text-base mb-3 sm:mb-2">No se encontraron plantillas con los filtros aplicados</p>
+                        <button mat-button (click)="clearFilters()" class="!min-h-[44px] sm:!min-h-[36px] !text-sm sm:!text-base">
                             Limpiar Filtros
                         </button>
                     </div>
                 } @else {
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                         @for (template of filteredTemplates(); track template.id) {
                             <mat-card
-                                class="cursor-pointer transition-all hover:shadow-lg"
+                                class="cursor-pointer transition-all hover:shadow-lg !min-h-[120px] sm:!min-h-[140px]"
                                 [class.ring-2]="selectedTemplateOrGroup()?.id === template.id"
                                 [class.ring-primary]="selectedTemplateOrGroup()?.id === template.id"
                                 (click)="selectTarget({ type: 'template', data: template })">
 
-                                <mat-card-header>
-                                    <div mat-card-avatar>
-                                        <mat-icon class="text-blue-600 dark:text-blue-400">description</mat-icon>
+                                <mat-card-header class="!pb-2 sm:!pb-4">
+                                    <div mat-card-avatar class="!w-8 !h-8 sm:!w-10 sm:!h-10">
+                                        <mat-icon class="text-blue-600 dark:text-blue-400 !text-lg sm:!text-xl">description</mat-icon>
                                     </div>
-                                    <mat-card-title class="text-base">{{ template.name }}</mat-card-title>
-                                    <mat-card-subtitle>Versión {{ template.version }}</mat-card-subtitle>
+                                    <mat-card-title class="!text-sm sm:!text-base !font-medium line-clamp-1">{{ template.name }}</mat-card-title>
+                                    <mat-card-subtitle class="!text-xs sm:!text-sm">Versión {{ template.version }}</mat-card-subtitle>
                                 </mat-card-header>
 
-                                <mat-card-content>
+                                <mat-card-content class="!pt-0">
                                     @if (template.description) {
-                                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
+                                        <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-2 sm:mb-3 line-clamp-2">
                                             {{ template.description }}
                                         </p>
                                     }
 
-                                    <div class="flex flex-wrap gap-2 mb-3">
-                                        <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs">
+                                    <div class="flex flex-wrap gap-1 sm:gap-2 mb-2 sm:mb-3">
+                                        <span class="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs">
                                             {{ template.type | titlecase }}
                                         </span>
-                                        <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs">
-                                            {{ getTotalQuestions(template) }} preguntas
+                                        <span class="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs">
+                                            {{ getTotalQuestions(template) }} <span class="hidden sm:inline">preguntas</span><span class="sm:hidden">p</span>
                                         </span>
                                     </div>
 
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
                                         <div>Categorías: {{ template.categories?.length || 0 }}</div>
                                         @if (template.vehicleTypes?.length) {
-                                            <div>Vehículos: {{ template.vehicleTypes.join(', ') }}</div>
+                                            <div class="line-clamp-1">Vehículos: {{ template.vehicleTypes.join(', ') }}</div>
                                         }
                                         @if (template.userRoles?.length) {
-                                            <div>Roles: {{ template.userRoles.join(', ') }}</div>
+                                            <div class="line-clamp-1">Roles: {{ template.userRoles.join(', ') }}</div>
                                         }
                                     </div>
                                 </mat-card-content>
@@ -134,73 +134,73 @@
 
         <!-- Groups List -->
         @if (executionTypeControl.value === 'group') {
-            <div class="w-full bg-card rounded-md shadow p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <div class="w-full bg-card rounded-md shadow p-4 sm:p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
                         Grupos de Checklist
                     </h3>
-                    <span class="text-sm text-gray-600 dark:text-gray-300">
+                    <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                         {{ filteredGroups().length }} grupo(s) disponible(s)
                     </span>
                 </div>
 
                 @if (checklistService.loading()) {
-                    <div class="flex items-center justify-center py-12">
-                        <mat-spinner diameter="40"></mat-spinner>
-                        <span class="ml-3">Cargando grupos...</span>
+                    <div class="flex flex-col sm:flex-row items-center justify-center py-8 sm:py-12 gap-2 sm:gap-3">
+                        <mat-spinner diameter="32"></mat-spinner>
+                        <span class="text-sm sm:text-base">Cargando grupos...</span>
                     </div>
                 } @else if (filteredGroups().length === 0) {
-                    <div class="text-center py-12 text-gray-500 dark:text-gray-400">
-                        <mat-icon class="text-6xl mb-4">folder</mat-icon>
-                        <p>No se encontraron grupos con los filtros aplicados</p>
-                        <button mat-button (click)="clearFilters()" class="mt-2">
+                    <div class="text-center py-8 sm:py-12 text-gray-500 dark:text-gray-400">
+                        <mat-icon class="text-4xl sm:text-6xl mb-3 sm:mb-4">folder</mat-icon>
+                        <p class="text-sm sm:text-base mb-3 sm:mb-2">No se encontraron grupos con los filtros aplicados</p>
+                        <button mat-button (click)="clearFilters()" class="!min-h-[44px] sm:!min-h-[36px] !text-sm sm:!text-base">
                             Limpiar Filtros
                         </button>
                     </div>
                 } @else {
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         @for (group of filteredGroups(); track group.id) {
                             <mat-card
-                                class="cursor-pointer transition-all hover:shadow-lg"
+                                class="cursor-pointer transition-all hover:shadow-lg !min-h-[140px] sm:!min-h-[160px]"
                                 [class.ring-2]="selectedTemplateOrGroup()?.id === group.id"
                                 [class.ring-primary]="selectedTemplateOrGroup()?.id === group.id"
                                 (click)="selectTarget({ type: 'group', data: group })">
 
-                                <mat-card-header>
-                                    <div mat-card-avatar>
-                                        <mat-icon class="text-green-600 dark:text-green-400">folder</mat-icon>
+                                <mat-card-header class="!pb-2 sm:!pb-4">
+                                    <div mat-card-avatar class="!w-8 !h-8 sm:!w-10 sm:!h-10">
+                                        <mat-icon class="text-green-600 dark:text-green-400 !text-lg sm:!text-xl">folder</mat-icon>
                                     </div>
-                                    <mat-card-title class="text-base">{{ group.name }}</mat-card-title>
-                                    <mat-card-subtitle>{{ group.templates?.length || 0 }} plantillas</mat-card-subtitle>
+                                    <mat-card-title class="!text-sm sm:!text-base !font-medium line-clamp-1">{{ group.name }}</mat-card-title>
+                                    <mat-card-subtitle class="!text-xs sm:!text-sm">{{ group.templates?.length || 0 }} <span class="hidden sm:inline">plantillas</span><span class="sm:hidden">p</span></mat-card-subtitle>
                                 </mat-card-header>
 
-                                <mat-card-content>
+                                <mat-card-content class="!pt-0">
                                     @if (group.description) {
-                                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
+                                        <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-2 sm:mb-3 line-clamp-2">
                                             {{ group.description }}
                                         </p>
                                     }
 
-                                    <div class="flex flex-wrap gap-2 mb-3">
-                                        <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded text-xs">
+                                    <div class="flex flex-wrap gap-1 sm:gap-2 mb-2 sm:mb-3">
+                                        <span class="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded text-xs">
                                             {{ group.type | titlecase }}
                                         </span>
-                                        <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs">
-                                            Peso: {{ (group.weight * 100).toFixed(0) }}%
+                                        <span class="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs">
+                                            <span class="hidden sm:inline">Peso: </span>{{ (group.weight * 100).toFixed(0) }}%
                                         </span>
                                     </div>
 
                                     @if (group.templates?.length) {
                                         <div class="text-xs text-gray-500 dark:text-gray-400">
-                                            <div>Plantillas incluidas:</div>
-                                            <div class="mt-1">
-                                                @for (template of group.templates.slice(0, 3); track template.id) {
-                                                    <span class="inline-block mr-1">• {{ template.name }}</span>
+                                            <div class="mb-1"><span class="hidden sm:inline">Plantillas incluidas:</span><span class="sm:hidden">Incluye:</span></div>
+                                            <div class="space-y-0.5">
+                                                @for (template of group.templates.slice(0, 2); track template.id) {
+                                                    <div class="line-clamp-1">• {{ template.name }}</div>
                                                 }
-                                                @if (group.templates.length > 3) {
-                                                    <span class="text-blue-600 dark:text-blue-400">
-                                                        y {{ group.templates.length - 3 }} más...
-                                                    </span>
+                                                @if (group.templates.length > 2) {
+                                                    <div class="text-blue-600 dark:text-blue-400">
+                                                        y {{ group.templates.length - 2 }} más...
+                                                    </div>
                                                 }
                                             </div>
                                         </div>
@@ -215,48 +215,48 @@
 
         <!-- Selection Summary and Actions -->
         @if (selectedTemplateOrGroup()) {
-            <div class="w-full bg-card rounded-md shadow p-6 border-l-4 border-primary">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Selección Actual</h3>
+            <div class="w-full bg-card rounded-md shadow p-4 sm:p-6 border-l-4 border-primary">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4">Selección Actual</h3>
 
-                <div class="flex items-start gap-4 mb-4">
-                    <mat-icon class="text-primary mt-1">
+                <div class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 mb-4">
+                    <mat-icon class="text-primary !text-xl sm:!text-2xl flex-shrink-0 sm:mt-1">
                         {{ selectedTemplateOrGroup()!.type === 'template' ? 'description' : 'folder' }}
                     </mat-icon>
-                    <div class="flex-1">
-                        <div class="font-medium text-gray-900 dark:text-gray-100">
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium text-sm sm:text-base text-gray-900 dark:text-gray-100 line-clamp-2">
                             {{ selectedTemplateOrGroup()!.data.name }}
                         </div>
                         @if (selectedTemplateOrGroup()!.data.description) {
-                            <div class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                            <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
                                 {{ selectedTemplateOrGroup()!.data.description }}
                             </div>
                         }
-                        <div class="flex gap-2 mt-2">
-                            <span class="px-2 py-1 bg-primary/10 text-primary rounded text-xs">
+                        <div class="flex flex-wrap gap-1 sm:gap-2 mt-2">
+                            <span class="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-primary/10 text-primary rounded text-xs font-medium">
                                 {{ selectedTemplateOrGroup()!.type === 'template' ? 'Plantilla' : 'Grupo' }}
                             </span>
                             @if (selectedTemplateOrGroup()!.type === 'template') {
-                                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs">
-                                    {{ getTotalQuestions($any(selectedTemplateOrGroup()!.data)) }} preguntas
+                                <span class="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs">
+                                    {{ getTotalQuestions($any(selectedTemplateOrGroup()!.data)) }} <span class="hidden sm:inline">preguntas</span><span class="sm:hidden">p</span>
                                 </span>
                             } @else {
-                                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs">
-                                    {{ $any(selectedTemplateOrGroup()!.data).templates?.length || 0 }} plantillas
+                                <span class="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs">
+                                    {{ $any(selectedTemplateOrGroup()!.data).templates?.length || 0 }} <span class="hidden sm:inline">plantillas</span><span class="sm:hidden">p</span>
                                 </span>
                             }
                         </div>
                     </div>
                 </div>
 
-                <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <button mat-button (click)="clearSelection()">
-                        <mat-icon svgIcon="mat_solid:clear"></mat-icon>
-                        Limpiar Selección
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button mat-button (click)="clearSelection()" class="!min-h-[44px] sm:!min-h-[36px] !text-sm sm:!text-base w-full sm:w-auto order-2 sm:order-1">
+                        <mat-icon svgIcon="mat_solid:clear" class="!text-lg sm:!text-base"></mat-icon>
+                        <span class="ml-2">Limpiar Selección</span>
                     </button>
 
-                    <button mat-raised-button color="primary" (click)="proceedToExecution()">
-                        <mat-icon svgIcon="mat_solid:play_arrow"></mat-icon>
-                        Proceder con la Ejecución
+                    <button mat-raised-button color="primary" (click)="proceedToExecution()" class="!min-h-[48px] sm:!min-h-[40px] !text-sm sm:!text-base w-full sm:w-auto order-1 sm:order-2 !font-medium">
+                        <mat-icon svgIcon="mat_solid:play_arrow" class="!text-lg sm:!text-base"></mat-icon>
+                        <span class="ml-2">Proceder con la Ejecución</span>
                     </button>
                 </div>
             </div>
