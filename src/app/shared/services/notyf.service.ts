@@ -19,7 +19,7 @@ export class NotyfService {
             }
         ],
         ripple     : false,
-    });
+    } as Partial<INotyfOptions>);
 
     public success(message: string, options?: Partial<INotyfOptions>) {
         this._notyf.success({message, ...options});

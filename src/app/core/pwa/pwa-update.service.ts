@@ -86,7 +86,7 @@ export class PwaUpdateService {
      */
     private activateUpdate(): void {
         this.swUpdate.activateUpdate().then(() => {
-            // window.location.reload();
+            window.location.reload();
         });
     }
 }
