@@ -5,7 +5,7 @@
         icon="heroicons_outline:truck">
     </page-header>
 
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full p-6">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 w-full p-4 md:p-6">
         <!-- Formulario de inicio de sesión -->
         <div class="md:col-span-8">
             <mat-card class="rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -14,12 +14,12 @@
                 </div>
                 <mat-card-content class="p-6">
                     <!-- Contador de fecha y hora actual -->
-                    <div class="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg mb-6 border-l-4 border-blue-500 dark:border-blue-400">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg mb-6 border-l-4 border-blue-500 dark:border-blue-400 gap-3">
                         <div class="flex items-center">
                             <mat-icon svgIcon="heroicons_outline:clock" class="text-blue-600 dark:text-blue-400 mr-3"></mat-icon>
                             <h2 class="text-lg font-medium text-blue-800 dark:text-blue-200">Fecha y Hora Actual</h2>
                         </div>
-                        <div class="text-2xl font-semibold text-blue-800 dark:text-blue-200">
+                        <div class="text-xl sm:text-2xl font-semibold text-blue-800 dark:text-blue-200">
                             {{ currentDateTime() | date:'dd/MM/yyyy HH:mm:ss' }}
                         </div>
                     </div>
@@ -37,10 +37,11 @@
                             @if (!currentUserIsDriver()) {
                                 <!-- Si no es conductor, mostrar grid de 2 columnas -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <driver-selector formControlName="driverId" [required]="true"></driver-selector>
+                                <driver-selector formControlName="driverId" [required]="true" [controlClasses]="'fuse-mat-dense'"></driver-selector>
                                     <vehicle-selector formControlName="vehicleId"
                                                       [onlyAvailable]="true"
                                                       [required]="true"
+                                                      [controlClasses]="'fuse-mat-dense'"
                                                       allOptionLabel="Seleccione un vehículo"
                                     ></vehicle-selector>
                                 </div>
@@ -49,6 +50,7 @@
                                 <vehicle-selector formControlName="vehicleId"
                                                   [onlyAvailable]="true"
                                                   [required]="true"
+                                                  [controlClasses]="'fuse-mat-dense'"
                                                   allOptionLabel="Seleccione un vehículo"
                                 ></vehicle-selector>
                             }
@@ -62,7 +64,7 @@
                             </h3>
 
                             <!-- Odómetro inicial -->
-                            <mat-form-field class="w-full mb-4">
+                            <mat-form-field class="w-full mb-4 fuse-mat-dense">
                                 <mat-label>Odómetro Inicial (Km)</mat-label>
                                 <input matInput type="number" formControlName="initialOdometer" placeholder="Ingrese el kilometraje actual">
                                 <mat-icon matPrefix svgIcon="heroicons_outline:calculator" class="mr-2 text-gray-500"></mat-icon>
@@ -79,7 +81,7 @@
                             </mat-form-field>
 
                             <!-- Observaciones -->
-                            <mat-form-field class="w-full">
+                            <mat-form-field class="w-full fuse-mat-dense">
                                 <mat-label>Observaciones</mat-label>
                                 <textarea matInput formControlName="purpose" placeholder="Observaciones adicionales" rows="3"></textarea>
                                 <mat-icon matPrefix svgIcon="heroicons_outline:document-text" class="mr-2 text-gray-500"></mat-icon>
@@ -146,7 +148,11 @@
                                 mat-flat-button
                                 color="primary"
                                 class="text-lg rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
-                                [disabled]="isSubmitting() || !hasGeolocationPermission() || form.invalid || form.disabled">
+                                [disabled]="isSubmitting() || !hasGeolocationPermission() || form.invalid || form.disabled"
+                                hapticClick
+                                hapticPattern="success"
+                                [@buttonPress]="buttonPressed() ? 'pressed' : 'default'"
+                                [@sessionStateChange]="sessionState()">
                                 <div class="inline-flex items-center justify-center w-full">
                                     <mat-icon svgIcon="heroicons_outline:play" class="mr-3 text-xl"></mat-icon>
                                     <span>Iniciar Sesión de Vehículo</span>

@@ -8,10 +8,13 @@ import { VehicleSessionsService }                                               
 import { DriversService }                                                                  from '@modules/admin/logistics/fleet-management/services/drivers.service';
 import { VehiclesService }                                                                 from '@modules/admin/logistics/fleet-management/services/vehicles.service';
 import { GeolocationService }                                                              from '@modules/admin/logistics/fleet-management/services/geolocation.service';
+import { HapticFeedbackService }  from '@modules/admin/logistics/fleet-management/services/haptic-feedback.service';
+import { FleetAnimationsService } from '@modules/admin/logistics/fleet-management/services/fleet-animations.service';
 import { FinishSessionDto, GeoLocation, VehicleSession }                                   from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
 import { Driver }                                                                          from '@modules/admin/logistics/fleet-management/domain/model/driver.model';
 import { Vehicle }                                                                         from '@modules/admin/logistics/fleet-management/domain/model/vehicle.model';
 import { ConfirmDialogComponent }                                                          from '../active-sessions/confirm-dialog.component';
+import { HapticClickDirective }   from '@modules/admin/logistics/fleet-management/directives/haptic-click.directive';
 import { PageHeaderComponent }                                                             from '@layout/components/page-header/page-header.component';
 import { CommonModule }                                                                    from '@angular/common';
 import { MatButtonModule }                                                                 from '@angular/material/button';
@@ -38,7 +41,16 @@ import { toSignal }                                                             
         MatInputModule,
         MatProgressSpinnerModule,
         PageHeaderComponent,
-        RouterLink
+        RouterLink,
+        HapticClickDirective
+    ],
+    animations : [
+        FleetAnimationsService.buttonPress,
+        FleetAnimationsService.sessionStateChange,
+        FleetAnimationsService.fadeInOut,
+        FleetAnimationsService.dataLoading,
+        FleetAnimationsService.slideInOut,
+        FleetAnimationsService.statusNotification
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './finish-session.component.html'
@@ -53,6 +65,7 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
     private readonly driversService = inject(DriversService);
     private readonly vehiclesService = inject(VehiclesService);
     private readonly geolocationService = inject(GeolocationService);
+    private readonly hapticService = inject(HapticFeedbackService);
 
     private destroy$ = new Subject<void>();
 
@@ -70,6 +83,12 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
     currentLocation = signal<GeoLocation | null>(null);
     uploadedFiles = signal<File[]>([]);
     uploadedPreviews = signal<string[]>([]);
+
+    // Estado para animaciones
+    buttonPressed = signal<string | null>(null);
+    loadingState = signal<'loading' | 'loaded'>('loading');
+    formState = signal<'idle' | 'submitting' | 'success' | 'error'>('idle');
+    gpsState = signal<'active' | 'inactive'>('inactive');
 
     // Form control signals
     finalOdometer = toSignal(this.form.get('finalOdometer')!.valueChanges, {initialValue: 0});
@@ -128,6 +147,7 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
 
     private loadSessionData(): void {
         this.isLoading.set(true);
+        this.loadingState.set('loading');
         this.sessionsService.findById(this.sessionId()).pipe(
             takeUntil(this.destroy$),
             tap(session => {
@@ -148,12 +168,34 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
             }),
             catchError(err => {
                 console.error('Session load error', err);
+                this.hapticService.errorAction();
                 this.notyf.error('Error al cargar datos de sesión');
                 this.router.navigate([ '/logistics/fleet-management/active-sessions' ]);
                 return of(null);
             }),
-            finalize(() => this.isLoading.set(false))
+            finalize(() => {
+                this.isLoading.set(false);
+                this.loadingState.set('loaded');
+            })
         ).subscribe();
+    }
+
+    onCancelPress(): void {
+        this.hapticService.buttonPress();
+        this.buttonPressed.set('cancel');
+        setTimeout(() => this.buttonPressed.set(null), 150);
+    }
+
+    onFileUploadPress(): void {
+        this.hapticService.buttonPress();
+        this.buttonPressed.set('upload');
+        setTimeout(() => this.buttonPressed.set(null), 150);
+    }
+
+    onRemoveFilePress(index: number): void {
+        this.hapticService.buttonPress();
+        this.buttonPressed.set('remove-' + index);
+        setTimeout(() => this.buttonPressed.set(null), 150);
     }
 
     onFileSelected(evt: Event): void {
@@ -162,6 +204,7 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
         const slots = 5 - this.uploadedFiles().length;
         Array.from(files).slice(0, slots).forEach(file => {
             if (!file.type.startsWith('image/')) {
+                this.hapticService.errorAction();
                 this.notyf.error('Solo imágenes');
                 return;
             }
@@ -171,6 +214,7 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
             // Store a reference to the onload function to be able to remove it later
             const onLoadHandler = (e: ProgressEvent<FileReader>) => {
                 this.uploadedPreviews.set([ ...this.uploadedPreviews(), e.target!.result as string ]);
+                this.hapticService.buttonPress(); // Feedback when file is loaded
             };
 
             reader.onload = onLoadHandler;
@@ -191,30 +235,53 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
         const previews = this.uploadedPreviews();
         this.uploadedFiles.set(files.filter((_, i) => i !== index));
         this.uploadedPreviews.set(previews.filter((_, i) => i !== index));
+        this.hapticService.buttonPress(); // Additional feedback for successful removal
     }
 
     confirmFinish(): void {
+        // Haptic feedback for button press
+        this.hapticService.buttonPress();
+        this.buttonPressed.set('submit');
+        setTimeout(() => this.buttonPressed.set(null), 150);
+
         if (this.form.invalid) {
+            this.hapticService.errorAction();
+            this.formState.set('error');
             this.form.markAllAsTouched();
             this.notyf.error('Complete correctamente los campos');
+            setTimeout(() => this.formState.set('idle'), 1000);
             return;
         }
         const loc = this.currentLocation();
         if (!loc) {
+            this.hapticService.errorAction();
+            this.formState.set('error');
             this.notyf.error('Ubicación no disponible');
+            setTimeout(() => this.formState.set('idle'), 1000);
             return;
         }
+
+        // Haptic feedback before showing dialog
+        this.hapticService.sessionEnd();
+        
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             data: {
                 title  : 'Confirmar finalización',
                 message: '¿Desea finalizar la sesión?'
             }
         });
-        dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(ok => ok && this.finishSession());
+        dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(ok => {
+            if (ok) {
+                this.hapticService.buttonPress();
+                this.finishSession();
+            }
+        });
     }
 
     private finishSession(): void {
         this.isSubmitting.set(true);
+        this.formState.set('submitting');
+        
         const data: FinishSessionDto = {
             finalOdometer: this.form.value.finalOdometer,
             finalLocation: this.currentLocation()!,
@@ -225,13 +292,24 @@ export class FinishSessionComponent implements OnInit, OnDestroy {
         this.sessionsService.finishSession(this.sessionId(), data).pipe(
             takeUntil(this.destroy$),
             tap(() => {
+                // Success haptic feedback
+                this.hapticService.sessionStart(); // Use success pattern
+                this.formState.set('success');
                 this.notyf.success('Sesión finalizada');
 
-                this.router.navigate([ '/logistics/fleet-management/active-sessions' ]);
+                // Small delay to show success animation before navigation
+                setTimeout(() => {
+                    this.router.navigate([ '/logistics/fleet-management/active-sessions' ]);
+                }, 500);
             }),
             catchError(err => {
                 console.error('Finish session error', err);
+                this.hapticService.errorAction();
+                this.formState.set('error');
                 this.notyf.error('Error al finalizar: ' + err.message);
+
+                // Reset form state after showing error
+                setTimeout(() => this.formState.set('idle'), 2000);
                 return of(null);
             }),
             finalize(() => this.isSubmitting.set(false))

@@ -10,12 +10,15 @@ import { VehicleSessionsService }                from '@modules/admin/logistics/
 import { GeolocationService }                    from '@modules/admin/logistics/fleet-management/services/geolocation.service';
 import { DriversService }                        from '@modules/admin/logistics/fleet-management/services/drivers.service';
 import { VehiclesService }                       from '@modules/admin/logistics/fleet-management/services/vehicles.service';
+import { HapticFeedbackService }  from '@modules/admin/logistics/fleet-management/services/haptic-feedback.service';
+import { FleetAnimationsService } from '@modules/admin/logistics/fleet-management/services/fleet-animations.service';
 import { NotyfService }                          from '@shared/services/notyf.service';
 import { of, Subject }                                                           from 'rxjs';
 import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { GeoLocation, VehicleSession }           from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
 import { Driver }                                from '@modules/admin/logistics/fleet-management/domain/model/driver.model';
 import { Vehicle }                               from '@modules/admin/logistics/fleet-management/domain/model/vehicle.model';
+import { HapticClickDirective }   from '@modules/admin/logistics/fleet-management/directives/haptic-click.directive';
 import { MatMenu, MatMenuItem, MatMenuTrigger }  from '@angular/material/menu';
 
 @Component({
@@ -31,7 +34,14 @@ import { MatMenu, MatMenuItem, MatMenuTrigger }  from '@angular/material/menu';
         PageHeaderComponent,
         MatMenu,
         MatMenuTrigger,
-        MatMenuItem
+        MatMenuItem,
+        HapticClickDirective
+    ],
+    animations     : [
+        FleetAnimationsService.buttonPress,
+        FleetAnimationsService.gpsIndicator,
+        FleetAnimationsService.fadeInOut,
+        FleetAnimationsService.floatingButton
     ],
     templateUrl    : './driving-mode.component.html',
     styleUrls      : [ './driving-mode.component.scss' ],
@@ -42,6 +52,7 @@ export class DrivingModeComponent implements OnInit, OnDestroy {
     private readonly driversService = inject(DriversService);
     private readonly vehiclesService = inject(VehiclesService);
     private readonly geolocationService = inject(GeolocationService);
+    private readonly hapticService = inject(HapticFeedbackService);
     private readonly notyf = inject(NotyfService);
 
     private destroy$ = new Subject<void>();
@@ -64,6 +75,10 @@ export class DrivingModeComponent implements OnInit, OnDestroy {
     // Para la vista de pantalla completa
     isFullScreen = signal(false);
     hasFullScreenSupport = signal(false);
+
+    // Estado para animaciones
+    buttonPressed = signal<string | null>(null);
+    gpsState = signal<'active' | 'inactive'>('inactive');
 
     ngOnInit(): void {
         this.hasFullScreenSupport.set(Boolean(document.documentElement.requestFullscreen));
@@ -121,6 +136,11 @@ export class DrivingModeComponent implements OnInit, OnDestroy {
     }
 
     selectSession(sessionId: string): void {
+        // Feedback háptico al seleccionar sesión
+        this.hapticService.buttonPress();
+        this.buttonPressed.set('session-' + sessionId);
+        setTimeout(() => this.buttonPressed.set(null), 150);
+
         this.isLoading.set(true);
 
         this.sessionsService.findById(sessionId)
@@ -141,11 +161,16 @@ export class DrivingModeComponent implements OnInit, OnDestroy {
                 }),
                 tap(() => {
                     this.isLoading.set(false);
+                    // Feedback háptico de éxito al cargar datos
+                    this.hapticService.locationUpdate();
+                    this.gpsState.set('active');
                 }),
                 catchError(error => {
                     console.error('Error loading session details', error);
                     this.notyf.error('Error al cargar detalles de la sesión');
                     this.isLoading.set(false);
+                    this.hapticService.errorAction();
+                    this.gpsState.set('inactive');
                     return of(null);
                 })
             ).subscribe();
@@ -213,18 +238,37 @@ export class DrivingModeComponent implements OnInit, OnDestroy {
     }
 
     toggleFullScreen(): void {
+        // Feedback háptico al cambiar modo de pantalla
+        this.hapticService.buttonPress();
+        this.buttonPressed.set('fullscreen');
+        setTimeout(() => this.buttonPressed.set(null), 150);
+
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(err => {
                 console.error(`Error attempting to enable full-screen mode: ${ err.message }`);
+                this.hapticService.errorAction();
             });
             this.isFullScreen.set(true);
         } else {
             if (document.exitFullscreen) {
                 document.exitFullscreen().catch(err => {
                     console.error(`Error attempting to exit full-screen mode: ${ err.message }`);
+                    this.hapticService.errorAction();
                 });
                 this.isFullScreen.set(false);
             }
         }
+    }
+
+    onBackButtonPress(): void {
+        this.hapticService.buttonPress();
+        this.buttonPressed.set('back');
+        setTimeout(() => this.buttonPressed.set(null), 150);
+    }
+
+    onFinishButtonPress(): void {
+        this.hapticService.sessionEnd();
+        this.buttonPressed.set('finish');
+        setTimeout(() => this.buttonPressed.set(null), 150);
     }
 }

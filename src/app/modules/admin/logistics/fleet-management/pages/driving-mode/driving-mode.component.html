@@ -5,7 +5,7 @@
         [ngClass]="{'hidden': isFullScreen()}">
     </page-header>
 
-    <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-6 sm:px-6"
+    <div class="flex-1 flex flex-col w-full max-w-full sm:max-w-5xl mx-auto p-4 sm:p-6"
          [ngClass]="{'p-0 max-w-none': isFullScreen()}">
         <!-- Estado de carga -->
         @if (isLoading()) {
@@ -22,7 +22,11 @@
                 <p class="text-gray-600 dark:text-gray-300 text-center mb-6">
                     No se encontraron sesiones de vehículos activas en este momento.
                 </p>
-                <a [routerLink]="['/logistics/fleet-management/fleet-control']" mat-flat-button color="primary">
+                <a [routerLink]="['/logistics/fleet-management/fleet-control']"
+                   mat-flat-button
+                   color="primary"
+                   hapticClick
+                   [hapticPattern]="'success'">
                     Iniciar nueva sesión
                 </a>
             </div>
@@ -38,24 +42,38 @@
                                 <h1 class="text-lg font-medium">Modo Conducción</h1>
                             }
                             <mat-icon class="text-blue-600 dark:text-blue-400 ml-2"
-                                      [svgIcon]="isTrackingActive() ? 'heroicons_solid:signal' : 'heroicons_outline:signal'">
+                                      [svgIcon]="isTrackingActive() ? 'heroicons_solid:signal' : 'heroicons_outline:signal'"
+                                      [@gpsIndicator]="gpsState()">
                             </mat-icon>
                         </div>
 
                         <div class="flex">
                             @if (hasFullScreenSupport()) {
-                                <button mat-icon-button (click)="toggleFullScreen()" aria-label="Pantalla completa">
+                                <button mat-icon-button
+                                        (click)="toggleFullScreen()"
+                                        aria-label="Pantalla completa"
+                                        hapticClick
+                                        [hapticPattern]="'medium'"
+                                        [@buttonPress]="buttonPressed() === 'fullscreen' ? 'pressed' : 'default'">
                                     <mat-icon [svgIcon]="isFullScreen() ? 'heroicons_outline:arrow-path-rounded-square' : 'heroicons_outline:arrows-pointing-out'"></mat-icon>
                                 </button>
                             }
                             @if (activeSessions().length > 1) {
-                                <button mat-button [matMenuTriggerFor]="sessionMenu" color="primary">
+                                <button mat-button
+                                        [matMenuTriggerFor]="sessionMenu"
+                                        color="primary"
+                                        hapticClick
+                                        [hapticPattern]="'light'">
                                     Cambiar sesión
                                     <mat-icon svgIcon="mat_solid:arrow_drop_down"></mat-icon>
                                 </button>
                                 <mat-menu #sessionMenu="matMenu">
                                     @for (session of activeSessions(); track session.id) {
-                                        <button mat-menu-item (click)="selectSession(session.id)">
+                                        <button mat-menu-item
+                                                (click)="selectSession(session.id)"
+                                                hapticClick
+                                                [hapticPattern]="'light'"
+                                                [@buttonPress]="buttonPressed() === 'session-' + session.id ? 'pressed' : 'default'">
                                             {{ session.vehicle?.licensePlate || 'Sesión' }} - {{ session.driver?.firstName || 'Conductor' }}
                                         </button>
                                     }
@@ -65,7 +83,7 @@
                     </div>
 
                     <!-- Información principal -->
-                    <div class="p-4">
+                    <div class="p-4" [@fadeInOut]>
                         <!-- Información del conductor y vehículo -->
                         <div class="flex flex-wrap gap-4 mb-6">
                             <div class="flex items-center flex-grow">
@@ -175,11 +193,16 @@
                         </div>
 
                         <!-- Botones de acción -->
-                        <div class="flex justify-between mt-6">
+                        <div class="flex flex-col sm:flex-row sm:justify-between gap-3 mt-6">
                             <button
                                 mat-stroked-button
                                 color="primary"
-                                [routerLink]="['/logistics/fleet-management/active-sessions']">
+                                class="w-full sm:w-auto"
+                                [routerLink]="['/logistics/fleet-management/active-sessions']"
+                                hapticClick
+                                [hapticPattern]="'light'"
+                                [@buttonPress]="buttonPressed() === 'back' ? 'pressed' : 'default'"
+                                (click)="onBackButtonPress()">
                                 <mat-icon svgIcon="heroicons_outline:arrow-left" class="mr-1"></mat-icon>
                                 Volver
                             </button>
@@ -187,7 +210,12 @@
                             <button
                                 mat-flat-button
                                 color="warn"
-                                [routerLink]="['/logistics/fleet-management/finish-session', currentSession()?.id]">
+                                class="w-full sm:w-auto"
+                                [routerLink]="['/logistics/fleet-management/finish-session', currentSession()?.id]"
+                                hapticClick
+                                [hapticPattern]="'warning'"
+                                [@buttonPress]="buttonPressed() === 'finish' ? 'pressed' : 'default'"
+                                (click)="onFinishButtonPress()">
                                 <mat-icon svgIcon="heroicons_outline:flag" class="mr-1"></mat-icon>
                                 Finalizar sesión
                             </button>

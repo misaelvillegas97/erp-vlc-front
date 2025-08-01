@@ -1,7 +1,7 @@
 <div class="flex flex-col min-w-0 w-full">
     <page-header subtitle="Monitoreo de sesiones en curso" title="Sesiones Activas"></page-header>
 
-    <div class="flex-1 flex flex-col w-full max-w-xs sm:max-w-5xl mx-auto py-6 sm:px-6">
+    <div class="flex-1 flex flex-col w-full max-w-full sm:max-w-5xl mx-auto p-4 sm:p-6">
         <!-- Barra de filtros -->
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-4 mb-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -31,7 +31,7 @@
             </div>
 
             <div class="mt-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-700 rounded-lg p-3">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div class="flex items-center">
                         <mat-icon class="text-blue-600 dark:text-blue-400 mr-3" svgIcon="heroicons_outline:map"></mat-icon>
                         <div>
@@ -41,7 +41,13 @@
                             </p>
                         </div>
                     </div>
-                    <a [routerLink]="['/logistics/fleet-management/driving-mode']" mat-flat-button color="primary">
+                    <a [routerLink]="['/logistics/fleet-management/driving-mode']"
+                       mat-flat-button
+                       color="primary"
+                       class="w-full sm:w-auto"
+                       hapticClick
+                       [hapticPattern]="'light'"
+                       (click)="navigateToDrivingMode()">
                         Ver Modo
                     </a>
                 </div>
@@ -61,15 +67,24 @@
                 <p class="text-center mb-6 max-w-lg text-gray-500 dark:text-gray-400">
                     Actualmente no hay vehículos en uso. Puede iniciar una nueva sesión desde el panel de Control de Flota.
                 </p>
-                <button mat-flat-button color="primary" [routerLink]="['/logistics/fleet-management/fleet-control']">
+                <button mat-flat-button
+                        color="primary"
+                        [routerLink]="['/logistics/fleet-management/fleet-control']"
+                        hapticClick
+                        [hapticPattern]="'success'"
+                        (click)="navigateToFleetControl()">
                     Iniciar Nueva Sesión
                 </button>
             </div>
         } @else {
             <!-- Lista de sesiones -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" [@sessionList]>
             @for (session of filteredSessions(); track session.id) {
-                    <mat-card class="relative overflow-hidden">
+                <mat-card class="relative overflow-hidden transition-all duration-200"
+                          [@sessionCardHover]="hoveredCard() === session.id ? 'hovered' : 'default'"
+                          [@dataLoading]="loadingState()"
+                          (mouseenter)="onCardHover(session.id, true)"
+                          (mouseleave)="onCardHover(session.id, false)">
                         <!-- Indicador de estado -->
                         <!-- <div class="absolute top-2 right-2">-->
                         <!--    <div class="px-3 py-1 rounded-full text-xs font-medium text-white shadow-sm {{ getStatusColor(session.status) }}">-->
@@ -154,6 +169,10 @@
                                         mat-stroked-button
                                         [routerLink]="['/logistics/fleet-management/session-details', session.id]"
                                         class="flex items-center"
+                                        hapticClick
+                                        [hapticPattern]="'light'"
+                                        [@buttonPress]="pressedButton() === 'details-' + session.id ? 'pressed' : 'default'"
+                                        (click)="onButtonPress('details-' + session.id)"
                                     >
                                         <mat-icon svgIcon="heroicons_outline:eye" class="mr-1"></mat-icon>
                                         Ver Detalles
@@ -164,6 +183,10 @@
                                         mat-stroked-button
                                         [routerLink]="['/logistics/fleet-management/driving-mode']"
                                         class="flex items-center"
+                                        hapticClick
+                                        [hapticPattern]="'light'"
+                                        [@buttonPress]="pressedButton() === 'driving-' + session.id ? 'pressed' : 'default'"
+                                        (click)="onButtonPress('driving-' + session.id)"
                                     >
                                         <mat-icon svgIcon="heroicons_outline:map" class="mr-1"></mat-icon>
                                         Modo Conducción
@@ -173,6 +196,9 @@
                                     <button
                                         mat-flat-button
                                         color="primary"
+                                        hapticClick
+                                        [hapticPattern]="'warning'"
+                                        [@buttonPress]="pressedButton() === 'finish-' + session.id ? 'pressed' : 'default'"
                                         (click)="finishSession(session.id)"
                                     >
                                         Finalizar Sesión

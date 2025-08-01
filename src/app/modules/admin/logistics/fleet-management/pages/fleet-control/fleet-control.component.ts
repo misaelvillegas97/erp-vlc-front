@@ -20,6 +20,8 @@ import { DriversService }                                    from '@modules/admi
 import { VehiclesService }                                   from '@modules/admin/logistics/fleet-management/services/vehicles.service';
 import { VehicleSessionsService }                            from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
 import { GeolocationService }                                from '@modules/admin/logistics/fleet-management/services/geolocation.service';
+import { HapticFeedbackService }                                                                           from '@modules/admin/logistics/fleet-management/services/haptic-feedback.service';
+import { FleetAnimationsService }                                                                          from '@modules/admin/logistics/fleet-management/services/fleet-animations.service';
 import { GeoLocation, NewVehicleSessionDto, VehicleSession } from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
 import { GpsWarningDialogComponent }                         from './gps-warning-dialog.component';
 import { Driver }                                            from '@modules/admin/logistics/fleet-management/domain/model/driver.model';
@@ -28,6 +30,7 @@ import { UserService }                                       from '@core/user/us
 import { RoleEnum }                                          from '@core/user/role.type';
 import { VehicleSelectorComponent }                          from '@shared/controls/components/vehicle-selector/vehicle-selector.component';
 import { DriverSelectorComponent }                                                                         from '@shared/controls';
+import { HapticClickDirective }                                                                            from '@modules/admin/logistics/fleet-management/directives/haptic-click.directive';
 
 @Component({
     selector   : 'app-fleet-control',
@@ -46,7 +49,15 @@ import { DriverSelectorComponent }                                              
         FormsModule,
         PageHeaderComponent,
         VehicleSelectorComponent,
-        DriverSelectorComponent
+        DriverSelectorComponent,
+        HapticClickDirective
+    ],
+    animations: [
+        FleetAnimationsService.buttonPress,
+        FleetAnimationsService.sessionStateChange,
+        FleetAnimationsService.gpsIndicator,
+        FleetAnimationsService.fadeInOut,
+        FleetAnimationsService.dataLoading
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './fleet-control.component.html'
@@ -56,6 +67,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
     readonly #vehiclesService = inject(VehiclesService);
     readonly #sessionsService = inject(VehicleSessionsService);
     readonly #geolocationService = inject(GeolocationService);
+    readonly #hapticService = inject(HapticFeedbackService);
     readonly #userService = inject(UserService);
 
     readonly #fb = inject(FormBuilder);
@@ -109,6 +121,11 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
     availableVehicles = signal<Vehicle[]>([]);
     selectedDriver = signal<Driver | null>(null);
     selectedVehicle = signal<Vehicle | null>(null);
+
+    // Estado para animaciones
+    buttonPressed = signal(false);
+    sessionState = signal<'idle' | 'starting' | 'active'>('idle');
+    gpsState = signal<'active' | 'inactive'>('inactive');
 
     currentUser = toSignal(this.#userService.user$);
     currentUserIsDriver = computed(() => this.currentUser()?.role.id === RoleEnum.driver);
@@ -246,7 +263,13 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
     }
 
     async startVehicleSession(): Promise<void> {
+        // Feedback háptico al presionar el botón
+        this.#hapticService.buttonPress();
+        this.buttonPressed.set(true);
+        setTimeout(() => this.buttonPressed.set(false), 150);
+
         if (this.form.invalid) {
+            this.#hapticService.errorAction();
             this.form.markAllAsTouched();
             this.notyf.error({
                 message: 'Por favor, complete todos los campos requeridos'
@@ -255,6 +278,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
         }
 
         if (!this.currentLocation()) {
+            this.#hapticService.errorAction();
             this.notyf.error({
                 message:
                     'No se pudo obtener la ubicación actual. Por favor, asegúrese de que el GPS está habilitado.'
@@ -263,6 +287,7 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
         }
 
         this.isSubmitting.set(true);
+        this.sessionState.set('starting');
 
         try {
             const location = await firstValueFrom(
@@ -297,6 +322,10 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
             );
 
             if (session) {
+                // Feedback háptico de éxito
+                this.#hapticService.sessionStart();
+                this.sessionState.set('active');
+                
                 this.notyf.success({
                     message: 'Sesión de vehículo iniciada correctamente'
                 });
@@ -308,14 +337,20 @@ export class FleetControlComponent implements OnInit, AfterViewInit {
                     );
                     this.availableVehicles.set(vehicles.items);
                 } catch {
+                    this.#hapticService.errorAction();
                     this.notyf.error({
                         message: 'Error al cargar vehículos disponibles'
                     });
                 }
 
-                void this.#router.navigate([ '/logistics/fleet-management/active-sessions' ]);
+                // Pequeño delay para mostrar la animación antes de navegar
+                setTimeout(() => {
+                    void this.#router.navigate([ '/logistics/fleet-management/active-sessions' ]);
+                }, 500);
             }
         } catch (err: any) {
+            this.#hapticService.errorAction();
+            this.sessionState.set('idle');
             this.notyf.error({
                 message: `Error inesperado al iniciar la sesión: ${
                     err?.message ?? err

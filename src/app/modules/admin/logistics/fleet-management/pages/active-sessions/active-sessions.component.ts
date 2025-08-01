@@ -16,6 +16,9 @@ import { firstValueFrom, interval, Subscription }                               
 import { debounceTime, distinctUntilChanged, startWith }                                   from 'rxjs/operators';
 import { VehicleSessionsService }                                                          from '@modules/admin/logistics/fleet-management/services/vehicle-sessions.service';
 import { VehicleSession }                                                                  from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
+import { HapticFeedbackService }  from '@modules/admin/logistics/fleet-management/services/haptic-feedback.service';
+import { FleetAnimationsService } from '@modules/admin/logistics/fleet-management/services/fleet-animations.service';
+import { HapticClickDirective }   from '@modules/admin/logistics/fleet-management/directives/haptic-click.directive';
 import { ConfirmDialogComponent }                                                          from './confirm-dialog.component';
 import { DateTime }                                                                        from 'luxon';
 
@@ -34,7 +37,15 @@ import { DateTime }                                                             
         MatSelectModule,
         ReactiveFormsModule,
         PageHeaderComponent,
-        RouterLink
+        RouterLink,
+        HapticClickDirective
+    ],
+    animations     : [
+        FleetAnimationsService.sessionList,
+        FleetAnimationsService.sessionCardHover,
+        FleetAnimationsService.buttonPress,
+        FleetAnimationsService.fadeInOut,
+        FleetAnimationsService.dataLoading
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './active-sessions.component.html'
@@ -43,6 +54,7 @@ export class ActiveSessionsComponent implements OnInit, OnDestroy {
     private readonly router = inject(Router);
     private readonly dialog = inject(MatDialog);
     private readonly sessionsService = inject(VehicleSessionsService);
+    private readonly hapticService = inject(HapticFeedbackService);
     private readonly notyf = new Notyf();
 
     // Filtros
@@ -54,6 +66,11 @@ export class ActiveSessionsComponent implements OnInit, OnDestroy {
     activeSessions = signal<VehicleSession[]>([]);
     searchTerm = signal('');
     sortOption = signal('duration_desc');
+
+    // Estado para animaciones
+    hoveredCard = signal<string | null>(null);
+    pressedButton = signal<string | null>(null);
+    loadingState = signal<'loading' | 'loaded'>('loading');
 
     // Signal computado para sesiones filtradas
     filteredSessions = computed(() => {
@@ -128,6 +145,7 @@ export class ActiveSessionsComponent implements OnInit, OnDestroy {
 
     private loadActiveSessions(): void {
         this.isLoading.set(true);
+        this.loadingState.set('loading');
 
         firstValueFrom(this.sessionsService.getActiveSessions())
             .then(sessions => {
@@ -137,14 +155,24 @@ export class ActiveSessionsComponent implements OnInit, OnDestroy {
                 });
                 this.activeSessions.set(sessions);
                 this.isLoading.set(false);
+                this.loadingState.set('loaded');
             })
             .catch(() => {
+                this.hapticService.errorAction();
                 this.notyf.error({message: 'Error al cargar sesiones activas'});
                 this.isLoading.set(false);
+                this.loadingState.set('loaded');
             });
     }
 
     finishSession(sessionId: string): void {
+        // Feedback háptico antes de mostrar el diálogo
+        this.hapticService.sessionEnd();
+
+        // Animación de botón presionado
+        this.pressedButton.set('finish-' + sessionId);
+        setTimeout(() => this.pressedButton.set(null), 100);
+
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             width: '400px',
             data : {
@@ -155,10 +183,34 @@ export class ActiveSessionsComponent implements OnInit, OnDestroy {
 
         const dialogSub = dialogRef.afterClosed().subscribe(result => {
             if (result) {
+                this.hapticService.buttonPress();
                 this.router.navigate([ '/logistics/fleet-management/finish-session', sessionId ]);
             }
         });
         this.subscriptions.push(dialogSub);
+    }
+
+    onCardHover(sessionId: string, isHovered: boolean): void {
+        this.hoveredCard.set(isHovered ? sessionId : null);
+        if (isHovered) {
+            this.hapticService.buttonPress();
+        }
+    }
+
+    onButtonPress(buttonId: string): void {
+        this.hapticService.buttonPress();
+        this.pressedButton.set(buttonId);
+        setTimeout(() => this.pressedButton.set(null), 150);
+    }
+
+    navigateToDrivingMode(): void {
+        this.hapticService.buttonPress();
+        // La navegación se maneja por routerLink
+    }
+
+    navigateToFleetControl(): void {
+        this.hapticService.buttonPress();
+        // La navegación se maneja por routerLink
     }
 
     formatDuration(startTime: Date): string {
