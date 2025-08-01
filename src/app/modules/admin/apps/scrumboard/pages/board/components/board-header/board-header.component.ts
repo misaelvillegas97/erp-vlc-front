@@ -10,22 +10,22 @@ import { UserAvatarComponent } from '@shared/components/user-avatar';
     selector: 'scrumboard-board-header',
     template: `
         <!-- Header -->
-        <div class="flex flex-col sm:flex-row items-center justify-between p-6 sm:py-4 sm:px-6 border-b bg-card dark:bg-transparent">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-6 lg:py-4 lg:px-6 border-b bg-card dark:bg-transparent gap-3 sm:gap-0">
             <!-- Board title and description -->
-            <div class="flex items-center">
-                <div class="flex flex-col">
-                    <div class="text-2xl font-semibold">{{ board()?.title }}</div>
-                    <div class="text-secondary">{{ board()?.description }}</div>
+            <div class="flex items-center w-full sm:w-auto">
+                <div class="flex flex-col min-w-0 flex-1">
+                    <div class="text-lg sm:text-xl lg:text-2xl font-semibold truncate">{{ board()?.title }}</div>
+                    <div class="text-secondary text-sm sm:text-base line-clamp-2">{{ board()?.description }}</div>
                 </div>
             </div>
 
             <!-- Board actions -->
-            <div class="flex items-center mt-4 sm:mt-0">
+            <div class="flex items-center w-full sm:w-auto justify-between sm:justify-end mt-0">
                 <!-- Board members -->
-                <div class="flex items-center -space-x-1.5 mr-4">
+                <div class="flex items-center -space-x-1 sm:-space-x-1.5 mr-3 sm:mr-4">
                     @for (member of board()?.members; track member.id) {
                         <user-avatar
-                            class="w-8 h-8"
+                            class="w-7 h-7 sm:w-8 sm:h-8"
                             [name]="member.name"
                             [avatar]="member.avatar">
                         </user-avatar>
@@ -34,19 +34,19 @@ import { UserAvatarComponent } from '@shared/components/user-avatar';
 
                 <!-- Add member button -->
                 <button
-                    class="ml-2"
+                    class="ml-1 sm:ml-2 !w-10 !h-10 sm:!w-9 sm:!h-9"
                     mat-icon-button
                     [matTooltip]="'Add member'"
                     (click)="onAddMember()">
-                    <mat-icon [svgIcon]="'heroicons_outline:user-plus'"></mat-icon>
+                    <mat-icon [svgIcon]="'heroicons_outline:user-plus'" class="!text-lg sm:!text-base"></mat-icon>
                 </button>
 
                 <!-- Board settings -->
                 <button
-                    class="ml-2"
+                    class="ml-1 sm:ml-2 !w-10 !h-10 sm:!w-9 sm:!h-9"
                     mat-icon-button
                     [matMenuTriggerFor]="boardMenu">
-                    <mat-icon [svgIcon]="'heroicons_outline:cog'"></mat-icon>
+                    <mat-icon [svgIcon]="'heroicons_outline:cog'" class="!text-lg sm:!text-base"></mat-icon>
                 </button>
                 <mat-menu #boardMenu="matMenu">
                     <button mat-menu-item (click)="onEditBoard()">

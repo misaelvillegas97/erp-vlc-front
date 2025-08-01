@@ -1,31 +1,31 @@
-<div [class.h-15]="!formVisible" class="mt-11 w-64 px-2 py-2.5">
+<div [class.h-15]="!formVisible" class="mt-8 sm:mt-11 w-64 sm:w-72 lg:w-80 px-2 py-2.5">
     <div class="relative flex h-full w-full overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-700"
     >
         <button
             (click)="toggleFormVisibility()"
             [ngClass]="{ 'pointer-events-none opacity-0': formVisible }"
-            class="absolute inset-0 w-full justify-start rounded-xl bg-transparent px-3"
+            class="absolute inset-0 w-full justify-start rounded-xl bg-transparent px-2 sm:px-3 !min-h-[44px] sm:!min-h-[40px]"
             disableRipple
             mat-button
         >
-            <mat-icon [svgIcon]="'heroicons_outline:plus-circle'" class="icon-size-5"></mat-icon>
-            <span class="text-secondary ml-2">{{ buttonTitle }}</span>
+            <mat-icon [svgIcon]="'heroicons_outline:plus-circle'" class="!text-lg sm:!text-base"></mat-icon>
+            <span class="text-secondary ml-1 sm:ml-2 text-sm sm:text-base">{{ buttonTitle }}</span>
         </button>
-        <form [formGroup]="form" [ngClass]="{ 'opacity-0': !formVisible }" class="flex w-full flex-col items-start p-3">
+        <form [formGroup]="form" [ngClass]="{ 'opacity-0': !formVisible }" class="flex w-full flex-col items-start p-2 sm:p-3">
             <input
                 #titleInput
                 (keydown.enter)="save()"
                 [autocomplete]="'off'"
                 [formControlName]="'title'"
                 [placeholder]="'Enter list title...'"
-                class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 leading-5 shadow-sm focus:border-primary dark:border-gray-500 dark:bg-black dark:bg-opacity-5 dark:focus:border-primary"
+                class="w-full rounded-md border border-gray-300 bg-white px-2 sm:px-3 py-1.5 sm:py-2 leading-5 shadow-sm focus:border-primary dark:border-gray-500 dark:bg-black dark:bg-opacity-5 dark:focus:border-primary text-sm sm:text-base"
             />
-            <div class="mt-2 flex items-center">
+            <div class="mt-2 flex items-center gap-1">
                 <button
                     (click)="save()"
                     [color]="'primary'"
                     [type]="'button'"
-                    class="h-8 min-h-8"
+                    class="!h-9 !min-h-9 sm:!h-8 sm:!min-h-8 !text-sm sm:!text-base"
                     mat-flat-button
                 >
                     Agregar
@@ -33,12 +33,12 @@
                 <button
                     (click)="toggleFormVisibility()"
                     [type]="'button'"
-                    class="ml-1 h-8 min-h-8 w-8"
+                    class="!h-9 !min-h-9 !w-9 sm:!h-8 sm:!min-h-8 sm:!w-8"
                     mat-icon-button
                 >
                     <mat-icon
                         [svgIcon]="'heroicons_solid:x-mark'"
-                        class="icon-size-4"
+                        class="!text-base sm:!text-sm"
                     ></mat-icon>
                 </button>
             </div>

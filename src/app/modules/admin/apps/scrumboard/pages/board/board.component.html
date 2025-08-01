@@ -1,7 +1,7 @@
 <!-- Trello-like Board Container with Blurred Background -->
-<div class="relative flex min-w-0 flex-col md:overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 w-full">
+<div class="relative flex min-w-0 flex-col overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 w-full">
     <!-- Background Image with Blur Effect -->
-    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30 blur-sm"
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 sm:opacity-30 blur-sm"
          style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
     </div>
 
@@ -19,17 +19,17 @@
     <scrumboard-board-navigation [boardTitle]="boardTitle()"></scrumboard-board-navigation>
 
     <!-- Main -->
-    <div cdkScrollable class="relative z-10 flex-auto overflow-y-visible md:overflow-y-auto p-6 sm:p-8 sm:pt-4">
+    <div cdkScrollable class="relative z-10 flex-auto overflow-y-visible sm:overflow-y-auto p-3 sm:p-6 lg:p-8 sm:pt-4">
         <!-- Lists -->
         <div
             (cdkDropListDropped)="listDropped($event)"
             [cdkDropListData]="boardLists()"
             cdkDropList
             cdkDropListOrientation="horizontal"
-            class="flex h-full flex-nowrap items-start p-4 overflow-x-auto relative z-10 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
+            class="flex h-full flex-nowrap items-start p-2 sm:p-4 overflow-x-auto relative z-10 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent scrollbar-thumb-rounded-full scrollbar-track-rounded-full touch-pan-x"
         >
             <!-- Group all cdkDropList's after this point together so that the cards can be transferred between lists -->
-            <div cdkDropListGroup class="flex items-start space-x-4">
+            <div cdkDropListGroup class="flex items-start space-x-2 sm:space-x-4">
                 <!-- List Components -->
                 @for (list of boardLists(); track trackByFn($index, list)) {
                     <scrumboard-board-list

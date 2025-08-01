@@ -10,18 +10,18 @@ import { ScrumboardBoardCardComponent }                     from '../board-card/
 @Component({
     selector: 'scrumboard-board-list',
     template: `
-        <div class="w-72 flex-0 rounded-xl p-3 bg-white/95 dark:bg-gray-800/95 shadow-lg border border-white/20 dark:border-gray-600/20 min-h-fit hover:shadow-xl"
+        <div class="w-64 sm:w-72 lg:w-80 flex-0 rounded-xl p-2 sm:p-3 bg-white/95 dark:bg-gray-800/95 shadow-lg border border-white/20 dark:border-gray-600/20 min-h-fit hover:shadow-xl"
              [style.background-color]="list().color ? list().color + '95' : 'rgba(255,255,255,0.95)'"
              cdkDrag
              cdkDragPreviewClass="list-drag-preview">
-            <div class="flex items-center justify-between" cdkDragHandle>
+            <div class="flex items-center justify-between gap-2" cdkDragHandle>
                 <div
-                    class="flex w-full cursor-text items-center rounded-lg border border-transparent px-3 py-2 focus-within:border-blue-500 focus-within:bg-white/95 dark:focus-within:bg-gray-700/95 focus-within:shadow-md transition-all duration-200">
+                    class="flex w-full cursor-text items-center rounded-lg border border-transparent px-2 sm:px-3 py-1.5 sm:py-2 focus-within:border-blue-500 focus-within:bg-white/95 dark:focus-within:bg-gray-700/95 focus-within:shadow-md transition-all duration-200">
                     @if (list().icon) {
-                        <mat-icon class="mr-2 text-current" [svgIcon]="list().icon"></mat-icon>
+                        <mat-icon class="mr-1 sm:mr-2 text-current !text-lg sm:!text-base" [svgIcon]="list().icon"></mat-icon>
                     }
                     <input
-                        class="w-full bg-transparent font-medium leading-5"
+                        class="w-full bg-transparent font-medium leading-5 text-sm sm:text-base"
                         [spellcheck]="'false'"
                         [value]="list().title"
                         (focusout)="onUpdateListTitle($event)"
@@ -29,12 +29,13 @@ import { ScrumboardBoardCardComponent }                     from '../board-card/
                         #listTitleInput
                     />
                 </div>
-                <div class="ml-4 flex min-w-6 items-center justify-center rounded-full bg-gray-500/20 dark:bg-gray-400/20 text-gray-700 dark:text-gray-300 text-sm font-semibold leading-6 backdrop-blur-sm">
+                <div
+                    class="ml-2 sm:ml-4 flex min-w-5 sm:min-w-6 items-center justify-center rounded-full bg-gray-500/20 dark:bg-gray-400/20 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-semibold leading-5 sm:leading-6 backdrop-blur-sm px-1.5 sm:px-2 py-0.5">
                     {{ list().cards.length }}
                 </div>
-                <div class="ml-1">
-                    <button class="h-8 min-h-8 w-8" mat-icon-button [matMenuTriggerFor]="listMenu">
-                        <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:ellipsis-vertical'"></mat-icon>
+                <div class="ml-0.5 sm:ml-1">
+                    <button class="!w-8 !h-8 sm:!w-8 sm:!h-8 !min-w-8 !min-h-8" mat-icon-button [matMenuTriggerFor]="listMenu">
+                        <mat-icon class="!text-base sm:!text-sm" [svgIcon]="'heroicons_solid:ellipsis-vertical'"></mat-icon>
                     </button>
                     <mat-menu #listMenu="matMenu">
                         <button mat-menu-item (click)="onRenameList(listTitleInput)">
@@ -54,9 +55,9 @@ import { ScrumboardBoardCardComponent }                     from '../board-card/
             </div>
 
             <!-- Cards -->
-            <div class="mt-3 rounded-lg bg-black/5 border border-white/10">
+            <div class="mt-2 sm:mt-3 rounded-lg bg-black/5 border border-white/10">
                 <div
-                    class="p-3 pb-0 min-h-22 rounded-lg"
+                    class="p-2 sm:p-3 pb-0 min-h-16 sm:min-h-22 rounded-lg"
                     cdkDropList
                     [id]="list().id"
                     [cdkDropListData]="list().cards"
@@ -66,7 +67,8 @@ import { ScrumboardBoardCardComponent }                     from '../board-card/
                     @for (card of list().cards; track trackByFn($index, card)) {
                         <div cdkDrag
                              cdkDragPreviewClass="card-drag-preview"
-                             cdkDragPlaceholderClass="card-drag-placeholder">
+                             cdkDragPlaceholderClass="card-drag-placeholder"
+                             class="touch-manipulation">
                             <scrumboard-board-card [card]="card"></scrumboard-board-card>
                         </div>
                     }
