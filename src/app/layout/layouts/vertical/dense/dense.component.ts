@@ -14,6 +14,7 @@ import { FuseMediaWatcherService }                                 from '@fuse/s
 import { NavigationService }                                       from 'app/core/navigation/navigation.service';
 import { Navigation }                                              from 'app/core/navigation/navigation.types';
 import { UserComponent }                                           from 'app/layout/components/user/user.component';
+import { CacheRefreshButtonComponent } from 'app/shared/components/cache-refresh-button/cache-refresh-button.component';
 
 @Component({
     selector       : 'dense-layout',
@@ -27,6 +28,7 @@ import { UserComponent }                                           from 'app/lay
         MatButtonModule,
         MatIconModule,
         FuseFullscreenComponent,
+        CacheRefreshButtonComponent,
         UserComponent,
         RouterOutlet,
         AsyncPipe,
