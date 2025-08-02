@@ -21,7 +21,7 @@ import { MatButtonToggleModule }      from '@angular/material/button-toggle';
 import { ChecklistService }                             from '../../../services/checklist.service';
 import { ChecklistTemplate }                            from '../../../domain/interfaces/checklist-template.interface';
 import { ChecklistGroup }                               from '../../../domain/interfaces/checklist-group.interface';
-import { ChecklistCategory }                            from '../../../domain/interfaces/checklist-category.interface';
+import { ChecklistCategory, ChecklistCategoryResponse } from '../../../domain/interfaces/checklist-category.interface';
 import { ChecklistQuestion, ChecklistQuestionResponse } from '../../../domain/interfaces/checklist-question.interface';
 import { ChecklistType }                                from '../../../domain/enums/checklist-type.enum';
 import { ChecklistScoreCalculator }                     from '../../../domain/models/checklist-score-calculator.model';
@@ -125,22 +125,13 @@ export class ExecutionFormComponent implements OnInit {
     formValue = toSignal(this.executionForm.valueChanges, {initialValue: this.executionForm.value});
     formStatus = toSignal(this.executionForm.statusChanges, {initialValue: this.executionForm.status});
 
-    // Computed arrays for template iteration
-    categoriesIndices = computed(() => {
-        const formVal = this.formValue();
-        const categoriesArray = formVal?.categories;
-        if (!categoriesArray) return [];
-        console.log('Categories array value:', categoriesArray);
-        return Array.from({length: categoriesArray.length}, (_, i) => i);
-    });
-
     // Computed scores
     templateScore = computed(() => {
         const template = this.currentTemplate();
         if (!template) return 0;
 
         const formVal = this.formValue();
-        const categoryResponses = this.buildCategoryResponses(formVal?.categories || []);
+        const categoryResponses = this.buildCategoryResponsesForScore(formVal?.categories || []);
 
         const categoryScores = template.categories.map(category =>
             ChecklistScoreCalculator.calculateCategoryScore(category, categoryResponses[category.id!] || [])
@@ -348,7 +339,38 @@ export class ExecutionFormComponent implements OnInit {
         return `${ answeredQuestions }/${ totalQuestions } completadas`;
     }
 
-    private buildCategoryResponses(categories: any[]): Record<string, ChecklistQuestionResponse[]> {
+    private buildCategoryResponses(): ChecklistCategoryResponse[] {
+        const formValue = this.executionForm.value;
+        const categoryResponses: ChecklistCategoryResponse[] = [];
+
+        if (formValue.categories) {
+            formValue.categories.forEach((category: any, categoryIndex: number) => {
+                const categoryData = this.getCategory(categoryIndex);
+                if (categoryData?.id && category.questions) {
+                    const responses: ChecklistQuestionResponse[] = category.questions.map((question: any, questionIndex: number) => {
+                        const questionData = this.getQuestion(categoryIndex, questionIndex);
+                        return {
+                            questionId: questionData?.id!,
+                            value     : question.complianceStatus ? Number(question.complianceStatus) : null,
+                            timestamp : new Date(),
+                            files     : question.evidenceFile ? [ question.evidenceFile ] : [],
+                            comment   : question.comment || ''
+                        };
+                    });
+
+                    categoryResponses.push({
+                        categoryId : categoryData.id,
+                        responses  : responses,
+                        completedAt: new Date()
+                    });
+                }
+            });
+        }
+
+        return categoryResponses;
+    }
+
+    private buildCategoryResponsesForScore(categories: any[]): Record<string, ChecklistQuestionResponse[]> {
         const responses: Record<string, ChecklistQuestionResponse[]> = {};
 
         categories.forEach((category, categoryIndex) => {
@@ -356,7 +378,7 @@ export class ExecutionFormComponent implements OnInit {
             if (categoryId && category.questions) {
                 responses[categoryId] = category.questions.map((question: any, questionIndex: number) => ({
                     questionId: this.getQuestion(categoryIndex, questionIndex)?.id!,
-                    value: question.complianceStatus ? Number(question.complianceStatus) : null,
+                    value     : question.complianceStatus ? Number(question.complianceStatus) : null,
                     timestamp : new Date(),
                     files     : question.evidenceFile ? [ question.evidenceFile ] : []
                 }));
@@ -411,11 +433,11 @@ export class ExecutionFormComponent implements OnInit {
             templateId       : template.id,
             groupId          : this.currentGroup()?.id,
             vehicleId        : formValue.vehicleId,
-            userId: formValue.userId,
+            userId           : formValue.userId,
             status           : ExecutionStatus.COMPLETED,
             startedAt        : new Date(),
             completedAt      : new Date(),
-            categoryResponses: [], // Build from form
+            categoryResponses: this.buildCategoryResponses(),
             overallScore     : this.templateScore(),
             passed           : this.templateScore() >= (template.performanceThreshold ? template.performanceThreshold / 100 : 0.7),
             notes            : formValue.notes || undefined
