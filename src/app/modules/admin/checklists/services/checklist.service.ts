@@ -5,7 +5,7 @@ import { memoize }                                                from '@shared/
 
 import { ChecklistGroup, ChecklistGroupValidation }     from '../domain/interfaces/checklist-group.interface';
 import { ChecklistTemplate }                            from '../domain/interfaces/checklist-template.interface';
-import { ChecklistExecution, ChecklistExecutionReport } from '../domain/interfaces/checklist-execution.interface';
+import { ChecklistExecution, ChecklistExecutionReport, NewChecklistExecutionReport } from '../domain/interfaces/checklist-execution.interface';
 import { ChecklistScoreCalculator }                     from '../domain/models/checklist-score-calculator.model';
 import { ChecklistType }                                from '../domain/enums/checklist-type.enum';
 import { ExecuteChecklistAnswers, ExecuteChecklistDto } from '../domain/interfaces/execute-checklist.dto';
@@ -385,8 +385,8 @@ export class ChecklistService {
         );
     }
 
-    getExecutionReport(id: string): Observable<ChecklistExecutionReport> {
-        return this.http.get<ChecklistExecutionReport>(`${ this.baseUrl }/executions/${ id }/report`);
+    getExecutionReport(id: string): Observable<NewChecklistExecutionReport> {
+        return this.http.get<NewChecklistExecutionReport>(`${ this.baseUrl }/executions/${ id }/report`);
     }
 
     exportExecutionReport(id: string, format: 'pdf' | 'csv'): Observable<Blob> {

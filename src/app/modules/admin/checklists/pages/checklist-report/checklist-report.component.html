@@ -1,0 +1,318 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        [title]="pageTitle()"
+        [subtitle]="pageSubtitle()">
+    </page-header>
+
+    <div class="flex flex-col items-center justify-center w-full max-w-full sm:max-w-2xl lg:max-w-6xl mx-auto py-4 sm:py-10 gap-y-4 sm:gap-y-6 px-4 sm:px-6">
+
+        <!-- Header with back button and export actions -->
+        <div class="flex flex-col sm:flex-row w-full items-start sm:items-center gap-3 sm:gap-4">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <button mat-icon-button (click)="goBack()" [matTooltip]="'Volver'" class="flex-shrink-0">
+                    <mat-icon svgIcon="heroicons_outline:arrow-left"></mat-icon>
+                </button>
+                <div class="flex-1 min-w-0">
+                    <h2 class="font-bold text-secondary text-lg sm:text-xl truncate">
+                        {{ pageTitle() }}
+                    </h2>
+                    <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+                        {{ pageSubtitle() }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Export Actions -->
+            <div class="flex gap-2 flex-shrink-0">
+                <button
+                    mat-button
+                    [matMenuTriggerFor]="exportMenu"
+                    [disabled]="loading()"
+                    class="text-sm"
+                >
+                    <mat-icon svgIcon="heroicons_outline:arrow-down-tray" class="!text-base sm:!text-xl"></mat-icon>
+                    <span class="hidden sm:inline">Exportar</span>
+                </button>
+                <mat-menu #exportMenu="matMenu">
+                    <button mat-menu-item (click)="exportToPDF()">
+                        <mat-icon svgIcon="heroicons_outline:document-text"></mat-icon>
+                        <span>Exportar PDF</span>
+                    </button>
+                    <button mat-menu-item (click)="exportToCSV()">
+                        <mat-icon svgIcon="heroicons_outline:table-cells"></mat-icon>
+                        <span>Exportar CSV</span>
+                    </button>
+                </mat-menu>
+            </div>
+        </div>
+
+        @if (loading()) {
+            <!-- Loading State -->
+            <div class="w-full bg-card rounded-md shadow p-6 sm:p-8 text-center">
+                <mat-icon class="text-3xl sm:text-4xl text-gray-400 mb-3 sm:mb-4" svgIcon="mat_solid:hourglass_empty"></mat-icon>
+                <p class="text-sm sm:text-base text-gray-600">Cargando reporte de ejecución...</p>
+            </div>
+        } @else if (reportData()) {
+            <!-- Report Content -->
+            <div class="w-full space-y-4 sm:space-y-6">
+                <!-- Execution Summary -->
+                <div class="w-full bg-card rounded-md shadow">
+                    <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-600">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                            <mat-icon svgIcon="heroicons_outline:chart-bar" class="!text-lg sm:!text-xl"></mat-icon>
+                            Resumen de Ejecución
+                        </h3>
+                    </div>
+
+                    <div class="p-4 sm:p-6">
+                        <!-- Metadata List -->
+                        <div class="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <div class="mb-1 sm:mb-0">
+                                    <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Ejecutado por</div>
+                                    <div class="font-medium text-sm sm:text-base">{{ reportData()?.executorUserName }}</div>
+                                </div>
+                                <div class="text-xs text-gray-500">ID: {{ reportData()?.executorUserId }}</div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <div class="mb-1 sm:mb-0">
+                                    <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Objetivo</div>
+                                    <div class="font-medium text-sm sm:text-base">{{ reportData()?.targetType }}</div>
+                                </div>
+                                <div class="text-xs text-gray-500">ID: {{ reportData()?.targetId }}</div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <div class="mb-1 sm:mb-0">
+                                    <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Fecha de Ejecución</div>
+                                    <div class="font-medium text-sm sm:text-base">{{ formatDate(reportData()?.completedAt) }}</div>
+                                </div>
+                                <div class="text-xs text-gray-500">{{ formatTime(reportData()?.completedAt) }}</div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <div class="mb-1 sm:mb-0">
+                                    <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Estado</div>
+                                    <div class="font-medium text-sm sm:text-base">{{ reportData()?.status }}</div>
+                                </div>
+                                <div class="text-xs text-gray-500">Template: {{ reportData()?.templateName }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Score Overview -->
+                        <div class="space-y-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:space-y-0">
+                            <!-- Overall Score -->
+                            <div class="text-center p-4 sm:p-6 rounded-lg" [class]="getScoreCardClass((reportData()?.percentageScore || 0) / 100)">
+                                <div class="text-2xl sm:text-3xl font-bold mb-2">
+                                    {{ reportData()?.percentageScore?.toFixed(1) }}%
+                                </div>
+                                <div class="text-xs sm:text-sm font-medium">Score Global</div>
+                                <mat-progress-bar
+                                    mode="determinate"
+                                    [value]="reportData()?.percentageScore || 0"
+                                    [class]="getProgressBarClass((reportData()?.percentageScore || 0) / 100)"
+                                    class="mt-2"
+                                ></mat-progress-bar>
+                            </div>
+
+                            <!-- Duration -->
+                            <div class="text-center p-4 sm:p-6 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                                <div class="text-2xl sm:text-3xl font-bold mb-2 text-blue-600 dark:text-blue-300">
+                                    {{ calculateDuration() }}
+                                </div>
+                                <div class="text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-300">Duración</div>
+                            </div>
+
+                            <!-- Questions Count -->
+                            <div class="text-center p-4 sm:p-6 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
+                                <div class="text-2xl sm:text-3xl font-bold mb-2 text-purple-600 dark:text-purple-300">
+                                    {{ totalQuestionsCount() }}
+                                </div>
+                                <div class="text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-300">Preguntas</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Scores -->
+                <div class="w-full bg-card rounded-md shadow">
+                    <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-600">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                            <mat-icon svgIcon="heroicons_outline:folder" class="!text-lg sm:!text-xl"></mat-icon>
+                            Puntuación por Categoría
+                        </h3>
+                    </div>
+
+                    <div class="divide-y divide-gray-200 dark:divide-gray-600">
+                        @for (category of reportData()?.categories; track category.id) {
+                            <div class="p-4 sm:p-6">
+                                <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-3 sm:mb-4">
+                                    <div class="flex-1 mb-2 sm:mb-0">
+                                        <h4 class="font-medium text-sm sm:text-base mb-1">{{ category.title }}</h4>
+                                        <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-1">
+                                            {{ category.description }}
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            {{ category.questions.length }} preguntas • Orden: {{ category.sortOrder }}
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3 sm:flex-col sm:items-end sm:gap-1">
+                                        <div class="text-lg sm:text-xl font-bold" [class]="getScoreTextClass(category.categoryScore / 100)">
+                                            {{ category.categoryScore ? category.categoryScore.toFixed(1) : '0.0' }}%
+                                        </div>
+                                        <div class="flex-1 sm:w-20">
+                                            <mat-progress-bar
+                                                mode="determinate"
+                                                [value]="category.categoryScore"
+                                                [class]="getProgressBarClass(category.categoryScore / 100)"
+                                                class="h-2"
+                                            ></mat-progress-bar>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Detailed Responses -->
+                <div class="w-full bg-card rounded-md shadow">
+                    <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-600">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                            <mat-icon svgIcon="heroicons_outline:question-mark-circle" class="!text-lg sm:!text-xl"></mat-icon>
+                            Respuestas Detalladas
+                        </h3>
+                    </div>
+
+                    <div class="divide-y divide-gray-200 dark:divide-gray-600">
+                        @for (category of reportData()?.categories; track category.id) {
+                            <div class="p-4 sm:p-6">
+                                <h4 class="font-medium text-sm sm:text-base mb-3 sm:mb-4 flex items-center gap-2">
+                                    <mat-icon svgIcon="heroicons_outline:folder" class="!text-base sm:!text-lg"></mat-icon>
+                                    {{ category.title }}
+                                </h4>
+
+                                <div class="space-y-3 sm:space-y-4 ml-0 sm:ml-6">
+                                    @for (question of category.questions; track question.id) {
+                                        <div class="border-l-4 border-gray-200 dark:border-gray-600 pl-3 sm:pl-4 py-2 sm:py-3">
+                                            <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-2 sm:mb-3">
+                                                <div class="flex-1 mb-2 sm:mb-0">
+                                                    <h5 class="font-medium text-sm sm:text-base">{{ question.title }}</h5>
+                                                    @if (question.description) {
+                                                        <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                                            {{ question.description }}
+                                                        </p>
+                                                    }
+                                                    <div class="text-xs text-gray-500 mt-1">
+                                                        Peso: {{ question.weight }} | Requerida: {{ question.required ? 'Sí' : 'No' }}
+                                                        @if (question.hasIntermediateApproval) {
+                                                            | Valor intermedio: {{ question.intermediateValue }}
+                                                        }
+                                                    </div>
+                                                </div>
+
+                                                <!-- Approval Status -->
+                                                <div class="flex-shrink-0">
+                                                    <mat-chip-set>
+                                                        <mat-chip [class]="getComplianceChipClass(question.answer.approvalStatus === 'approved')" class="!text-xs">
+                                                            <mat-icon matChipAvatar class="!text-sm">
+                                                                {{ question.answer.approvalStatus === 'approved' ? 'check_circle' : 'cancel' }}
+                                                            </mat-icon>
+                                                            {{ question.answer.approvalStatus === 'approved' ? 'Aprobado' : question.answer.approvalStatus }}
+                                                        </mat-chip>
+                                                    </mat-chip-set>
+                                                </div>
+                                            </div>
+
+                                            <!-- Score Information -->
+                                            <div class="mb-3 p-2 sm:p-3 bg-gray-50 dark:bg-gray-800 rounded border">
+                                                <div class="text-xs sm:text-sm">
+                                                    <span class="font-medium">Puntuación:</span>
+                                                    {{ question.answer.answerScore }}/{{ question.answer.maxScore }}
+                                                    ({{ ((question.answer.answerScore / question.answer.maxScore) * 100).toFixed(1) }}%)
+                                                </div>
+                                                <div class="text-xs sm:text-sm">
+                                                    <span class="font-medium">Valor de aprobación:</span> {{ question.answer.approvalValue }}
+                                                </div>
+                                                @if (question.answer.isSkipped) {
+                                                    <div class="text-xs sm:text-sm text-orange-600 flex items-center gap-1">
+                                                        <mat-icon class="!text-sm" svgIcon="mat_solid:skip_next"></mat-icon>
+                                                        Pregunta omitida
+                                                    </div>
+                                                }
+                                            </div>
+
+                                            <!-- Evidence File -->
+                                            @if (question.answer.evidenceFile) {
+                                                <div class="mb-3">
+                                                    <div class="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Evidencia:</div>
+                                                    <div class="flex flex-wrap gap-2">
+                                                        <button
+                                                            mat-stroked-button
+                                                            size="small"
+                                                            (click)="viewEvidence(question.answer.evidenceFile)"
+                                                            class="!text-xs !py-1 !px-2"
+                                                        >
+                                                            <mat-icon class="!text-sm mr-1" svgIcon="mat_solid:attachment"></mat-icon>
+                                                            {{ getFileName(question.answer.evidenceFile) }}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            <!-- Comment -->
+                                            @if (question.answer.comment) {
+                                                <div class="mb-3">
+                                                    <div class="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Comentario:</div>
+                                                    <div class="p-2 sm:p-3 bg-blue-50 dark:bg-blue-900/30 rounded text-xs sm:text-sm">
+                                                        {{ question.answer.comment }}
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            <!-- Timestamp -->
+                                            <div class="text-xs text-gray-500 mt-2">
+                                                Respondida: {{ formatDateTime(question.answer.answeredAt) }}
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Notes Section -->
+                @if (reportData()?.notes) {
+                    <div class="w-full bg-card rounded-md shadow">
+                        <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-600">
+                            <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                                <mat-icon svgIcon="heroicons_outline:document-text" class="!text-lg sm:!text-xl"></mat-icon>
+                                Observaciones
+                            </h3>
+                        </div>
+
+                        <div class="p-4 sm:p-6">
+                            <div>
+                                <h4 class="font-medium text-sm sm:text-base mb-2 sm:mb-3">Notas de Ejecución:</h4>
+                                <div class="p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg text-sm sm:text-base">
+                                    {{ reportData()?.notes }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        } @else {
+            <!-- Error State -->
+            <div class="w-full bg-card rounded-md shadow p-6 sm:p-8 text-center">
+                <mat-icon class="text-3xl sm:text-4xl text-red-400 mb-3 sm:mb-4" svgIcon="mat_solid:error"></mat-icon>
+                <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-4">No se pudo cargar el reporte de ejecución</p>
+                <button mat-raised-button color="primary" (click)="loadReport()" class="!text-sm sm:!text-base">
+                    Reintentar
+                </button>
+            </div>
+        }
+    </div>
+</div>

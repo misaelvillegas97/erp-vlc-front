@@ -62,7 +62,7 @@ export { User };
                     </mat-option>
                 } @else {
                     @for (user of filteredUsers.value() || []; track user.id) {
-                        <mat-option [value]="user" [disabled]="user.isActive === false">
+                        <mat-option [value]="user">
                             <div class="flex flex-col">
                                 <span class="font-medium">{{ user.name }}</span>
                                 @if (user.email || user.role) {

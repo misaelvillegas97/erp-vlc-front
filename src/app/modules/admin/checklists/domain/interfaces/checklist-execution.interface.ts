@@ -83,3 +83,55 @@ export interface ChecklistExecutionSummary {
         averageScore: number;
     }>;
 }
+
+// New interfaces to match the provided JSON model
+export interface ChecklistAnswer {
+    id: string;
+    questionId: string;
+    approvalStatus: string;
+    approvalValue: number;
+    evidenceFile: string | null;
+    comment: string | null;
+    answerScore: number;
+    maxScore: number;
+    isSkipped: boolean;
+    answeredAt: string;
+}
+
+export interface ChecklistQuestionWithAnswer {
+    id: string;
+    title: string;
+    description: string;
+    weight: number;
+    required: boolean;
+    hasIntermediateApproval: boolean;
+    intermediateValue: number;
+    sortOrder: number;
+    answer: ChecklistAnswer;
+}
+
+export interface ChecklistCategoryWithQuestions {
+    id: string;
+    title: string;
+    description: string;
+    sortOrder: number;
+    categoryScore: number;
+    questions: ChecklistQuestionWithAnswer[];
+}
+
+export interface NewChecklistExecutionReport {
+    id: string;
+    templateId: string;
+    templateName: string;
+    executorUserId: string;
+    executorUserName: string;
+    targetType: string;
+    targetId: string;
+    status: string;
+    completedAt: string;
+    totalScore: number;
+    maxPossibleScore: number;
+    percentageScore: number;
+    notes: string;
+    categories: ChecklistCategoryWithQuestions[];
+}
