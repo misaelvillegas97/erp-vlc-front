@@ -96,17 +96,17 @@
             <!-- Application Filters Section -->
             <div class="w-full bg-card rounded-md shadow p-4 sm:p-6" formGroupName="filters">
                 <h3 class="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-900 dark:text-gray-100">Filtros de Aplicación</h3>
-                <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-3 sm:mb-4 leading-relaxed">Define los tipos de vehículos y roles de usuario para los cuales aplica esta plantilla</p>
+                <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-3 sm:mb-4 leading-relaxed">Define los tipos de targets y roles de usuario para los cuales aplica esta plantilla</p>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <mat-form-field class="w-full fuse-mat-dense">
-                        <mat-label>Tipos de Vehículos</mat-label>
-                        <mat-select formControlName="vehicleTypes" multiple>
-                            @for (vehicleType of VehicleType; track vehicleType) {
-                                <mat-option [value]="vehicleType">{{ vehicleType | titlecase }}</mat-option>
+                        <mat-label>Tipos de Target</mat-label>
+                        <mat-select formControlName="targetTypes" multiple>
+                            @for (targetType of targetTypes; track targetType.value) {
+                                <mat-option [value]="targetType.value">{{ targetType.label }}</mat-option>
                             }
                         </mat-select>
-                        <mat-hint>Selecciona los tipos de vehículos aplicables</mat-hint>
+                        <mat-hint>Selecciona los tipos de targets aplicables</mat-hint>
                     </mat-form-field>
 
                     <mat-form-field class="w-full fuse-mat-dense">

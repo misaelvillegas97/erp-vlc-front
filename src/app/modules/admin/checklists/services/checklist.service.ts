@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, resource, signal } from '@angular/core';
 import { HttpClient }                                      from '@angular/common/http';
 import { catchError, firstValueFrom, Observable, of, tap } from 'rxjs';
+import { memoize }                                                from '@shared/decorators/memoize/memoize.decorator';
 
 import { ChecklistGroup, ChecklistGroupValidation }     from '../domain/interfaces/checklist-group.interface';
 import { ChecklistTemplate }                            from '../domain/interfaces/checklist-template.interface';
@@ -8,6 +9,9 @@ import { ChecklistExecution, ChecklistExecutionReport } from '../domain/interfac
 import { ChecklistScoreCalculator }                     from '../domain/models/checklist-score-calculator.model';
 import { ChecklistType }                                from '../domain/enums/checklist-type.enum';
 import { ExecuteChecklistAnswers, ExecuteChecklistDto } from '../domain/interfaces/execute-checklist.dto';
+import { CreateChecklistExecutionDto }                            from '../domain/interfaces/checklist-execution-dto.interface';
+import { CreateChecklistTemplateDto, UpdateChecklistTemplateDto } from '../domain/interfaces/checklist-template-dto.interface';
+import { CreateChecklistGroupDto, UpdateChecklistGroupDto }       from '../domain/interfaces/checklist-group-dto.interface';
 import { FindCount }                                    from '@shared/domain/model/find-count';
 
 export interface ChecklistFilters {
@@ -121,7 +125,7 @@ export class ChecklistService {
         );
     }
 
-    createGroup(group: Omit<ChecklistGroup, 'id'>): Observable<ChecklistGroup> {
+    createGroup(group: CreateChecklistGroupDto): Observable<ChecklistGroup> {
         this._loading.set(true);
         return this.http.post<ChecklistGroup>(`${ this.baseUrl }/groups`, group).pipe(
             tap(newGroup => {
@@ -136,7 +140,7 @@ export class ChecklistService {
         );
     }
 
-    updateGroup(id: string, group: Partial<ChecklistGroup>): Observable<ChecklistGroup> {
+    updateGroup(id: string, group: CreateChecklistGroupDto): Observable<ChecklistGroup> {
         this._loading.set(true);
         return this.http.put<ChecklistGroup>(`${ this.baseUrl }/groups/${ id }`, group).pipe(
             tap(updatedGroup => {
@@ -147,6 +151,23 @@ export class ChecklistService {
             }),
             catchError(error => {
                 this._error.set('Failed to update checklist group');
+                this._loading.set(false);
+                throw error;
+            })
+        );
+    }
+
+    toggleGroupStatus(id: string, isActive: boolean): Observable<ChecklistGroup> {
+        this._loading.set(true);
+        return this.http.patch<ChecklistGroup>(`${ this.baseUrl }/groups/${ id }/status`, {isActive}).pipe(
+            tap(updatedGroup => {
+                this._groups.update(groups =>
+                    groups.map(g => g.id === id ? updatedGroup : g)
+                );
+                this._loading.set(false);
+            }),
+            catchError(error => {
+                this._error.set('Failed to toggle group status');
                 this._loading.set(false);
                 throw error;
             })
@@ -217,7 +238,7 @@ export class ChecklistService {
         );
     }
 
-    createTemplate(template: Omit<ChecklistTemplate, 'id'>): Observable<ChecklistTemplate> {
+    createTemplate(template: CreateChecklistTemplateDto): Observable<ChecklistTemplate> {
         this._loading.set(true);
         return this.http.post<ChecklistTemplate>(`${ this.baseUrl }/templates`, template).pipe(
             tap(newTemplate => {
@@ -232,7 +253,7 @@ export class ChecklistService {
         );
     }
 
-    updateTemplate(id: string, template: Partial<ChecklistTemplate>): Observable<ChecklistTemplate> {
+    updateTemplate(id: string, template: CreateChecklistTemplateDto): Observable<ChecklistTemplate> {
         this._loading.set(true);
         return this.http.put<ChecklistTemplate>(`${ this.baseUrl }/templates/${ id }`, template).pipe(
             tap(updatedTemplate => {
@@ -243,6 +264,23 @@ export class ChecklistService {
             }),
             catchError(error => {
                 this._error.set('Failed to update checklist template');
+                this._loading.set(false);
+                throw error;
+            })
+        );
+    }
+
+    toggleTemplateStatus(id: string, isActive: boolean): Observable<ChecklistTemplate> {
+        this._loading.set(true);
+        return this.http.patch<ChecklistTemplate>(`${ this.baseUrl }/templates/${ id }/status`, {isActive}).pipe(
+            tap(updatedTemplate => {
+                this._templates.update(templates =>
+                    templates.map(t => t.id === id ? updatedTemplate : t)
+                );
+                this._loading.set(false);
+            }),
+            catchError(error => {
+                this._error.set('Failed to toggle template status');
                 this._loading.set(false);
                 throw error;
             })
@@ -315,7 +353,7 @@ export class ChecklistService {
         );
     }
 
-    createExecution(execution: Omit<ChecklistExecution, 'id'>): Observable<ChecklistExecution> {
+    createExecution(execution: CreateChecklistExecutionDto): Observable<ChecklistExecution> {
         this._loading.set(true);
         return this.http.post<ChecklistExecution>(`${ this.baseUrl }/executions`, execution).pipe(
             tap(newExecution => {
@@ -410,6 +448,12 @@ export class ChecklistService {
     }
 
     // Score calculation methods
+    @memoize({
+        extractUniqueId  : (template: ChecklistTemplate, answers: ExecuteChecklistAnswers) =>
+            `${ template.id }-${ JSON.stringify(answers) }`,
+        clearCacheTimeout: 300000, // 5 minutes
+        maxCacheSize     : 100
+    })
     calculateScore(template: ChecklistTemplate, answers: ExecuteChecklistAnswers): number {
         if (!template.categories || template.categories.length === 0) {
             return 0;
@@ -422,7 +466,6 @@ export class ChecklistService {
             const categoryAnswers = answers[category.id!] || {};
             const categoryScore = this.calculateCategoryScore(category, categoryAnswers);
 
-            // ✅ CHANGED: Calculate category weight as sum of question weights
             const categoryWeight = category.questions.reduce((sum, question) => sum + question.weight, 0);
 
             totalWeightedScore += categoryScore * categoryWeight;
@@ -432,6 +475,12 @@ export class ChecklistService {
         return totalWeight > 0 ? totalWeightedScore / totalWeight : 0;
     }
 
+    @memoize({
+        extractUniqueId  : (group: ChecklistGroup, executions: ChecklistExecution[]) =>
+            `${ group.id }-${ JSON.stringify(executions.map(e => ({id: e.id, score: e.overallScore}))) }`,
+        clearCacheTimeout: 300000, // 5 minutes
+        maxCacheSize     : 50
+    })
     calculateGroupScore(group: ChecklistGroup, executions: ChecklistExecution[]): number {
         if (!group.templates || group.templates.length === 0) {
             return 0;

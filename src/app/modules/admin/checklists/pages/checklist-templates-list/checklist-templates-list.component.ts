@@ -149,7 +149,7 @@ export class ChecklistTemplatesListComponent {
 
     toggleTemplateStatus(template: ChecklistTemplate): void {
         const newStatus = !template.isActive;
-        this.#checklistService.updateTemplate(template.id!, {isActive: newStatus}).subscribe({
+        this.#checklistService.toggleTemplateStatus(template.id!, newStatus).subscribe({
             next : () => {
                 this.#notyf.success(`Plantilla ${ newStatus ? 'activada' : 'desactivada' } exitosamente`);
                 this.templatesResource.reload();

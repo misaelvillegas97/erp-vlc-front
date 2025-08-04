@@ -19,6 +19,7 @@ import { MatTooltipModule }     from '@angular/material/tooltip';
 import { ChecklistService }                         from '../../services/checklist.service';
 import { ChecklistGroup, ChecklistGroupValidation } from '../../domain/interfaces/checklist-group.interface';
 import { ChecklistTemplate }                        from '../../domain/interfaces/checklist-template.interface';
+import { CreateChecklistGroupDto, UpdateChecklistGroupDto } from '../../domain/interfaces/checklist-group-dto.interface';
 import { PageHeaderComponent }                      from '@layout/components/page-header/page-header.component';
 import { NotyfService }                             from '@shared/services/notyf.service';
 
@@ -161,20 +162,20 @@ export class ChecklistGroupFormComponent implements OnInit {
         if (!this.canSubmit()) return;
 
         const formValue = this.groupForm.value;
-        const groupData: Omit<ChecklistGroup, 'id'> = {
+        const groupDto: CreateChecklistGroupDto = {
             name       : formValue.name,
             description: formValue.description,
             weight     : formValue.weight,
             isActive   : formValue.isActive,
-            templates  : Array.from(this.selectedTemplates().entries()).map(([ templateId, weight ]) => {
-                const template = this.availableTemplates().find(t => t.id === templateId);
-                return {...template!, weight, groupId: this.groupId()};
-            })
+            templates: Array.from(this.selectedTemplates().entries()).map(([ templateId, weight ]) => ({
+                templateId,
+                weight
+            }))
         };
 
         const operation = this.isEditMode()
-            ? this.#checklistService.updateGroup(this.groupId()!, groupData)
-            : this.#checklistService.createGroup(groupData);
+            ? this.#checklistService.updateGroup(this.groupId()!, groupDto)
+            : this.#checklistService.createGroup(groupDto);
 
         operation.subscribe({
             next : (group) => {

@@ -21,6 +21,8 @@ import { MatDividerModule }     from '@angular/material/divider';
 import { ChecklistService }    from '../../services/checklist.service';
 import { ChecklistTemplate }   from '../../domain/interfaces/checklist-template.interface';
 import { ChecklistType }       from '../../domain/enums/checklist-type.enum';
+import { TargetType }                                             from '../../domain/enums/target-type.enum';
+import { CreateChecklistTemplateDto, UpdateChecklistTemplateDto } from '../../domain/interfaces/checklist-template-dto.interface';
 import { NotyfService }        from '@shared/services/notyf.service';
 import { PageHeaderComponent } from '@layout/components/page-header/page-header.component';
 import { toSignal }            from '@angular/core/rxjs-interop';
@@ -77,6 +79,13 @@ export class ChecklistTemplateFormComponent implements OnInit {
 
     roles = Object.values(RoleEnum).filter(value => typeof value === 'number');
 
+    // Target types options
+    readonly targetTypes = [
+        {value: TargetType.VEHICLE, label: 'Vehículo'},
+        {value: TargetType.USER, label: 'Usuario'},
+        {value: TargetType.WAREHOUSE, label: 'Almacén'}
+    ];
+
     // Form - Structured according to FormTemplate interface
     readonly templateForm: FormGroup = this.fb.group({
         // Section 1: Basic Information
@@ -91,8 +100,8 @@ export class ChecklistTemplateFormComponent implements OnInit {
 
         // Section 2: Application Filters
         filters: this.fb.group({
-            vehicleTypes: [ [] ],
-            userRoles   : [ [] ]
+            targetTypes: [ [] ],
+            userRoles  : [ [] ]
         }),
 
         // Section 3: Content Structure
@@ -187,7 +196,7 @@ export class ChecklistTemplateFormComponent implements OnInit {
             !this.checklistService.loading())) return;
 
         const formValue = this.templateForm.value;
-        const templateData: Omit<ChecklistTemplate, 'id'> = {
+        const templateDto: CreateChecklistTemplateDto = {
             // Basic Information
             type                : formValue.basicInfo.type,
             name                : formValue.basicInfo.name,
@@ -197,8 +206,8 @@ export class ChecklistTemplateFormComponent implements OnInit {
             isActive            : formValue.basicInfo.isActive,
 
             // Application Filters
-            vehicleTypes: formValue.filters.vehicleTypes ? formValue.filters.vehicleTypes.map((type: any) => Number(type)) : undefined,
-            userRoles   : formValue.filters.userRoles ? formValue.filters.userRoles.map((role: any) => Number(role)) : undefined,
+            targetTypes: formValue.filters.targetTypes ? formValue.filters.targetTypes : undefined,
+            userRoles  : formValue.filters.userRoles ? formValue.filters.userRoles.map((role: any) => Number(role)) : undefined,
 
             // Content Structure
             categories: formValue.content.categories.map((category: any, categoryIndex: number) => ({
@@ -220,8 +229,8 @@ export class ChecklistTemplateFormComponent implements OnInit {
         };
 
         const operation = this.isEditMode()
-            ? this.checklistService.updateTemplate(this.templateId()!, templateData)
-            : this.checklistService.createTemplate(templateData);
+            ? this.checklistService.updateTemplate(this.templateId()!, templateDto)
+            : this.checklistService.createTemplate(templateDto);
 
         operation.subscribe({
             next : (template) => {
@@ -276,7 +285,7 @@ export class ChecklistTemplateFormComponent implements OnInit {
                 isActive            : template.isActive
             },
             filters  : {
-                vehicleTypes: template.vehicleTypes || [],
+                targetTypes: template.targetTypes || template.vehicleTypes || [], // Handle both new and old field names
                 userRoles: (template.userRoles || []).map(role => Number(role)) // Convert string roles to numbers
             }
         });

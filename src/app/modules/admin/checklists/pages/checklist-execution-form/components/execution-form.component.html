@@ -39,42 +39,54 @@
                 <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4">Información de Ejecución</h3>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                    <mat-form-field class="w-full fuse-mat-dense">
-                        <mat-label>Vehículo</mat-label>
-                        <mat-select formControlName="vehicleId">
-                            @if (availableVehicles().length === 0) {
-                                <mat-option disabled>No hay vehículos disponibles para este tipo de checklist</mat-option>
-                            } @else {
-                                @for (vehicle of availableVehicles(); track vehicle.id) {
-                                    <mat-option [value]="vehicle.id">{{ vehicle.name }} ({{ vehicle.plate }})</mat-option>
-                                }
-                            }
-                        </mat-select>
-                        @if (executionForm.get('vehicleId').hasError('required') && executionForm.get('vehicleId')?.touched) {
-                            <mat-error>Debe seleccionar un vehículo</mat-error>
-                        }
-                    </mat-form-field>
+                    <!-- Dynamic Vehicle Selector -->
+                    @if (showVehicleSelector()) {
+                        <app-vehicle-selector
+                            formControlName="vehicleId"
+                            [required]="vehicleSelectorRequired()"
+                            [staticVehicles]="availableVehicles()"
+                            [vehicleTypes]="currentTemplate()?.vehicleTypes || []"
+                            [vehicleStatus]="true"
+                            label="Vehículo"
+                            placeholder="Buscar vehículo..."
+                            hint="Selecciona el vehículo para la inspección"
+                        />
+                    }
 
-                    <mat-form-field class="w-full fuse-mat-dense">
-                        <mat-label>Usuario</mat-label>
-                        <mat-select formControlName="userId">
-                            @if (availableUsers().length === 0) {
-                                <mat-option disabled>No hay usuarios disponibles para este tipo de checklist</mat-option>
-                            } @else {
-                                @for (user of availableUsers(); track user.id) {
-                                    <mat-option [value]="user.id">{{ user.name }}</mat-option>
-                                }
-                            }
-                        </mat-select>
-                        @if (executionForm.get('userId').hasError('required') && executionForm.get('userId')?.touched) {
-                            <mat-error>Debe seleccionar un usuario</mat-error>
-                        }
-                    </mat-form-field>
+                    <!-- Dynamic User Selector -->
+                    @if (showUserSelector()) {
+                        <app-user-selector
+                            formControlName="userId"
+                            [required]="userSelectorRequired()"
+                            [roles]="getUserRolesAsEnum()"
+                            [userStatus]="true"
+                            label="Usuario"
+                            placeholder="Buscar usuario..."
+                            hint="Selecciona el usuario ejecutor"
+                        />
+                    }
 
+                    <!-- Warehouse Selector (Future Implementation) -->
+                    @if (showWarehouseSelector()) {
+                        <mat-form-field class="w-full fuse-mat-dense">
+                            <mat-label>Almacén</mat-label>
+                            <mat-select formControlName="warehouseId">
+                                <mat-option disabled>Funcionalidad de almacén próximamente</mat-option>
+                            </mat-select>
+                            <mat-hint>Selecciona el almacén para la inspección</mat-hint>
+                        </mat-form-field>
+                    }
+
+                    <!-- Template Info -->
                     <div class="flex items-center gap-4 sm:col-span-2 lg:col-span-1">
                         <div class="text-xs sm:text-sm">
                             <div class="font-medium text-gray-900 dark:text-gray-100">Tipo: {{ currentTemplate()?.type | titlecase }}</div>
                             <div class="text-gray-600 dark:text-gray-300">Versión: {{ currentTemplate()?.version }}</div>
+                            @if (currentTemplate()?.targetTypes && currentTemplate()?.targetTypes.length > 0) {
+                                <div class="text-gray-600 dark:text-gray-300 text-xs">
+                                    Targets: {{ currentTemplate()?.targetTypes.join(', ') }}
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -122,7 +134,7 @@
                 <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4">Categorías del Checklist</h3>
 
                 <div formArrayName="categories" class="space-y-4 sm:space-y-6">
-                    @for (category of $any(executionForm.get('categories')).controls; track category.categoryId; let categoryIndex = $index) {
+                    @for (category of $any(executionForm.get('categories')).controls; track category.value.categoryId; let categoryIndex = $index) {
                         <div [formGroupName]="categoryIndex" class="space-y-3 sm:space-y-4">
                             <!-- Category Subtitle Header -->
                             <div class="border-b border-gray-200 dark:border-gray-600 pb-3">
@@ -151,11 +163,10 @@
 
                             <!-- Questions List -->
                             <div formArrayName="questions" class="space-y-2 sm:ml-4">
-                                @for (j of getQuestionIndices(categoryIndex); track j; let jIndex = $index) {
+                                @for (questionControl of $any(executionForm.get('categories')).at(categoryIndex).get('questions').controls; track questionControl.value.questionId; let jIndex = $index) {
                                     <div [formGroupName]="jIndex">
                                         @let question = getQuestion(categoryIndex, jIndex);
                                         @let required = getQuestion(categoryIndex, jIndex)?.required || false;
-                                        @let currentValue = executionForm.get('categories').get([categoryIndex, 'questions', jIndex, 'complianceStatus']).value;
 
                                         <!-- Enhanced Question Item -->
                                         <div class="border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 overflow-hidden">

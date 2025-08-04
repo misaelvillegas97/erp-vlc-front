@@ -12,6 +12,10 @@ export class VehiclesService {
         return this.#http.get<FindCount<Vehicle>>('/api/v1/logistics/vehicles');
     }
 
+    findByQuery(query?: any): Observable<Vehicle[]> {
+        return this.#http.get<Vehicle[]>('/api/v1/logistics/vehicles/query', {params: query});
+    }
+
     create(dto: any): Observable<Vehicle> {
         return this.#http.post<Vehicle>('/api/v1/logistics/vehicles', dto);
     }

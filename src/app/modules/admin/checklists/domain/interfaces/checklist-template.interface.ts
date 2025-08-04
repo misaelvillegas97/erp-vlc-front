@@ -1,4 +1,5 @@
 import { ChecklistType }     from '../enums/checklist-type.enum';
+import { TargetType } from '../enums/target-type.enum';
 import { ChecklistCategory } from './checklist-category.interface';
 
 export interface ChecklistTemplate {
@@ -7,7 +8,8 @@ export interface ChecklistTemplate {
     name: string;
     description?: string;
     version?: string;
-    vehicleTypes?: string[];
+    vehicleTypes?: string[]; // Legacy field for backward compatibility
+    targetTypes?: TargetType[]; // New field for target types
     userRoles?: string[];
     isActive?: boolean;
     performanceThreshold?: number;

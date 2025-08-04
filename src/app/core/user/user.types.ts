@@ -9,6 +9,7 @@ export interface User {
     email?: string;
 
     role?: Role;
-    roles?: { id: string, role: Role }[];
+    roles?: Role[];
+    status?: { id: string, name: string };
     createdAt?: Date;
 }

@@ -92,7 +92,7 @@ export class ChecklistGroupsListComponent {
 
     toggleGroupStatus(group: ChecklistGroup): void {
         const newStatus = !group.isActive;
-        this.#checklistService.updateGroup(group.id!, {isActive: newStatus}).subscribe({
+        this.#checklistService.toggleGroupStatus(group.id!, newStatus).subscribe({
             next : () => {
                 this.#notyf.success(`Grupo ${ newStatus ? 'activado' : 'desactivado' } exitosamente`);
                 this.groupsResource.reload();

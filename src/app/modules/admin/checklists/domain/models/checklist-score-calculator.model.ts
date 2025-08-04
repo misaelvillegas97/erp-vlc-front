@@ -2,6 +2,7 @@ import { ChecklistQuestion, ChecklistQuestionResponse } from '../interfaces/chec
 import { ChecklistCategory, ChecklistCategoryScore }    from '../interfaces/checklist-category.interface';
 import { ChecklistTemplate, ChecklistTemplateScore }    from '../interfaces/checklist-template.interface';
 import { ChecklistGroupScore }                          from '../interfaces/checklist-group.interface';
+import { memoize } from '@shared/decorators/memoize/memoize.decorator';
 
 export class ChecklistScoreCalculator {
 
@@ -38,6 +39,12 @@ export class ChecklistScoreCalculator {
     /**
      * Calculate category score based on question responses
      */
+    @memoize({
+        extractUniqueId  : (category: ChecklistCategory, responses: ChecklistQuestionResponse[]) =>
+            `${ category.id }-${ JSON.stringify(responses.map(r => ({id: r.questionId, value: r.value}))) }`,
+        clearCacheTimeout: 300000, // 5 minutes
+        maxCacheSize     : 50
+    })
     static calculateCategoryScore(category: ChecklistCategory, responses: ChecklistQuestionResponse[]): ChecklistCategoryScore {
         const questionScores = category.questions.map(question => {
             const response = responses.find(r => r.questionId === question.id);
@@ -69,6 +76,12 @@ export class ChecklistScoreCalculator {
     /**
      * Calculate template score based on category scores
      */
+    @memoize({
+        extractUniqueId  : (template: ChecklistTemplate, categoryScores: ChecklistCategoryScore[]) =>
+            `${ template.id }-${ JSON.stringify(categoryScores.map(cs => ({id: cs.categoryId, score: cs.score}))) }`,
+        clearCacheTimeout: 300000, // 5 minutes
+        maxCacheSize     : 50
+    })
     static calculateTemplateScore(template: ChecklistTemplate, categoryScores: ChecklistCategoryScore[]): ChecklistTemplateScore {
         const totalWeight = template.categories.reduce((sum, category) => {
             const categoryQuestionWeight = category.questions.reduce((qSum, question) => qSum + Number(question.weight), 0);
@@ -101,6 +114,12 @@ export class ChecklistScoreCalculator {
     /**
      * Calculate group score based on template scores
      */
+    @memoize({
+        extractUniqueId  : (groupId: string, groupName: string, groupWeight: number, templateScores: ChecklistTemplateScore[], performanceThreshold?: number) =>
+            `${ groupId }-${ groupWeight }-${ JSON.stringify(templateScores.map(ts => ({id: ts.templateId, score: ts.score}))) }-${ performanceThreshold || 'none' }`,
+        clearCacheTimeout: 300000, // 5 minutes
+        maxCacheSize     : 30
+    })
     static calculateGroupScore(groupId: string, groupName: string, groupWeight: number, templateScores: ChecklistTemplateScore[], performanceThreshold?: number): ChecklistGroupScore {
         const totalWeight = templateScores.reduce((sum, ts) => sum + ts.weight, 0);
         const weightedSum = templateScores.reduce((sum, ts) => sum + (ts.score * ts.weight), 0);

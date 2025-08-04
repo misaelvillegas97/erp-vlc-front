@@ -26,8 +26,14 @@ import { ChecklistQuestion, ChecklistQuestionResponse } from '../../../domain/in
 import { ChecklistType }                                from '../../../domain/enums/checklist-type.enum';
 import { ChecklistScoreCalculator }                     from '../../../domain/models/checklist-score-calculator.model';
 import { ChecklistExecution, ExecutionStatus }          from '../../../domain/interfaces/checklist-execution.interface';
+import { ApprovalStatus }                                  from '../../../domain/enums/approval-status.enum';
+import { TargetType }                                      from '../../../domain/enums/target-type.enum';
+import { CreateChecklistExecutionDto, ChecklistAnswerDto } from '../../../domain/interfaces/checklist-execution-dto.interface';
 import { NotyfService }                                 from '@shared/services/notyf.service';
 import { PageHeaderComponent }                          from '@layout/components/page-header/page-header.component';
+import { UserSelectorComponent, User }                     from '@shared/components/user-selector/user-selector.component';
+import { VehicleSelectorComponent, Vehicle }               from '@shared/components/vehicle-selector/vehicle-selector.component';
+import { RoleEnum }                                        from '@core/user/role.type';
 import { firstValueFrom }                               from 'rxjs';
 import { toSignal }                                     from '@angular/core/rxjs-interop';
 
@@ -35,6 +41,7 @@ interface ExecutionFormData {
     categories: FormArray;
     vehicleId: FormControl<string>;
     userId: FormControl<string>;
+    warehouseId: FormControl<string>;
     notes: FormControl<string>;
 }
 
@@ -59,6 +66,8 @@ interface ExecutionFormData {
         MatButtonToggleModule,
         RouterLink,
         PageHeaderComponent,
+        UserSelectorComponent,
+        VehicleSelectorComponent,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl    : './execution-form.component.html'
@@ -118,6 +127,7 @@ export class ExecutionFormComponent implements OnInit {
         categories: this.fb.array([]),
         vehicleId: this.fb.control('', {nonNullable: true}),
         userId   : this.fb.control('', {nonNullable: true}),
+        warehouseId: this.fb.control('', {nonNullable: true}),
         notes     : this.fb.control('', {nonNullable: true})
     });
 
@@ -191,8 +201,63 @@ export class ExecutionFormComponent implements OnInit {
         return this.formStatus() === 'VALID' && this.completionPercentage() === 100;
     });
 
+    // Dynamic selector visibility based on template target types
+    showUserSelector = computed(() => {
+        const template = this.currentTemplate();
+        if (!template) return false;
+
+        // Show user selector if template has user roles or target types include USER
+        return (template.userRoles && template.userRoles.length > 0) ||
+            (template.targetTypes && template.targetTypes.includes(TargetType.USER));
+    });
+
+    showVehicleSelector = computed(() => {
+        const template = this.currentTemplate();
+        if (!template) return false;
+
+        // Show vehicle selector if template has vehicle types or target types include VEHICLE
+        return (template.vehicleTypes && template.vehicleTypes.length > 0) ||
+            (template.targetTypes && template.targetTypes.includes(TargetType.VEHICLE));
+    });
+
+    showWarehouseSelector = computed(() => {
+        const template = this.currentTemplate();
+        if (!template) return false;
+
+        // Show warehouse selector if target types include WAREHOUSE
+        return template.targetTypes && template.targetTypes.includes(TargetType.WAREHOUSE);
+    });
+
+    // Determine if user selector is required
+    userSelectorRequired = computed(() => {
+        const template = this.currentTemplate();
+        if (!template) return false;
+
+        const targetType = this.determineTargetType(template);
+        return targetType === TargetType.USER || (template.userRoles && template.userRoles.length > 0);
+    });
+
+    // Determine if vehicle selector is required
+    vehicleSelectorRequired = computed(() => {
+        const template = this.currentTemplate();
+        if (!template) return false;
+
+        const targetType = this.determineTargetType(template);
+        return targetType === TargetType.VEHICLE || (template.vehicleTypes && template.vehicleTypes.length > 0);
+    });
+
     // State for tracking open comment sections
     private openCommentSections = signal<Set<string>>(new Set());
+
+    // Helper method to convert template user roles to RoleEnum array
+    getUserRolesAsEnum(): RoleEnum[] {
+        const template = this.currentTemplate();
+        if (!template?.userRoles) return [];
+
+        return template.userRoles
+            .map(role => typeof role === 'string' ? parseInt(role) : role)
+            .filter(role => Object.values(RoleEnum).includes(role as RoleEnum)) as RoleEnum[];
+    }
 
     ngOnInit(): void {
         this.route.params.subscribe(params => {
@@ -222,13 +287,31 @@ export class ExecutionFormComponent implements OnInit {
                     return;
                 }
 
-                if (template.vehicleTypes.length > 0) {
+                // Set validators based on target types
+                const targetType = this.determineTargetType(template);
+
+                // Clear existing validators
+                this.executionForm.get('vehicleId')?.clearValidators();
+                this.executionForm.get('userId')?.clearValidators();
+                this.executionForm.get('warehouseId')?.clearValidators();
+
+                // Set validators based on target type and template configuration
+                if (targetType === TargetType.VEHICLE || (template.vehicleTypes && template.vehicleTypes.length > 0)) {
                     this.executionForm.get('vehicleId')?.setValidators([ Validators.required ]);
                 }
 
-                if (template.userRoles.length > 0) {
+                if (targetType === TargetType.USER || (template.userRoles && template.userRoles.length > 0)) {
                     this.executionForm.get('userId')?.setValidators([ Validators.required ]);
                 }
+
+                if (targetType === TargetType.WAREHOUSE) {
+                    this.executionForm.get('warehouseId')?.setValidators([ Validators.required ]);
+                }
+
+                // Update form validity
+                this.executionForm.get('vehicleId')?.updateValueAndValidity();
+                this.executionForm.get('userId')?.updateValueAndValidity();
+                this.executionForm.get('warehouseId')?.updateValueAndValidity();
 
                 this.currentTemplate.set(template);
                 this.buildForm(template.categories);
@@ -388,6 +471,75 @@ export class ExecutionFormComponent implements OnInit {
         return responses;
     }
 
+    private buildAnswersForDto(): ChecklistAnswerDto[] {
+        const formValue = this.executionForm.value;
+        const answers: ChecklistAnswerDto[] = [];
+
+        if (formValue.categories) {
+            formValue.categories.forEach((category: any, categoryIndex: number) => {
+                if (category.questions) {
+                    category.questions.forEach((question: any, questionIndex: number) => {
+                        const questionData = this.getQuestion(categoryIndex, questionIndex);
+                        if (questionData?.id && question.complianceStatus) {
+                            const complianceValue = Number(question.complianceStatus);
+
+                            // Convert compliance status to approval status and value
+                            let approvalStatus: ApprovalStatus;
+                            let approvalValue: number;
+
+                            if (complianceValue === 1) {
+                                approvalStatus = ApprovalStatus.APPROVED;
+                                approvalValue = 1.0;
+                            } else if (complianceValue === 0.5) {
+                                approvalStatus = ApprovalStatus.INTERMEDIATE;
+                                approvalValue = 0.5;
+                            } else {
+                                approvalStatus = ApprovalStatus.NOT_APPROVED;
+                                approvalValue = 0.0;
+                            }
+
+                            answers.push({
+                                questionId  : questionData.id,
+                                approvalStatus,
+                                approvalValue,
+                                evidenceFile: question.evidenceFile || undefined,
+                                comment     : question.comment || undefined
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        return answers;
+    }
+
+    private determineTargetType(template: ChecklistTemplate): TargetType {
+        // Lógica para determinar el tipo basado en la plantilla
+        if (template.vehicleTypes && template.vehicleTypes.length > 0) {
+            return TargetType.VEHICLE;
+        } else if (template.userRoles && template.userRoles.length > 0) {
+            return TargetType.USER;
+        } else {
+            // Default o basado en otros criterios
+            return TargetType.VEHICLE;
+        }
+    }
+
+    private getTargetId(formValue: any, targetType: TargetType): string {
+        switch (targetType) {
+            case TargetType.VEHICLE:
+                return formValue.vehicleId!;
+            case TargetType.USER:
+                return formValue.userId!;
+            case TargetType.WAREHOUSE:
+                // Implementar lógica para warehouse si es necesario
+                return formValue.warehouseId!;
+            default:
+                return formValue.vehicleId!;
+        }
+    }
+
     onSubmit(): void {
         if (!this.canSubmit()) return;
 
@@ -419,31 +571,26 @@ export class ExecutionFormComponent implements OnInit {
         const formValue = this.executionForm.value;
         const template = this.currentTemplate();
 
-        if (template?.vehicleTypes?.length > 0 && !formValue.vehicleId) {
-            this.notyf.error('Debe seleccionar un vehículo válido para esta plantilla');
+        const targetType = this.determineTargetType(template);
+        const targetId = this.getTargetId(formValue, targetType);
+
+        if (!targetId) {
+            this.notyf.error('Debe seleccionar un target válido para esta plantilla');
             return;
         }
 
-        if (template?.userRoles?.length > 0 && !formValue.userId) {
-            this.notyf.error('Debe seleccionar un usuario válido para esta plantilla');
-            return;
-        }
-
-        const execution: Omit<ChecklistExecution, 'id'> = {
-            templateId       : template.id,
-            groupId          : this.currentGroup()?.id,
-            vehicleId        : formValue.vehicleId,
-            userId           : formValue.userId,
-            status           : ExecutionStatus.COMPLETED,
-            startedAt        : new Date(),
-            completedAt      : new Date(),
-            categoryResponses: this.buildCategoryResponses(),
-            overallScore     : this.templateScore(),
-            passed           : this.templateScore() >= (template.performanceThreshold ? template.performanceThreshold / 100 : 0.7),
-            notes            : formValue.notes || undefined
+        const executionDto: CreateChecklistExecutionDto = {
+            templateId        : template.id,
+            groupId           : this.currentGroup()?.id,
+            executorUserId    : formValue.userId || undefined,
+            targetType        : targetType,
+            targetId          : targetId,
+            executionTimestamp: new Date().toISOString(),
+            answers           : this.buildAnswersForDto(),
+            notes             : formValue.notes || undefined
         };
 
-        this.checklistService.createExecution(execution).subscribe({
+        this.checklistService.createExecution(executionDto).subscribe({
             next : (createdExecution) => {
                 this.notyf.success('Ejecución completada exitosamente');
                 this.router.navigate([ '/checklists/reports', createdExecution.id ]);
