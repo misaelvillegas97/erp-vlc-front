@@ -4,21 +4,27 @@ import { catchError, Observable, switchMap, throwError }            from 'rxjs';
 
 import { AuthService } from '@core/auth/auth.service';
 import { AuthUtils }   from '@core/auth/auth.utils';
+import { DeviceService } from '@core/device/device.service';
+import { environment } from 'environments/environment';
 
 export const authInterceptor = (
     req: HttpRequest<unknown>,
     next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
-    const authService = inject(AuthService);
+    const authService  = inject(AuthService);
+    const deviceService = inject(DeviceService);
 
-    let newReq = req.clone();
+    let headers = req.headers
+        .set('device-id', deviceService.getDeviceId())
+        .set('user-agent', navigator.userAgent)
+        .set('app-version', environment.appVersion)
+        .set('environment', environment.production ? 'production' : 'development');
 
-    // Agrega el Bearer token si no está expirado
     if (authService.accessToken && !AuthUtils.isTokenExpired(authService.accessToken) && !req.headers.get('Authorization')) {
-        newReq = req.clone({
-            headers: req.headers.set('Authorization', 'Bearer ' + authService.accessToken),
-        });
+        headers = headers.set('Authorization', 'Bearer ' + authService.accessToken);
     }
+
+    let newReq = req.clone({ headers });
 
     // Manejo de errores
     return next(newReq).pipe(
@@ -35,9 +41,9 @@ export const authInterceptor = (
                 return authService.signInUsingToken().pipe(
                     catchError(() => authService.signOut()),
                     switchMap(() => {
-                        // Reintentar el request original con el nuevo token
+                        // Reintentar el request original con el nuevo token y headers de contexto
                         newReq = req.clone({
-                            headers: req.headers.set('Authorization', 'Bearer ' + authService.accessToken),
+                            headers: headers.set('Authorization', 'Bearer ' + authService.accessToken),
                         });
                         return next(newReq);
                     })
