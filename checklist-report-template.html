@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Checklist</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #374151;
+            background-color: #f9fafb;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Card styles */
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            padding: 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .card-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-content {
+            padding: 24px;
+        }
+
+        /* Header styles */
+        .page-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 24px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* Metadata styles */
+        .metadata-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .metadata-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .metadata-value {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .metadata-id {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        /* Score overview styles */
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .score-card {
+            text-align: center;
+            padding: 24px;
+            border-radius: 8px;
+        }
+
+        .score-card.success {
+            background-color: #f0fdf4;
+        }
+
+        .score-card.warning {
+            background-color: #fffbeb;
+        }
+
+        .score-card.danger {
+            background-color: #fef2f2;
+        }
+
+        .score-card.blue {
+            background-color: #eff6ff;
+        }
+
+        .score-card.purple {
+            background-color: #faf5ff;
+        }
+
+        .score-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .score-value.success {
+            color: #16a34a;
+        }
+
+        .score-value.warning {
+            color: #d97706;
+        }
+
+        .score-value.danger {
+            color: #dc2626;
+        }
+
+        .score-value.blue {
+            color: #2563eb;
+        }
+
+        .score-value.purple {
+            color: #9333ea;
+        }
+
+        .score-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .score-label.success {
+            color: #16a34a;
+        }
+
+        .score-label.warning {
+            color: #d97706;
+        }
+
+        .score-label.danger {
+            color: #dc2626;
+        }
+
+        .score-label.blue {
+            color: #2563eb;
+        }
+
+        .score-label.purple {
+            color: #9333ea;
+        }
+
+        /* Progress bar styles */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.success {
+            background-color: #10b981;
+        }
+
+        .progress-fill.warning {
+            background-color: #f59e0b;
+        }
+
+        .progress-fill.danger {
+            background-color: #ef4444;
+        }
+
+        /* Category styles */
+        .category-item {
+            padding: 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .category-item:last-child {
+            border-bottom: none;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .category-info {
+            flex: 1;
+        }
+
+        .category-title {
+            font-weight: 500;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .category-description {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .category-meta {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .category-score {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .category-score-value {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .category-progress {
+            width: 80px;
+            height: 8px;
+        }
+
+        /* Question styles */
+        .question-item {
+            border-left: 4px solid #e5e7eb;
+            padding-left: 16px;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .question-info {
+            flex: 1;
+        }
+
+        .question-title {
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .question-description {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .question-meta {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        /* Chip styles */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .chip.success {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .chip.danger {
+            background-color: #fef2f2;
+            color: #dc2626;
+        }
+
+        /* Score info styles */
+        .score-info {
+            margin-bottom: 12px;
+            padding: 12px;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .score-info-item {
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .score-info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .score-info-label {
+            font-weight: 500;
+        }
+
+        /* Evidence styles */
+        .evidence-section {
+            margin-bottom: 12px;
+        }
+
+        .evidence-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .evidence-file {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 12px;
+            text-decoration: none;
+            color: #374151;
+        }
+
+        /* Comment styles */
+        .comment-section {
+            margin-bottom: 12px;
+        }
+
+        .comment-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .comment-content {
+            padding: 12px;
+            background-color: #eff6ff;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        /* Timestamp styles */
+        .timestamp {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 8px;
+        }
+
+        /* Notes styles */
+        .notes-content {
+            padding: 16px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        /* Icon replacements */
+        .icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .icon-chart::before {
+            content: "📊";
+        }
+
+        .icon-hash::before {
+            content: "#";
+        }
+
+        .icon-question::before {
+            content: "❓";
+        }
+
+        .icon-document::before {
+            content: "📄";
+        }
+
+        .icon-check::before {
+            content: "✅";
+        }
+
+        .icon-cancel::before {
+            content: "❌";
+        }
+
+        .icon-attachment::before {
+            content: "📎";
+        }
+
+        .icon-skip::before {
+            content: "⏭️";
+        }
+
+        /* Utility classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .font-bold {
+            font-weight: bold;
+        }
+
+        .font-medium {
+            font-weight: 500;
+        }
+
+        .font-semibold {
+            font-weight: 600;
+        }
+
+        .mb-2 {
+            margin-bottom: 8px;
+        }
+
+        .mb-3 {
+            margin-bottom: 12px;
+        }
+
+        .mb-4 {
+            margin-bottom: 16px;
+        }
+
+        .mt-2 {
+            margin-top: 8px;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .gap-2 {
+            gap: 8px;
+        }
+
+        .space-y-4 > * + * {
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Reporte: Checklist de Seguridad Vehicular</h1>
+        <p class="page-subtitle">Ejecutado el 4 de agosto de 2025 por Juan Pérez</p>
+    </div>
+
+    <!-- Execution Summary -->
+    <div class="card">
+        <div class="card-header">
+            <h3><span class="icon icon-chart"></span>Resumen de Ejecución</h3>
+        </div>
+        <div class="card-content">
+            <!-- Metadata List -->
+            <div class="space-y-4">
+                <div class="metadata-item">
+                    <div>
+                        <div class="metadata-label">Ejecutado por</div>
+                        <div class="metadata-value">Juan Pérez</div>
+                    </div>
+                    <div class="metadata-id">ID: USR001</div>
+                </div>
+
+                <div class="metadata-item">
+                    <div>
+                        <div class="metadata-label">Objetivo</div>
+                        <div class="metadata-value">Vehículo</div>
+                    </div>
+                    <div class="metadata-id">ID: VEH001</div>
+                </div>
+
+                <div class="metadata-item">
+                    <div>
+                        <div class="metadata-label">Fecha de Ejecución</div>
+                        <div class="metadata-value">4 de agosto de 2025</div>
+                    </div>
+                    <div class="metadata-id">18:49</div>
+                </div>
+
+                <div class="metadata-item">
+                    <div>
+                        <div class="metadata-label">Estado</div>
+                        <div class="metadata-value">Completado</div>
+                    </div>
+                    <div class="metadata-id">Template: Checklist de Seguridad</div>
+                </div>
+            </div>
+
+            <!-- Score Overview -->
+            <div class="score-grid">
+                <!-- Overall Score -->
+                <div class="score-card success">
+                    <div class="score-value success">85.5%</div>
+                    <div class="score-label success">Score Global</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill success" style="width: 85.5%"></div>
+                    </div>
+                </div>
+
+                <!-- Duration -->
+                <div class="score-card blue">
+                    <div class="score-value blue">25 min</div>
+                    <div class="score-label blue">Duración</div>
+                </div>
+
+                <!-- Questions Count -->
+                <div class="score-card purple">
+                    <div class="score-value purple">12</div>
+                    <div class="score-label purple">Preguntas</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Scores -->
+    <div class="card">
+        <div class="card-header">
+            <h3><span class="icon icon-hash"></span>Puntuación por Categoría</h3>
+        </div>
+        <div>
+            <div class="category-item">
+                <div class="category-header">
+                    <div class="category-info">
+                        <h4 class="category-title">Seguridad General</h4>
+                        <div class="category-description">Verificación de elementos básicos de seguridad del vehículo</div>
+                        <div class="category-meta">5 preguntas • Orden: 1</div>
+                    </div>
+                    <div class="category-score">
+                        <div class="category-score-value success">90.0%</div>
+                        <div class="progress-bar category-progress">
+                            <div class="progress-fill success" style="width: 90%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-item">
+                <div class="category-header">
+                    <div class="category-info">
+                        <h4 class="category-title">Sistema Eléctrico</h4>
+                        <div class="category-description">Revisión del sistema eléctrico y luces del vehículo</div>
+                        <div class="category-meta">4 preguntas • Orden: 2</div>
+                    </div>
+                    <div class="category-score">
+                        <div class="category-score-value warning">75.0%</div>
+                        <div class="progress-bar category-progress">
+                            <div class="progress-fill warning" style="width: 75%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-item">
+                <div class="category-header">
+                    <div class="category-info">
+                        <h4 class="category-title">Documentación</h4>
+                        <div class="category-description">Verificación de documentos legales y permisos</div>
+                        <div class="category-meta">3 preguntas • Orden: 3</div>
+                    </div>
+                    <div class="category-score">
+                        <div class="category-score-value success">100.0%</div>
+                        <div class="progress-bar category-progress">
+                            <div class="progress-fill success" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Responses -->
+    <div class="card">
+        <div class="card-header">
+            <h3><span class="icon icon-question"></span>Respuestas Detalladas</h3>
+        </div>
+        <div>
+            <div class="category-item">
+                <h4 class="category-title mb-4"><span class="icon icon-hash"></span>Seguridad General</h4>
+
+                <div style="margin-left: 24px;">
+                    <div class="question-item">
+                        <div class="question-header">
+                            <div class="question-info">
+                                <h5 class="question-title">¿Los neumáticos están en buen estado?</h5>
+                                <p class="question-description">Verificar que no tengan desgaste excesivo, cortes o deformaciones</p>
+                                <div class="question-meta">Peso: 20 | Requerida: Sí</div>
+                            </div>
+                            <div>
+                                    <span class="chip success">
+                                        <span class="icon icon-check"></span>
+                                        Aprobado
+                                    </span>
+                            </div>
+                        </div>
+
+                        <div class="score-info">
+                            <div class="score-info-item">
+                                <span class="score-info-label">Puntuación:</span> 20/20 (100.0%)
+                            </div>
+                            <div class="score-info-item">
+                                <span class="score-info-label">Valor de aprobación:</span> 20
+                            </div>
+                        </div>
+
+                        <div class="evidence-section">
+                            <div class="evidence-label">Evidencia:</div>
+                            <a href="#" class="evidence-file">
+                                <span class="icon icon-attachment"></span>
+                                neumaticos_foto.jpg
+                            </a>
+                        </div>
+
+                        <div class="comment-section">
+                            <div class="comment-label">Comentario:</div>
+                            <div class="comment-content">
+                                Los neumáticos se encuentran en excelente estado, con buen dibujo y sin deformaciones visibles.
+                            </div>
+                        </div>
+
+                        <div class="timestamp">
+                            Respondida: 4 ago 2025, 18:30
+                        </div>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-header">
+                            <div class="question-info">
+                                <h5 class="question-title">¿Los frenos funcionan correctamente?</h5>
+                                <p class="question-description">Verificar el funcionamiento del sistema de frenos</p>
+                                <div class="question-meta">Peso: 25 | Requerida: Sí</div>
+                            </div>
+                            <div>
+                                    <span class="chip success">
+                                        <span class="icon icon-check"></span>
+                                        Aprobado
+                                    </span>
+                            </div>
+                        </div>
+
+                        <div class="score-info">
+                            <div class="score-info-item">
+                                <span class="score-info-label">Puntuación:</span> 25/25 (100.0%)
+                            </div>
+                            <div class="score-info-item">
+                                <span class="score-info-label">Valor de aprobación:</span> 25
+                            </div>
+                        </div>
+
+                        <div class="comment-section">
+                            <div class="comment-label">Comentario:</div>
+                            <div class="comment-content">
+                                Sistema de frenos en perfecto estado, respuesta inmediata al pedal.
+                            </div>
+                        </div>
+
+                        <div class="timestamp">
+                            Respondida: 4 ago 2025, 18:32
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-item">
+                <h4 class="category-title mb-4"><span class="icon icon-hash"></span>Sistema Eléctrico</h4>
+
+                <div style="margin-left: 24px;">
+                    <div class="question-item">
+                        <div class="question-header">
+                            <div class="question-info">
+                                <h5 class="question-title">¿Todas las luces funcionan correctamente?</h5>
+                                <p class="question-description">Verificar luces delanteras, traseras, direccionales y de freno</p>
+                                <div class="question-meta">Peso: 15 | Requerida: Sí</div>
+                            </div>
+                            <div>
+                                    <span class="chip danger">
+                                        <span class="icon icon-cancel"></span>
+                                        Rechazado
+                                    </span>
+                            </div>
+                        </div>
+
+                        <div class="score-info">
+                            <div class="score-info-item">
+                                <span class="score-info-label">Puntuación:</span> 10/15 (66.7%)
+                            </div>
+                            <div class="score-info-item">
+                                <span class="score-info-label">Valor de aprobación:</span> 15
+                            </div>
+                        </div>
+
+                        <div class="comment-section">
+                            <div class="comment-label">Comentario:</div>
+                            <div class="comment-content">
+                                La luz trasera izquierda no funciona correctamente, necesita reemplazo.
+                            </div>
+                        </div>
+
+                        <div class="timestamp">
+                            Respondida: 4 ago 2025, 18:35
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-item">
+                <h4 class="category-title mb-4"><span class="icon icon-hash"></span>Documentación</h4>
+
+                <div style="margin-left: 24px;">
+                    <div class="question-item">
+                        <div class="question-header">
+                            <div class="question-info">
+                                <h5 class="question-title">¿La documentación está vigente?</h5>
+                                <p class="question-description">Verificar que todos los documentos estén al día</p>
+                                <div class="question-meta">Peso: 30 | Requerida: Sí</div>
+                            </div>
+                            <div>
+                                    <span class="chip success">
+                                        <span class="icon icon-check"></span>
+                                        Aprobado
+                                    </span>
+                            </div>
+                        </div>
+
+                        <div class="score-info">
+                            <div class="score-info-item">
+                                <span class="score-info-label">Puntuación:</span> 30/30 (100.0%)
+                            </div>
+                            <div class="score-info-item">
+                                <span class="score-info-label">Valor de aprobación:</span> 30
+                            </div>
+                        </div>
+
+                        <div class="evidence-section">
+                            <div class="evidence-label">Evidencia:</div>
+                            <a href="#" class="evidence-file">
+                                <span class="icon icon-attachment"></span>
+                                documentos_vehiculo.pdf
+                            </a>
+                        </div>
+
+                        <div class="comment-section">
+                            <div class="comment-label">Comentario:</div>
+                            <div class="comment-content">
+                                Toda la documentación está vigente y en regla.
+                            </div>
+                        </div>
+
+                        <div class="timestamp">
+                            Respondida: 4 ago 2025, 18:40
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes Section -->
+    <div class="card">
+        <div class="card-header">
+            <h3><span class="icon icon-document"></span>Observaciones</h3>
+        </div>
+        <div class="card-content">
+            <h4 class="font-medium mb-3">Notas de Ejecución:</h4>
+            <div class="notes-content">
+                El vehículo se encuentra en buen estado general. Se recomienda reemplazar la luz trasera izquierda antes del próximo uso. El resto de los sistemas funcionan correctamente y cumplen con los estándares de seguridad requeridos.
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -63,6 +63,8 @@ body.light {
     --mdc-sys-color-outline: #d1d5db; // divider
 
     --mat-form-field-filled-label-text-size: 0.875rem;
+
+    --mat-dialog-container-max-width: 90vw;
 }
 
 // Apply dark theme
@@ -87,5 +89,7 @@ body.dark {
 
     // Override component-specific colors for dark mode
     --mat-form-field-filled-label-text-size: 0.875rem;
+
+    --mat-dialog-container-max-width: 90vw;
 }
 

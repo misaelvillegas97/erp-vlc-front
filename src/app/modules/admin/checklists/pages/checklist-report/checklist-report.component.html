@@ -1,7 +1,7 @@
 <div class="flex flex-col min-w-0 w-full">
     <page-header
-        [title]="pageTitle()"
-        [subtitle]="pageSubtitle()">
+        [title]="pageSubtitle()"
+        [subtitle]="pageTitle()">
     </page-header>
 
     <div class="flex flex-col items-center justify-center w-full max-w-full sm:max-w-2xl lg:max-w-6xl mx-auto py-4 sm:py-10 gap-y-4 sm:gap-y-6 px-4 sm:px-6">
@@ -139,7 +139,7 @@
                 <div class="w-full bg-card rounded-md shadow">
                     <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-600">
                         <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                            <mat-icon svgIcon="heroicons_outline:folder" class="!text-lg sm:!text-xl"></mat-icon>
+                            <mat-icon svgIcon="heroicons_outline:hashtag" class="!text-lg sm:!text-xl"></mat-icon>
                             Puntuación por Categoría
                         </h3>
                     </div>
@@ -189,7 +189,7 @@
                         @for (category of reportData()?.categories; track category.id) {
                             <div class="p-4 sm:p-6">
                                 <h4 class="font-medium text-sm sm:text-base mb-3 sm:mb-4 flex items-center gap-2">
-                                    <mat-icon svgIcon="heroicons_outline:folder" class="!text-base sm:!text-lg"></mat-icon>
+                                    <mat-icon svgIcon="heroicons_outline:hashtag" class="!text-base sm:!text-lg"></mat-icon>
                                     {{ category.title }}
                                 </h4>
 
