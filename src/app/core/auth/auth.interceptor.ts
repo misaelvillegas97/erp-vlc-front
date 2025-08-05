@@ -14,10 +14,15 @@ export const authInterceptor = (
     const authService  = inject(AuthService);
     const deviceService = inject(DeviceService);
 
+    const requestId = crypto.randomUUID();
+
     let headers = req.headers
-        .set('device-id', deviceService.getDeviceId())
+        .set('x-device-id', deviceService.getDeviceId())
+        .set('x-session-id', deviceService.getSessionId())
         .set('user-agent', navigator.userAgent)
-        .set('app-version', environment.appVersion)
+        .set('x-app-version', environment.appVersion)
+        .set('x-request-id', requestId)
+        .set('x-trace-id', requestId)
         .set('environment', environment.production ? 'production' : 'development');
 
     if (authService.accessToken && !AuthUtils.isTokenExpired(authService.accessToken) && !req.headers.get('Authorization')) {
