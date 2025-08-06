@@ -5,6 +5,7 @@ export interface Vehicle {
     year: number;
     licensePlate: string;
     purchaseDate: string;
+    displayName?: string;
     // New fields from DTO
     vin?: string;
     type?: VehicleType;

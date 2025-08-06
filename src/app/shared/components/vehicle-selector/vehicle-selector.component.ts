@@ -1,4 +1,4 @@
-import { Component, computed, forwardRef, inject, input, OnInit, resource, signal }  from '@angular/core';
+import { Component, forwardRef, inject, input, OnInit, resource, signal } from '@angular/core';
 import { CommonModule }                                                              from '@angular/common';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule }                                                        from '@angular/material/form-field';
@@ -10,6 +10,7 @@ import { debounceTime, distinctUntilChanged, firstValueFrom, Observable, startWi
 import { toSignal }                                                                  from '@angular/core/rxjs-interop';
 import { VehiclesService }                                                           from '@modules/admin/maintainers/vehicles/vehicles.service';
 import { Vehicle }                                                                   from '@modules/admin/maintainers/vehicles/domain/model/vehicle';
+import { FindCount }                                                      from '@shared/domain/model/find-count';
 
 export { Vehicle };
 
@@ -63,11 +64,11 @@ export { Vehicle };
                     @for (vehicle of filteredVehicles.value() || []; track vehicle.id) {
                         <mat-option [value]="vehicle" [disabled]="vehicle.status === 'OUT_OF_SERVICE'">
                             <div class="flex flex-col">
-                                <span class="font-medium">{{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.licensePlate }})</span>
+                                <span class="font-medium">{{ vehicle.displayName }}</span>
                                 @if (vehicle.year || vehicle.type) {
                                     <span class="text-sm text-gray-600">
-                    {{ [ vehicle.year, vehicle.type ].filter(Boolean).join(' • ') }}
-                  </span>
+                                        {{ [ vehicle.year, vehicle.type ].filter(Boolean).join(' • ') }}
+                                    </span>
                                 }
                             </div>
                         </mat-option>
@@ -123,18 +124,10 @@ export class VehicleSelectorComponent implements ControlValueAccessor, OnInit {
 
     // Resource for fetching vehicles
     filteredVehicles = resource({
-        params: () => ({
-            search: this.searchQuery()
-        }),
+        params: () => ({search: this.searchQuery()}),
         loader: async ({params}) => {
-            if (typeof params.search !== 'string' || params.search.length < 2) {
-                // Return static vehicles if query is too short
-                return this.staticVehicles();
-            }
-
             try {
-                const vehicles = await firstValueFrom(this.searchVehicles(params.search));
-                return vehicles;
+                return await firstValueFrom(this.searchVehicles(params.search)).then(findCount => findCount.items);
             } catch (error) {
                 console.error('Error fetching vehicles:', error);
                 return [];
@@ -150,10 +143,12 @@ export class VehicleSelectorComponent implements ControlValueAccessor, OnInit {
                 return value ? null : {required: true};
             });
         }
+
+        if (!(this.staticVehicles()?.length > 0)) this.searchVehicles();
     }
 
     // Search function for dynamic vehicle loading
-    private searchVehicles(query: string): Observable<Vehicle[]> {
+    private searchVehicles(query?: string): Observable<FindCount<Vehicle>> {
         // Build query parameters
         const params: any = {
             search: query,
