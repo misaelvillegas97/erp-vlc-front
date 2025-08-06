@@ -12,7 +12,7 @@
                 <mat-card-content>
                     <form [formGroup]="fuelForm" (ngSubmit)="onSubmit()" class="flex flex-col space-y-4">
                         <!-- Selección de vehículo -->
-                        <mat-form-field class="w-full" floatLabel="always">
+                        <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                             <mat-label>Vehículo</mat-label>
                             <mat-select formControlName="vehicleId" (selectionChange)="onVehicleChange($event.value)" placeholder="Seleccione un vehículo">
                                 @for (vehicle of vehicles(); track vehicle.id) {
@@ -32,7 +32,7 @@
 
                         <!-- Estación y tipo de combustible -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <mat-form-field class="w-full" floatLabel="always">
+                            <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                                 <mat-label>Estación</mat-label>
                                 <mat-select formControlName="station" placeholder="Seleccione una estación">
                                     @for (station of fuelStations; track station) {
@@ -46,7 +46,7 @@
                                 </mat-error>
                             </mat-form-field>
 
-                            <mat-form-field class="w-full" floatLabel="always">
+                            <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                                 <mat-label>Tipo de Combustible</mat-label>
                                 <mat-select formControlName="fuelType" placeholder="Seleccione un tipo de combustible">
                                     @for (type of fuelTypes; track type) {
@@ -63,7 +63,7 @@
 
                         <!-- Fecha y usuario -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <mat-form-field class="w-full" floatLabel="always">
+                            <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                                 <mat-label>Fecha</mat-label>
                                 <input matInput [matDatepicker]="picker" formControlName="date">
                                 <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
@@ -73,7 +73,7 @@
                                 </mat-error>
                             </mat-form-field>
 
-                            <mat-form-field class="w-full" floatLabel="always">
+                            <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                                 <mat-label>Quien Carga</mat-label>
                                 <mat-select formControlName="userId" placeholder="Seleccione un usuario">
                                     @for (user of users(); track user.id) {
@@ -94,7 +94,7 @@
 
                         <!-- Kilometraje inicial y final -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <mat-form-field class="w-full" floatLabel="always">
+                            <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                                 <mat-label>Kilometraje Inicial (km)</mat-label>
                                 <input matInput type="number" formControlName="initialOdometer">
                                 <mat-hint>Último kilometraje registrado</mat-hint>
@@ -106,7 +106,7 @@
                                 </mat-error>
                             </mat-form-field>
 
-                            <mat-form-field class="w-full" floatLabel="always">
+                            <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                                 <mat-label>Kilometraje Final (km)</mat-label>
                                 <input matInput type="number" formControlName="finalOdometer">
                                 <mat-hint>Kilometraje actual del vehículo</mat-hint>
@@ -121,7 +121,7 @@
 
                         <!-- Litros y costo -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <mat-form-field class="w-full" floatLabel="always">
+                            <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                                 <mat-label>Litros</mat-label>
                                 <input matInput type="number" formControlName="liters">
                                 <mat-hint>Cantidad de combustible en litros</mat-hint>
@@ -133,7 +133,7 @@
                                 </mat-error>
                             </mat-form-field>
 
-                            <mat-form-field class="w-full" floatLabel="always">
+                            <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                                 <mat-label>Costo ($)</mat-label>
                                 <input matInput type="number" formControlName="cost">
                                 <mat-hint>Costo total en pesos</mat-hint>
@@ -147,7 +147,7 @@
                         </div>
 
                         <!-- Notas -->
-                        <mat-form-field class="w-full" floatLabel="always">
+                        <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                             <mat-label>Notas</mat-label>
                             <textarea matInput formControlName="notes" rows="3" placeholder="Información adicional (opcional)"></textarea>
                         </mat-form-field>

@@ -19,7 +19,6 @@ export const authInterceptor = (
     let headers = req.headers
         .set('x-device-id', deviceService.getDeviceId())
         .set('x-session-id', deviceService.getSessionId())
-        .set('user-agent', navigator.userAgent)
         .set('x-app-version', environment.appVersion)
         .set('x-request-id', requestId)
         .set('x-trace-id', requestId)

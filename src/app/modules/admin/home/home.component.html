@@ -1,23 +1,23 @@
-<div class="flex flex-col min-h-screen p-4 w-full max-w-7xl mx-auto gap-y-8">
+<div class="flex flex-col min-h-screen p-3 sm:p-4 lg:p-6 w-full max-w-7xl mx-auto gap-y-4 sm:gap-y-6 lg:gap-y-8">
     @let letUser = user();
 
     @if (letUser) {
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <!-- User greeting card -->
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-5 border border-blue-100 dark:border-slate-700 h-full transition-all duration-300 hover:shadow-lg">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-full bg-white/70 dark:bg-slate-700/70 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-blue-200 dark:ring-slate-600">
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-lg sm:rounded-xl p-4 sm:p-5 border border-blue-100 dark:border-slate-700 h-full transition-all duration-300 hover:shadow-lg">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/70 dark:bg-slate-700/70 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-blue-200 dark:ring-slate-600">
                         @if (letUser.avatar) {
                             <img [src]="letUser.avatar" alt="Avatar de {{ letUser.name }}" class="w-full h-full object-cover">
                         } @else {
-                            <mat-icon class="text-2xl text-blue-500" svgIcon="mat_solid:account_circle"></mat-icon>
+                            <mat-icon class="text-xl sm:text-2xl text-blue-500" svgIcon="mat_solid:account_circle"></mat-icon>
                         }
                     </div>
                     <div class="flex-1 min-w-0">
-                        <h1 class="text-xl font-bold text-gray-800 dark:text-white truncate">
+                        <h1 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-white truncate">
                             ¡Hola, {{ letUser.name || letUser.firstName || 'Usuario' }}!
                         </h1>
-                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                        <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-2">
                             {{ letUser.role?.name }} • Panel de control
                         </p>
                     </div>
@@ -28,12 +28,12 @@
             @defer (on viewport) {
                 <app-weather-widget></app-weather-widget>
             } @placeholder {
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-5 border border-blue-100 dark:border-slate-700 h-full flex items-center justify-center">
-                    <div class="animate-pulse flex space-x-4 w-full">
-                        <div class="rounded-full bg-slate-200 dark:bg-slate-700 h-12 w-12"></div>
-                        <div class="flex-1 space-y-3 py-1">
-                            <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
-                            <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-lg sm:rounded-xl p-4 sm:p-5 border border-blue-100 dark:border-slate-700 h-full flex items-center justify-center">
+                    <div class="animate-pulse flex space-x-3 sm:space-x-4 w-full">
+                        <div class="rounded-full bg-slate-200 dark:bg-slate-700 h-10 w-10 sm:h-12 sm:w-12"></div>
+                        <div class="flex-1 space-y-2 sm:space-y-3 py-1">
+                            <div class="h-3 sm:h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                            <div class="h-2 sm:h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
                         </div>
                     </div>
                 </div>
@@ -47,33 +47,33 @@
 
         @if (letOperationsShortcuts.length > 0) {
             @defer (on immediate) {
-                <section class="space-y-6" role="region" aria-labelledby="operations-heading">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center">
-                            <mat-icon class="text-lg" svgIcon="mat_solid:bolt"></mat-icon>
+                <section class="space-y-4 sm:space-y-6" role="region" aria-labelledby="operations-heading">
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center">
+                            <mat-icon class="text-base sm:text-lg" svgIcon="mat_solid:bolt"></mat-icon>
                         </div>
-                        <h2 id="operations-heading" class="text-lg font-semibold text-gray-800 dark:text-white">Operaciones Principales</h2>
+                        <h2 id="operations-heading" class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">Operaciones Principales</h2>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         @for (shortcut of operationsShortcuts(); track trackByFn($index, shortcut)) {
                             <a [routerLink]="shortcut.route"
-                               class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                               class="group relative block bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl p-4 sm:p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                role="button"
                                [attr.aria-label]="shortcut.title + ': ' + shortcut.description">
 
-                                <div class="flex items-start gap-4">
-                                    <div class="w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110"
+                                <div class="flex items-start gap-3 sm:gap-4">
+                                    <div class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg sm:rounded-xl transition-all duration-300 group-hover:scale-110"
                                          [style.background-color]="getDesignToken(shortcut.color).secondary"
                                          [style.color]="getDesignToken(shortcut.color).primary">
-                                        <mat-icon class="text-xl" [svgIcon]="shortcut.icon"></mat-icon>
+                                        <mat-icon class="text-lg sm:text-xl" [svgIcon]="shortcut.icon"></mat-icon>
                                     </div>
 
                                     <div class="flex-1 min-w-0">
-                                        <h3 class="text-base font-semibold text-gray-900 dark:text-white transition-colors truncate">
+                                        <h3 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white transition-colors truncate">
                                             {{ shortcut.title }}
                                         </h3>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                                        <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
                                             {{ shortcut.description }}
                                         </p>
                                     </div>
@@ -83,21 +83,21 @@
                     </div>
                 </section>
             } @placeholder {
-                <section class="space-y-6" role="region">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
-                        <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-48 animate-pulse"></div>
+                <section class="space-y-4 sm:space-y-6" role="region">
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
+                        <div class="h-5 sm:h-6 bg-slate-200 dark:bg-slate-700 rounded w-40 sm:w-48 animate-pulse"></div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         @for (i of [1, 2, 3]; track i) {
-                            <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 animate-pulse">
-                                <div class="flex items-start gap-4">
-                                    <div class="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
-                                    <div class="flex-1 space-y-3">
-                                        <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
-                                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
-                                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-2/3"></div>
+                            <div class="bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl p-4 sm:p-5 border border-blue-100 dark:border-slate-700 animate-pulse">
+                                <div class="flex items-start gap-3 sm:gap-4">
+                                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-slate-200 dark:bg-slate-700"></div>
+                                    <div class="flex-1 space-y-2 sm:space-y-3">
+                                        <div class="h-3 sm:h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                                        <div class="h-2 sm:h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
+                                        <div class="h-2 sm:h-3 bg-slate-200 dark:bg-slate-700 rounded w-2/3"></div>
                                     </div>
                                 </div>
                             </div>
@@ -112,35 +112,35 @@
 
         @if (letCommercialShortcuts.length > 0) {
             @defer (on idle) {
-                <section class="space-y-6" role="region" aria-labelledby="commercial-heading">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
-                            <mat-icon class="text-lg" svgIcon="mat_solid:business"></mat-icon>
+                <section class="space-y-4 sm:space-y-6" role="region" aria-labelledby="commercial-heading">
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                            <mat-icon class="text-base sm:text-lg" svgIcon="mat_solid:business"></mat-icon>
                         </div>
-                        <h2 id="commercial-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
+                        <h2 id="commercial-heading" class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">
                             Gestión Comercial
                         </h2>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         @for (shortcut of commercialShortcuts(); track trackByFn($index, shortcut)) {
                             <a [routerLink]="shortcut.route"
-                               class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                               class="group relative block bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl p-4 sm:p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                role="button"
                                [attr.aria-label]="shortcut.title + ': ' + shortcut.description">
 
-                                <div class="flex items-start gap-4">
-                                    <div class="w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110"
+                                <div class="flex items-start gap-3 sm:gap-4">
+                                    <div class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg sm:rounded-xl transition-all duration-300 group-hover:scale-110"
                                          [style.background-color]="getDesignToken(shortcut.color).secondary"
                                          [style.color]="getDesignToken(shortcut.color).primary">
-                                        <mat-icon class="text-xl" [svgIcon]="shortcut.icon"></mat-icon>
+                                        <mat-icon class="text-lg sm:text-xl" [svgIcon]="shortcut.icon"></mat-icon>
                                     </div>
 
                                     <div class="flex-1 min-w-0">
-                                        <h3 class="text-base font-semibold text-gray-900 dark:text-white transition-colors truncate">
+                                        <h3 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white transition-colors truncate">
                                             {{ shortcut.title }}
                                         </h3>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                                        <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
                                             {{ shortcut.description }}
                                         </p>
                                     </div>
@@ -150,21 +150,21 @@
                     </div>
                 </section>
             } @placeholder {
-                <section class="space-y-6" role="region">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
-                        <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-40 animate-pulse"></div>
+                <section class="space-y-4 sm:space-y-6" role="region">
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
+                        <div class="h-5 sm:h-6 bg-slate-200 dark:bg-slate-700 rounded w-32 sm:w-40 animate-pulse"></div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         @for (i of [1, 2, 3]; track i) {
-                            <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 animate-pulse">
-                                <div class="flex items-start gap-4">
-                                    <div class="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
-                                    <div class="flex-1 space-y-3">
-                                        <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
-                                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
-                                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-2/3"></div>
+                            <div class="bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl p-4 sm:p-5 border border-blue-100 dark:border-slate-700 animate-pulse">
+                                <div class="flex items-start gap-3 sm:gap-4">
+                                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-slate-200 dark:bg-slate-700"></div>
+                                    <div class="flex-1 space-y-2 sm:space-y-3">
+                                        <div class="h-3 sm:h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                                        <div class="h-2 sm:h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
+                                        <div class="h-2 sm:h-3 bg-slate-200 dark:bg-slate-700 rounded w-2/3"></div>
                                     </div>
                                 </div>
                             </div>
@@ -179,35 +179,35 @@
 
         @if (letAdministrationShortcuts.length > 0) {
             @defer (on idle) {
-                <section class="space-y-6" role="region" aria-labelledby="admin-heading">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center">
-                            <mat-icon class="text-lg" svgIcon="mat_solid:admin_panel_settings"></mat-icon>
+                <section class="space-y-4 sm:space-y-6" role="region" aria-labelledby="admin-heading">
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center">
+                            <mat-icon class="text-base sm:text-lg" svgIcon="mat_solid:admin_panel_settings"></mat-icon>
                         </div>
-                        <h2 id="admin-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
+                        <h2 id="admin-heading" class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">
                             Administración
                         </h2>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         @for (shortcut of letAdministrationShortcuts; track trackByFn($index, shortcut)) {
                             <a [routerLink]="shortcut.route"
-                               class="group relative block bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                               class="group relative block bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl p-4 sm:p-5 border border-blue-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                role="button"
                                [attr.aria-label]="shortcut.title + ': ' + shortcut.description">
 
-                                <div class="flex items-start gap-4">
-                                    <div class="w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110"
+                                <div class="flex items-start gap-3 sm:gap-4">
+                                    <div class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg sm:rounded-xl transition-all duration-300 group-hover:scale-110"
                                          [style.background-color]="getDesignToken(shortcut.color).secondary"
                                          [style.color]="getDesignToken(shortcut.color).primary">
-                                        <mat-icon class="text-xl" [svgIcon]="shortcut.icon"></mat-icon>
+                                        <mat-icon class="text-lg sm:text-xl" [svgIcon]="shortcut.icon"></mat-icon>
                                     </div>
 
                                     <div class="flex-1 min-w-0">
-                                        <h3 class="text-base font-semibold text-gray-900 dark:text-white transition-colors truncate">
+                                        <h3 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white transition-colors truncate">
                                             {{ shortcut.title }}
                                         </h3>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                                        <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
                                             {{ shortcut.description }}
                                         </p>
                                     </div>
@@ -217,21 +217,21 @@
                     </div>
                 </section>
             } @placeholder {
-                <section class="space-y-6" role="region">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
-                        <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-36 animate-pulse"></div>
+                <section class="space-y-4 sm:space-y-6" role="region">
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
+                        <div class="h-5 sm:h-6 bg-slate-200 dark:bg-slate-700 rounded w-28 sm:w-36 animate-pulse"></div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         @for (i of [1, 2, 3]; track i) {
-                            <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-blue-100 dark:border-slate-700 animate-pulse">
-                                <div class="flex items-start gap-4">
-                                    <div class="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
-                                    <div class="flex-1 space-y-3">
-                                        <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
-                                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
-                                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-2/3"></div>
+                            <div class="bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl p-4 sm:p-5 border border-blue-100 dark:border-slate-700 animate-pulse">
+                                <div class="flex items-start gap-3 sm:gap-4">
+                                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-slate-200 dark:bg-slate-700"></div>
+                                    <div class="flex-1 space-y-2 sm:space-y-3">
+                                        <div class="h-3 sm:h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                                        <div class="h-2 sm:h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
+                                        <div class="h-2 sm:h-3 bg-slate-200 dark:bg-slate-700 rounded w-2/3"></div>
                                     </div>
                                 </div>
                             </div>
@@ -245,35 +245,35 @@
     <!-- Widgets de utilidad modernos -->
     @if (letUser && utilityWidgets().length > 0) {
         @defer (on viewport) {
-            <section class="space-y-6" role="region" aria-labelledby="utilities-heading">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
-                        <mat-icon class="text-lg" svgIcon="mat_solid:widgets"></mat-icon>
+            <section class="space-y-4 sm:space-y-6" role="region" aria-labelledby="utilities-heading">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
+                        <mat-icon class="text-base sm:text-lg" svgIcon="mat_solid:widgets"></mat-icon>
                     </div>
-                    <h2 id="utilities-heading" class="text-lg font-semibold text-gray-800 dark:text-white">
+                    <h2 id="utilities-heading" class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">
                         Herramientas de Apoyo
                     </h2>
                 </div>
 
-                <div class="grid grid-cols-1 {{utilityWidgetsVisibles().length > 1 ? 'md:grid-cols-2' : ''}} gap-6">
+                <div class="grid grid-cols-1 {{utilityWidgetsVisibles().length > 1 ? 'sm:grid-cols-2' : ''}} gap-4 sm:gap-6">
                     @for (widget of utilityWidgetsVisibles(); track trackByFn($index, widget)) {
-                        <article class="bg-white dark:bg-slate-800 rounded-xl border border-blue-100 dark:border-slate-700 overflow-hidden transition-all duration-300 hover:shadow-lg"
+                        <article class="bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl border border-blue-100 dark:border-slate-700 overflow-hidden transition-all duration-300 hover:shadow-lg"
                                  role="complementary"
                                  [attr.aria-labelledby]="'widget-' + $index">
 
                             <!-- Header del widget con diseño mejorado -->
-                            <header class="px-6 py-4 border-b border-blue-100 dark:border-slate-700">
-                                <div class="flex items-center space-x-4">
-                                    <div class="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300"
+                            <header class="px-4 py-3 sm:px-6 sm:py-4 border-b border-blue-100 dark:border-slate-700">
+                                <div class="flex items-center space-x-3 sm:space-x-4">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg sm:rounded-xl transition-all duration-300"
                                          [style.background-color]="getDesignToken(widget.color).secondary"
                                          [style.color]="getDesignToken(widget.color).primary">
-                                        <mat-icon class="text-xl" [svgIcon]="widget.icon"></mat-icon>
+                                        <mat-icon class="text-lg sm:text-xl" [svgIcon]="widget.icon"></mat-icon>
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <h3 [id]="'widget-' + $index" class="text-base font-semibold text-gray-800 dark:text-white truncate">
+                                        <h3 [id]="'widget-' + $index" class="text-sm sm:text-base font-semibold text-gray-800 dark:text-white truncate">
                                             {{ widget.title }}
                                         </h3>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
+                                        <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">
                                             {{ widget.description }}
                                         </p>
                                     </div>
@@ -281,7 +281,7 @@
                             </header>
 
                             <!-- Contenido del widget -->
-                            <div class="p-5">
+                            <div class="p-4 sm:p-5">
                                 <ng-container [ngComponentOutlet]="widget.component"></ng-container>
                             </div>
                         </article>
@@ -289,31 +289,31 @@
                 </div>
             </section>
         } @placeholder {
-            <section class="space-y-6" role="region">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
-                    <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-44 animate-pulse"></div>
+            <section class="space-y-4 sm:space-y-6" role="region">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
+                    <div class="h-5 sm:h-6 bg-slate-200 dark:bg-slate-700 rounded w-36 sm:w-44 animate-pulse"></div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     @for (i of [1, 2]; track i) {
-                        <article class="bg-white dark:bg-slate-800 rounded-xl border border-blue-100 dark:border-slate-700 overflow-hidden animate-pulse">
+                        <article class="bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl border border-blue-100 dark:border-slate-700 overflow-hidden animate-pulse">
                             <!-- Header placeholder -->
-                            <div class="px-6 py-4 border-b border-blue-100 dark:border-slate-700">
-                                <div class="flex items-center space-x-4">
-                                    <div class="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
-                                    <div class="flex-1 space-y-2">
-                                        <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
-                                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
+                            <div class="px-4 py-3 sm:px-6 sm:py-4 border-b border-blue-100 dark:border-slate-700">
+                                <div class="flex items-center space-x-3 sm:space-x-4">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-slate-200 dark:bg-slate-700"></div>
+                                    <div class="flex-1 space-y-1 sm:space-y-2">
+                                        <div class="h-3 sm:h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                                        <div class="h-2 sm:h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Content placeholder -->
-                            <div class="p-5 space-y-4">
-                                <div class="h-20 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                <div class="h-12 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                <div class="h-12 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                            <div class="p-4 sm:p-5 space-y-3 sm:space-y-4">
+                                <div class="h-16 sm:h-20 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                <div class="h-10 sm:h-12 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                <div class="h-10 sm:h-12 bg-slate-200 dark:bg-slate-700 rounded"></div>
                             </div>
                         </article>
                     }
