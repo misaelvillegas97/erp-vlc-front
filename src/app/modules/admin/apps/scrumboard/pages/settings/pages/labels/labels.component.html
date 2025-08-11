@@ -11,7 +11,7 @@
         <!-- Search and add member to board -->
         <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4 bg-card p-4 rounded-lg shadow">
             <!-- Title -->
-            <mat-form-field class="w-full">
+            <mat-form-field class="w-full fuse-mat-dense">
                 <mat-label>Title</mat-label>
                 <input matInput formControlName="title" required>
                 @if (form.get('title').hasError('required')) {

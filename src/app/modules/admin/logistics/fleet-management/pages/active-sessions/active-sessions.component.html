@@ -7,7 +7,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Búsqueda -->
                 <div class="w-full">
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Buscar por conductor o vehículo</mat-label>
                         <input matInput [formControl]="searchControl" placeholder="Nombre, apellido, placa, marca o modelo">
                         <mat-icon matSuffix svgIcon="mat_outline:search"></mat-icon>
@@ -16,7 +16,7 @@
 
                 <!-- Ordenamiento -->
                 <div class="w-full">
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Ordenar por</mat-label>
                         <mat-select [formControl]="sortControl">
                             <mat-option value="duration_desc">Duración (mayor a menor)</mat-option>

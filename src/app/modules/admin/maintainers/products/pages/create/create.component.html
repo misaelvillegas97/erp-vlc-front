@@ -8,7 +8,7 @@
         <!-- Content -->
         <form [formGroup]="form" class="flex flex-col items-center gap-y-4 w-full md:w-1/2 py-4">
             <!-- Fields: name, description and unitaryPrice -->
-            <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                 <mat-label>{{ t('fields.name') | transloco }}</mat-label>
                 <input
                     [placeholder]="t('fields.name') | transloco"
@@ -20,7 +20,7 @@
                 }
             </mat-form-field>
 
-            <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                 <mat-label>{{ t('fields.description') | transloco }}</mat-label>
                 <textarea
                     [placeholder]="t('fields.description') | transloco"
@@ -35,7 +35,7 @@
             </mat-form-field>
 
             <!-- UPC code -->
-            <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                 <mat-label>{{ t('fields.upc-code') | transloco }}</mat-label>
                 <input
                     [placeholder]="t('fields.upc-code') | transloco"
@@ -51,7 +51,7 @@
                 }
             </mat-form-field>
 
-            <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                 <mat-label>{{ t('fields.unitary-price') | transloco }}</mat-label>
                 <input
                     [placeholder]="t('fields.unitary-price') | transloco"

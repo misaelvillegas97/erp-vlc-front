@@ -36,7 +36,7 @@
             <mat-card-content class="p-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <!-- Filtro por fecha desde -->
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Desde</mat-label>
                         <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFromControl"
                                placeholder="Desde">
@@ -45,7 +45,7 @@
                     </mat-form-field>
 
                     <!-- Filtro por fecha hasta -->
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Hasta</mat-label>
                         <input matInput [matDatepicker]="pickerTo" [formControl]="dateToControl" placeholder="Hasta">
                         <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>

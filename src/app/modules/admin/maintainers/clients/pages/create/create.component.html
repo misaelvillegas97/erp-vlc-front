@@ -8,7 +8,7 @@
         <!-- Content -->
         <form [formGroup]="form" class="flex flex-col items-center gap-y-4 w-full md:w-1/2 py-4">
             <!-- Fields: businessName, fantasyName, code, nationalId, email, phone -->
-            <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                 <mat-label>{{ 'maintainers.client.fields.business-name' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.client.fields.business-name' | transloco"
@@ -20,7 +20,7 @@
                 </mat-error>
             </mat-form-field>
 
-            <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                 <mat-label>{{ 'maintainers.client.fields.fantasy-name' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.client.fields.fantasy-name' | transloco"
@@ -32,7 +32,7 @@
                 </mat-error>
             </mat-form-field>
 
-            <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                 <mat-label>{{ 'maintainers.client.fields.code' | transloco }}</mat-label>
                 <!-- Pattern: only letters and numbers, no spaces or special characters -->
                 <input
@@ -50,7 +50,7 @@
                 <mat-hint>{{ 'maintainers.client.fields.code-hint' | transloco }}</mat-hint>
             </mat-form-field>
 
-            <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                 <mat-label>{{ 'maintainers.client.fields.national-id' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.client.fields.national-id' | transloco"
@@ -62,7 +62,7 @@
                 </mat-error>
             </mat-form-field>
 
-            <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                 <mat-label>{{ 'maintainers.client.fields.email' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.client.fields.email' | transloco"
@@ -74,7 +74,7 @@
                 </mat-error>
             </mat-form-field>
 
-            <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                 <mat-label>{{ 'maintainers.client.fields.phone' | transloco }}</mat-label>
                 <input
                     [placeholder]="'maintainers.client.fields.phone' | transloco"
@@ -87,7 +87,7 @@
             </mat-form-field>
 
             <!-- Fields: addressSearch with autocomplete -->
-            <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                 <mat-label>{{ 'maintainers.client.fields.address' | transloco }}</mat-label>
                 <input
                     [matAutocomplete]="addressSearchAutocomplete"

@@ -6,7 +6,7 @@
     <form [formGroup]="form" class="space-y-4">
 
         <!-- Selector de cliente -->
-        <mat-form-field appearance="fill" class="w-full">
+        <mat-form-field class="w-full fuse-mat-dense">
             <mat-label>Cliente</mat-label>
             <mat-select [placeholder]="clientsResource.isLoading() ? 'Cargando clientes...' : 'Selecciona un cliente'" formControlName="clientId">
                 @if (!clientsResource.isLoading()) {
@@ -19,13 +19,13 @@
                     <mat-option disabled>Cargando clientes...</mat-option>
                 }
             </mat-select>
-            @if (form.get('clientId')?.hasError('required')) {
+            @if (form.get('clientId').hasError('required')) {
                 <mat-error>Selecciona un cliente</mat-error>
             }
         </mat-form-field>
 
         <!-- Provider code (numérico) -->
-        <mat-form-field appearance="fill" class="w-full">
+        <mat-form-field class="w-full fuse-mat-dense">
             <mat-label>Código de proveedor</mat-label>
             <input
                 formControlName="providerCode"
@@ -33,7 +33,7 @@
                 placeholder="Ej: 12345"
                 type="number"
             />
-            @if (form.get('providerCode')?.hasError('required')) {
+            @if (form.get('providerCode').hasError('required')) {
                 <mat-error>Ingresa el código de proveedor</mat-error>
             }
         </mat-form-field>

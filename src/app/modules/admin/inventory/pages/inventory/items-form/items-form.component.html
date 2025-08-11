@@ -5,7 +5,7 @@
             <!-- Información básica -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Nombre del elemento -->
-                <mat-form-field class="w-full" floatLabel="always">
+                <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                     <mat-label>Nombre</mat-label>
                     <input matInput formControlName="name" placeholder="Nombre del elemento">
                     <mat-error *ngIf="itemForm.get('name').hasError('required')">
@@ -17,7 +17,7 @@
                 </mat-form-field>
 
                 <!-- Código UPC -->
-                <mat-form-field class="w-full" floatLabel="always">
+                <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                     <mat-label>Código UPC</mat-label>
                     <input matInput formControlName="upcCode" placeholder="Código UPC (opcional)">
                     <mat-error *ngIf="itemForm.get('upcCode').hasError('maxlength')">
@@ -27,7 +27,7 @@
             </div>
 
             <!-- Descripción -->
-            <mat-form-field class="w-full" floatLabel="always">
+            <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                 <mat-label>Descripción</mat-label>
                 <textarea matInput formControlName="description" rows="3" placeholder="Descripción del elemento (opcional)"></textarea>
                 <mat-error *ngIf="itemForm.get('description').hasError('maxlength')">
@@ -38,7 +38,7 @@
             <!-- Almacén y ubicación -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Almacén -->
-                <mat-form-field class="w-full" floatLabel="always">
+                <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                     <mat-label>Almacén</mat-label>
                     <mat-select formControlName="warehouseId" placeholder="Seleccione un almacén">
                         @for (warehouse of warehouses(); track warehouse.id) {
@@ -57,7 +57,7 @@
                 </mat-form-field>
 
                 <!-- Ubicación -->
-                <mat-form-field class="w-full" floatLabel="always">
+                <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                     <mat-label>Ubicación</mat-label>
                     <input matInput formControlName="location" placeholder="Ubicación dentro del almacén (opcional)">
                     <mat-error *ngIf="itemForm.get('location').hasError('maxlength')">
@@ -69,7 +69,7 @@
             <!-- Cantidad y niveles de stock -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <!-- Cantidad -->
-                <mat-form-field class="w-full" floatLabel="always">
+                <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                     <mat-label>Cantidad</mat-label>
                     <input matInput type="number" formControlName="quantity">
                     <mat-error *ngIf="itemForm.get('quantity').hasError('required')">
@@ -81,7 +81,7 @@
                 </mat-form-field>
 
                 <!-- Stock mínimo -->
-                <mat-form-field class="w-full" floatLabel="always">
+                <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                     <mat-label>Stock mínimo</mat-label>
                     <input matInput type="number" formControlName="minimumStock">
                     <mat-error *ngIf="itemForm.get('minimumStock').hasError('min')">
@@ -90,7 +90,7 @@
                 </mat-form-field>
 
                 <!-- Stock máximo -->
-                <mat-form-field class="w-full" floatLabel="always">
+                <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                     <mat-label>Stock máximo</mat-label>
                     <input matInput type="number" formControlName="maximumStock">
                     <mat-error *ngIf="itemForm.get('maximumStock').hasError('min')">
@@ -99,7 +99,7 @@
                 </mat-form-field>
 
                 <!-- Punto de reorden -->
-                <mat-form-field class="w-full" floatLabel="always">
+                <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                     <mat-label>Punto de reorden</mat-label>
                     <input matInput type="number" formControlName="reorderPoint">
                     <mat-error *ngIf="itemForm.get('reorderPoint').hasError('min')">
@@ -111,7 +111,7 @@
             <!-- Lote y fecha de expiración -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Número de lote -->
-                <mat-form-field class="w-full" floatLabel="always">
+                <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                     <mat-label>Número de lote</mat-label>
                     <input matInput formControlName="batchNumber" placeholder="Número de lote (opcional)">
                     <mat-error *ngIf="itemForm.get('batchNumber').hasError('maxlength')">
@@ -120,7 +120,7 @@
                 </mat-form-field>
 
                 <!-- Fecha de expiración -->
-                <mat-form-field class="w-full" floatLabel="always">
+                <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                     <mat-label>Fecha de expiración</mat-label>
                     <input matInput [matDatepicker]="picker" formControlName="expirationDate">
                     <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>

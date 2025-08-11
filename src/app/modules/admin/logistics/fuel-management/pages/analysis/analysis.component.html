@@ -38,7 +38,7 @@
                     <vehicle-selector [formControl]="vehicleControl" class="w-full"></vehicle-selector>
 
                     <!-- Filtro por fecha desde -->
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Desde</mat-label>
                         <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFromControl" placeholder="Desde">
                         <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
@@ -46,7 +46,7 @@
                     </mat-form-field>
 
                     <!-- Filtro por fecha hasta -->
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Hasta</mat-label>
                         <input matInput [matDatepicker]="pickerTo" [formControl]="dateToControl" placeholder="Hasta">
                         <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>

@@ -28,6 +28,8 @@ import { logisticsPermissions }   from '@modules/admin/logistics/logistics.permi
 import { inventoryPermissions }   from '@modules/admin/inventory/inventory.permissions';
 import { appsPermissions }        from '@modules/admin/apps/apps.permissions';
 import { checklistsPermissions }  from '@modules/admin/checklists/checklists.permissions';
+import { tracingPermissions } from '@modules/admin/tracing/tracing.permissions';
+// import { flowBuilderPermissions } from '@modules/admin/flow-builder/flow-builder.permissions';
 
 const config: SocketIoConfig = {
     url    : 'localhost:5000/ws/board',
@@ -135,6 +137,8 @@ export const appConfig: ApplicationConfig = {
         // Apps
         provideModulePermissions(appsPermissions),
         provideModulePermissions(checklistsPermissions),
+        provideModulePermissions(tracingPermissions),
+        // provideModulePermissions(flowBuilderPermissions),
         // Maintainers
         provideModulePermissions(maintainersPermissions),
 

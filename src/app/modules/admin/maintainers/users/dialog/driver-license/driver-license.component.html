@@ -5,7 +5,7 @@
 <mat-dialog-content class="py-4">
     <form [formGroup]="form" class="space-y-4">
         <!-- License Type -->
-        <mat-form-field class="w-full" floatLabel="always">
+        <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
             <mat-label>{{ 'maintainers.users.driver-license.fields.licenseType' | transloco }}</mat-label>
             <mat-select formControlName="licenseType" placeholder="Seleccione un tipo de licencia" required>
                 @for (type of licenseTypes; track type) {
@@ -18,7 +18,7 @@
         </mat-form-field>
 
         <!-- Valid From Date -->
-        <mat-form-field class="w-full">
+        <mat-form-field class="w-full fuse-mat-dense">
             <mat-label>{{ 'maintainers.users.driver-license.fields.licenseValidFrom' | transloco }}</mat-label>
             <input matInput [matDatepicker]="validFromPicker" formControlName="licenseValidFrom">
             <mat-datepicker-toggle matIconSuffix [for]="validFromPicker"></mat-datepicker-toggle>
@@ -30,7 +30,7 @@
         </mat-form-field>
 
         <!-- Valid To Date -->
-        <mat-form-field class="w-full">
+        <mat-form-field class="w-full fuse-mat-dense">
             <mat-label>{{ 'maintainers.users.driver-license.fields.licenseValidTo' | transloco }}</mat-label>
             <input matInput [matDatepicker]="validToPicker" formControlName="licenseValidTo">
             <mat-datepicker-toggle matIconSuffix [for]="validToPicker"></mat-datepicker-toggle>
@@ -41,7 +41,7 @@
         </mat-form-field>
 
         <!-- Restrictions (optional) -->
-        <mat-form-field class="w-full">
+        <mat-form-field class="w-full fuse-mat-dense">
             <mat-label>{{ 'maintainers.users.driver-license.fields.restrictions' | transloco }}</mat-label>
             <textarea
                 formControlName="restrictions"
@@ -52,7 +52,7 @@
         </mat-form-field>
 
         <!-- Issuing Authority (optional) -->
-        <mat-form-field class="w-full">
+        <mat-form-field class="w-full fuse-mat-dense">
             <mat-label>{{ 'maintainers.users.driver-license.fields.issuingAuthority' | transloco }}</mat-label>
             <input
                 formControlName="issuingAuthority"

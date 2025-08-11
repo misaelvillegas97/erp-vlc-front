@@ -31,7 +31,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- ID del vehículo -->
                         <vehicle-selector formControlName="vehicleId"></vehicle-selector>
-                        <mat-form-field class="w-full">
+                        <mat-form-field class="w-full fuse-mat-dense">
                             <mat-label>ID del Vehículo</mat-label>
                             <input matInput formControlName="vehicleId" required>
                             <mat-error *ngIf="maintenanceForm.get('vehicleId').hasError('required')">
@@ -40,7 +40,7 @@
                         </mat-form-field>
 
                         <!-- Fecha -->
-                        <mat-form-field class="w-full">
+                        <mat-form-field class="w-full fuse-mat-dense">
                             <mat-label>Fecha</mat-label>
                             <input matInput [matDatepicker]="picker" formControlName="date" required>
                             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -51,7 +51,7 @@
                         </mat-form-field>
 
                         <!-- Tipo -->
-                        <mat-form-field class="w-full">
+                        <mat-form-field class="w-full fuse-mat-dense">
                             <mat-label>Tipo</mat-label>
                             <mat-select formControlName="type" required>
                                 <mat-option *ngFor="let type of maintenanceTypes" [value]="type">
@@ -69,7 +69,7 @@
                         </mat-form-field>
 
                         <!-- Estado -->
-                        <mat-form-field class="w-full">
+                        <mat-form-field class="w-full fuse-mat-dense">
                             <mat-label>Estado</mat-label>
                             <mat-select formControlName="status" required>
                                 <mat-option *ngFor="let status of maintenanceStatuses" [value]="status">
@@ -87,7 +87,7 @@
                         </mat-form-field>
 
                         <!-- Odómetro -->
-                        <mat-form-field class="w-full">
+                        <mat-form-field class="w-full fuse-mat-dense">
                             <mat-label>Odómetro (km)</mat-label>
                             <input matInput type="number" formControlName="odometer" required>
                             <mat-error *ngIf="maintenanceForm.get('odometer').hasError('required')">
@@ -99,7 +99,7 @@
                         </mat-form-field>
 
                         <!-- Costo -->
-                        <mat-form-field class="w-full">
+                        <mat-form-field class="w-full fuse-mat-dense">
                             <mat-label>Costo</mat-label>
                             <input matInput type="number" formControlName="cost" required>
                             <span matPrefix>$&nbsp;</span>
@@ -112,14 +112,14 @@
                         </mat-form-field>
 
                         <!-- Proveedor -->
-                        <mat-form-field class="w-full">
+                        <mat-form-field class="w-full fuse-mat-dense">
                             <mat-label>Proveedor</mat-label>
                             <input matInput formControlName="provider">
                         </mat-form-field>
                     </div>
 
                     <!-- Descripción -->
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Descripción</mat-label>
                         <textarea matInput formControlName="description" rows="3"></textarea>
                     </mat-form-field>
@@ -142,7 +142,7 @@
                                 </mat-error>
                             </mat-form-field>
 
-                            <mat-form-field>
+                            <mat-form-field class="w-full fuse-mat-dense">
                                 <mat-label>Costo</mat-label>
                                 <input matInput type="number" formControlName="cost" required>
                                 <span matPrefix>$&nbsp;</span>
@@ -222,7 +222,7 @@
                     <mat-card-title>Notas Adicionales</mat-card-title>
                 </mat-card-header>
                 <mat-card-content class="p-4">
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Notas</mat-label>
                         <textarea matInput formControlName="notes" rows="4"></textarea>
                     </mat-form-field>

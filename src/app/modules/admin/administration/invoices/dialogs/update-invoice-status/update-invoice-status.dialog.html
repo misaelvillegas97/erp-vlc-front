@@ -2,7 +2,7 @@
 <mat-dialog-content class="py-4">
     <form [formGroup]="form" class="grid grid-cols-1 gap-4">
         <!-- Status -->
-        <mat-form-field class="w-full" subscriptSizing="dynamic">
+        <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
             <mat-label>{{ 'operations.invoices.fields.status' | transloco }}</mat-label>
             <mat-select formControlName="status" required>
                 @for (status of allowedStatuses; track status) {
@@ -25,7 +25,7 @@
 
         <!-- Payment date -->
         @if (form.get('isPaid').value === true) {
-            <mat-form-field class="w-full" subscriptSizing="dynamic">
+            <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                 <mat-label>{{ 'operations.invoices.fields.payment-date' | transloco }}</mat-label>
                 <input [matDatepicker]="paymentDate" [min]="invoice().createdAt" formControlName="paymentDate" matInput>
                 <mat-datepicker-toggle [for]="paymentDate" matSuffix></mat-datepicker-toggle>
@@ -39,7 +39,7 @@
         }
 
         <!-- Observations -->
-        <mat-form-field class="w-full" subscriptSizing="dynamic">
+        <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
             <mat-label>{{ 'operations.invoices.fields.observations' | transloco }}</mat-label>
             <textarea cdkTextareaAutosize formControlName="observations" matInput></textarea>
 

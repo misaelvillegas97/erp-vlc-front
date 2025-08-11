@@ -88,7 +88,7 @@
                 >
                     <!-- Action -->
                     <div class="flex flex-col px-6 pb-2">
-                        <mat-form-field>
+                        <mat-form-field class="w-full fuse-mat-dense">
                             <mat-label>Action</mat-label>
                             <mat-icon
                                 class="icon-size-5"
@@ -111,7 +111,7 @@
 
                     <!-- Wallet -->
                     <div class="flex flex-col px-6 pb-2">
-                        <mat-form-field class="w-full">
+                        <mat-form-field class="w-full fuse-mat-dense">
                             <mat-label>Wallet</mat-label>
                             <mat-select
                                 [value]="'btc'"
@@ -162,7 +162,7 @@
                     <!-- Buy form -->
                     @if (buySellSelect.value === 'buy') {
                         <form class="flex flex-col px-6">
-                            <mat-form-field class="w-full">
+                            <mat-form-field class="w-full fuse-mat-dense">
                                 <mat-label>Amount</mat-label>
                                 <input matInput autocomplete="off" #buyAmount />
                                 <mat-select
@@ -229,7 +229,7 @@
                     <!-- Sell form -->
                     @if (buySellSelect.value === 'sell') {
                         <form class="flex flex-col px-6">
-                            <mat-form-field class="w-full">
+                            <mat-form-field class="w-full fuse-mat-dense">
                                 <mat-label>Amount</mat-label>
                                 <input
                                     matInput

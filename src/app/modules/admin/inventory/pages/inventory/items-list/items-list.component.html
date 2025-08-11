@@ -29,7 +29,7 @@
         <!-- Panel de filtros -->
         <div class="w-full bg-card rounded-md shadow p-4 mb-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <mat-form-field class="w-full">
+                <mat-form-field class="w-full fuse-mat-dense">
                     <mat-label>Buscar</mat-label>
                     <input matInput [formControl]="searchControl" placeholder="Buscar por nombre, código o descripción">
                     <mat-icon matSuffix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
@@ -50,7 +50,7 @@
             <!-- Filtros avanzados (colapsables) -->
             <div *ngIf="showAdvancedFilters()" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
                 <!-- Filtro por almacén -->
-                <mat-form-field class="w-full">
+                <mat-form-field class="w-full fuse-mat-dense">
                     <mat-label>Almacén</mat-label>
                     <mat-select [formControl]="warehouseControl">
                         <mat-option value="">Todos los almacenes</mat-option>

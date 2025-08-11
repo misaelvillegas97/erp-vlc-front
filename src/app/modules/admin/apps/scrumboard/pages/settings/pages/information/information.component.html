@@ -31,12 +31,12 @@
 
         <form (ngSubmit)="submit()" [formGroup]="form" class="bg-card flex flex-col overflow-hidden rounded p-8 pb-4 shadow w-full" [class.opacity-50]="isLoading()">
             <div class="flex flex-col md:flex-row gap-4">
-                <mat-form-field class="w-full" floatLabel="always">
+                <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                     <mat-label [innerText]="t('form.fields.name')"></mat-label>
                     <input formControlName="title" matInput/>
                 </mat-form-field>
 
-                <mat-form-field class="w-full" floatLabel="always">
+                <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                     <mat-label [innerText]="t('form.fields.icon')"></mat-label>
                     <input formControlName="icon" matInput/>
                 </mat-form-field>

@@ -359,7 +359,7 @@
                                         <mat-form-field class="w-full fuse-mat-dense">
                                             <mat-label>Nombre del documento</mat-label>
                                             <input formControlName="name" matInput placeholder="Ej. Permiso de circulación 2025">
-                                            @if (documentForm.get('name')?.hasError('required')) {
+                                            @if (documentForm.get('name').hasError('required')) {
                                                 <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
                                             }
                                         </mat-form-field>
@@ -390,7 +390,7 @@
                                                     </mat-option>
                                                 }
                                             </mat-select>
-                                            @if (documentForm.get('type')?.hasError('required')) {
+                                            @if (documentForm.get('type').hasError('required')) {
                                                 <mat-error>{{ 'errors.form.required' | transloco }}</mat-error>
                                             }
                                         </mat-form-field>

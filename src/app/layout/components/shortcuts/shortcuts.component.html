@@ -207,19 +207,19 @@
             <!-- Add/Edit mode -->
             @if (mode === 'add' || mode === 'edit') {
                 <form class="p-6" [formGroup]="shortcutForm">
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Label</mat-label>
                         <input matInput [formControlName]="'label'" required/>
                     </mat-form-field>
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Description</mat-label>
                         <input matInput [formControlName]="'description'"/>
                     </mat-form-field>
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Icon</mat-label>
                         <input matInput [formControlName]="'icon'" required/>
                     </mat-form-field>
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full fuse-mat-dense">
                         <mat-label>Link</mat-label>
                         <input matInput [formControlName]="'link'" required/>
                     </mat-form-field>

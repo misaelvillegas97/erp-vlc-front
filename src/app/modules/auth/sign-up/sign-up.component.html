@@ -91,7 +91,7 @@
                 <span class="text-sm text-gray-400">Fill in the form with your personal information</span>
 
                 <!-- Firstname field -->
-                <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                     <mat-label>First name</mat-label>
                     <input
                         formControlName="firstname"
@@ -103,7 +103,7 @@
                 </mat-form-field>
 
                 <!-- Lastname field -->
-                <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                     <mat-label>Last name</mat-label>
                     <input
                         formControlName="lastname"
@@ -134,7 +134,7 @@
                 </mat-form-field>
 
                 <!-- Password field -->
-                <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                     <mat-label>Password</mat-label>
                     <input
                         #passwordField
@@ -171,7 +171,7 @@
 
                 <!-- Company field -->
                 @if (signUpForm.get('hasToken').value) {
-                    <mat-form-field class="w-full" subscriptSizing="dynamic">
+                    <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                         <mat-label>Invitation token</mat-label>
                         <input
                             [formControlName]="'token'"
@@ -189,7 +189,7 @@
                         <h2 class="text-lg font-medium text-gray-600">Create your company account</h2>
                         <span class="text-sm text-gray-400">You can invite your team members later</span>
 
-                        <mat-form-field class="w-full" subscriptSizing="dynamic">
+                        <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                             <mat-label>Company name</mat-label>
                             <input
                                 [formControlName]="'name'"
@@ -200,7 +200,7 @@
                             </mat-error>
                         </mat-form-field>
 
-                        <mat-form-field class="w-full" subscriptSizing="dynamic">
+                        <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                             <mat-label>Company email</mat-label>
                             <input
                                 [formControlName]="'email'"
@@ -217,7 +217,7 @@
                             </mat-error>
                         </mat-form-field>
 
-                        <mat-form-field class="w-full" subscriptSizing="dynamic">
+                        <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                             <mat-label>Business Identification Number</mat-label>
                             <input
                                 [formControlName]="'nationalId'"
@@ -229,7 +229,7 @@
                             </mat-error>
                         </mat-form-field>
 
-                        <mat-form-field class="w-full" subscriptSizing="dynamic">
+                        <mat-form-field class="w-full fuse-mat-dense" subscriptSizing="dynamic">
                             <mat-label>Company website</mat-label>
                             <input
                                 [formControlName]="'website'"

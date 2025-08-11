@@ -30,7 +30,7 @@
                 class="flex w-full flex-1 flex-col items-start space-y-4 sm:space-y-6 p-4 sm:p-6 lg:p-8"
             >
                 <!-- Title -->
-                <mat-form-field [subscriptSizing]="'dynamic'" class="w-full">
+                <mat-form-field [subscriptSizing]="'dynamic'" class="w-full fuse-mat-dense">
                     <mat-label>Título</mat-label>
                     <textarea
                         [cdkAutosizeMinRows]="1"
@@ -44,7 +44,7 @@
                 </mat-form-field>
 
                 <!-- Description -->
-                <mat-form-field [subscriptSizing]="'dynamic'" class="w-full">
+                <mat-form-field [subscriptSizing]="'dynamic'" class="w-full fuse-mat-dense">
                     <mat-label>Descripción</mat-label>
                     <textarea
                         [cdkAutosizeMinRows]="1"
@@ -200,7 +200,7 @@
                 <div class="w-full">
                     <span class="font-medium">Tipo de Tarjeta</span>
                     <div class="mt-1">
-                        <mat-form-field [subscriptSizing]="'dynamic'" class="w-full">
+                        <mat-form-field [subscriptSizing]="'dynamic'" class="w-full fuse-mat-dense">
                             <mat-select [formControlName]="'type'">
                                 <mat-option value="task">Tarea</mat-option>
                                 <mat-option value="bug">Error</mat-option>

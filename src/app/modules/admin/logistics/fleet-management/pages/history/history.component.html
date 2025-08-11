@@ -7,14 +7,14 @@
             <h2 class="text-xl font-medium mb-4">Buscar sesiones</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <!-- Búsqueda general -->
-                <mat-form-field class="w-full">
+                <mat-form-field class="w-full fuse-mat-dense">
                     <mat-label>Buscar</mat-label>
                     <input matInput [formControl]="searchFilter" placeholder="Nombre del conductor o vehículo">
                     <mat-icon matSuffix>search</mat-icon>
                 </mat-form-field>
 
                 <!-- Filtro por estado simplificado -->
-                <mat-form-field class="w-full">
+                <mat-form-field class="w-full fuse-mat-dense">
                     <mat-label>Estado</mat-label>
                     <mat-select [formControl]="statusFilter">
                         <mat-option value="">Todos los estados</mat-option>
@@ -40,7 +40,7 @@
                         <vehicle-selector [formControl]="vehicleFilter" class="w-full"></vehicle-selector>
 
                         <!-- Filtro por fecha desde -->
-                        <mat-form-field class="w-full">
+                        <mat-form-field class="w-full fuse-mat-dense">
                             <mat-label>Desde</mat-label>
                             <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFromFilter" placeholder="Desde">
                             <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
@@ -48,7 +48,7 @@
                         </mat-form-field>
 
                         <!-- Filtro por fecha hasta -->
-                        <mat-form-field class="w-full">
+                        <mat-form-field class="w-full fuse-mat-dense">
                             <mat-label>Hasta</mat-label>
                             <input matInput [matDatepicker]="pickerTo" [formControl]="dateToFilter" placeholder="Hasta">
                             <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>

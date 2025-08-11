@@ -8,6 +8,7 @@ import { INVENTORY_FEATURE_KEY }  from '@modules/admin/inventory/inventory.permi
 import { APPS_FEATURE_KEY }       from '@modules/admin/apps/apps.permissions';
 import { SCRUMBOARD_FEATURE_KEY } from '@modules/admin/apps/scrumboard/scrumboard.permissions';
 import { CHECKLISTS_FEATURE_KEY } from '@modules/admin/checklists/checklists.permissions';
+import { TRACING_FEATURE_KEY } from '@modules/admin/tracing/tracing.permissions';
 
 export const appRoutes: Routes = [
 
@@ -116,6 +117,14 @@ export const appRoutes: Routes = [
                     roles: [ RoleEnum.admin, RoleEnum.quality_manager, RoleEnum.supervisor, RoleEnum.operator ]
                 },
                 loadChildren: () => import('app/modules/admin/checklists/checklists.routes')
+            },
+            {
+                path        : TRACING_FEATURE_KEY,
+                canActivate : [ rolesGuard ],
+                data        : {
+                    roles: [ RoleEnum.admin, RoleEnum.quality_manager, RoleEnum.supervisor, RoleEnum.operator ]
+                },
+                loadChildren: () => import('app/modules/admin/tracing/tracing.routes')
             },
             {
                 path    : APPS_FEATURE_KEY,

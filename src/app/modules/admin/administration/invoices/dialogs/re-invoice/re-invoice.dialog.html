@@ -1,14 +1,14 @@
 <h2 class="text-lg border-b pb-4" mat-dialog-title>Refacturar factura {{ invoice().invoiceNumber }}</h2>
 <mat-dialog-content class="py-4">
     <form (ngSubmit)="submit()" [formGroup]="form" class="space-y-2">
-        <mat-form-field class="w-full">
+        <mat-form-field class="w-full fuse-mat-dense">
             <mat-label>Número de factura</mat-label>
             <input autocomplete="new-invoice" formControlName="invoiceNumber" matInput pattern="[0-9]*" type="number">
             @if (form.get('invoiceNumber').hasError('required')) {
                 <mat-error [innerText]="'errors.form.required' | transloco"></mat-error>
             }
         </mat-form-field>
-        <mat-form-field class="w-full">
+        <mat-form-field class="w-full fuse-mat-dense">
             <mat-label>Estado</mat-label>
             <mat-select formControlName="status">
                 @for (status of statuses; track status.value) {
@@ -19,7 +19,7 @@
                 <mat-error [innerText]="'errors.form.required' | transloco"></mat-error>
             }
         </mat-form-field>
-        <mat-form-field class="w-full">
+        <mat-form-field class="w-full fuse-mat-dense">
             <mat-label>Fecha de emisión</mat-label>
             <input [matDatepicker]="picker"
                    [max]="emissionMaxDate"
@@ -33,7 +33,7 @@
             }
         </mat-form-field>
 
-        <mat-form-field class="w-full">
+        <mat-form-field class="w-full fuse-mat-dense">
             <mat-label>Fecha de vencimiento</mat-label>
             <input [matDatepicker]="picker2"
                    [min]="dueMinDate()"
@@ -43,7 +43,7 @@
             <mat-datepicker #picker2 [disabled]="form.get('emissionDate').invalid"></mat-datepicker>
         </mat-form-field>
 
-        <mat-form-field class="w-full">
+        <mat-form-field class="w-full fuse-mat-dense">
             <mat-label>Responsable de entrega</mat-label>
             <input [matAutocomplete]="deliveryResponsibleAutocomplete" formControlName="deliveryAssignment" matInput>
             <mat-autocomplete

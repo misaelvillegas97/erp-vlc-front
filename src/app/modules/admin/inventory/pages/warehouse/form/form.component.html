@@ -3,7 +3,7 @@
         <h2 class="text-xl font-medium mb-4">{{ formTitle() }}</h2>
         <form [formGroup]="warehouseForm" (ngSubmit)="onSubmit()" class="flex flex-col space-y-4">
             <!-- Nombre del almacén -->
-            <mat-form-field class="w-full" floatLabel="always">
+            <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                 <mat-label>Nombre</mat-label>
                 <input matInput formControlName="name" placeholder="Nombre del almacén">
                 <mat-error *ngIf="warehouseForm.get('name').hasError('required')">
@@ -15,7 +15,7 @@
             </mat-form-field>
 
             <!-- Descripción -->
-            <mat-form-field class="w-full" floatLabel="always">
+            <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                 <mat-label>Descripción</mat-label>
                 <textarea matInput formControlName="description" rows="3" placeholder="Descripción del almacén (opcional)"></textarea>
                 <mat-error *ngIf="warehouseForm.get('description').hasError('maxlength')">
@@ -24,7 +24,7 @@
             </mat-form-field>
 
             <!-- Dirección -->
-            <mat-form-field class="w-full" floatLabel="always">
+            <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                 <mat-label>Dirección</mat-label>
                 <input matInput formControlName="address" placeholder="Dirección del almacén">
                 <mat-error *ngIf="warehouseForm.get('address').hasError('required')">
@@ -37,7 +37,7 @@
 
             <!-- Información de contacto -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <mat-form-field class="w-full" floatLabel="always">
+                <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                     <mat-label>Persona de contacto</mat-label>
                     <input matInput formControlName="contactPerson" placeholder="Nombre de la persona de contacto (opcional)">
                     <mat-error *ngIf="warehouseForm.get('contactPerson').hasError('maxlength')">
@@ -45,7 +45,7 @@
                     </mat-error>
                 </mat-form-field>
 
-                <mat-form-field class="w-full" floatLabel="always">
+                <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                     <mat-label>Teléfono de contacto</mat-label>
                     <input matInput formControlName="contactPhone" placeholder="Teléfono de contacto (opcional)">
                     <mat-error *ngIf="warehouseForm.get('contactPhone').hasError('maxlength')">
@@ -53,7 +53,7 @@
                     </mat-error>
                 </mat-form-field>
 
-                <mat-form-field class="w-full" floatLabel="always">
+                <mat-form-field class="w-full fuse-mat-dense" floatLabel="always">
                     <mat-label>Email de contacto</mat-label>
                     <input matInput formControlName="contactEmail" placeholder="Email de contacto (opcional)">
                     <mat-error *ngIf="warehouseForm.get('contactEmail').hasError('email')">

@@ -47,7 +47,8 @@
             "urls" : [
                 "/api/inventory/**",
                 "/api/orders/**",
-                "/api/invoices/**"
+                "/api/invoices/**",
+                "/api/tracing/**"
             ],
             "cacheConfig" : {
                 "strategy" : "freshness",
