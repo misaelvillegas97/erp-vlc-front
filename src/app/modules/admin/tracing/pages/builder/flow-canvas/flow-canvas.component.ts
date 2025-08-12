@@ -1,26 +1,45 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { CommonModule }                                                                                     from '@angular/common';
-import { RouterModule, ActivatedRoute }                                                                     from '@angular/router';
-import { ReactiveFormsModule }                                                                              from '@angular/forms';
-import { MatButtonModule }                                                                                  from '@angular/material/button';
-import { MatCardModule }                                                                                    from '@angular/material/card';
-import { MatIconModule }                                                                                    from '@angular/material/icon';
-import { MatToolbarModule }                                                                                 from '@angular/material/toolbar';
-import { MatSidenavModule }                                                                                 from '@angular/material/sidenav';
-import { MatMenuModule }                                                                                    from '@angular/material/menu';
-import { MatDialogModule }                                                                                  from '@angular/material/dialog';
-import { MatSnackBarModule, MatSnackBar }                                                                   from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule }                                                                         from '@angular/material/progress-spinner';
-import { MatTooltipModule }                                                                                 from '@angular/material/tooltip';
-import { MatDividerModule }                                                                                 from '@angular/material/divider';
-import { DragDropModule, CdkDragDrop, CdkDrag, CdkDropList }                                                from '@angular/cdk/drag-drop';
-import { switchMap, catchError, tap }                                                                       from 'rxjs/operators';
-import { of, EMPTY }                                                                                        from 'rxjs';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, inject, Injector, OnDestroy, OnInit, signal, viewChild, ViewChild } from '@angular/core';
+import { CommonModule }                                                                                                                     from '@angular/common';
+import { ActivatedRoute, RouterModule, Router }                                                                                             from '@angular/router';
+import { ReactiveFormsModule }                                                                                                              from '@angular/forms';
+import { MatButtonModule }                                                                                                                  from '@angular/material/button';
+import { MatCardModule }                                                                                                                    from '@angular/material/card';
+import { MatIconModule }                                                                                                                    from '@angular/material/icon';
+import { MatToolbarModule }                                                                                                                 from '@angular/material/toolbar';
+import { MatSidenavModule }                                                                                                                 from '@angular/material/sidenav';
+import { MatMenuModule }                                                                                                                    from '@angular/material/menu';
+import { MatDialogModule, MatDialog }                                                                                                       from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule }                                                                                                   from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule }                                                                                                         from '@angular/material/progress-spinner';
+import { MatTooltipModule }                                                                                                                 from '@angular/material/tooltip';
+import { MatDividerModule }                                                                                                                 from '@angular/material/divider';
+import { CdkDragDrop, DragDropModule }                                                                                                      from '@angular/cdk/drag-drop';
+import { catchError, switchMap, tap }                                                                                                       from 'rxjs/operators';
+import { EMPTY, of }                                                                                                                        from 'rxjs';
 
-import { TracingApiService }     from '../../../services/tracing-api.service';
-import { FlowVersion, FlowStep } from '../../../models/entities';
-import { StepType }              from '../../../models/enums';
-import { CanvasNodeComponent }   from '../../../components/canvas-node/canvas-node.component';
+// @foblex/flow imports
+import { EFMarkerType, FCanvasComponent, FConnectionFactory, FFlowModule } from '@foblex/flow';
+
+import { TracingApiService }           from '../../../services/tracing-api.service';
+import { FlowVersion }                 from '../../../models/entities';
+import { StepType }                    from '../../../models/enums';
+import { FMediator }                   from '@foblex/mediator';
+import { StepSummaryOverlayComponent } from '../../../components/step-summary-overlay/step-summary-overlay.component';
+import { Point }                       from '@foblex/2d';
+
+// ===== @foblex/flow node definition =====
+interface FlowNode {
+    id: string;
+    stepType: StepType;
+    name: string;
+    position: { x: number; y: number };
+}
+
+interface FlowConnection {
+    id: string;
+    fOutputId: string;
+    fInputId: string;
+}
 
 interface CanvasNode {
     id: string;
@@ -53,6 +72,7 @@ interface CanvasState {
     selector       : 'app-flow-canvas',
     standalone     : true,
     imports        : [
+        FFlowModule,
         CommonModule,
         RouterModule,
         ReactiveFormsModule,
@@ -68,206 +88,10 @@ interface CanvasState {
         MatTooltipModule,
         MatDividerModule,
         DragDropModule,
-        CanvasNodeComponent
     ],
+    // providers: [FMediator, FConnectionFactory],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    template       : `
-        <div class="flow-canvas-container h-screen flex flex-col w-full">
-            <!-- Toolbar -->
-            <mat-toolbar class="canvas-toolbar border-b">
-                <div class="flex items-center justify-between w-full">
-                    <!-- Left Section -->
-                    <div class="flex items-center space-x-4">
-                        <button mat-icon-button routerLink="/tracing/templates" matTooltip="Volver">
-                            <mat-icon>arrow_back</mat-icon>
-                        </button>
-
-                        <div class="flex flex-col">
-                            <span class="font-medium">{{ version()?.id ? 'Editando' : 'Cargando' }} Flujo</span>
-                            <span class="text-sm text-gray-600">v{{ version()?.version || '...' }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Center Section - Canvas Controls -->
-                    <div class="flex items-center space-x-2">
-                        <button mat-icon-button (click)="zoomIn()" matTooltip="Acercar">
-                            <mat-icon>zoom_in</mat-icon>
-                        </button>
-
-                        <span class="text-sm px-2">{{ getZoomPercentage() }}%</span>
-
-                        <button mat-icon-button (click)="zoomOut()" matTooltip="Alejar">
-                            <mat-icon>zoom_out</mat-icon>
-                        </button>
-
-                        <button mat-icon-button (click)="resetZoom()" matTooltip="Restablecer zoom">
-                            <mat-icon>center_focus_strong</mat-icon>
-                        </button>
-
-                        <mat-divider [vertical]="true" class="mx-2"></mat-divider>
-
-                        <button mat-icon-button (click)="undo()" [disabled]="!canUndo()" matTooltip="Deshacer">
-                            <mat-icon>undo</mat-icon>
-                        </button>
-
-                        <button mat-icon-button (click)="redo()" [disabled]="!canRedo()" matTooltip="Rehacer">
-                            <mat-icon>redo</mat-icon>
-                        </button>
-                    </div>
-
-                    <!-- Right Section -->
-                    <div class="flex items-center space-x-2">
-                        <button mat-button (click)="saveFlow()" [disabled]="isSaving()">
-                            <mat-icon>save</mat-icon>
-                            Guardar
-                        </button>
-
-                        <button mat-raised-button color="primary" (click)="validateAndSave()">
-                            <mat-icon>check</mat-icon>
-                            Validar y Guardar
-                        </button>
-                    </div>
-                </div>
-            </mat-toolbar>
-
-            <!-- Main Content -->
-            <div class="flex flex-1 overflow-hidden">
-                <!-- Toolbox Sidebar -->
-                <mat-sidenav-container class="flex-1">
-                    <mat-sidenav mode="side" opened class="toolbox-sidenav w-64 border-r">
-                        <div class="p-4">
-                            <h3 class="font-medium mb-4">Componentes</h3>
-
-                            <!-- Node Types -->
-                            <div class="space-y-2">
-                                <div class="font-sm text-gray-600 mb-2">Pasos</div>
-
-                                <div
-                                    class="toolbox-item p-3 border rounded cursor-pointer hover:bg-gray-50 flex items-center space-x-2"
-                                    cdkDrag
-                                    [cdkDragData]="{ type: 'STANDARD', name: 'Paso Estándar' }"
-                                    (cdkDragEnded)="onToolboxDragEnd($event)">
-                                    <mat-icon class="text-blue-600">radio_button_unchecked</mat-icon>
-                                    <span>Paso Estándar</span>
-                                </div>
-
-                                <div
-                                    class="toolbox-item p-3 border rounded cursor-pointer hover:bg-gray-50 flex items-center space-x-2"
-                                    cdkDrag
-                                    [cdkDragData]="{ type: 'GATE', name: 'Puerta de Decisión' }"
-                                    (cdkDragEnded)="onToolboxDragEnd($event)">
-                                    <mat-icon class="text-orange-600">alt_route</mat-icon>
-                                    <span>Puerta de Decisión</span>
-                                </div>
-
-                                <div
-                                    class="toolbox-item p-3 border rounded cursor-pointer hover:bg-gray-50 flex items-center space-x-2"
-                                    cdkDrag
-                                    [cdkDragData]="{ type: 'END', name: 'Paso Final' }"
-                                    (cdkDragEnded)="onToolboxDragEnd($event)">
-                                    <mat-icon class="text-red-600">stop_circle</mat-icon>
-                                    <span>Paso Final</span>
-                                </div>
-                            </div>
-
-                            <!-- Minimap -->
-                            <div class="mt-8">
-                                <h4 class="font-sm text-gray-600 mb-2">Vista General</h4>
-                                <div class="minimap border rounded p-2 bg-gray-50 h-32 relative overflow-hidden">
-                                    <div class="minimap-content" [style.transform]="getMinimapTransform()">
-                                        @for (node of canvasState().nodes; track node.id) {
-                                            <div
-                                                class="minimap-node absolute bg-blue-500 rounded"
-                                                [style.left.px]="node.position.x / 10"
-                                                [style.top.px]="node.position.y / 10"
-                                                [style.width.px]="node.size.width / 10"
-                                                [style.height.px]="node.size.height / 10">
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </mat-sidenav>
-
-                    <!-- Canvas Area -->
-                    <mat-sidenav-content class="canvas-content">
-                        <div
-                            #canvasContainer
-                            class="canvas-container relative w-full h-full overflow-hidden bg-gray-50"
-                            (wheel)="onCanvasWheel($event)"
-                            (mousedown)="onCanvasMouseDown($event)"
-                            (mousemove)="onCanvasMouseMove($event)"
-                            (mouseup)="onCanvasMouseUp($event)"
-                            cdkDropList
-                            (cdkDropListDropped)="onCanvasDrop($event)">
-
-                            <!-- Canvas Grid -->
-                            <div class="canvas-grid absolute inset-0" [style.transform]="getCanvasTransform()">
-                                <svg class="w-full h-full">
-                                    <defs>
-                                        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e5e7eb" stroke-width="1"/>
-                                        </pattern>
-                                    </defs>
-                                    <rect width="100%" height="100%" fill="url(#grid)"/>
-                                </svg>
-                            </div>
-
-                            <!-- Canvas Content -->
-                            <div class="canvas-content-layer absolute inset-0" [style.transform]="getCanvasTransform()">
-                                <!-- Connections -->
-                                <svg class="absolute inset-0 w-full h-full pointer-events-none">
-                                    @for (connection of canvasState().connections; track connection.id) {
-                                        <path
-                                            [attr.d]="getConnectionPath(connection)"
-                                            stroke="#6b7280"
-                                            stroke-width="2"
-                                            fill="none"
-                                            marker-end="url(#arrowhead)">
-                                        </path>
-                                    }
-
-                                    <!-- Arrow marker -->
-                                    <defs>
-                                        <marker id="arrowhead" markerWidth="10" markerHeight="7"
-                                                refX="9" refY="3.5" orient="auto">
-                                            <polygon points="0 0, 10 3.5, 0 7" fill="#6b7280"/>
-                                        </marker>
-                                    </defs>
-                                </svg>
-
-                                <!-- Nodes -->
-                                @for (node of canvasState().nodes; track node.id) {
-                                    <app-canvas-node
-                                        [id]="node.id"
-                                        [type]="node.type"
-                                        [name]="node.name"
-                                        [position]="node.position"
-                                        [size]="node.size"
-                                        [selected]="node.isSelected"
-                                        [connectableIn]="true"
-                                        [connectableOut]="node.type !== StepType.END"
-                                        (dragStarted)="onNodeDragStart($event)"
-                                        (dragEnded)="onNodeDragEnd($event, node)"
-                                        (nodeClick)="selectNode(node)"
-                                        (nodeDblClick)="editNode(node)"
-                                    />
-                                }
-                            </div>
-                        </div>
-                    </mat-sidenav-content>
-                </mat-sidenav-container>
-            </div>
-
-            <!-- Loading Overlay -->
-            @if (isLoading()) {
-                <div class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
-                    <mat-spinner diameter="40"></mat-spinner>
-                </div>
-            }
-        </div>
-    `,
+    templateUrl    : './flow-canvas.component.html',
     styles         : [ `
         .flow-canvas-container {
             height: 100vh;
@@ -279,8 +103,8 @@ interface CanvasState {
         }
 
         .toolbox-sidenav {
+            @apply bg-default;
             width: 256px;
-            background: white;
         }
 
         .toolbox-item {
@@ -340,12 +164,20 @@ interface CanvasState {
         }
     ` ]
 })
-export class FlowCanvasComponent implements OnInit, AfterViewInit {
-    @ViewChild('canvasContainer', {static: true}) canvasContainer!: ElementRef<HTMLDivElement>;
+export class FlowCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
+    @ViewChild('canvasContainer', {static: false}) canvasContainer!: ElementRef<HTMLDivElement>;
+    @ViewChild('flowCanvas', {static: false}) flowCanvas!: ElementRef<HTMLElement>;
 
     private readonly api = inject(TracingApiService);
     private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
+    private readonly dialog = inject(MatDialog);
     private readonly snackBar = inject(MatSnackBar);
+    private readonly injector = inject(Injector);
+
+    // @foblex/flow properties
+    public readonly flowNodes = signal<FlowNode[]>([]);
+    public readonly flowConnections = signal<FlowConnection[]>([]);
 
     // State
     public readonly version = signal<FlowVersion | null>(null);
@@ -358,6 +190,8 @@ export class FlowCanvasComponent implements OnInit, AfterViewInit {
         zoom         : 1,
         pan          : {x: 0, y: 0}
     });
+
+    fCanvasComponent = viewChild(FCanvasComponent);
 
     // History for undo/redo
     private history: CanvasState[] = [];
@@ -386,17 +220,28 @@ export class FlowCanvasComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        // Initialize canvas
-        this.initializeCanvas();
+        // Initialize @foblex/flow canvas
+        this.initializeFlowCanvas();
+    }
+
+    private initializeFlowCanvas(): void {
+        // @foblex/flow initialization
+        console.log('Flow canvas initialized');
+        // Add initial state to history
+        this.saveToHistory();
+    }
+
+    ngOnDestroy(): void {
+        // Cleanup for @foblex/flow if needed
     }
 
     private loadVersion(versionId: string) {
         this.isLoading.set(true);
 
         return this.api.getVersion(versionId).pipe(
-            tap(version => {
+            tap(async (version) => {
                 this.version.set(version);
-                this.loadFlowSteps(versionId);
+                await this.loadFlowSteps(versionId);
             }),
             catchError(error => {
                 console.error('Error loading version:', error);
@@ -407,67 +252,50 @@ export class FlowCanvasComponent implements OnInit, AfterViewInit {
         );
     }
 
-    private loadFlowSteps(versionId: string): void {
-        // TODO: Load flow steps from API
-        // For now, create some sample nodes
-        const sampleNodes: CanvasNode[] = [
-            {
-                id          : 'node-1',
-                type        : StepType.STANDARD,
-                name        : 'Inicio',
-                position    : {x: 100, y: 100},
-                size        : {width: 120, height: 80},
-                isSelected  : false,
-                isConnecting: false,
-                connections : [ 'node-2' ]
-            },
-            {
-                id          : 'node-2',
-                type        : StepType.GATE,
-                name        : 'Verificación',
-                position    : {x: 300, y: 100},
-                size        : {width: 120, height: 80},
-                isSelected  : false,
-                isConnecting: false,
-                connections : [ 'node-3' ]
-            },
-            {
-                id          : 'node-3',
-                type        : StepType.END,
-                name        : 'Finalizar',
-                position    : {x: 500, y: 100},
-                size        : {width: 120, height: 80},
-                isSelected  : false,
-                isConnecting: false,
-                connections : []
-            }
-        ];
-
-        const sampleConnections: CanvasConnection[] = [
-            {
-                id        : 'conn-1',
-                fromNodeId: 'node-1',
-                toNodeId  : 'node-2',
-                points    : []
-            },
-            {
-                id        : 'conn-2',
-                fromNodeId: 'node-2',
-                toNodeId  : 'node-3',
-                points    : []
-            }
-        ];
-
-        this.updateCanvasState({
-            ...this.canvasState(),
-            nodes      : sampleNodes,
-            connections: sampleConnections
-        });
-
-        this.isLoading.set(false);
+    onInitialized() {
+        this.fCanvasComponent().fitToScreen(new Point(100, 100), false);
     }
 
-    private initializeCanvas(): void {
+    private async loadFlowSteps(versionId: string): Promise<void> {
+        try {
+            // Create @foblex/flow nodes
+            const nodes: FlowNode[] = [
+                {id: 'node-1', stepType: StepType.STANDARD, name: 'Inicio', position: {x: 100, y: 100}},
+                {id: 'node-2', stepType: StepType.GATE, name: 'Verificación', position: {x: 300, y: 100}},
+                {id: 'node-3', stepType: StepType.END, name: 'Finalizar', position: {x: 500, y: 100}}
+            ];
+
+            // Create connections between nodes
+            const connections: FlowConnection[] = [
+                {id: 'conn-1', fOutputId: 'node-1-output', fInputId: 'node-2-input'},
+                {id: 'conn-2', fOutputId: 'node-2-output', fInputId: 'node-3-input'}
+            ];
+
+            // Update signals
+            this.flowNodes.set(nodes);
+            this.flowConnections.set(connections);
+
+            this.isLoading.set(false);
+        } catch (error) {
+            console.error('Error loading flow steps:', error);
+            this.isLoading.set(false);
+        }
+    }
+
+    private async initializeCanvas(): Promise<void> {
+        // Wait for DOM to be fully rendered
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        // Validate that the canvas element is available
+        if (!this.flowCanvas?.nativeElement) {
+            throw new Error('Flow canvas element is not available');
+        }
+
+        const canvasElement = this.flowCanvas.nativeElement as HTMLElement;
+
+        // @foblex/flow initialization - no additional setup needed
+        console.log('Flow canvas element is ready');
+
         // Add initial state to history
         this.saveToHistory();
     }
@@ -529,16 +357,13 @@ export class FlowCanvasComponent implements OnInit, AfterViewInit {
     }
 
     public onCanvasMouseDown(event: MouseEvent): void {
-        if (this.isNodeDragging) {
-            return;
-        }
+        if (this.isNodeDragging) return;
 
         const target = event.target as HTMLElement | null;
-        if (target && target.closest && target.closest('.canvas-node')) {
-            return;
-        }
+        if (target && (target.closest && target.closest('.canvas-node'))) return;
 
         if (event.button === 0) { // Left click
+            console.log('Canvas mouse down at:', event.clientX, event.clientY);
             this.isDragging = true;
             this.dragStartPosition = {x: event.clientX, y: event.clientY};
             this.lastMousePosition = {x: event.clientX, y: event.clientY};
@@ -546,9 +371,7 @@ export class FlowCanvasComponent implements OnInit, AfterViewInit {
     }
 
     public onCanvasMouseMove(event: MouseEvent): void {
-        if (this.isNodeDragging) {
-            return;
-        }
+        if (this.isNodeDragging) return;
         if (this.isDragging) {
             const deltaX = event.clientX - this.lastMousePosition.x;
             const deltaY = event.clientY - this.lastMousePosition.y;
@@ -566,122 +389,98 @@ export class FlowCanvasComponent implements OnInit, AfterViewInit {
         }
     }
 
-    public onCanvasMouseUp(event: MouseEvent): void {
-        if (this.isNodeDragging) {
-            return;
-        }
+    public onCanvasMouseUp(_: MouseEvent): void {
+        if (this.isNodeDragging) return;
         this.isDragging = false;
     }
 
-    // Drag & Drop
-    public onToolboxDragEnd(event: any): void {
-        const dropPoint = event.dropPoint;
-        if (dropPoint && this.canvasContainer) {
-            const rect = this.canvasContainer.nativeElement.getBoundingClientRect();
-            const canvasState = this.canvasState();
+    // Click-based Node Addition
+    public onToolboxItemClick(nodeType: string, nodeName: string): void {
+        try {
+            // Create new @foblex/flow node
+            const nodeId = `node-${ Date.now() }`;
+            const stepType = nodeType as keyof typeof StepType;
 
-            // Calculate position relative to canvas
-            const x = (dropPoint.x - rect.left - canvasState.pan.x) / canvasState.zoom;
-            const y = (dropPoint.y - rect.top - canvasState.pan.y) / canvasState.zoom;
+            // Calculate smart position for new node
+            const position = this.calculateNewNodePosition();
 
-            this.createNode(event.source.data, {x, y});
+            const newNode: FlowNode = {
+                id      : nodeId,
+                stepType: StepType[stepType],
+                name    : nodeName,
+                position: position
+            };
+
+            // Add node to flowNodes signal
+            const currentNodes = this.flowNodes();
+            this.flowNodes.set([ ...currentNodes, newNode ]);
+
+            // Save to history
+            this.saveToHistory();
+
+            console.log(`Added ${ nodeName } node at position (${ position.x }, ${ position.y })`);
+            this.snackBar.open(`${ nodeName } agregado al canvas`, 'Cerrar', {duration: 2000});
+        } catch (error) {
+            console.error('Error adding node to canvas:', error);
+            this.snackBar.open('Error al agregar nodo al canvas', 'Cerrar', {duration: 3000});
         }
     }
 
-    public onCanvasDrop(event: CdkDragDrop<any>): void {
-        // Handle drop on canvas
-    }
+    // Smart positioning for new nodes
+    private calculateNewNodePosition(): { x: number, y: number } {
+        const currentNodes = this.flowNodes();
+        const nodeSpacing = 180; // Space between nodes
+        const startX = 300; // Start position away from toolbox
+        const startY = 150;
 
-    public onNodeDragStart(event: any): void {
-        this.isNodeDragging = true;
-    }
-
-    public onNodeDragEnd(event: any, node: CanvasNode): void {
-        // Node drag finished; re-enable canvas panning
-        this.isNodeDragging = false;
-        const dropPoint = event.dropPoint;
-        if (dropPoint && this.canvasContainer) {
-            const rect = this.canvasContainer.nativeElement.getBoundingClientRect();
-            const canvasState = this.canvasState();
-
-            const x = (dropPoint.x - rect.left - canvasState.pan.x) / canvasState.zoom;
-            const y = (dropPoint.y - rect.top - canvasState.pan.y) / canvasState.zoom;
-
-            this.updateNodePosition(node.id, {x, y});
+        // If no nodes exist, place at start position
+        if (currentNodes.length === 0) {
+            return {x: startX, y: startY};
         }
-    }
 
-    // Node Operations
-    private createNode(nodeData: any, position: { x: number; y: number }): void {
-        const newNode: CanvasNode = {
-            id          : `node-${ Date.now() }`,
-            type        : nodeData.type,
-            name        : nodeData.name,
-            position,
-            size        : {width: 120, height: 80},
-            isSelected  : false,
-            isConnecting: false,
-            connections : []
-        };
+        // Find a position that doesn't overlap with existing nodes
+        let x = startX;
+        let y = startY;
+        let positionFound = false;
+        const maxAttempts = 20;
+        let attempts = 0;
 
-        const currentState = this.canvasState();
-        this.updateCanvasState({
-            ...currentState,
-            nodes: [ ...currentState.nodes, newNode ]
-        });
+        while (!positionFound && attempts < maxAttempts) {
+            let overlaps = false;
 
-        this.saveToHistory();
-    }
+            // Check if this position overlaps with any existing node
+            for (const node of currentNodes) {
+                const distance = Math.sqrt(
+                    Math.pow(x - node.position.x, 2) + Math.pow(y - node.position.y, 2)
+                );
 
-    private updateNodePosition(nodeId: string, position: { x: number; y: number }): void {
-        const currentState = this.canvasState();
-        const updatedNodes = currentState.nodes.map(node =>
-            node.id === nodeId ? {...node, position} : node
-        );
+                if (distance < nodeSpacing) {
+                    overlaps = true;
+                    break;
+                }
+            }
 
-        this.updateCanvasState({
-            ...currentState,
-            nodes: updatedNodes
-        });
+            if (!overlaps) {
+                positionFound = true;
+            } else {
+                // Try next position in a grid pattern
+                if (attempts % 3 === 0) {
+                    x = startX;
+                    y += nodeSpacing;
+                } else {
+                    x += nodeSpacing;
+                }
+                attempts++;
+            }
+        }
 
-        this.saveToHistory();
-    }
+        // If we couldn't find a good position, place it at a random offset
+        if (!positionFound) {
+            x = startX + (Math.random() * 400);
+            y = startY + (Math.random() * 300);
+        }
 
-    public selectNode(node: CanvasNode): void {
-        const currentState = this.canvasState();
-        const updatedNodes = currentState.nodes.map(n => ({
-            ...n,
-            isSelected: n.id === node.id
-        }));
-
-        this.updateCanvasState({
-            ...currentState,
-            nodes        : updatedNodes,
-            selectedNodes: [ node.id ]
-        });
-    }
-
-    public editNode(node: CanvasNode): void {
-        // TODO: Open node editor dialog
-        this.snackBar.open('Editor de nodos próximamente', 'Cerrar', {duration: 3000});
-    }
-
-    // Connections
-    public getConnectionPath(connection: CanvasConnection): string {
-        const fromNode = this.canvasState().nodes.find(n => n.id === connection.fromNodeId);
-        const toNode = this.canvasState().nodes.find(n => n.id === connection.toNodeId);
-
-        if (!fromNode || !toNode) return '';
-
-        const startX = fromNode.position.x + fromNode.size.width;
-        const startY = fromNode.position.y + fromNode.size.height / 2;
-        const endX = toNode.position.x;
-        const endY = toNode.position.y + toNode.size.height / 2;
-
-        const controlX1 = startX + (endX - startX) / 3;
-        const controlX2 = startX + (2 * (endX - startX)) / 3;
-
-        return `M ${ startX } ${ startY } C ${ controlX1 } ${ startY }, ${ controlX2 } ${ endY }, ${ endX } ${ endY }`;
+        return {x, y};
     }
 
     // Node Helpers
@@ -782,8 +581,53 @@ export class FlowCanvasComponent implements OnInit, AfterViewInit {
         return true;
     }
 
+    // Node Click Handler
+    public onNodeClick(node: FlowNode, event: MouseEvent): void {
+        // Prevent event bubbling to avoid canvas pan interactions
+        event.stopPropagation();
+        event.preventDefault();
+
+        // Get current version ID for navigation
+        const versionId = this.version()?.id;
+        if (!versionId) {
+            this.snackBar.open('Error: No se pudo obtener el ID de la versión', 'Cerrar', {duration: 3000});
+            return;
+        }
+
+        // Prepare step summary data
+        const stepSummaryData = {
+            nodeId     : node.id,
+            stepId     : undefined, // TODO: Get from backend when steps are loaded
+            name       : node.name,
+            stepType   : node.stepType,
+            description: undefined, // TODO: Get from backend when steps are loaded
+            hasFields  : false, // TODO: Get from backend when steps are loaded
+            fieldsCount: 0, // TODO: Get from backend when steps are loaded
+            versionId  : versionId,
+            isNew      : true // TODO: Determine based on backend data
+        };
+
+        // Open the step summary overlay
+        const dialogRef = this.dialog.open(StepSummaryOverlayComponent, {
+            data        : stepSummaryData,
+            width       : '90vw',
+            maxWidth    : '500px',
+            panelClass  : 'step-summary-dialog',
+            autoFocus   : false,
+            restoreFocus: false
+        });
+
+        // Handle dialog result if needed
+        dialogRef.afterClosed().subscribe(result => {
+            // Optional: Handle any actions after overlay is closed
+            console.log('Step summary overlay closed');
+        });
+    }
+
     // State Management
     private updateCanvasState(newState: CanvasState): void {
         this.canvasState.set(newState);
     }
+
+    protected readonly EFMarkerType = EFMarkerType;
 }

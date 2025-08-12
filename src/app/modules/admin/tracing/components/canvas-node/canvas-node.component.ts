@@ -1,48 +1,39 @@
-import { ChangeDetectionStrategy, Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule }                                                    from '@angular/common';
-import { DragDropModule, CdkDragEnd, CdkDragStart }                        from '@angular/cdk/drag-drop';
-import { MatIconModule }                                                   from '@angular/material/icon';
-import { StepType }                                                        from '../../models/enums';
+import { ChangeDetectionStrategy, Component, Input, OnInit, Output } from '@angular/core';
+import { CommonModule }                                              from '@angular/common';
+import { MatIconModule }                                             from '@angular/material/icon';
+import { StepType }                                                  from '../../models/enums';
+
+// Rete.js imports
+import { ClassicPreset } from 'rete';
+
+// Custom Rete Node class for Flow Steps
+class FlowStepNode extends ClassicPreset.Node {
+    constructor(id: string, stepType: StepType, name: string) {
+        super(name);
+
+        // Create sockets for input/output
+        const flowSocket = new ClassicPreset.Socket('flow');
+
+        // Add input and output ports
+        this.addInput('input', new ClassicPreset.Input(flowSocket, 'Input'));
+        this.addOutput('output', new ClassicPreset.Output(flowSocket, 'Output'));
+
+        // Store additional data
+        this.stepType = stepType;
+        this.nodeId = id;
+    }
+
+    // Additional properties for step data
+    stepType!: StepType;
+    nodeId!: string;
+}
 
 @Component({
     selector       : 'app-canvas-node',
     standalone     : true,
-    imports        : [ CommonModule, DragDropModule, MatIconModule ],
+    imports    : [ CommonModule, MatIconModule ],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    template       : `
-        <div
-            class="canvas-node absolute cursor-pointer"
-            [class.selected]="selected"
-            [style.left.px]="position?.x || 0"
-            [style.top.px]="position?.y || 0"
-            [style.width.px]="size?.width || 0"
-            [style.height.px]="size?.height || 0"
-            cdkDrag
-            (cdkDragStarted)="onDragStarted($event)"
-            (cdkDragEnded)="onDragEnded($event)"
-            (mousedown)="$event.stopPropagation()"
-            (touchstart)="$event.stopPropagation()"
-            (click)="nodeClick.emit()"
-            (dblclick)="nodeDblClick.emit()"
-            role="button"
-            tabindex="0"
-            [attr.aria-label]="'Nodo ' + (name || '')">
-            <div class="node-content h-full flex flex-col justify-center items-center p-2 bg-white border-2 rounded-lg shadow-sm"
-                 [class.border-blue-500]="selected"
-                 [class.border-gray-300]="!selected">
-                <mat-icon [class]="getNodeIconClass(type)">{{ getNodeIcon(type) }}</mat-icon>
-                <span class="text-sm font-medium text-center mt-1">{{ name }}</span>
-                <div class="connection-points absolute">
-                    @if (connectableIn) {
-                        <div class="connection-point input absolute -left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-blue-500 rounded-full border-2 border-white"></div>
-                    }
-                    @if (connectableOut) {
-                        <div class="connection-point output absolute -right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
-                    }
-                </div>
-            </div>
-        </div>
-    `,
+    templateUrl: './canvas-node.component.html',
     styles         : [
         `
             .canvas-node {
@@ -63,22 +54,29 @@ import { StepType }                                                        from 
         `
     ]
 })
-export class CanvasNodeComponent {
-    @Input() id!: string;
-    @Input() type!: StepType;
-    @Input() name!: string;
-    @Input() position!: { x: number; y: number };
-    @Input() size!: { width: number; height: number };
-    @Input() selected = false;
-    @Input() connectableIn = true;
-    @Input() connectableOut = true;
+export class CanvasNodeComponent implements OnInit {
+    // Rete node data - these will be provided by Rete's AngularPlugin
+    @Input() data!: FlowStepNode;
+    @Input() rendered!: any;
+    @Input() emit!: any;
 
-    @Output() nodeClick = new EventEmitter<void>();
-    @Output() nodeDblClick = new EventEmitter<void>();
-    // Emit when drag starts to allow parent to disable canvas panning
-    @Output() dragStarted = new EventEmitter<CdkDragStart<any>>();
-    // Emit the original CDK drag end event so parent can reuse existing handler
-    @Output() dragEnded = new EventEmitter<CdkDragEnd<any>>();
+    // Derived properties from Rete node data
+    get stepType(): StepType {
+        return this.data?.stepType || StepType.STANDARD;
+    }
+
+    get nodeName(): string {
+        return this.data?.label || 'Node';
+    }
+
+    get nodeId(): string {
+        return this.data?.nodeId || '';
+    }
+
+    ngOnInit(): void {
+        // Component is now managed by Rete.js
+        // No manual initialization needed
+    }
 
     getNodeIcon(type: StepType): string {
         switch (type) {
@@ -102,13 +100,5 @@ export class CanvasNodeComponent {
             default:
                 return 'text-gray-600';
         }
-    }
-
-    onDragStarted(event: CdkDragStart<any>) {
-        this.dragStarted.emit(event);
-    }
-
-    onDragEnded(event: CdkDragEnd<any>) {
-        this.dragEnded.emit(event);
     }
 }

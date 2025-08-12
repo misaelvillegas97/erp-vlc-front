@@ -204,17 +204,17 @@ import { CreateFlowVersionDto }      from '../../../models/dtos/create-flow-vers
                                             <mat-card-content class="p-4">
                                                 <div class="grid grid-cols-2 gap-4">
                                                     <div class="text-center p-4 bg-blue-50 rounded">
-                                                        <div class="text-2xl font-bold text-blue-600">{{ getVersionsByStatus('PUBLISHED').length }}</div>
+                                                        <div class="text-2xl font-bold text-blue-600">{{ getVersionsByStatus(Status.PUBLISHED).length }}</div>
                                                         <div class="text-sm text-blue-600">Publicadas</div>
                                                     </div>
 
                                                     <div class="text-center p-4 bg-yellow-50 rounded">
-                                                        <div class="text-2xl font-bold text-yellow-600">{{ getVersionsByStatus('DRAFT').length }}</div>
+                                                        <div class="text-2xl font-bold text-yellow-600">{{ getVersionsByStatus(Status.DRAFT).length }}</div>
                                                         <div class="text-sm text-yellow-600">Borradores</div>
                                                     </div>
 
                                                     <div class="text-center p-4 bg-gray-50 rounded">
-                                                        <div class="text-2xl font-bold text-gray-600">{{ getVersionsByStatus('ARCHIVED').length }}</div>
+                                                        <div class="text-2xl font-bold text-gray-600">{{ getVersionsByStatus(Status.ARCHIVED).length }}</div>
                                                         <div class="text-sm text-gray-600">Archivadas</div>
                                                     </div>
 
@@ -303,14 +303,14 @@ import { CreateFlowVersionDto }      from '../../../models/dtos/create-flow-vers
                                                                 <span>Editar</span>
                                                             </button>
 
-                                                            @if (version.status === 'DRAFT') {
+                                                            @if (version.status === Status.DRAFT) {
                                                                 <button mat-menu-item (click)="publishVersion(version)">
                                                                     <mat-icon>publish</mat-icon>
                                                                     <span>Publicar</span>
                                                                 </button>
                                                             }
 
-                                                            @if (version.status === 'PUBLISHED') {
+                                                            @if (version.status === Status.PUBLISHED) {
                                                                 <button mat-menu-item (click)="archiveVersion(version)">
                                                                     <mat-icon>archive</mat-icon>
                                                                     <span>Archivar</span>
@@ -322,7 +322,7 @@ import { CreateFlowVersionDto }      from '../../../models/dtos/create-flow-vers
                                                                 <span>Clonar</span>
                                                             </button>
 
-                                                            @if (version.status === 'DRAFT') {
+                                                            @if (version.status === Status.DRAFT) {
                                                                 <mat-divider></mat-divider>
                                                                 <button mat-menu-item (click)="deleteVersion(version)" class="text-red-600">
                                                                     <mat-icon>delete</mat-icon>
@@ -402,6 +402,7 @@ export class TemplateDetailComponent implements OnInit {
 
     // Table
     public displayedColumns = [ 'version', 'status', 'createdAt', 'publishedAt', 'note', 'actions' ];
+    public readonly Status = FlowVersionStatus;
 
     constructor() {
         this.templateForm = this.fb.group({

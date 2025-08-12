@@ -81,9 +81,9 @@ interface OrderLink {
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template       : `
-    <div class="step-runner-container min-h-screen bg-gray-50">
+        <div class="step-runner-container min-h-screen">
       <!-- Mobile-First Header -->
-      <div class="sticky top-0 z-10 bg-white border-b shadow-sm">
+            <div class="sticky top-0 z-10 bg-card border-b shadow-sm">
         <div class="flex items-center justify-between p-4">
           <div class="flex items-center space-x-3">
             <button mat-icon-button (click)="goBack()" matTooltip="Volver">
@@ -289,7 +289,7 @@ interface OrderLink {
                           @if (getUploadedFiles(field.fieldDef.key).length > 0) {
                             <div class="mt-2 space-y-1">
                               @for (file of getUploadedFiles(field.fieldDef.key); track file.name) {
-                                <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                  <div class="flex items-center justify-between p-2 rounded">
                                   <div class="flex items-center space-x-2">
                                     <mat-icon class="text-gray-400">attach_file</mat-icon>
                                     <span class="text-sm truncate">{{ file.name }}</span>
@@ -358,7 +358,7 @@ interface OrderLink {
           </form>
 
           <!-- Action Buttons -->
-          <div class="sticky bottom-0 bg-white border-t p-4 space-y-2">
+            <div class="sticky bottom-0 bg-card border-t p-4 space-y-2">
             <!-- Validation Summary -->
             @if (hasValidationErrors()) {
               <div class="bg-red-50 border border-red-200 rounded p-3 mb-4">

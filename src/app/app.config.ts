@@ -29,6 +29,7 @@ import { inventoryPermissions }   from '@modules/admin/inventory/inventory.permi
 import { appsPermissions }        from '@modules/admin/apps/apps.permissions';
 import { checklistsPermissions }  from '@modules/admin/checklists/checklists.permissions';
 import { tracingPermissions } from '@modules/admin/tracing/tracing.permissions';
+import { FFlowModule } from '@foblex/flow';
 // import { flowBuilderPermissions } from '@modules/admin/flow-builder/flow-builder.permissions';
 
 const config: SocketIoConfig = {
@@ -141,7 +142,6 @@ export const appConfig: ApplicationConfig = {
         // provideModulePermissions(flowBuilderPermissions),
         // Maintainers
         provideModulePermissions(maintainersPermissions),
-
         // Fuse
         provideAuth(),
         provideIcons(),
