@@ -25,7 +25,8 @@ import { FlowVersion }                 from '../../../models/entities';
 import { StepType }                    from '../../../models/enums';
 import { FMediator }                   from '@foblex/mediator';
 import { StepSummaryOverlayComponent } from '../../../components/step-summary-overlay/step-summary-overlay.component';
-import { Point }                       from '@foblex/2d';
+import { Point, PointExtensions } from '@foblex/2d';
+import { BrowserService }         from '@foblex/platform';
 
 // ===== @foblex/flow node definition =====
 interface FlowNode {
@@ -174,6 +175,7 @@ export class FlowCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly dialog = inject(MatDialog);
     private readonly snackBar = inject(MatSnackBar);
     private readonly injector = inject(Injector);
+    private readonly browserService = inject(BrowserService);
 
     // @foblex/flow properties
     public readonly flowNodes = signal<FlowNode[]>([]);
@@ -253,7 +255,7 @@ export class FlowCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     onInitialized() {
-        this.fCanvasComponent().fitToScreen(new Point(100, 100), false);
+        setTimeout(() => this.fCanvasComponent().fitToScreen(PointExtensions.initialize(), false), 100);
     }
 
     private async loadFlowSteps(versionId: string): Promise<void> {
@@ -280,30 +282,6 @@ export class FlowCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
             console.error('Error loading flow steps:', error);
             this.isLoading.set(false);
         }
-    }
-
-    private async initializeCanvas(): Promise<void> {
-        // Wait for DOM to be fully rendered
-        await new Promise(resolve => setTimeout(resolve, 0));
-
-        // Validate that the canvas element is available
-        if (!this.flowCanvas?.nativeElement) {
-            throw new Error('Flow canvas element is not available');
-        }
-
-        const canvasElement = this.flowCanvas.nativeElement as HTMLElement;
-
-        // @foblex/flow initialization - no additional setup needed
-        console.log('Flow canvas element is ready');
-
-        // Add initial state to history
-        this.saveToHistory();
-    }
-
-    // Canvas Transform
-    public getCanvasTransform(): string {
-        const state = this.canvasState();
-        return `translate(${ state.pan.x }px, ${ state.pan.y }px) scale(${ state.zoom })`;
     }
 
     public getZoomPercentage(): number {
@@ -339,20 +317,6 @@ export class FlowCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
             ...this.canvasState(),
             zoom: 1,
             pan : {x: 0, y: 0}
-        });
-    }
-
-    // Canvas Events
-    public onCanvasWheel(event: WheelEvent): void {
-        event.preventDefault();
-
-        const delta = event.deltaY > 0 ? 0.9 : 1.1;
-        const currentZoom = this.canvasState().zoom;
-        const newZoom = Math.max(0.1, Math.min(3, currentZoom * delta));
-
-        this.updateCanvasState({
-            ...this.canvasState(),
-            zoom: newZoom
         });
     }
 
@@ -487,13 +451,13 @@ export class FlowCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     public getNodeIcon(type: StepType): string {
         switch (type) {
             case StepType.STANDARD:
-                return 'radio_button_unchecked';
+                return 'mat_solid:radio_button_unchecked';
             case StepType.GATE:
-                return 'alt_route';
+                return 'mat_solid:alt_route';
             case StepType.END:
-                return 'stop_circle';
+                return 'mat_solid:stop_circle';
             default:
-                return 'help';
+                return 'mat_solid:help';
         }
     }
 

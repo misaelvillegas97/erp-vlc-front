@@ -128,24 +128,34 @@
                     </f-background>
                     <f-line-alignment></f-line-alignment>
                     <f-canvas #flowCanvas fZoom class="flow-canvas absolute inset-0">
-                        <f-connection-for-create fType="straight">
+                        <f-connection-for-create fBehavior="floating"
+                                                 fType="straight">
                             <svg viewBox="0 0 10 10" fMarker [type]="EFMarkerType.START" [height]="10" [width]="10" [refX]="5" [refY]="5">
-                                <circle cx="5" cy="5" r="2" stroke="none" fill="var(--primary-3)"></circle>
+                                <circle cx="5" cy="5" r="2" stroke="none"></circle>
                             </svg>
-                            <svg viewBox="0 0 6 6" fMarker [type]="EFMarkerType.END" [height]="6" [width]="6" [refX]="6" [refY]="3">
-                                <path d="M0,0 L6,3 0,6Z" stroke="none" fill="var(--primary-3)"></path>
+                            <svg viewBox="0 0 6 6" fMarker [type]="EFMarkerType.END" [height]="6" [width]="6" [refX]="5" [refY]="3">
+                                <path d="M0,0 L6,3 0,6Z" stroke="none"></path>
                             </svg>
                         </f-connection-for-create>
+                        <f-snap-connection fBehavior="fixed"
+                                           fType="segment" [fSnapThreshold]="100">
+                            <svg viewBox="0 0 10 10" fMarker [type]="EFMarkerType.START" [height]="10" [width]="10" [refX]="5" [refY]="5">
+                                <circle cx="5" cy="5" r="2" stroke="none"></circle>
+                            </svg>
+                            <svg viewBox="0 0 6 6" fMarker [type]="EFMarkerType.END" [height]="6" [width]="6" [refX]="5" [refY]="3">
+                                <path d="M0,0 L6,3 0,6Z" stroke="none"></path>
+                            </svg>
+                        </f-snap-connection>
                         @for (node of flowNodes(); track node.id) {
                             <div fNode
                                  fDragHandle
+                                 fConnectOnNode
                                  [fNodeId]="node.id"
                                  [fNodePosition]="node.position"
                                  (click)="onNodeClick(node, $event)"
                                  class="flow-node p-4 bg-white border rounded shadow-sm cursor-pointer hover:shadow-md transition-shadow">
                                 <div class="flex items-center space-x-2">
-                                    <mat-icon [class]="getNodeIconClass(node.stepType)">
-                                        {{ getNodeIcon(node.stepType) }}
+                                    <mat-icon [class]="getNodeIconClass(node.stepType)" [svgIcon]="getNodeIcon(node.stepType)">
                                     </mat-icon>
                                     <span class="font-medium">{{ node.name }}</span>
                                 </div>
@@ -156,7 +166,8 @@
 
                         @for (connection of flowConnections(); track connection.id) {
                             <f-connection
-                                fType="straight"
+                                fBehavior="fixed"
+                                fType="segment"
                                 [fOutputId]="connection.fOutputId"
                                 [fInputId]="connection.fInputId">
                                 <svg viewBox="0 0 10 10" fMarker [type]="EFMarkerType.START" [height]="10" [width]="10" [refX]="5" [refY]="5">
