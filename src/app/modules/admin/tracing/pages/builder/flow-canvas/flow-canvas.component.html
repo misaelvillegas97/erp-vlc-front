@@ -122,6 +122,8 @@
                     </div>
                 </div>
                 <f-flow fDraggable
+                        (fCreateConnection)="handleConnectionCreated($event)"
+                        (fReassignConnection)="handleConnectionCreated($event)"
                         (fLoaded)="onInitialized()">
                     <f-background>
                         <f-circle-pattern></f-circle-pattern>
@@ -150,6 +152,7 @@
                             <div fNode
                                  fDragHandle
                                  fConnectOnNode
+                                 suppressClickOnDrag
                                  [fNodeId]="node.id"
                                  [fNodePosition]="node.position"
                                  (click)="onNodeClick(node, $event)"
@@ -162,6 +165,16 @@
                                 <div fNodeOutput [fOutputId]="node.id + '-output'" class="absolute right-0 top-1/2 transform translate-x-full -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full"></div>
                                 <div fNodeInput [fInputId]="node.id + '-input'" class="absolute left-0 top-1/2 transform -translate-x-full -translate-y-1/2 w-3 h-3 bg-gray-400 rounded-full"></div>
                             </div>
+                        } @empty {
+                            <div class="flow-node p-4 bg-white border rounded shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                                 fNode
+                                 fNodeDraggingDisabled
+                                 fNodeSelectionDisabled>
+                                <div class="flex items-center space-x-2">
+                                    <mat-icon svgIcon="mat_outline:add_circle_outline"></mat-icon>
+                                    <span class="font-medium">Agregar Paso</span>
+                                </div>
+                            </div>
                         }
 
                         @for (connection of flowConnections(); track connection.id) {
@@ -169,7 +182,10 @@
                                 fBehavior="fixed"
                                 fType="segment"
                                 [fOutputId]="connection.fOutputId"
-                                [fInputId]="connection.fInputId">
+                                [fInputId]="connection.fInputId"
+                                (click)="onConnectionClick(connection, $event)"
+                                (dblclick)="onConnectionDoubleClick(connection, $event)"
+                                class="cursor-pointer hover:opacity-75 transition-opacity">
                                 <svg viewBox="0 0 10 10" fMarker [type]="EFMarkerType.START" [height]="10" [width]="10" [refX]="5" [refY]="5">
                                     <circle cx="5" cy="5" r="2" stroke="none"></circle>
                                 </svg>

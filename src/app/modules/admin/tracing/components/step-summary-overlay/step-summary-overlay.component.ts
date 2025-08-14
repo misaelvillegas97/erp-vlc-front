@@ -36,12 +36,13 @@ interface StepSummaryData {
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template       : `
-        <div class="step-summary-overlay p-6 max-w-md">
+        <div class="step-summary-overlay p-6 w-full">
             <!-- Header -->
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center space-x-3">
-                    <mat-icon [class]="getStepTypeIconClass(data.stepType)" class="text-2xl">
-                        {{ getStepTypeIcon(data.stepType) }}
+                    <mat-icon class="text-2xl"
+                              [class]="getStepTypeIconClass(data.stepType)"
+                              [svgIcon]="getStepTypeIcon(data.stepType)">
                     </mat-icon>
                     <div>
                         <h2 class="text-xl font-semibold text-gray-900">{{ data.name }}</h2>
@@ -50,7 +51,7 @@ interface StepSummaryData {
                 </div>
 
                 <button mat-icon-button (click)="closeOverlay()" class="text-gray-400 hover:text-gray-600">
-                    <mat-icon>close</mat-icon>
+                    <mat-icon svgIcon="mat_solid:close"></mat-icon>
                 </button>
             </div>
 
@@ -78,7 +79,7 @@ interface StepSummaryData {
                     </div>
                 } @else {
                     <div class="text-center py-4 text-gray-500">
-                        <mat-icon class="text-4xl mb-2 opacity-50">description</mat-icon>
+                        <mat-icon class="text-4xl mb-2 opacity-50" svgIcon="mat_solid:description"></mat-icon>
                         <p class="text-sm">No hay descripción disponible</p>
                     </div>
                 }
@@ -113,7 +114,7 @@ interface StepSummaryData {
                     (click)="editStep()"
                     class="flex items-center space-x-2">
                     <span>{{ data.isNew ? 'Configurar' : 'Editar' }}</span>
-                    <mat-icon>arrow_forward</mat-icon>
+                    <mat-icon svgIcon="mat_solid:arrow_forward"></mat-icon>
                 </button>
             </div>
         </div>
@@ -177,13 +178,13 @@ export class StepSummaryOverlayComponent {
     getStepTypeIcon(type: StepType): string {
         switch (type) {
             case StepType.STANDARD:
-                return 'radio_button_unchecked';
+                return 'mat_solid:radio_button_unchecked';
             case StepType.GATE:
-                return 'alt_route';
+                return 'mat_solid:alt_route';
             case StepType.END:
-                return 'stop_circle';
+                return 'mat_solid:stop_circle';
             default:
-                return 'help';
+                return 'mat_solid:help';
         }
     }
 

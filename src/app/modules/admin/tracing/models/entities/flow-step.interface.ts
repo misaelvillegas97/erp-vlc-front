@@ -12,6 +12,7 @@ export interface FlowStep {
     };
     order: number;
     description?: string;
+    configJson?: Record<string, any>;
     createdAt: Date;
     updatedAt: Date;
 }

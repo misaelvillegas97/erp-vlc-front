@@ -10,6 +10,9 @@ import { CreateFlowInstanceDto }                   from '../models/dtos/create-f
 import { CompleteStepDto }                         from '../models/dtos/complete-step.dto';
 import { CreateFieldCategoryDto }                  from '../models/dtos/create-field-category.dto';
 import { CreateFieldDefDto }                       from '../models/dtos/create-field-def.dto';
+import { CreateFlowStepDto }   from '../models/dtos/create-flow-step.dto';
+import { UpdateFlowStepDto }   from '../models/dtos/update-flow-step.dto';
+import { FlowStepResponseDto } from '../models/dtos/flow-step-response.dto';
 import { FlowTemplate, FlowVersion, FlowInstance } from '../models/entities';
 
 @Injectable({
@@ -71,6 +74,31 @@ export class TracingApiService {
 
     deleteVersion(id: string): Observable<void> {
         return this.http.delete<void>(`${ this.baseUrl }/versions/${ id }`);
+    }
+
+    // ========== FLOW STEPS ==========
+    createFlowStep(dto: CreateFlowStepDto): Observable<FlowStepResponseDto> {
+        return this.http.post<FlowStepResponseDto>(`${ this.baseUrl }/steps`, dto);
+    }
+
+    findStepsByVersion(versionId: string): Observable<FlowStepResponseDto[]> {
+        return this.http.get<FlowStepResponseDto[]>(`${ this.baseUrl }/steps/version/${ versionId }`);
+    }
+
+    findStepById(id: string): Observable<FlowStepResponseDto> {
+        return this.http.get<FlowStepResponseDto>(`${ this.baseUrl }/steps/${ id }`);
+    }
+
+    updateFlowStep(id: string, dto: UpdateFlowStepDto): Observable<FlowStepResponseDto> {
+        return this.http.put<FlowStepResponseDto>(`${ this.baseUrl }/steps/${ id }`, dto);
+    }
+
+    deleteFlowStep(id: string): Observable<void> {
+        return this.http.delete<void>(`${ this.baseUrl }/steps/${ id }`);
+    }
+
+    reorderSteps(versionId: string, stepIds: string[]): Observable<FlowStepResponseDto[]> {
+        return this.http.post<FlowStepResponseDto[]>(`${ this.baseUrl }/steps/version/${ versionId }/reorder`, {stepIds});
     }
 
     // ========== FIELDS ==========
