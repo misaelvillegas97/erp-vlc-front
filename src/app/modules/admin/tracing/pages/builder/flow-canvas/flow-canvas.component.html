@@ -43,7 +43,7 @@
 
             <!-- Right Section -->
             <div class="flex items-center space-x-2">
-                <button mat-button (click)="saveFlow()" [disabled]="isSaving()">
+                <button mat-button (click)="saveFlow()" [disabled]="apiService.isSaving()">
                     <mat-icon>save</mat-icon>
                     Guardar
                 </button>
@@ -67,60 +67,13 @@
                 (mousemove)="onCanvasMouseMove($event)"
                 (mouseup)="onCanvasMouseUp($event)">
                 <!-- @foblex/flow Canvas Container -->
-                <div class="floating-toolbox absolute top-4 left-4 bg-card border rounded-lg shadow-lg p-4 z-10">
-                    <h4 class="font-medium text-gray-800 mb-3 text-sm">Componentes</h4>
+                <app-flow-canvas-toolbox
+                    (itemClick)="onToolboxItemClick($event.nodeType, $event.nodeName)"
+                    (fitToScreenClick)="onInitialized()">
 
-                    <!-- Node Type Buttons -->
-                    <div class="space-y-2">
-                        <button
-                            class="toolbox-item w-full p-2 border rounded cursor-pointer hover:bg-gray-50 flex items-center space-x-2 text-left transition-colors"
-                            (click)="onToolboxItemClick('STANDARD', 'Paso Estándar')">
-                            <mat-icon class="text-blue-600 text-sm" svgIcon="mat_solid:radio_button_unchecked"></mat-icon>
-                            <span class="text-sm">Paso Estándar</span>
-                        </button>
-
-                        <button
-                            class="toolbox-item w-full p-2 border rounded cursor-pointer hover:bg-gray-50 flex items-center space-x-2 text-left transition-colors"
-                            (click)="onToolboxItemClick('GATE', 'Puerta de Decisión')">
-                            <mat-icon class="text-orange-600 text-sm" svgIcon="mat_solid:alt_route"></mat-icon>
-                            <span class="text-sm">Puerta de Decisión</span>
-                        </button>
-
-                        <button
-                            class="toolbox-item w-full p-2 border rounded cursor-pointer hover:bg-gray-50 flex items-center space-x-2 text-left transition-colors"
-                            (click)="onToolboxItemClick('END', 'Paso Final')">
-                            <mat-icon class="text-red-600 text-sm" svgIcon="mat_solid:stop_circle"></mat-icon>
-                            <span class="text-sm">Paso Final</span>
-                        </button>
-                    </div>
-
-                    <div class="mt-6 pt-3 border-t">
-                        <!-- Fit to screen -->
-                        <button class="toolbox-item w-full p-2 border rounded cursor-pointer hover:bg-gray-50 flex items-center space-x-2 text-left transition-colors"
-                                (click)="onInitialized()">
-                            <mat-icon svgIcon="mat_solid:fit_screen"></mat-icon>
-                            <span class="text-sm">Ajustar a Pantalla</span>
-                        </button>
-                    </div>
-
-                    <!-- Minimap -->
-                    <div class="mt-6 pt-3 border-t">
-                        <h4 class="font-medium text-gray-600 mb-2 text-xs">Vista General</h4>
-                        <div class="minimap border rounded p-2 bg-gray-50 h-24 relative overflow-hidden">
-                            <div class="minimap-content" [style.transform]="getMinimapTransform()">
-                                @for (node of canvasState().nodes; track node.id) {
-                                    <div
-                                        class="minimap-node absolute bg-blue-500 rounded"
-                                        [style.left.px]="node.position.x / 12"
-                                        [style.top.px]="node.position.y / 12"
-                                        [style.width.px]="node.size.width / 12"
-                                        [style.height.px]="node.size.height / 12">
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    <!-- Minimap inside toolbox -->
+                    <app-flow-canvas-minimap [canvasState]="stateService.canvasState()"></app-flow-canvas-minimap>
+                </app-flow-canvas-toolbox>
                 <f-flow fDraggable
                         (fCreateConnection)="handleConnectionCreated($event)"
                         (fReassignConnection)="handleConnectionCreated($event)"
@@ -210,7 +163,7 @@
     </div>
 
     <!-- Loading Overlay -->
-    @if (isLoading()) {
+    @if (apiService.isLoading()) {
         <div class="absolute inset-0 bg-card bg-opacity-75 flex items-center justify-center z-50">
             <mat-spinner diameter="40"></mat-spinner>
         </div>
