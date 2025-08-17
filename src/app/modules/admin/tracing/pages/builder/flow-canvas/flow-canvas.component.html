@@ -115,7 +115,20 @@
                                     </mat-icon>
                                     <span class="font-medium">{{ node.name }}</span>
                                 </div>
-                                <div fNodeOutput [fOutputId]="node.id + '-output'" class="absolute right-0 top-1/2 transform translate-x-full -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full"></div>
+                                <!-- Multiple outputs for GATE steps, single output for others -->
+                                @if (node.stepType === 'GATE') {
+                                    <!-- Primary output for GATE (top right) -->
+                                    <div fNodeOutput [fOutputId]="node.id + '-output-primary'"
+                                         class="absolute right-0 top-1/4 transform translate-x-full -translate-y-1/2 w-3 h-3 bg-green-500 rounded-full"
+                                         title="Salida Primaria"></div>
+                                    <!-- Secondary output for GATE (bottom right) -->
+                                    <div fNodeOutput [fOutputId]="node.id + '-output-secondary'"
+                                         class="absolute right-0 top-3/4 transform translate-x-full -translate-y-1/2 w-3 h-3 bg-red-500 rounded-full"
+                                         title="Salida Secundaria"></div>
+                                } @else {
+                                    <!-- Single output for STANDARD and END steps -->
+                                    <div fNodeOutput [fOutputId]="node.id + '-output'" class="absolute right-0 top-1/2 transform translate-x-full -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full"></div>
+                                }
                                 <div fNodeInput [fInputId]="node.id + '-input'" class="absolute left-0 top-1/2 transform -translate-x-full -translate-y-1/2 w-3 h-3 bg-gray-400 rounded-full"></div>
                             </div>
                         } @empty {
