@@ -29,33 +29,35 @@
     # Health
     respond /health 200
 
-    # --- Frontend estático ---
-    root * /dist
-    encode gzip
+    @spa not path /api/*
+        handle @spa {
+            root * /dist
+            encode gzip
 
-    # 1) NUNCA cachear HTML (incluye /index.html)
-    @html path_regexp html \.html$
-    header @html {
-        Cache-Control "no-cache, no-store, must-revalidate"
-        Pragma "no-cache"
-        Expires "0"
-    }
+            # No cache para HTML
+            @html path_regexp html \.html$
+            header @html {
+                Cache-Control "no-cache, no-store, must-revalidate"
+                Pragma "no-cache"
+                Expires "0"
+            }
 
-    # 2) NUNCA cachear archivos del Service Worker
-    @sw path /ngsw.json /ngsw-worker.js /ngsw-state.js /safety-worker.js /worker-basic.min.js
-    header @sw {
-        Cache-Control "no-cache, no-store, must-revalidate"
-        Pragma "no-cache"
-        Expires "0"
-    }
+            # No cache para SW
+            @sw path /ngsw.json /ngsw-worker.js /ngsw-state.js /safety-worker.js /worker-basic.min.js
+            header @sw {
+                Cache-Control "no-cache, no-store, must-revalidate"
+                Pragma "no-cache"
+                Expires "0"
+            }
 
-    # 3) Cache agresivo solo para assets con hash
-    @assets path_regexp assets \.(?:js|css|woff2?|svg|png|jpg|webp|ico)$
-    header @assets {
-        Cache-Control "public, max-age=31536000, immutable"
-    }
+            # Cache largo para assets con hash
+            @assets path_regexp assets \.(?:js|css|woff2?|svg|png|jpg|webp|ico)$
+            header @assets {
+                Cache-Control "public, max-age=31536000, immutable"
+            }
 
-    # 4) SPA fallback: primero reescribe, luego sirve archivos
-    try_files {path} /index.html
-    file_server
+            # Fallback SPA
+            try_files {path} /index.html
+            file_server
+        }
 }
