@@ -3,8 +3,12 @@
     admin off
     persist_config off
     auto_https off
-    log { format json }
-    servers { trusted_proxies static private_ranges }
+    log {
+        format json
+    }
+    servers {
+        trusted_proxies static private_ranges
+    }
 }
 
 :{$PORT} {
@@ -16,7 +20,9 @@
     # API
     handle /api/* {
         reverse_proxy erp-vlc-back:8080 {
-            transport http { versions h1c }
+            transport http {
+                versions h1c
+            }
         }
     }
 
