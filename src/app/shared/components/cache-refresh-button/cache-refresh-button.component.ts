@@ -11,7 +11,7 @@ import { NotyfService }                                       from '@shared/serv
         <button
             mat-icon-button
             [disabled]="isLoading()"
-            (click)="clearCacheAndRefresh()"
+            (click)="reinstall()"
             matTooltip="Borrar caché y actualizar"
             class="relative"
         >
@@ -70,6 +70,45 @@ export class CacheRefreshButtonComponent {
             this.notyfService.error('Error al limpiar caché o buscar actualizaciones');
             this.isLoading.set(false);
         }
+    }
+
+    async reinstall(): Promise<void> {
+        try {
+            // 1) Desregistrar todos los SW
+            if ('serviceWorker' in navigator) {
+                console.log('Unregistering all service workers...');
+                const regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map(r => r.unregister().catch(() => {})));
+            }
+
+            // 2) Borrar todas las caches (incluidas ngsw:*)
+            if ('caches' in window) {
+                console.log('Clearing all caches...');
+                const keys = await caches.keys();
+                await Promise.all(keys.map(k => caches.delete(k)));
+            }
+
+            // 3) Eliminar IndexedDB usado por Angular SW
+            await Promise.all([
+                this.deleteDb('ngsw:db'),
+                this.deleteDb('ngsw:control') // puede no existir; no pasa nada
+            ]);
+
+            // 4) Recarga sin SW para forzar fetch de archivos “limpios”
+            const url = new URL(location.href);
+            url.searchParams.set('ngsw-bypass', 'true');
+            location.replace(url.toString());
+        } catch (e) {
+            console.error('PWA reinstall failed', e);
+            // opcional: mostrar toast al usuario
+        }
+    }
+
+    private deleteDb(name: string): Promise<void> {
+        return new Promise(resolve => {
+            const req = indexedDB.deleteDatabase(name);
+            req.onsuccess = req.onerror = req.onblocked = () => resolve();
+        });
     }
 
     private async clearAllCaches(): Promise<void> {
