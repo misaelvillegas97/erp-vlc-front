@@ -11,7 +11,7 @@ export default [
             {
                 path         : 'fleet-control',
                 loadComponent: () =>
-                    import('./pages/fleet-control/fleet-control.component').then(m => m.FleetControlComponent),
+                    import('./pages/fleet-control/fleet-control-refactored.component').then(m => m.FleetControlRefactoredComponent),
                 title        : 'Control de Flota'
             },
             {

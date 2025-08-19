@@ -1,0 +1,389 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        title="Control de Flota Vehicular (Refactorizado)"
+        subtitle="Inicie una nueva sesión de uso de vehículo"
+        icon="heroicons_outline:truck">
+    </page-header>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 w-full p-4 md:p-6">
+        <!-- Formulario de inicio de sesión -->
+        <div class="md:col-span-8">
+            <mat-card class="rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="bg-blue-600 dark:bg-blue-700 text-white p-4">
+                    <h2 class="text-xl font-medium">Iniciar Sesión de Vehículo</h2>
+                </div>
+                <mat-card-content class="p-6">
+                    <!-- Contador de fecha y hora actual -->
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg mb-6 border-l-4 border-blue-500 dark:border-blue-400 gap-3">
+                        <div class="flex items-center">
+                            <mat-icon svgIcon="heroicons_outline:clock" class="text-blue-600 dark:text-blue-400 mr-3"></mat-icon>
+                            <h2 class="text-lg font-medium text-blue-800 dark:text-blue-200">Fecha y Hora Actual</h2>
+                        </div>
+                        <div class="text-xl sm:text-2xl font-semibold text-blue-800 dark:text-blue-200">
+                            {{ currentDateTime() | date:'dd/MM/yyyy HH:mm:ss' }}
+                        </div>
+                    </div>
+
+                    <!-- Formulario de inicio de sesión de vehículo -->
+                    <form [formGroup]="form" (ngSubmit)="startVehicleSession()" class="flex flex-col space-y-6">
+                        <!-- Sección de selección -->
+                        <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <h3 class="text-lg font-medium mb-4 text-gray-800 dark:text-gray-200 flex items-center">
+                                <mat-icon svgIcon="heroicons_outline:user-group" class="mr-2 text-blue-600 dark:text-blue-400"></mat-icon>
+                                Información de Sesión
+                            </h3>
+
+                            <!-- Selección de conductor y vehículo -->
+                            @if (!currentUserIsDriver()) {
+                                <!-- Si no es conductor, mostrar grid de 2 columnas -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <driver-selector
+                                        formControlName="driverId"
+                                        [required]="true"
+                                        [controlClasses]="'fuse-mat-dense'">
+                                    </driver-selector>
+                                    <vehicle-selector
+                                        formControlName="vehicleId"
+                                        [onlyAvailable]="true"
+                                        [required]="true"
+                                        [controlClasses]="'fuse-mat-dense'"
+                                        allOptionLabel="Seleccione un vehículo">
+                                    </vehicle-selector>
+                                </div>
+                            } @else {
+                                <!-- Si es conductor, mostrar solo el selector de vehículo a ancho completo -->
+                                <vehicle-selector
+                                    formControlName="vehicleId"
+                                    [onlyAvailable]="true"
+                                    [required]="true"
+                                    [controlClasses]="'fuse-mat-dense'"
+                                    allOptionLabel="Seleccione un vehículo">
+                                </vehicle-selector>
+                            }
+                        </div>
+
+                        <!-- Sección de detalles -->
+                        <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <h3 class="text-lg font-medium mb-4 text-gray-800 dark:text-gray-200 flex items-center">
+                                <mat-icon svgIcon="heroicons_outline:clipboard-document-list" class="mr-2 text-blue-600 dark:text-blue-400"></mat-icon>
+                                Detalles del Viaje
+                            </h3>
+
+                            <!-- Odómetro inicial -->
+                            <mat-form-field class="w-full mb-4 fuse-mat-dense">
+                                <mat-label>Odómetro Inicial (Km)</mat-label>
+                                <input matInput type="number" formControlName="initialOdometer" placeholder="Ingrese el kilometraje actual">
+                                <mat-icon matPrefix svgIcon="heroicons_outline:calculator" class="mr-2 text-gray-500"></mat-icon>
+                                <mat-hint>Ingrese el kilometraje actual del vehículo</mat-hint>
+                                @if (form.get('initialOdometer').hasError('required')) {
+                                    <mat-error>El kilometraje inicial es requerido</mat-error>
+                                }
+                                @if (form.get('initialOdometer').hasError('min')) {
+                                    <mat-error>El kilometraje debe ser mayor o igual a 0</mat-error>
+                                }
+                                @if (form.get('initialOdometer').hasError('odometerTolerance')) {
+                                    <mat-error>
+                                        El kilometraje no puede ser menor al último registrado
+                                        ({{ selectedVehicle()?.lastKnownOdometer }}) por más de 100 km
+                                    </mat-error>
+                                }
+                            </mat-form-field>
+
+                            <!-- Observaciones -->
+                            <mat-form-field class="w-full fuse-mat-dense">
+                                <mat-label>Observaciones</mat-label>
+                                <textarea matInput formControlName="purpose" placeholder="Observaciones adicionales" rows="3"></textarea>
+                                <mat-icon matPrefix svgIcon="heroicons_outline:document-text" class="mr-2 text-gray-500"></mat-icon>
+                                <mat-hint>Opcional: Registre cualquier observación relevante</mat-hint>
+                                @if (form.get('purpose').hasError('maxlength')) {
+                                    <mat-error>Las observaciones no pueden exceder los 500 caracteres</mat-error>
+                                }
+                            </mat-form-field>
+                        </div>
+
+                        <div class="flex items-center text-sm text-gray-600 dark:text-gray-400 mt-2">
+                            <mat-icon svgIcon="heroicons_outline:information-circle" class="mr-2 text-gray-500"></mat-icon>
+                            <mat-hint>* Campos requeridos</mat-hint>
+                        </div>
+
+                        <!-- Estado de ubicación GPS -->
+                        <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 flex items-center">
+                                    <mat-icon svgIcon="heroicons_outline:map-pin" class="mr-2 text-blue-600 dark:text-blue-400"></mat-icon>
+                                    Estado de Ubicación
+                                </h3>
+                                @if (hasGeolocationPermission()) {
+                                    <button
+                                        type="button"
+                                        mat-icon-button
+                                        (click)="refreshGpsPosition()"
+                                        matTooltip="Actualizar ubicación GPS"
+                                        class="text-blue-600 dark:text-blue-400">
+                                        <mat-icon svgIcon="heroicons_outline:arrow-path"></mat-icon>
+                                    </button>
+                                }
+                            </div>
+
+                            <div class="flex items-center p-4 rounded-lg shadow-sm"
+                                 [class]="hasGeolocationPermission() ?
+                                    'bg-green-50 dark:bg-green-900/30 border-l-4 border-green-500 dark:border-green-400' : 
+                                    'bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 dark:border-red-400'">
+                                <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full mr-4"
+                                     [class]="hasGeolocationPermission() ?
+                                        'bg-green-100 dark:bg-green-800/50' : 
+                                        'bg-red-100 dark:bg-red-800/50'">
+                                    @if (gpsState() === 'loading') {
+                                        <mat-progress-spinner
+                                            [diameter]="24"
+                                            [mode]="'indeterminate'"
+                                            class="text-blue-600">
+                                        </mat-progress-spinner>
+                                    } @else {
+                                        <mat-icon
+                                            [svgIcon]="hasGeolocationPermission() ? 'heroicons_outline:check-circle' : 'heroicons_outline:exclamation-circle'"
+                                            [class]="hasGeolocationPermission() ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'"
+                                            class="text-2xl">
+                                        </mat-icon>
+                                    }
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-medium text-lg"
+                                       [class]="hasGeolocationPermission() ?
+                                            'text-green-800 dark:text-green-300' : 
+                                            'text-red-800 dark:text-red-300'">
+                                        @if (gpsState() === 'loading') {
+                                            Obteniendo ubicación GPS...
+                                        } @else {
+                                            {{ hasGeolocationPermission() ? 'Ubicación GPS disponible' : 'Ubicación GPS no disponible' }}
+                                        }
+                                    </p>
+                                    @if (!hasGeolocationPermission()) {
+                                        <p class="text-sm mt-1 text-red-700 dark:text-red-400">
+                                            Se requiere acceso a su ubicación para registrar correctamente la sesión. Por favor, habilite los permisos de ubicación.
+                                        </p>
+                                    }
+                                    @if (hasGeolocationPermission() && currentLocation()) {
+                                        <p class="text-sm mt-1 text-green-700 dark:text-green-400">
+                                            Ubicación: {{ getLocationDisplayText() }}
+                                        </p>
+                                        <p class="text-xs mt-1 text-green-600 dark:text-green-500">
+                                            Precisión: {{ getAccuracyDisplayText() }}
+                                        </p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón de inicio de sesión -->
+                        <div class="flex flex-col items-center py-6">
+                            <button
+                                type="submit"
+                                mat-flat-button
+                                color="primary"
+                                class="text-lg rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                                [disabled]="!sessionStatus().canStartSession || !hasGeolocationPermission() || form.invalid || form.disabled"
+                                hapticClick
+                                hapticPattern="success"
+                                [@buttonPress]="sessionStatus().buttonPressed ? 'pressed' : 'default'"
+                                [@sessionStateChange]="sessionStatus().sessionState">
+                                <div class="inline-flex items-center justify-center w-full">
+                                    <mat-icon svgIcon="heroicons_outline:play" class="mr-3 text-xl"></mat-icon>
+                                    <span>Iniciar Sesión de Vehículo</span>
+                                    @if (sessionStatus().isSubmitting) {
+                                        <mat-progress-spinner
+                                            [diameter]="24"
+                                            [mode]="'indeterminate'"
+                                            class="ml-3">
+                                        </mat-progress-spinner>
+                                    }
+                                </div>
+                            </button>
+                            @if (!hasGeolocationPermission()) {
+                                <div class="flex items-center mt-4 text-red-500 dark:text-red-400">
+                                    <mat-icon svgIcon="heroicons_outline:exclamation-triangle" class="mr-2"></mat-icon>
+                                    <span class="text-sm font-medium">
+                                        Habilite la ubicación GPS para continuar
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    </form>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Tarjetas de información -->
+        <div class="md:col-span-4 flex flex-col gap-6">
+            <!-- Loading state for data -->
+            @if (isLoading()) {
+                <mat-card class="rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <mat-card-content class="p-6 flex items-center justify-center">
+                        <div class="flex items-center">
+                            <mat-progress-spinner
+                                [diameter]="32"
+                                [mode]="'indeterminate'">
+                            </mat-progress-spinner>
+                            <span class="ml-3 text-gray-600 dark:text-gray-400">Cargando datos...</span>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            }
+
+            <!-- Detalles del conductor -->
+            @if (selectedDriver()) {
+                <mat-card class="rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="bg-indigo-600 dark:bg-indigo-700 text-white p-4">
+                        <h2 class="text-xl font-medium flex items-center">
+                            <mat-icon svgIcon="heroicons_outline:user" class="mr-2"></mat-icon>
+                            Detalles del Conductor
+                        </h2>
+                    </div>
+                    <mat-card-content class="p-5">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
+                                <mat-icon svgIcon="heroicons_outline:identification" class="text-indigo-600 dark:text-indigo-400 text-2xl"></mat-icon>
+                            </div>
+                            <div>
+                                <p class="text-lg font-medium">{{ selectedDriver()?.firstName }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">ID: {{ selectedDriver()?.documentId }}</p>
+                            </div>
+                        </div>
+
+                        @if (selectedDriver()?.driverLicense && selectedDriver()?.driverLicense.length > 0) {
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <div class="p-3 rounded-lg">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Categoría</p>
+                                    <p class="font-medium text-gray-800 dark:text-gray-200">{{ selectedDriver()?.driverLicense[0].licenseType }}</p>
+                                </div>
+                                <div class="p-3 rounded-lg">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Expiración</p>
+                                    <p class="font-medium text-gray-800 dark:text-gray-200">{{ selectedDriver()?.driverLicense[0].licenseValidTo | date:'dd/MM/yyyy' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Restricciones</p>
+                                <p class="font-medium text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{{ selectedDriver()?.driverLicense[0].restrictions || 'Sin restricciones' }}</p>
+                            </div>
+                        }
+                    </mat-card-content>
+                </mat-card>
+            }
+
+            <!-- Detalles del vehículo -->
+            @if (selectedVehicle()) {
+                <mat-card class="rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="bg-blue-600 dark:bg-blue-700 text-white p-4">
+                        <h2 class="text-xl font-medium flex items-center">
+                            <mat-icon svgIcon="heroicons_outline:truck" class="mr-2"></mat-icon>
+                            Detalles del Vehículo
+                        </h2>
+                    </div>
+                    <mat-card-content class="p-5">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mr-4">
+                                <mat-icon svgIcon="heroicons_outline:truck" class="text-blue-600 dark:text-blue-400 text-2xl"></mat-icon>
+                            </div>
+                            <div>
+                                <p class="text-lg font-medium">{{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Placa: {{ selectedVehicle()?.licensePlate }}</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mt-4">
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Año</p>
+                                <p class="font-medium text-gray-800 dark:text-gray-200">{{ selectedVehicle()?.year }}</p>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Tipo</p>
+                                <p class="font-medium text-gray-800 dark:text-gray-200">{{ selectedVehicle()?.type }}</p>
+                            </div>
+                        </div>
+
+                        @if (selectedVehicle()?.lastMaintenanceDate) {
+                            <div class="mt-4 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Último mantenimiento</p>
+                                <p class="font-medium text-gray-800 dark:text-gray-200">{{ selectedVehicle()?.lastMaintenanceDate | date:'dd/MM/yyyy' }}</p>
+                            </div>
+                        }
+
+                        @if (selectedVehicle()?.lastKnownOdometer) {
+                            <div class="mt-4 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Último odómetro conocido</p>
+                                <div class="flex items-center">
+                                    <mat-icon svgIcon="heroicons_outline:calculator" class="text-blue-600 dark:text-blue-400 mr-2"></mat-icon>
+                                    <p class="font-medium text-gray-800 dark:text-gray-200">{{ selectedVehicle()?.lastKnownOdometer }} Kms</p>
+                                </div>
+                            </div>
+                        }
+                    </mat-card-content>
+                </mat-card>
+            }
+
+            <!-- Instrucciones para el sistema -->
+            @if (!selectedDriver() && !selectedVehicle() && !isLoading()) {
+                <mat-card class="rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="bg-amber-600 dark:bg-amber-700 text-white p-4">
+                        <h2 class="text-xl font-medium flex items-center">
+                            <mat-icon svgIcon="heroicons_outline:information-circle" class="mr-2"></mat-icon>
+                            Instrucciones
+                        </h2>
+                    </div>
+                    <mat-card-content class="p-5">
+                        <div class="flex items-center mb-4 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border-l-4 border-amber-500">
+                            <mat-icon svgIcon="heroicons_outline:light-bulb" class="text-amber-600 dark:text-amber-400 mr-3 flex-shrink-0"></mat-icon>
+                            <p class="text-amber-800 dark:text-amber-200">
+                                Bienvenido al sistema de control de flota vehicular refactorizado
+                            </p>
+                        </div>
+
+                        <div class="space-y-4 mt-4">
+                            <div class="flex items-start">
+                                <div class="bg-gray-100 dark:bg-gray-800 rounded-full w-6 h-6 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">1</span>
+                                </div>
+                                <p class="text-gray-700 dark:text-gray-300">
+                                    Seleccione un conductor y un vehículo disponible.
+                                </p>
+                            </div>
+
+                            <div class="flex items-start">
+                                <div class="bg-gray-100 dark:bg-gray-800 rounded-full w-6 h-6 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">2</span>
+                                </div>
+                                <p class="text-gray-700 dark:text-gray-300">
+                                    Ingrese el kilometraje actual y cualquier observación relevante.
+                                </p>
+                            </div>
+
+                            <div class="flex items-start">
+                                <div class="bg-gray-100 dark:bg-gray-800 rounded-full w-6 h-6 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">3</span>
+                                </div>
+                                <p class="text-gray-700 dark:text-gray-300">
+                                    Asegúrese de que su ubicación GPS esté habilitada para registrar correctamente el punto de inicio.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800">
+                            <div class="flex items-start">
+                                <mat-icon svgIcon="heroicons_outline:exclamation-triangle" class="text-amber-600 dark:text-amber-400 mr-3 flex-shrink-0"></mat-icon>
+                                <div>
+                                    <p class="text-amber-800 dark:text-amber-200">
+                                        Al finalizar el uso del vehículo, asegúrese de cerrar la sesión para registrar la información completa del viaje.
+                                    </p>
+                                    <p class="text-sm text-amber-700 dark:text-amber-300 mt-2">
+                                        Esta versión refactorizada utiliza servicios especializados para mejor rendimiento y mantenibilidad.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            }
+        </div>
+    </div>
+</div>
