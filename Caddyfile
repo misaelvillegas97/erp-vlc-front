@@ -1,43 +1,55 @@
 # global options
 {
-    admin off # no se necesita la API de administración en el entorno de Railway
-    persist_config off # el almacenamiento no es persistente de todos modos
-    auto_https off # Railway maneja https por nosotros, esto causaría problemas si se deja habilitado
-    # runtime logs
-    log {
-        format json # establecer el formato de registro en modo json
-    }
-    # server options
-    servers {
-        trusted_proxies static private_ranges # confiar en el proxy de Railway
-    }
+    admin off
+    persist_config off
+    auto_https off
+    log { format json }
+    servers { trusted_proxies static private_ranges }
 }
 
-# site block, escucha en la variable de entorno $PORT, asignada automáticamente por Railway
 :{$PORT} {
-    # access logs
     log {
-        format json # establecer el formato de registro de acceso en modo json
+        format json
         output stdout
     }
 
-    # Manejar solicitudes de API
+    # API
     handle /api/* {
         reverse_proxy erp-vlc-back:8080 {
-            transport http {
-                versions h1c
-            }
+            transport http { versions h1c }
         }
     }
 
-    # Health check para Railway
+    # Health
     respond /health 200
 
-    # Manejar solicitudes del frontend
-    handle {
-        root * /dist
-        encode gzip
-        file_server
-        try_files {path} /index.html
+    # --- Frontend estático ---
+    root * /dist
+    encode gzip
+
+    # 1) NUNCA cachear HTML (incluye /index.html)
+    @html path_regexp html \.html$
+    header @html {
+        Cache-Control "no-cache, no-store, must-revalidate"
+        Pragma "no-cache"
+        Expires "0"
     }
+
+    # 2) NUNCA cachear archivos del Service Worker
+    @sw path /ngsw.json /ngsw-worker.js /ngsw-state.js /safety-worker.js /worker-basic.min.js
+    header @sw {
+        Cache-Control "no-cache, no-store, must-revalidate"
+        Pragma "no-cache"
+        Expires "0"
+    }
+
+    # 3) Cache agresivo solo para assets con hash
+    @assets path_regexp assets \.(?:js|css|woff2?|svg|png|jpg|webp|ico)$
+    header @assets {
+        Cache-Control "public, max-age=31536000, immutable"
+    }
+
+    # 4) SPA fallback: primero reescribe, luego sirve archivos
+    try_files {path} /index.html
+    file_server
 }
