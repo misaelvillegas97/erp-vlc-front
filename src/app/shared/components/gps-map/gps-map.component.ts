@@ -120,16 +120,16 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     effectiveGpsData = computed((): GpsGeneric[] => {
         const sessionData = this.session();
 
-        if (sessionData.filter) {
-            return sessionData.filter.map(point => {
-                return {
-                    latitude   : point.lat,
-                    longitude  : point.lng,
-                    timestamp  : point.ts,
-                    referenceId: undefined
-                };
-            });
-        }
+        // if (sessionData.filter) {
+        //     return sessionData.filter.map(point => {
+        //         return {
+        //             latitude   : point.lat,
+        //             longitude  : point.lng,
+        //             timestamp  : point.ts,
+        //             referenceId: undefined
+        //         };
+        //     });
+        // }
 
         if (sessionData?.gps && sessionData.gps.length > 0) {
             return sessionData.gps.sort((a, b) => {
