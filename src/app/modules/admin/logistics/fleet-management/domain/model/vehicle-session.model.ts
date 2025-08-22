@@ -17,6 +17,7 @@ export interface GpsGeneric {
     timestamp: number;   // Timestamp de cuando se obtuvo la ubicación
     speed?: number;     // Velocidad en km/h
     totalDistance?: number; // Distancia total recorrida en km
+    referenceId: string; // Id de referencia
     lastLocations?: { lat: number, lng: number }[]; // Últimas ubicaciones registradas
 }
 
@@ -60,6 +61,7 @@ export interface VehicleSession {
             type: string;
         };
     };
+    filter?: { lat: number, lng: number, ts: number }[]; // Datos filtrados para mostrar en mapa
 }
 
 /**

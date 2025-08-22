@@ -1,15 +1,18 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, inject, input, OnChanges, OnDestroy, signal, SimpleChanges, viewChildren } from '@angular/core';
-import { CommonModule }                                                                                                                                  from '@angular/common';
-import { GoogleMapsModule, MapInfoWindow }                                                                                                               from '@angular/google-maps';
-import { MatButtonModule }                                                                                                                               from '@angular/material/button';
-import { MatIconModule }                                                                                                                                 from '@angular/material/icon';
-import { MatSliderModule }                                                                                                                               from '@angular/material/slider';
-import { MatSelectModule }                                                                                                                               from '@angular/material/select';
-import { MatTooltipModule }                                                                                                                              from '@angular/material/tooltip';
-import { GpsGeneric, VehicleSession }                                                                                                                    from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
-import { WebGLPathLayer }                                                                                                                                from '@shared/utils/webgl-path-layer';
-import { calculateRotationBetweenPoints, createGpsDataHash, formatDateTime, formatDistance, formatSpeed }                                                from '@shared/utils/gps.utils';
-import { RoadsApiService }                                                                                                                               from '@shared/services/roads-api.service';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, inject, input, OnChanges, OnDestroy, signal, SimpleChanges, untracked, viewChildren } from '@angular/core';
+import { CommonModule }                                                                                                                                             from '@angular/common';
+import { GoogleMapsModule, MapInfoWindow }                                                                                                                          from '@angular/google-maps';
+import { MatButtonModule }                                                                                                                                          from '@angular/material/button';
+import { MatIconModule }                                                                                                                                            from '@angular/material/icon';
+import { MatSliderModule }                                                                                                                                          from '@angular/material/slider';
+import { MatSelectModule }                                                                                                                                          from '@angular/material/select';
+import { MatTooltipModule }                                                                                                                                         from '@angular/material/tooltip';
+import {
+    GpsGeneric,
+    VehicleSession
+}                                                                                                                                                                   from '@modules/admin/logistics/fleet-management/domain/model/vehicle-session.model';
+import { WebGLPathLayer }                                                                                                                                           from '@shared/utils/webgl-path-layer';
+import { calculateRotationBetweenPoints, createGpsDataHash, formatDateTime, formatDistance, formatSpeed }                                                           from '@shared/utils/gps.utils';
+import { RoadsApiService }                                                                                                                                          from '@shared/services/roads-api.service';
 
 @Component({
     selector       : 'app-gps-map',
@@ -37,6 +40,7 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     isActive = input<boolean>(false);
     playbackMode = input<boolean>(false);
     polylineSource = input<'gps' | 'routePolygon'>('gps'); // Default to GPS data for backward compatibility
+    highlightedGpsTimestamp = input<number | null>(null); // Timestamp of GPS point to highlight
 
     // Map signals
     mapInstance = signal<google.maps.Map | null>(null);
@@ -101,17 +105,42 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
                 }, 0);
             }
         });
+
+        // Effect to handle marker highlighting when GPS timestamp changes
+        effect(() => {
+            const highlightedTimestamp = this.highlightedGpsTimestamp();
+            // Use untracked to prevent circular updates when updating markers signal
+            untracked(() => {
+                this.updateMarkerHighlight(highlightedTimestamp);
+            });
+        });
     }
 
     // Computed properties for data handling
-    effectiveGpsData = computed(() => {
-        // Prioritize session GPS data, then fallback to direct gpsData input
+    effectiveGpsData = computed((): GpsGeneric[] => {
         const sessionData = this.session();
+
+        if (sessionData.filter) {
+            return sessionData.filter.map(point => {
+                return {
+                    latitude   : point.lat,
+                    longitude  : point.lng,
+                    timestamp  : point.ts,
+                    referenceId: undefined
+                };
+            });
+        }
+
         if (sessionData?.gps && sessionData.gps.length > 0) {
-            return sessionData.gps;
+            return sessionData.gps.sort((a, b) => {
+                const refA = a.referenceId ? Number(a.referenceId) : a.timestamp;
+                const refB = b.referenceId ? Number(b.referenceId) : b.timestamp;
+                return refA - refB;
+            });
         }
         return this.gpsData() || [];
     });
+
 
     routePolygonPath = computed(() => {
         const sessionData = this.session();
@@ -142,10 +171,11 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
         // Default to GPS data (either when source is 'gps' or when routePolygon is not available)
         const gpsData = this.effectiveGpsData();
         if (gpsData && gpsData.length > 0) {
-            return gpsData.map(point => ({
-                lat: point.latitude,
-                lng: point.longitude
-            }));
+            return gpsData
+                .map(point => ({
+                    lat: point.latitude,
+                    lng: point.longitude
+                }));
         }
 
         return [];
@@ -373,10 +403,16 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
             return;
         }
 
-        const path = currentData.map(point => ({
-            lat: point.latitude,
-            lng: point.longitude
-        }));
+        const path = currentData
+            .sort((a, b) => {
+                const refA = a.referenceId ? Number(a.referenceId) : a.timestamp;
+                const refB = b.referenceId ? Number(b.referenceId) : b.timestamp;
+                return refA - refB;
+            })
+            .map(point => ({
+                lat: point.latitude,
+                lng: point.longitude
+            }));
 
         // Update polyline path
         this.polylinePath.set(path);
@@ -905,7 +941,7 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
                     },
                     visible  : true,
                     clickable: true,
-                    zIndex   : 999
+                    zIndex: 500
                 },
                 point   : point,
                 index   : index
@@ -1019,6 +1055,43 @@ export class GpsMapComponent implements AfterViewInit, OnChanges, OnDestroy {
             }
             this.webGLPathLayer = null;
         }
+    }
+
+    /**
+     * Updates marker highlighting based on GPS timestamp
+     * Highlights the marker corresponding to the given timestamp
+     */
+    private updateMarkerHighlight(highlightedTimestamp: number | null): void {
+        const markers = this.gpsMarkers();
+
+        if (!markers || markers.length === 0) {
+            return;
+        }
+
+        // Create new markers array with updated highlighting
+        const updatedMarkers = markers.map(marker => {
+            const isHighlighted = highlightedTimestamp !== null &&
+                marker.point.timestamp === highlightedTimestamp;
+
+            return {
+                ...marker,
+                options: {
+                    ...marker.options,
+                    icon: {
+                        path        : google.maps.SymbolPath.CIRCLE,
+                        scale       : isHighlighted ? 8 : 4, // Larger scale when highlighted
+                        fillColor   : isHighlighted ? '#FF6B35' : '#4285F4', // Orange when highlighted, blue otherwise
+                        fillOpacity : 0.8,
+                        strokeColor : '#FFFFFF',
+                        strokeWeight: isHighlighted ? 2 : 1, // Thicker stroke when highlighted
+                        zIndex      : isHighlighted ? 999999 : 500 // Higher z-index when highlighted
+                    }
+                }
+            };
+        });
+
+        // Update the markers signal with highlighted markers
+        this.gpsMarkers.set(updatedMarkers);
     }
 
     protected readonly formatDateTime = formatDateTime;

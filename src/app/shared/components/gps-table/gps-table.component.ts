@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit, signal, output } from '@angular/core';
 import { CommonModule }                                              from '@angular/common';
 import { MatIconModule }                                             from '@angular/material/icon';
 import { ScrollingModule }                                           from '@angular/cdk/scrolling';
@@ -18,6 +18,10 @@ import { GpsGeneric }                                                from '@modu
 export class GpsTableComponent implements OnInit {
     @Input() gpsData: GpsGeneric[] = [];
     @Input() title: string = 'Registro de puntos GPS';
+
+    // Output events for hover functionality
+    gpsHoverIn = output<number>(); // Emits GPS timestamp on hover in
+    gpsHoverOut = output<void>(); // Emits when hover out
 
     // Responsive settings
     isMobile = signal<boolean>(false);
@@ -87,5 +91,21 @@ export class GpsTableComponent implements OnInit {
      */
     trackByTimestamp(index: number, item: GpsGeneric): number {
         return item.timestamp;
+    }
+
+    /**
+     * Handles mouse enter event on GPS table row
+     * Emits the GPS timestamp to highlight corresponding marker on map
+     */
+    onGpsRowHoverIn(gpsPoint: GpsGeneric): void {
+        this.gpsHoverIn.emit(gpsPoint.timestamp);
+    }
+
+    /**
+     * Handles mouse leave event on GPS table row
+     * Emits event to unhighlight markers on map
+     */
+    onGpsRowHoverOut(): void {
+        this.gpsHoverOut.emit();
     }
 }

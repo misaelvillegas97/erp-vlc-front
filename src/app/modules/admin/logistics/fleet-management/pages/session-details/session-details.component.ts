@@ -72,6 +72,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
     showSpeedsInPdf = signal(false);
     playbackMode = signal(false);
     polylineSource = signal<'gps' | 'routePolygon'>('gps'); // Default to GPS data
+    highlightedGpsTimestamp = signal<number | null>(null); // For GPS table-map hover interaction
 
     // Theme state for PDF export
     private originalThemeState: boolean = false;
@@ -215,6 +216,22 @@ export class SessionDetailsComponent implements OnInit, OnDestroy {
 
     setPolylineSource(source: 'gps' | 'routePolygon'): void {
         this.polylineSource.set(source);
+    }
+
+    /**
+     * Handles GPS table row hover in event
+     * Sets the highlighted GPS timestamp for map marker highlighting
+     */
+    onGpsHoverIn(timestamp: number): void {
+        this.highlightedGpsTimestamp.set(timestamp);
+    }
+
+    /**
+     * Handles GPS table row hover out event
+     * Clears the highlighted GPS timestamp
+     */
+    onGpsHoverOut(): void {
+        this.highlightedGpsTimestamp.set(null);
     }
 
     /**

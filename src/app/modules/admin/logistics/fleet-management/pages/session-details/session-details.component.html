@@ -177,7 +177,8 @@
                                 [gpsData]="session()?.gps || []"
                                 [isActive]="session()?.status === SessionStatus.ACTIVE"
                                 [playbackMode]="playbackMode()"
-                                [polylineSource]="polylineSource()">
+                                [polylineSource]="polylineSource()"
+                                [highlightedGpsTimestamp]="highlightedGpsTimestamp()">
                             </app-gps-map>
 
                             <!-- Resumen de datos GPS -->
@@ -186,7 +187,9 @@
                             <!-- Tabla de puntos GPS -->
                             <app-gps-table
                                 [gpsData]="session()?.gps || []"
-                                title="Registro de puntos GPS">
+                                title="Registro de puntos GPS"
+                                (gpsHoverIn)="onGpsHoverIn($event)"
+                                (gpsHoverOut)="onGpsHoverOut()">
                             </app-gps-table>
                         }
                     </mat-card-content>
