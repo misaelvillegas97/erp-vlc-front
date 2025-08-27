@@ -69,8 +69,7 @@ interface ExecutionFormData {
         VehicleSelectorComponent,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    templateUrl: './execution-form.component.html',
-    styleUrls  : [ './execution-form.component.scss' ]
+    templateUrl: './execution-form.component.html'
 })
 export class ExecutionFormComponent implements OnInit {
     private readonly fb = inject(FormBuilder);
