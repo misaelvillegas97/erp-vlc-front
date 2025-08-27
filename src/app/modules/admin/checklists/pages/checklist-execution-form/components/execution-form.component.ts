@@ -63,14 +63,14 @@ interface ExecutionFormData {
         MatSnackBarModule,
         MatSelectModule,
         MatTooltipModule,
-        MatButtonToggleModule,
         RouterLink,
         PageHeaderComponent,
         UserSelectorComponent,
         VehicleSelectorComponent,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    templateUrl    : './execution-form.component.html'
+    templateUrl: './execution-form.component.html',
+    styleUrls  : [ './execution-form.component.scss' ]
 })
 export class ExecutionFormComponent implements OnInit {
     private readonly fb = inject(FormBuilder);
@@ -84,43 +84,6 @@ export class ExecutionFormComponent implements OnInit {
     currentTemplate = signal<ChecklistTemplate | null>(null);
     currentGroup = signal<ChecklistGroup | null>(null);
     isGroupExecution = computed(() => !!this.currentGroup());
-
-    // Mock data - all available vehicles and users
-    allVehicles = signal([
-        {id: '1', name: 'Camión 001', plate: 'ABC-123', type: 'truck'},
-        {id: '2', name: 'Camión 002', plate: 'DEF-456', type: 'truck'},
-        {id: '3', name: 'Van 001', plate: 'GHI-789', type: 'van'},
-        {id: '4', name: 'Sedán 001', plate: 'JKL-012', type: 'car'}
-    ]);
-
-    allUsers = signal([
-        {id: '1', name: 'Juan Pérez', role: '1'}, // Conductor
-        {id: '2', name: 'María García', role: '2'}, // Supervisor
-        {id: '3', name: 'Carlos López', role: '3'}, // Inspector de calidad
-        {id: '4', name: 'Ana Martínez', role: '4'}, // Técnico de mantenimiento
-        {id: '5', name: 'Pedro Rodríguez', role: '1'}, // Conductor
-    ]);
-
-    // Computed filtered lists based on current template
-    availableVehicles = computed(() => {
-        const template = this.currentTemplate();
-        if (!template || !template.vehicleTypes || template.vehicleTypes.length === 0) {
-            return []; // Don't show vehicles if no vehicle types are specified
-        }
-        return this.allVehicles().filter(vehicle =>
-            template.vehicleTypes!.includes(vehicle.type)
-        );
-    });
-
-    availableUsers = computed(() => {
-        const template = this.currentTemplate();
-        if (!template || !template.userRoles || template.userRoles.length === 0) {
-            return []; // Don't show users if no roles are specified
-        }
-        return this.allUsers().filter(user =>
-            template.userRoles!.includes(user.role)
-        );
-    });
 
     // Form
     executionForm: FormGroup<ExecutionFormData> = this.fb.group({
@@ -420,6 +383,40 @@ export class ExecutionFormComponent implements OnInit {
         ).length;
 
         return `${ answeredQuestions }/${ totalQuestions } completadas`;
+    }
+
+    getCategoryTotalPoints(categoryIndex: number): number {
+        const category = this.getCategory(categoryIndex);
+        if (!category?.questions) {
+            return 0;
+        }
+
+        return category.questions.reduce((total, question) => total + (question.weight || 1), 0);
+    }
+
+    getCategoryCurrentScore(categoryIndex: number): number {
+        const questionsArray = this.getQuestionsFormArray(categoryIndex);
+        let currentScore = 0;
+
+        questionsArray.controls.forEach((control, questionIndex) => {
+            const complianceStatus = control.get('complianceStatus')?.value;
+            const question = this.getQuestion(categoryIndex, questionIndex);
+
+            if (complianceStatus && question) {
+                const responseValue = Number(complianceStatus);
+                const questionWeight = question.weight || 1;
+                currentScore += responseValue * questionWeight;
+            }
+        });
+
+        return currentScore;
+    }
+
+    getCategoryScoreText(categoryIndex: number): string {
+        const currentScore = this.getCategoryCurrentScore(categoryIndex);
+        const totalPoints = this.getCategoryTotalPoints(categoryIndex);
+
+        return `${ currentScore.toFixed(1) }/${ totalPoints } ptos`;
     }
 
     private buildCategoryResponses(): ChecklistCategoryResponse[] {

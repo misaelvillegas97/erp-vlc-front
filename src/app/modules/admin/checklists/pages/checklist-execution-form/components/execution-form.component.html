@@ -44,7 +44,6 @@
                         <app-vehicle-selector
                             formControlName="vehicleId"
                             [required]="vehicleSelectorRequired()"
-                            [staticVehicles]="availableVehicles()"
                             [vehicleTypes]="currentTemplate()?.vehicleTypes || []"
                             [vehicleStatus]="true"
                             label="Vehículo"
@@ -101,11 +100,11 @@
                             <mat-progress-bar
                                 mode="determinate"
                                 [value]="groupScore() * 100"
-                                [color]="groupScore() >= +currentTemplate().performanceThreshold ? 'primary' : 'warn'"
+                                [color]="groupScore() >= +(currentTemplate()?.performanceThreshold || 0) ? 'primary' : 'warn'"
                             ></mat-progress-bar>
                         </div>
                         <span class="font-bold text-base sm:text-lg flex-shrink-0"
-                              [class]="groupScore() >= +currentGroup().performanceThreshold ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+                              [class]="groupScore() >= +(currentTemplate()?.performanceThreshold || 0) ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                           {{ (groupScore() * 100) | number:'1.1-1' }}% ({{ groupScore() | number:'1.2-2' }})
                         </span>
                     </div>
@@ -118,11 +117,11 @@
                             <mat-progress-bar
                                 mode="determinate"
                                 [value]="templateScore() * 100"
-                                [color]="templateScore() >= +currentTemplate().performanceThreshold ? 'primary' : 'warn'"
+                                [color]="templateScore() >= +(currentTemplate()?.performanceThreshold || 0) ? 'primary' : 'warn'"
                             ></mat-progress-bar>
                         </div>
                         <span class="font-bold text-base sm:text-lg flex-shrink-0"
-                              [class]="templateScore() >= +currentTemplate().performanceThreshold ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+                              [class]="templateScore() >= +(currentTemplate()?.performanceThreshold || 0) ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                           {{ (templateScore() * 100) | number:'1.1-1' }}%
                         </span>
                     </div>
@@ -143,8 +142,8 @@
                                         <h4 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
                                             {{ getCategory(categoryIndex)?.title }}
                                         </h4>
-                                        <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs font-medium w-fit">
-                                            Peso: {{ (getCategory(categoryIndex)?.weight * 100).toFixed(0) }}%
+                                        <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded text-xs font-medium w-fit">
+                                            {{ getCategoryScoreText(categoryIndex) }}
                                         </span>
                                     </div>
                                     <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
@@ -200,43 +199,51 @@
 
                                                 <!-- Controls Section (Mobile: Full Width, Desktop: Right Side) -->
                                                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-2 sm:flex-shrink-0">
-                                                    <!-- Toggle Buttons for Approval Status -->
+                                                    <!-- Radio Buttons for Approval Status -->
                                                     <div class="flex justify-center sm:justify-end">
-                                                        <mat-button-toggle-group
+                                                        <mat-radio-group
                                                             formControlName="complianceStatus"
-                                                            appearance="legacy"
-                                                            class="shadow-sm">
+                                                            class="flex flex-col gap-1">
 
                                                             <!-- Approved -->
-                                                            <mat-button-toggle
+                                                            <mat-radio-button
                                                                 value="1.0"
                                                                 [matTooltip]="'Aprobado'"
                                                                 matTooltipPosition="above"
-                                                                class="!border-green-200 hover:!bg-green-50 data-[checked]:!bg-green-100 data-[checked]:!text-green-700 !min-w-[44px] !h-[44px] sm:!min-w-[40px] sm:!h-[40px]">
-                                                                <mat-icon svgIcon="mat_solid:check" class="!text-lg sm:!text-base"></mat-icon>
-                                                            </mat-button-toggle>
+                                                                class="checklist-radio approved">
+                                                                <div class="flex items-center gap-2">
+                                                                    <mat-icon svgIcon="mat_solid:check" class="text-green-600 !text-base"></mat-icon>
+                                                                    <span class="text-sm font-medium text-green-700">Aprobado</span>
+                                                                </div>
+                                                            </mat-radio-button>
 
                                                             <!-- Intermediate (if available) -->
                                                             @if (question.hasIntermediateApproval) {
                                                                 @let intermediateValue = Number(question.intermediateValue) || 0;
-                                                                <mat-button-toggle
+                                                                <mat-radio-button
                                                                     [value]="question.intermediateValue?.toString()"
                                                                     [matTooltip]="'Parcial (' + intermediateValue.toFixed(2) + ')'"
                                                                     matTooltipPosition="above"
-                                                                    class="!border-orange-200 hover:!bg-orange-50 data-[checked]:!bg-orange-100 data-[checked]:!text-orange-700 !min-w-[44px] !h-[44px] sm:!min-w-[40px] sm:!h-[40px]">
-                                                                    <mat-icon svgIcon="mat_solid:remove" class="!text-lg sm:!text-base"></mat-icon>
-                                                                </mat-button-toggle>
+                                                                    class="checklist-radio intermediate">
+                                                                    <div class="flex items-center gap-2">
+                                                                        <mat-icon svgIcon="mat_solid:remove" class="text-orange-600 !text-base"></mat-icon>
+                                                                        <span class="text-sm font-medium text-orange-700">Parcial</span>
+                                                                    </div>
+                                                                </mat-radio-button>
                                                             }
 
                                                             <!-- Not Approved -->
-                                                            <mat-button-toggle
+                                                            <mat-radio-button
                                                                 value="0.0"
                                                                 [matTooltip]="'No Aprobado'"
                                                                 matTooltipPosition="above"
-                                                                class="!border-red-200 hover:!bg-red-50 data-[checked]:!bg-red-100 data-[checked]:!text-red-700 !min-w-[44px] !h-[44px] sm:!min-w-[40px] sm:!h-[40px]">
-                                                                <mat-icon svgIcon="mat_solid:close" class="!text-lg sm:!text-base"></mat-icon>
-                                                            </mat-button-toggle>
-                                                        </mat-button-toggle-group>
+                                                                class="checklist-radio not-approved">
+                                                                <div class="flex items-center gap-2">
+                                                                    <mat-icon svgIcon="mat_solid:close" class="text-red-600 !text-base"></mat-icon>
+                                                                    <span class="text-sm font-medium text-red-700">No Aprobado</span>
+                                                                </div>
+                                                            </mat-radio-button>
+                                                        </mat-radio-group>
                                                     </div>
 
                                                     <!-- Action Buttons -->

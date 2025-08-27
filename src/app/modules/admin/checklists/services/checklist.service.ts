@@ -1,18 +1,19 @@
 import { computed, inject, Injectable, resource, signal } from '@angular/core';
 import { HttpClient }                                      from '@angular/common/http';
 import { catchError, firstValueFrom, Observable, of, tap } from 'rxjs';
-import { memoize }                                                from '@shared/decorators/memoize/memoize.decorator';
+import { memoize }                                        from '@shared/decorators/memoize/memoize.decorator';
 
-import { ChecklistGroup, ChecklistGroupValidation }     from '../domain/interfaces/checklist-group.interface';
-import { ChecklistTemplate }                            from '../domain/interfaces/checklist-template.interface';
-import { ChecklistExecution, ChecklistExecutionReport, NewChecklistExecutionReport } from '../domain/interfaces/checklist-execution.interface';
-import { ChecklistScoreCalculator }                     from '../domain/models/checklist-score-calculator.model';
-import { ChecklistType }                                from '../domain/enums/checklist-type.enum';
-import { ExecuteChecklistAnswers, ExecuteChecklistDto } from '../domain/interfaces/execute-checklist.dto';
-import { CreateChecklistExecutionDto }                            from '../domain/interfaces/checklist-execution-dto.interface';
-import { CreateChecklistTemplateDto, UpdateChecklistTemplateDto } from '../domain/interfaces/checklist-template-dto.interface';
-import { CreateChecklistGroupDto, UpdateChecklistGroupDto }       from '../domain/interfaces/checklist-group-dto.interface';
-import { FindCount }                                    from '@shared/domain/model/find-count';
+import { ChecklistGroup, ChecklistGroupValidation }        from '../domain/interfaces/checklist-group.interface';
+import { ChecklistTemplate }                               from '../domain/interfaces/checklist-template.interface';
+import { ChecklistExecution, NewChecklistExecutionReport } from '../domain/interfaces/checklist-execution.interface';
+import { ChecklistScoreCalculator }                        from '../domain/models/checklist-score-calculator.model';
+import { ChecklistType }                                   from '../domain/enums/checklist-type.enum';
+import { ExecuteChecklistAnswers, ExecuteChecklistDto }    from '../domain/interfaces/execute-checklist.dto';
+import { CreateChecklistExecutionDto }                     from '../domain/interfaces/checklist-execution-dto.interface';
+import { CreateChecklistTemplateDto }                      from '../domain/interfaces/checklist-template-dto.interface';
+import { CreateChecklistGroupDto }                         from '../domain/interfaces/checklist-group-dto.interface';
+import { FindCount }                                       from '@shared/domain/model/find-count';
+import { map }                                             from 'rxjs/operators';
 
 export interface ChecklistFilters {
     type?: ChecklistType;
@@ -319,6 +320,17 @@ export class ChecklistService {
 
     getTemplate(id: string): Observable<ChecklistTemplate> {
         return this.http.get<ChecklistTemplate>(`${ this.baseUrl }/templates/${ id }`).pipe(
+            map((template: ChecklistTemplate) => ({
+                ...template,
+                performanceThreshold: Number(template.performanceThreshold) || 0,
+                categories          : template.categories?.map(category => ({
+                    ...category,
+                    questions: category.questions.map(question => ({
+                        ...question,
+                        weight: Number(question.weight) || 0,
+                    }))
+                }))
+            })),
             catchError(error => {
                 this._error.set('Failed to load checklist template');
                 throw error;
