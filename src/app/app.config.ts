@@ -2,7 +2,8 @@ import { provideHttpClient }                                                    
 import { ApplicationConfig, importProvidersFrom, inject, LOCALE_ID, provideAppInitializer, provideZonelessChangeDetection }        from '@angular/core';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE }                                                                          from '@angular/material/core';
 import { LuxonDateAdapter }                                                                                                        from '@angular/material-luxon-adapter';
-import { PreloadAllModules, provideRouter, withComponentInputBinding, withInMemoryScrolling, withPreloading, withViewTransitions } from '@angular/router';
+import { provideRouter, withComponentInputBinding, withInMemoryScrolling, withPreloading, withViewTransitions } from '@angular/router';
+import { ConditionalPreloadStrategy }                                                                           from '@modules/admin/apps/scrumboard/services/conditional-preload.strategy';
 import { provideServiceWorker }                                                                                                    from '@angular/service-worker';
 import { environment }                                                                                                             from '../environments/environment';
 import { provideModulePermissions }                                                                                                from '@core/permissions/permissions.providers';
@@ -29,8 +30,6 @@ import { inventoryPermissions }   from '@modules/admin/inventory/inventory.permi
 import { appsPermissions }        from '@modules/admin/apps/apps.permissions';
 import { checklistsPermissions }  from '@modules/admin/checklists/checklists.permissions';
 import { tracingPermissions } from '@modules/admin/tracing/tracing.permissions';
-import { FFlowModule } from '@foblex/flow';
-// import { flowBuilderPermissions } from '@modules/admin/flow-builder/flow-builder.permissions';
 
 const config: SocketIoConfig = {
     url    : 'localhost:5000/ws/board',
@@ -42,7 +41,6 @@ const config: SocketIoConfig = {
 
 export const appConfig: ApplicationConfig = {
     providers: [
-        // provideZoneChangeDetection({eventCoalescing: true}),
         provideZonelessChangeDetection(),
         provideAnimationsAsync(),
         provideHttpClient(),
@@ -52,7 +50,7 @@ export const appConfig: ApplicationConfig = {
         }),
         provideRouter(appRoutes,
             withComponentInputBinding(),
-            withPreloading(PreloadAllModules),
+            withPreloading(ConditionalPreloadStrategy),
             withInMemoryScrolling({scrollPositionRestoration: 'enabled'}),
             withViewTransitions()
         ),

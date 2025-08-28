@@ -1,9 +1,7 @@
-<!-- Trello-like Board Container with Blurred Background -->
-<div class="relative flex min-w-0 flex-col overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 w-full">
-    <!-- Background Image with Blur Effect -->
-    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 sm:opacity-30 blur-sm"
-         style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
-    </div>
+<!-- Trello-like Board Container with Optimized Background -->
+<div class="relative flex min-w-0 flex-col overflow-hidden scrumboard-bg w-full">
+    <!-- Optimized Background Pattern -->
+    <div class="absolute inset-0 scrumboard-bg-pattern"></div>
 
     <!-- Board Header Component -->
     <scrumboard-board-header
@@ -16,7 +14,14 @@
     </scrumboard-board-header>
 
     <!-- Board Navigation Component -->
-    <scrumboard-board-navigation [boardTitle]="boardTitle()"></scrumboard-board-navigation>
+    @defer (on idle) {
+        <scrumboard-board-navigation [boardTitle]="boardTitle()"></scrumboard-board-navigation>
+    } @placeholder {
+        <div class="relative z-10 flex items-center justify-between px-3 sm:px-6 lg:px-8 py-2 sm:py-3 bg-black/10 backdrop-blur-sm">
+            <div class="w-32 h-4 bg-white/20 rounded animate-pulse"></div>
+            <div class="w-24 h-4 bg-white/20 rounded animate-pulse"></div>
+        </div>
+    }
 
     <!-- Main -->
     <div cdkScrollable class="relative z-10 flex-auto overflow-y-visible sm:overflow-y-auto p-3 sm:p-6 lg:p-8 sm:pt-4">
@@ -44,11 +49,17 @@
                 }
 
                 <!-- New list -->
-                <scrumboard-board-add-list
-                    (saved)="addList($event)"
-                    [buttonTitle]=" board()?.lists.length ? 'Agregar otra lista' : 'Agregar una lista'"
-                >
-                </scrumboard-board-add-list>
+                @defer (on idle) {
+                    <scrumboard-board-add-list
+                        (saved)="addList($event)"
+                        [buttonTitle]="addListButtonTitle()"
+                    >
+                    </scrumboard-board-add-list>
+                } @placeholder {
+                    <div class="w-64 sm:w-72 p-3 sm:p-4 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                        <div class="w-32 h-4 bg-white/20 rounded animate-pulse"></div>
+                    </div>
+                }
             </div>
         </div>
     </div>

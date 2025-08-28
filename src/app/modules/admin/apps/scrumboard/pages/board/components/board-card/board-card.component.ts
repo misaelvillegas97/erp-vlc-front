@@ -1,5 +1,5 @@
-import { DatePipe }         from '@angular/common';
-import { Component, input } from '@angular/core';
+import { DatePipe, NgOptimizedImage } from '@angular/common';
+import { Component, input }           from '@angular/core';
 import { MatIconModule }    from '@angular/material/icon';
 import { MatTooltip }       from '@angular/material/tooltip';
 import { RouterLink }       from '@angular/router';
@@ -17,7 +17,17 @@ import { UserAvatarComponent } from '@shared/components/user-avatar';
             <!-- Cover image -->
             @if (card().coverImage) {
                 <div class="-mx-4 -mt-4 mb-2">
-                    <img class="w-full h-32 object-cover rounded-t-lg" [src]="card().coverImage"/>
+                    <img
+                        ngOptimizedImage
+                        [src]="card().coverImage"
+                        width="320"
+                        height="128"
+                        priority="false"
+                        loading="lazy"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 320px, 320px"
+                        class="w-full h-32 object-cover rounded-t-lg"
+                        [alt]="'Cover image for ' + card().title"
+                    />
                 </div>
             }
 

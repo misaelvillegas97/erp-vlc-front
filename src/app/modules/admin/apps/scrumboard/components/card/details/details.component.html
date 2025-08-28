@@ -212,153 +212,192 @@
                 </div>
 
                 <!-- Checklists -->
-                <div class="w-full">
-                    <div class="flex justify-between items-center">
-                        <span class="font-medium">Listas de Verificación</span>
-                        <button mat-stroked-button class="h-8 min-h-8" (click)="addChecklist()">
-                            <mat-icon class="icon-size-5 mr-1" [svgIcon]="'heroicons_solid:plus'"></mat-icon>
-                            Agregar Lista
-                        </button>
-                    </div>
-
-                    @if (card().checklists?.length) {
-                        <div class="mt-2 space-y-4">
-                            @for (checklist of card().checklists; track checklist.id) {
-                                <div class="border border-gray-300 rounded-md p-3">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <div class="font-medium">{{ checklist.title }}</div>
-                                        <button mat-icon-button (click)="removeChecklist(checklist)">
-                                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:trash'"></mat-icon>
-                                        </button>
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        @for (item of checklist.items; track item.id) {
-                                            <div class="flex items-center">
-                                                <mat-checkbox
-                                                    [checked]="item.checked"
-                                                    (change)="toggleChecklistItem(checklist, item, $event)">
-                                                    {{ item.title }}
-                                                </mat-checkbox>
-                                            </div>
-                                        }
-                                    </div>
-
-                                    <div class="mt-2 flex items-center">
-                                        <input
-                                            #newItemInput
-                                            class="flex-1 border border-gray-300 rounded-md px-2 py-1 text-sm"
-                                            placeholder="Agregar un elemento"
-                                            (keydown.enter)="addChecklistItem(checklist, newItemInput.value); newItemInput.value = ''"
-                                        />
-                                        <button
-                                            mat-icon-button
-                                            (click)="addChecklistItem(checklist, newItemInput.value); newItemInput.value = ''">
-                                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:plus'"></mat-icon>
-                                        </button>
-                                    </div>
-                                </div>
-                            }
+                @defer (on interaction) {
+                    <div class="w-full">
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">Listas de Verificación</span>
+                            <button mat-stroked-button class="h-8 min-h-8" (click)="addChecklist()">
+                                <mat-icon class="icon-size-5 mr-1" [svgIcon]="'heroicons_solid:plus'"></mat-icon>
+                                Agregar Lista
+                            </button>
                         </div>
-                    }
-                </div>
 
-                <!-- Attachments -->
-                <div class="w-full">
-                    <div class="flex justify-between items-center">
-                        <span class="font-medium">Adjuntos</span>
-                        <button mat-stroked-button class="h-8 min-h-8" (click)="addAttachment()">
-                            <mat-icon class="icon-size-5 mr-1" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
-                            Agregar Adjunto
-                        </button>
-                    </div>
-
-                    @if (card().attachments?.length) {
-                        <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            @for (attachment of card().attachments; track attachment.id) {
-                                <div class="border border-gray-300 rounded-md p-2 flex items-center">
-                                    <mat-icon class="icon-size-5 mr-2" [svgIcon]="'heroicons_solid:document'"></mat-icon>
-                                    <div class="flex-1 overflow-hidden">
-                                        <div class="truncate">{{ attachment.name }}</div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">
-                                            {{ attachment.createdAt | date: 'shortDate' }}
-                                        </div>
-                                    </div>
-                                    <button mat-icon-button (click)="removeAttachment(attachment)">
-                                        <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:trash'"></mat-icon>
-                                    </button>
-                                </div>
-                            }
-                        </div>
-                    }
-                </div>
-
-                <!-- Custom Fields -->
-                <div class="w-full">
-                    <div class="flex justify-between items-center">
-                        <span class="font-medium">Campos Personalizados</span>
-                        <button mat-stroked-button class="h-8 min-h-8" (click)="addCustomField()">
-                            <mat-icon class="icon-size-5 mr-1" [svgIcon]="'heroicons_solid:plus'"></mat-icon>
-                            Agregar Campo
-                        </button>
-                    </div>
-
-                    @if (card().customFields?.length) {
-                        <div class="mt-2 space-y-3">
-                            @for (field of card().customFields; track field.id) {
-                                <div class="border border-gray-300 rounded-md p-3">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <div class="font-medium">{{ field.title }}</div>
-                                        <div class="flex items-center">
-                                            <div class="text-xs text-gray-500 dark:text-gray-400 mr-2">{{ field.type }}</div>
-                                            <button mat-icon-button (click)="removeCustomField(field)">
+                        @if (card().checklists?.length) {
+                            <div class="mt-2 space-y-4">
+                                @for (checklist of card().checklists; track checklist.id) {
+                                    <div class="border border-gray-300 rounded-md p-3">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <div class="font-medium">{{ checklist.title }}</div>
+                                            <button mat-icon-button (click)="removeChecklist(checklist)">
                                                 <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:trash'"></mat-icon>
                                             </button>
                                         </div>
-                                    </div>
 
-                                    <div [ngSwitch]="field.type">
-                                        <input *ngSwitchCase="'text'"
-                                               class="w-full border border-gray-300 rounded-md px-3 py-2"
-                                               [(ngModel)]="field.value"
-                                               [ngModelOptions]="{standalone: true}"/>
-
-                                        <input *ngSwitchCase="'number'"
-                                               type="number"
-                                               class="w-full border border-gray-300 rounded-md px-3 py-2"
-                                               [(ngModel)]="field.value"
-                                               [ngModelOptions]="{standalone: true}"/>
-
-                                        <input *ngSwitchCase="'date'"
-                                               type="date"
-                                               class="w-full border border-gray-300 rounded-md px-3 py-2"
-                                               [(ngModel)]="field.value"
-                                               [ngModelOptions]="{standalone: true}"/>
-
-                                        <select *ngSwitchCase="'select'"
-                                                class="w-full border border-gray-300 rounded-md px-3 py-2"
-                                                [(ngModel)]="field.value"
-                                                [ngModelOptions]="{standalone: true}">
-                                            @for (option of field.options; track option) {
-                                                <option [value]="option.id">{{ option.value }}</option>
-                                            }
-                                        </select>
-
-                                        <div *ngSwitchCase="'multiuser'" class="space-y-2">
-                                            @for (member of board().members; track member.id) {
-                                                <mat-checkbox
-                                                    [checked]="isUserSelected(field, member)"
-                                                    (change)="toggleUserSelection(field, member, $event)">
-                                                    {{ member.name }}
-                                                </mat-checkbox>
+                                        <div class="space-y-2">
+                                            @for (item of checklist.items; track item.id) {
+                                                <div class="flex items-center">
+                                                    <mat-checkbox
+                                                        [checked]="item.checked"
+                                                        (change)="toggleChecklistItem(checklist, item, $event)">
+                                                        {{ item.title }}
+                                                    </mat-checkbox>
+                                                </div>
                                             }
                                         </div>
+
+                                        <div class="mt-2 flex items-center">
+                                            <input
+                                                #newItemInput
+                                                class="flex-1 border border-gray-300 rounded-md px-2 py-1 text-sm"
+                                                placeholder="Agregar un elemento"
+                                                (keydown.enter)="addChecklistItem(checklist, newItemInput.value); newItemInput.value = ''"
+                                            />
+                                            <button
+                                                mat-icon-button
+                                                (click)="addChecklistItem(checklist, newItemInput.value); newItemInput.value = ''">
+                                                <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:plus'"></mat-icon>
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            }
+                                }
+                            </div>
+                        }
+                    </div>
+                } @placeholder {
+                    <div class="w-full">
+                        <div class="flex justify-between items-center">
+                            <div class="w-32 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                            <div class="w-24 h-8 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
                         </div>
-                    }
-                </div>
+                        <div class="mt-2 space-y-2">
+                            <div class="w-full h-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                            <div class="w-full h-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Attachments -->
+                @defer (on interaction) {
+                    <div class="w-full">
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">Adjuntos</span>
+                            <button mat-stroked-button class="h-8 min-h-8" (click)="addAttachment()">
+                                <mat-icon class="icon-size-5 mr-1" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+                                Agregar Adjunto
+                            </button>
+                        </div>
+
+                        @if (card().attachments?.length) {
+                            <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                @for (attachment of card().attachments; track attachment.id) {
+                                    <div class="border border-gray-300 rounded-md p-2 flex items-center">
+                                        <mat-icon class="icon-size-5 mr-2" [svgIcon]="'heroicons_solid:document'"></mat-icon>
+                                        <div class="flex-1 overflow-hidden">
+                                            <div class="truncate">{{ attachment.name }}</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                {{ attachment.createdAt | date: 'shortDate' }}
+                                            </div>
+                                        </div>
+                                        <button mat-icon-button (click)="removeAttachment(attachment)">
+                                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:trash'"></mat-icon>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                } @placeholder {
+                    <div class="w-full">
+                        <div class="flex justify-between items-center">
+                            <div class="w-20 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                            <div class="w-28 h-8 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                        </div>
+                        <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div class="w-full h-12 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                            <div class="w-full h-12 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Custom Fields -->
+                @defer (on interaction) {
+                    <div class="w-full">
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">Campos Personalizados</span>
+                            <button mat-stroked-button class="h-8 min-h-8" (click)="addCustomField()">
+                                <mat-icon class="icon-size-5 mr-1" [svgIcon]="'heroicons_solid:plus'"></mat-icon>
+                                Agregar Campo
+                            </button>
+                        </div>
+
+                        @if (card().customFields?.length) {
+                            <div class="mt-2 space-y-3">
+                                @for (field of card().customFields; track field.id) {
+                                    <div class="border border-gray-300 rounded-md p-3">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <div class="font-medium">{{ field.title }}</div>
+                                            <div class="flex items-center">
+                                                <div class="text-xs text-gray-500 dark:text-gray-400 mr-2">{{ field.type }}</div>
+                                                <button mat-icon-button (click)="removeCustomField(field)">
+                                                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:trash'"></mat-icon>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div [ngSwitch]="field.type">
+                                            <input *ngSwitchCase="'text'"
+                                                   class="w-full border border-gray-300 rounded-md px-3 py-2"
+                                                   [(ngModel)]="field.value"
+                                                   [ngModelOptions]="{standalone: true}"/>
+
+                                            <input *ngSwitchCase="'number'"
+                                                   type="number"
+                                                   class="w-full border border-gray-300 rounded-md px-3 py-2"
+                                                   [(ngModel)]="field.value"
+                                                   [ngModelOptions]="{standalone: true}"/>
+
+                                            <input *ngSwitchCase="'date'"
+                                                   type="date"
+                                                   class="w-full border border-gray-300 rounded-md px-3 py-2"
+                                                   [(ngModel)]="field.value"
+                                                   [ngModelOptions]="{standalone: true}"/>
+
+                                            <select *ngSwitchCase="'select'"
+                                                    class="w-full border border-gray-300 rounded-md px-3 py-2"
+                                                    [(ngModel)]="field.value"
+                                                    [ngModelOptions]="{standalone: true}">
+                                                @for (option of field.options; track option) {
+                                                    <option [value]="option.id">{{ option.value }}</option>
+                                                }
+                                            </select>
+
+                                            <div *ngSwitchCase="'multiuser'" class="space-y-2">
+                                                @for (member of board().members; track member.id) {
+                                                    <mat-checkbox
+                                                        [checked]="isUserSelected(field, member)"
+                                                        (change)="toggleUserSelection(field, member, $event)">
+                                                        {{ member.name }}
+                                                    </mat-checkbox>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                } @placeholder {
+                    <div class="w-full">
+                        <div class="flex justify-between items-center">
+                            <div class="w-40 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                            <div class="w-32 h-8 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                        </div>
+                        <div class="mt-2 space-y-3">
+                            <div class="w-full h-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                            <div class="w-full h-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                        </div>
+                    </div>
+                }
             </form>
         </div>
 
@@ -380,72 +419,105 @@
                 </div>
 
                 <!-- Comments Section -->
-                <div class="w-full">
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="font-medium text-gray-900 dark:text-gray-100">Comentarios</span>
-                    </div>
+                @defer (on interaction) {
+                    <div class="w-full">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="font-medium text-gray-900 dark:text-gray-100">Comentarios</span>
+                        </div>
 
-                    <div class="space-y-4">
-                        @if (card().comments?.length) {
-                            @for (comment of card().comments; track trackByFn($index, comment)) {
-                                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                                    <div class="flex items-start">
-                                        @if (comment.member?.avatar) {
-                                            <img
-                                                class="w-8 h-8 rounded-full mr-3"
-                                                [src]="comment.member.avatar.fileUrl"
-                                                [alt]="comment.member.name"
-                                            />
-                                        } @else {
-                                            <div class="w-8 h-8 rounded-full mr-3 bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-gray-700 dark:text-gray-300 text-sm font-medium">
-                                                {{ comment.member?.name.charAt(0) || '?' }}
-                                            </div>
-                                        }
-
-                                        <div class="flex-1">
-                                            <div class="flex justify-between items-center mb-1">
-                                                <div class="font-medium text-gray-900 dark:text-gray-100">{{ comment.member?.name || 'Desconocido' }}</div>
-                                                <div class="text-xs text-gray-500 dark:text-gray-400">
-                                                    {{ comment.createdAt | date: 'medium' }}
+                        <div class="space-y-4">
+                            @if (card().comments?.length) {
+                                @for (comment of card().comments; track trackByFn($index, comment)) {
+                                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                                        <div class="flex items-start">
+                                            @if (comment.member?.avatar) {
+                                                <img
+                                                    class="w-8 h-8 rounded-full mr-3"
+                                                    [src]="comment.member.avatar.fileUrl"
+                                                    [alt]="comment.member.name"
+                                                />
+                                            } @else {
+                                                <div class="w-8 h-8 rounded-full mr-3 bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-gray-700 dark:text-gray-300 text-sm font-medium">
+                                                    {{ comment.member?.name.charAt(0) || '?' }}
                                                 </div>
+                                            }
+
+                                            <div class="flex-1">
+                                                <div class="flex justify-between items-center mb-1">
+                                                    <div class="font-medium text-gray-900 dark:text-gray-100">{{ comment.member?.name || 'Desconocido' }}</div>
+                                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                        {{ comment.createdAt | date: 'medium' }}
+                                                    </div>
+                                                </div>
+                                                <div class="text-gray-700 dark:text-gray-300">{{ comment.message }}</div>
                                             </div>
-                                            <div class="text-gray-700 dark:text-gray-300">{{ comment.message }}</div>
                                         </div>
                                     </div>
+                                }
+                            } @else {
+                                <div class="text-sm text-gray-500 dark:text-gray-400 italic">
+                                    No hay comentarios aún
                                 </div>
                             }
-                        } @else {
-                            <div class="text-sm text-gray-500 dark:text-gray-400 italic">
-                                No hay comentarios aún
-                            </div>
-                        }
 
-                        <!-- Add Comment -->
-                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                            <div class="flex items-start">
-                                <div class="w-8 h-8 rounded-full mr-3 bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-gray-700 dark:text-gray-300 text-sm font-medium">
-                                    {{ currentUser?.name.charAt(0) || '?' }}
-                                </div>
-                                <div class="flex-1">
-                                    <textarea
-                                        #commentInput
-                                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 min-h-[80px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                                        placeholder="Escribe un comentario..."
-                                    ></textarea>
-                                    <div class="mt-2 flex justify-end">
-                                        <button
-                                            mat-flat-button
-                                            color="primary"
-                                            class="text-sm"
-                                            (click)="addComment(commentInput.value); commentInput.value = ''">
-                                            Comentar
-                                        </button>
+                            <!-- Add Comment -->
+                            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 rounded-full mr-3 bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-gray-700 dark:text-gray-300 text-sm font-medium">
+                                        {{ currentUser?.name.charAt(0) || '?' }}
+                                    </div>
+                                    <div class="flex-1">
+                                        <textarea
+                                            #commentInput
+                                            class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 min-h-[80px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                                            placeholder="Escribe un comentario..."
+                                        ></textarea>
+                                        <div class="mt-2 flex justify-end">
+                                            <button
+                                                mat-flat-button
+                                                color="primary"
+                                                class="text-sm"
+                                                (click)="addComment(commentInput.value); commentInput.value = ''">
+                                                Comentar
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                } @placeholder {
+                    <div class="w-full">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="w-24 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                        </div>
+                        <div class="space-y-4">
+                            <!-- Comment skeleton -->
+                            <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 animate-pulse">
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 rounded-full mr-3 bg-gray-300 dark:bg-gray-600"></div>
+                                    <div class="flex-1 space-y-2">
+                                        <div class="w-24 h-3 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                                        <div class="w-full h-4 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                                        <div class="w-3/4 h-4 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Add comment skeleton -->
+                            <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 animate-pulse">
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 rounded-full mr-3 bg-gray-300 dark:bg-gray-600"></div>
+                                    <div class="flex-1">
+                                        <div class="w-full h-20 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                                        <div class="mt-2 flex justify-end">
+                                            <div class="w-20 h-8 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </div>

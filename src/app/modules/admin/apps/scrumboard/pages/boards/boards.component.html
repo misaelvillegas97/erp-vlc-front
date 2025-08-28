@@ -31,31 +31,41 @@
                         {{ board.description }}
                     </div>
                     <!-- Members -->
-                    @if (board.members?.length) {
-                        <div class="mt-4 sm:mt-5 lg:mt-6 h-0.5 sm:h-1 w-8 sm:w-12 border-t-2"></div>
-                        <div class="mt-3 sm:mt-4 lg:mt-6 flex items-center -space-x-1 sm:-space-x-1.5">
-                            @for (member of board.members.slice(0, 5); track member.id) {
-                                @if ($any(member).avatar) {
-                                    <img
-                                        [matTooltip]="$any(member).name"
-                                        class="ring-bg-card h-7 w-7 sm:h-8 sm:w-8 lg:h-9 lg:w-9 flex-0 rounded-full object-cover ring ring-offset-1 ring-offset-transparent"
-                                        [src]="$any(member).avatar?.fileUrl"
-                                        alt="Member avatar"
-                                    />
-                                } @else {
-                                    <div
-                                        [matTooltip]="$any(member).name"
-                                        class="ring-bg-card flex h-7 w-7 sm:h-8 sm:w-8 lg:h-9 lg:w-9 flex-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs sm:text-sm font-semibold ring ring-offset-1 ring-offset-transparent">
-                                        {{ getUserInitial($any(member).name) }}
+                    @defer (on idle) {
+                        @if (board.members?.length) {
+                            <div class="mt-4 sm:mt-5 lg:mt-6 h-0.5 sm:h-1 w-8 sm:w-12 border-t-2"></div>
+                            <div class="mt-3 sm:mt-4 lg:mt-6 flex items-center -space-x-1 sm:-space-x-1.5">
+                                @for (member of board.members.slice(0, 5); track member.id) {
+                                    @if ($any(member).avatar) {
+                                        <img
+                                            [matTooltip]="$any(member).name"
+                                            class="ring-bg-card h-7 w-7 sm:h-8 sm:w-8 lg:h-9 lg:w-9 flex-0 rounded-full object-cover ring ring-offset-1 ring-offset-transparent"
+                                            [src]="$any(member).avatar?.fileUrl"
+                                            alt="Member avatar"
+                                        />
+                                    } @else {
+                                        <div
+                                            [matTooltip]="$any(member).name"
+                                            class="ring-bg-card flex h-7 w-7 sm:h-8 sm:w-8 lg:h-9 lg:w-9 flex-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs sm:text-sm font-semibold ring ring-offset-1 ring-offset-transparent">
+                                            {{ getUserInitial($any(member).name) }}
+                                        </div>
+                                    }
+                                }
+                                @if (board.members.length > 5) {
+                                    <div class="ring-bg-card flex h-7 w-7 sm:h-8 sm:w-8 lg:h-9 lg:w-9 flex-0 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-300 ring ring-offset-1 ring-offset-transparent">
+                                        <div class="text-xs sm:text-sm font-semibold">
+                                            +{{ board.members.slice(5).length }}
+                                        </div>
                                     </div>
                                 }
-                            }
-                            @if (board.members.length > 5) {
-                                <div class="ring-bg-card flex h-7 w-7 sm:h-8 sm:w-8 lg:h-9 lg:w-9 flex-0 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-300 ring ring-offset-1 ring-offset-transparent">
-                                    <div class="text-xs sm:text-sm font-semibold">
-                                        +{{ board.members.slice(5).length }}
-                                    </div>
-                                </div>
+                            </div>
+                        }
+                    } @placeholder {
+                        <div class="mt-4 sm:mt-5 lg:mt-6 h-0.5 sm:h-1 w-8 sm:w-12 border-t-2"></div>
+                        <div class="mt-3 sm:mt-4 lg:mt-6 flex items-center -space-x-1 sm:-space-x-1.5">
+                            <!-- Skeleton loading for members -->
+                            @for (i of [1, 2, 3]; track i) {
+                                <div class="ring-bg-card h-7 w-7 sm:h-8 sm:w-8 lg:h-9 lg:w-9 flex-0 rounded-full animate-pulse bg-gray-300 dark:bg-gray-600 ring ring-offset-1 ring-offset-transparent"></div>
                             }
                         </div>
                     }
@@ -69,18 +79,27 @@
                 </a>
             }
             <!-- New board -->
-            <div
-                (click)="openNewBoardDialog()"
-                class="flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 transition-colors duration-150 ease-in-out hover:bg-hover min-h-[200px] sm:min-h-[220px] lg:min-h-[240px] p-4 sm:p-5 lg:p-6"
-            >
-                <mat-icon
-                    [svgIcon]="'heroicons_outline:plus'"
-                    class="text-hint !text-3xl sm:!text-4xl lg:!text-5xl mb-2 sm:mb-3"
-                ></mat-icon>
-                <span class="text-hint text-sm sm:text-base lg:text-lg font-medium text-center">
-                    Add New Board
-                </span>
-            </div>
+            @defer (on idle) {
+                <div
+                    (click)="openNewBoardDialog()"
+                    class="flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 transition-colors duration-150 ease-in-out hover:bg-hover min-h-[200px] sm:min-h-[220px] lg:min-h-[240px] p-4 sm:p-5 lg:p-6"
+                >
+                    <mat-icon
+                        [svgIcon]="'heroicons_outline:plus'"
+                        class="text-hint !text-3xl sm:!text-4xl lg:!text-5xl mb-2 sm:mb-3"
+                    ></mat-icon>
+                    <span class="text-hint text-sm sm:text-base lg:text-lg font-medium text-center">
+                        Add New Board
+                    </span>
+                </div>
+            } @placeholder {
+                <div
+                    class="flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700 min-h-[200px] sm:min-h-[220px] lg:min-h-[240px] p-4 sm:p-5 lg:p-6 animate-pulse"
+                >
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gray-300 dark:bg-gray-600 rounded mb-2 sm:mb-3"></div>
+                    <div class="w-20 h-4 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                </div>
+            }
         </div>
     </div>
 </div>

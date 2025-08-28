@@ -12,6 +12,11 @@ Instructions for generating high-quality Angular applications with TypeScript, u
 - Angular CLI for project setup and scaffolding
 - Follow Angular Style Guide (https://angular.dev/style-guide)
 - Use Angular Material or other modern UI libraries for consistent styling (if specified)
+- Angular documentation through MCP Server
+- Use TailwindCSS for styling
+- Use RxJS for reactive programming (if specified)
+- Use Angular Signals for state management (if specified)
+- Use Angular CLI for generating boilerplate code
 
 ## Project Overview
 

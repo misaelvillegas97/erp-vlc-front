@@ -74,6 +74,7 @@ export default [
         resolve  : {
             boards: () => inject(ScrumboardService).getBoards(),
         },
+        data: {preload: true}
     },
     {
         path     : ':boardId',
@@ -81,6 +82,7 @@ export default [
         resolve  : {
             board: boardResolver,
         },
+        data     : {preload: true},
         children : [
             {
                 path     : 'card/:cardId',
@@ -88,6 +90,7 @@ export default [
                 resolve  : {
                     card: cardResolver,
                 },
+                data: {preload: false}
             }
         ],
     },
@@ -97,6 +100,7 @@ export default [
         loadChildren : () => import('./pages/settings/board-config.routes').then(c => c.default),
         resolve      : {
             board: boardResolver
-        }
+        },
+        data         : {preload: false}
     }
 ] as Routes;

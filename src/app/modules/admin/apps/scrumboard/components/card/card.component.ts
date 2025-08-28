@@ -29,11 +29,14 @@ export class ScrumboardCardComponent implements OnInit {
      * On init
      */
     ngOnInit(): void {
-        // Launch the side panel (drawer-style modal)
+        // Launch the side panel (drawer-style modal) with mobile-responsive configuration
         this._matDialog
             .open(ScrumboardCardDetailsComponent, {
                 autoFocus  : false,
-                width: '1000px',
+                panelClass : [ 'dialog-mobile-fullscreen' ],
+                maxWidth   : '100vw',
+                width      : window.innerWidth <= 768 ? '100%' : '1000px',
+                height     : window.innerWidth <= 768 ? '100%' : 'auto',
                 hasBackdrop: true,
             })
             .afterClosed()

@@ -1,12 +1,12 @@
 import { CdkDragDrop, CdkDropList, CdkDropListGroup, moveItemInArray, transferArrayItem, }                    from '@angular/cdk/drag-drop';
 import { CdkScrollable }                                                                                      from '@angular/cdk/scrolling';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup }                                                               from '@angular/forms';
 import { MatButtonModule }                                                                                    from '@angular/material/button';
 import { MatIconModule }                                                                                      from '@angular/material/icon';
 import { MatMenuModule }                                                                                      from '@angular/material/menu';
 import { ActivatedRoute, RouterOutlet }                                                                       from '@angular/router';
-import { debounceTime, firstValueFrom, Subject }                                                              from 'rxjs';
+import { debounceTime, firstValueFrom, Subject, retry, catchError, of, throwError }                                                   from 'rxjs';
 
 import { FuseConfirmationService }            from '@fuse/services/confirmation';
 import { Card, List, }                        from '@modules/admin/apps/scrumboard/models/scrumboard.models';
@@ -42,18 +42,45 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
     board = this.#boardService.board;
     listTitleForm: UntypedFormGroup;
 
-    // Computed properties for template
+    // Optimistic state management
+    private readonly _optimisticUpdates: WritableSignal<Map<string, any>> = signal(new Map());
+    private readonly _isUpdating: WritableSignal<boolean> = signal(false);
+
+    // Enhanced computed properties for template optimization
     boardTitle = computed<string>(() => this.board()?.title || '');
-    boardLists = computed<List[]>(() => this.board()?.lists || []);
+    boardLists = computed<List[]>(() => {
+        const lists = this.board()?.lists || [];
+        const optimisticUpdates = this._optimisticUpdates();
+
+        // Apply optimistic updates to lists
+        return lists.map(list => {
+            const optimisticList = optimisticUpdates.get(`list-${ list.id }`);
+            return optimisticList ? {...list, ...optimisticList} : list;
+        });
+    });
+
+    // Additional computed properties for template logic consolidation
+    hasLists = computed<boolean>(() => this.boardLists().length > 0);
+    canAddMoreLists = computed<boolean>(() => this.boardLists().length < this._maxListCount);
+    boardMemberCount = computed<number>(() => this.board()?.members?.length || 0);
+    addListButtonTitle = computed<string>(() =>
+        this.hasLists() ? 'Agregar otra lista' : 'Agregar una lista'
+    );
 
     // Private
     private readonly _positionStep: number = 65536;
     private readonly _maxListCount: number = 200;
     private readonly _maxPosition: number = this._positionStep * 500;
 
-    // Debounced update subjects for performance optimization
-    private readonly _cardUpdateSubject = new Subject<{ id: string, card: Card }>();
-    private readonly _listUpdateSubject = new Subject<List[]>();
+    // Enhanced debounced update subjects with retry queue
+    private readonly _cardUpdateSubject = new Subject<{
+        id: string,
+        card: Card,
+        originalData?: Card,
+        originalSourceList?: List,
+        originalDestList?: List
+    }>();
+    private readonly _listUpdateSubject = new Subject<{ lists: List[], originalData?: List[] }>();
 
     /**
      * Constructor
@@ -82,22 +109,105 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
             }
         });
 
-        // Setup debounced API calls for better performance
+        // Setup debounced API calls with optimistic updates and rollback
         this._cardUpdateSubject.pipe(
             debounceTime(300) // Wait 300ms after last drag operation
-        ).subscribe(async ({id, card}) => {
+        ).subscribe(async ({id, card, originalData, originalSourceList, originalDestList}) => {
+            // Note: Optimistic updates are already applied in cardDropped method
+            this._isUpdating.set(true);
+
             try {
-                await this._scrumboardService.updateCard(id, card);
+                // Retry logic for Promise-based updateCard
+                let retries = 3;
+                let lastError: any;
+
+                while (retries > 0) {
+                    try {
+                        await this._scrumboardService.updateCard(id, card);
+
+                        // Clear optimistic updates on success
+                        if (originalSourceList && originalDestList) {
+                            // Cross-list transfer - clear both lists
+                            this._clearOptimisticUpdate(`list-${ originalSourceList.id }`);
+                            this._clearOptimisticUpdate(`list-${ originalDestList.id }`);
+                        } else {
+                            // Same-list move - clear the single list
+                            const currentList = this.board().lists.find(list =>
+                                list.cards.some(c => c.id === id)
+                            );
+                            if (currentList) {
+                                this._clearOptimisticUpdate(`list-${ currentList.id }`);
+                            }
+                        }
+                        break;
+                    } catch (error) {
+                        lastError = error;
+                        retries--;
+                        if (retries > 0) {
+                            // Wait before retry
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                        }
+                    }
+                }
+
+                // If all retries failed, rollback
+                if (retries === 0) {
+                    if (originalSourceList && originalDestList) {
+                        // Cross-list transfer rollback - restore both lists
+                        this._rollbackOptimisticListsUpdate([ originalSourceList, originalDestList ]);
+                    } else if (originalData) {
+                        // Same-list move rollback - find the list and restore it
+                        const currentList = this.board().lists.find(list =>
+                            list.cards.some(c => c.id === id)
+                        );
+                        if (currentList) {
+                            // Restore the original card position within the list
+                            const originalCards = currentList.cards.map(c =>
+                                c.id === id ? originalData : c
+                            );
+                            const restoredList = {...currentList, cards: originalCards};
+                            this._rollbackOptimisticListsUpdate([ restoredList ]);
+                        }
+                    }
+                    console.error('Error updating card after retries:', lastError);
+                }
             } catch (error) {
-                console.error('Error updating card:', error);
+                console.error('Unexpected error in card update:', error);
+            } finally {
+                this._isUpdating.set(false);
             }
         });
 
         this._listUpdateSubject.pipe(
             debounceTime(300) // Wait 300ms after last drag operation
-        ).subscribe((lists) => {
-            this._scrumboardService.updateLists(lists).subscribe({
-                error: (error) => console.error('Error updating lists:', error)
+        ).subscribe(({lists, originalData}) => {
+            // Apply optimistic update with direct signal updates
+            this._applyOptimisticListsUpdate(lists);
+            this._isUpdating.set(true);
+
+            this._scrumboardService.updateLists(lists).pipe(
+                retry({count: 3, delay: 1000}), // Retry 3 times with 1s delay
+                catchError((error) => {
+                    // Rollback optimistic update on error
+                    if (originalData) {
+                        this._rollbackOptimisticListsUpdate(originalData);
+                        this._isUpdating.set(false);
+                    }
+                    console.error('Error updating lists after retries:', error);
+                    return of(null); // Continue with empty response to prevent further errors
+                })
+            ).subscribe({
+                next : (result) => {
+                    if (result) {
+                        // Clear optimistic updates on success
+                        this._clearOptimisticListsUpdates(lists);
+                        this._isUpdating.set(false);
+                    }
+                },
+                error: (error) => {
+                    console.error('Unexpected error in lists update:', error);
+                    this._isUpdating.set(false);
+                }
             });
         });
     }
@@ -126,6 +236,10 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
      * On destroy
      */
     ngOnDestroy(): void {
+        const boardId = this._route.snapshot.params.boardId;
+
+        // Properly disconnect from websocket
+        this._wsService.leaveBoard(boardId);
         this._wsService.disconnect();
 
         // Clean up subjects to prevent memory leaks
@@ -266,6 +380,9 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
      * @param event
      */
     listDropped(event: CdkDragDrop<List[]>): void {
+        // Store original data for potential rollback
+        const originalLists = [ ...event.container.data ];
+        
         // Move the item
         moveItemInArray(
             event.container.data,
@@ -276,8 +393,11 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
         // Calculate the positions
         const updated = this._calculatePositions(event);
 
-        // Use debounced subject for better performance
-        this._listUpdateSubject.next(updated);
+        // Use debounced subject with optimistic updates
+        this._listUpdateSubject.next({
+            lists       : updated,
+            originalData: originalLists
+        });
     }
 
     /**
@@ -286,16 +406,46 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
      * @param event
      */
     cardDropped(event: CdkDragDrop<Card[]>): void {
+        // Store original data for potential rollback
+        const originalCard = event.previousContainer === event.container
+            ? {...event.container.data[event.previousIndex]}
+            : {...event.previousContainer.data[event.previousIndex]};
+
+        // For card transfers between lists, we need to store the original state of both lists
+        const originalSourceList = event.previousContainer !== event.container
+            ? {...this.board().lists.find(list => list.id === event.previousContainer.id), cards: [ ...event.previousContainer.data ]}
+            : null;
+        const originalDestList = event.previousContainer !== event.container
+            ? {...this.board().lists.find(list => list.id === event.container.id), cards: [ ...event.container.data ]}
+            : null;
+            
         // Move or transfer the item
         if (event.previousContainer === event.container) {
-            // Move the item
+            // Move the item within the same list
             moveItemInArray(
                 event.container.data,
                 event.previousIndex,
                 event.currentIndex
             );
+
+            // Calculate the positions
+            const updated = this._calculatePositions(event);
+
+            // Apply optimistic update to the affected list
+            const currentList = this.board().lists.find(list => list.id === event.container.id);
+            if (currentList) {
+                const updatedList = {...currentList, cards: [ ...event.container.data ]};
+                this._applyOptimisticListsUpdate([ updatedList ]);
+            }
+
+            // Use debounced subject with optimistic updates
+            this._cardUpdateSubject.next({
+                id          : updated[0].id,
+                card        : updated[0],
+                originalData: originalCard
+            });
         } else {
-            // Transfer the item
+            // Transfer the item between lists
             transferArrayItem(
                 event.previousContainer.data,
                 event.container.data,
@@ -303,16 +453,31 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
                 event.currentIndex
             );
 
-            // Update the card's list it
-            event.container.data[event.currentIndex].listId =
-                event.container.id;
+            // Update the card's list id
+            event.container.data[event.currentIndex].listId = event.container.id;
+
+            // Calculate the positions
+            const updated = this._calculatePositions(event);
+
+            // Apply optimistic updates to both affected lists
+            const sourceList = this.board().lists.find(list => list.id === event.previousContainer.id);
+            const destList = this.board().lists.find(list => list.id === event.container.id);
+
+            if (sourceList && destList) {
+                const updatedSourceList = {...sourceList, cards: [ ...event.previousContainer.data ]};
+                const updatedDestList = {...destList, cards: [ ...event.container.data ]};
+                this._applyOptimisticListsUpdate([ updatedSourceList, updatedDestList ]);
+            }
+
+            // Use debounced subject with optimistic updates, including original lists for rollback
+            this._cardUpdateSubject.next({
+                id                : updated[0].id,
+                card              : updated[0],
+                originalData      : originalCard,
+                originalSourceList: originalSourceList,
+                originalDestList  : originalDestList
+            });
         }
-
-        // Calculate the positions
-        const updated = this._calculatePositions(event);
-
-        // Use debounced subject for better performance
-        this._cardUpdateSubject.next({id: updated[0].id, card: updated[0]});
     }
 
 
@@ -463,5 +628,73 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
 
         // Return currentItem
         return [ currentItem ];
+    }
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ Optimistic update helper methods
+    // -----------------------------------------------------------------------------------------------------
+
+    /**
+     * Apply optimistic card update
+     */
+    private _applyOptimisticCardUpdate(cardId: string, card: Card): void {
+        const updates = this._optimisticUpdates();
+        updates.set(`card-${ cardId }`, card);
+        this._optimisticUpdates.set(new Map(updates));
+    }
+
+    /**
+     * Apply optimistic lists update
+     */
+    private _applyOptimisticListsUpdate(lists: List[]): void {
+        const updates = this._optimisticUpdates();
+        lists.forEach(list => {
+            updates.set(`list-${ list.id }`, list);
+        });
+        this._optimisticUpdates.set(new Map(updates));
+    }
+
+    /**
+     * Rollback optimistic update
+     */
+    private _rollbackOptimisticUpdate(key: string, originalData: any): void {
+        const updates = this._optimisticUpdates();
+        if (originalData) {
+            updates.set(key, originalData);
+        } else {
+            updates.delete(key);
+        }
+        this._optimisticUpdates.set(new Map(updates));
+    }
+
+    /**
+     * Rollback optimistic lists update
+     */
+    private _rollbackOptimisticListsUpdate(originalLists: List[]): void {
+        const updates = this._optimisticUpdates();
+        originalLists.forEach(list => {
+            updates.set(`list-${ list.id }`, list);
+        });
+        this._optimisticUpdates.set(new Map(updates));
+    }
+
+    /**
+     * Clear single optimistic update
+     */
+    private _clearOptimisticUpdate(key: string): void {
+        const updates = this._optimisticUpdates();
+        updates.delete(key);
+        this._optimisticUpdates.set(new Map(updates));
+    }
+
+    /**
+     * Clear optimistic lists updates
+     */
+    private _clearOptimisticListsUpdates(lists: List[]): void {
+        const updates = this._optimisticUpdates();
+        lists.forEach(list => {
+            updates.delete(`list-${ list.id }`);
+        });
+        this._optimisticUpdates.set(new Map(updates));
     }
 }
