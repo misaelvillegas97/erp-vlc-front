@@ -1,5 +1,4 @@
 import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList } from '@angular/cdk/drag-drop';
-import { ScrollingModule } from '@angular/cdk/scrolling';
 import { Component, input, output }                         from '@angular/core';
 import { MatButtonModule }                                  from '@angular/material/button';
 import { MatIconModule }                                    from '@angular/material/icon';
@@ -57,12 +56,8 @@ import { ScrumboardBoardCardComponent }                     from '../board-card/
 
             <!-- Cards -->
             <div class="mt-2 sm:mt-3 rounded-lg bg-black/5 border border-white/10">
-                <!-- Virtual Scroll Viewport for Cards -->
-                <cdk-virtual-scroll-viewport
-                    [minBufferPx]="320"
-                    [maxBufferPx]="640"
-                    itemSize="120"
-                    class="max-h-[70vh] w-full contain-style min-h-16 sm:min-h-40">
+                <!-- Fixed: Removed virtual scrolling for drag & drop compatibility -->
+                <div class="max-h-[70vh] w-full overflow-y-auto min-h-16 sm:min-h-40">
                     <div
                         class="p-2 sm:p-3 pb-0 min-h-16 sm:min-h-22 rounded-lg"
                         cdkDropList
@@ -71,15 +66,16 @@ import { ScrumboardBoardCardComponent }                     from '../board-card/
                         (cdkDropListDropped)="onCardDropped($event)"
                     >
                         <!-- Card -->
-                        <div *cdkVirtualFor="let card of list().cards; trackBy: trackByFn"
-                             cdkDrag
-                             cdkDragPreviewClass="card-drag-preview"
-                             cdkDragPlaceholderClass="card-drag-placeholder"
-                             class="touch-manipulation">
-                            <scrumboard-board-card [card]="card"></scrumboard-board-card>
-                        </div>
+                        @for (card of list().cards; track trackByFn($index, card)) {
+                            <div cdkDrag
+                                 cdkDragPreviewClass="card-drag-preview"
+                                 cdkDragPlaceholderClass="card-drag-placeholder"
+                                 class="touch-manipulation">
+                                <scrumboard-board-card [card]="card"></scrumboard-board-card>
+                            </div>
+                        }
                     </div>
-                </cdk-virtual-scroll-viewport>
+                </div>
 
                 <!-- New card -->
                 <scrumboard-board-add-card
@@ -94,7 +90,6 @@ import { ScrumboardBoardCardComponent }                     from '../board-card/
         CdkDrag,
         CdkDragHandle,
         CdkDropList,
-        ScrollingModule,
         MatButtonModule,
         MatIconModule,
         MatMenuModule,
