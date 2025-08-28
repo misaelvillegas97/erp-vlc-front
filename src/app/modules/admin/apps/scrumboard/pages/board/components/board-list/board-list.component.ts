@@ -56,8 +56,7 @@ import { ScrumboardBoardCardComponent }                     from '../board-card/
 
             <!-- Cards -->
             <div class="mt-2 sm:mt-3 rounded-lg bg-black/5 border border-white/10">
-                <!-- Fixed: Removed virtual scrolling for drag & drop compatibility -->
-                <div class="max-h-[70vh] w-full overflow-y-auto min-h-16 sm:min-h-40">
+                <div class="max-h-[70vh] w-full overflow-y-auto">
                     <div
                         class="p-2 sm:p-3 pb-0 min-h-16 sm:min-h-22 rounded-lg"
                         cdkDropList
