@@ -21,7 +21,7 @@
     handle /api/* {
         reverse_proxy erp-vlc-back:8080 {
             transport http {
-                versions h1c
+                versions h2c
             }
         }
     }
