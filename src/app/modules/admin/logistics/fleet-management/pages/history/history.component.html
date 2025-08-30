@@ -107,6 +107,22 @@
                             </td>
                         </ng-container>
 
+                        <!-- Odómetro inicial -->
+                        <ng-container matColumnDef="initialOdometer">
+                            <th mat-header-cell *matHeaderCellDef> Odómetro inicial</th>
+                            <td mat-cell *matCellDef="let session">
+                                {{ session.initialOdometer | number:'1.0-0' }} km
+                            </td>
+                        </ng-container>
+
+                        <!-- Odómetro final -->
+                        <ng-container matColumnDef="finalOdometer">
+                            <th mat-header-cell *matHeaderCellDef> Odómetro final</th>
+                            <td mat-cell *matCellDef="let session">
+                                {{ session.finalOdometer ? (session.finalOdometer | number:'1.0-0') + ' km' : 'N/A' }}
+                            </td>
+                        </ng-container>
+
                         <!-- Distancia recorrida -->
                         <ng-container matColumnDef="distance">
                             <th mat-header-cell *matHeaderCellDef> Distancia (km)</th>

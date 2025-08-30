@@ -106,6 +106,8 @@ export class HistoryComponent {
         'endTimestamp',
         'driverName',
         'vehicleInfo',
+        'initialOdometer',
+        'finalOdometer',
         'distance',
         'status',
         'actions'
