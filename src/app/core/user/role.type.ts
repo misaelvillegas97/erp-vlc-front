@@ -14,6 +14,8 @@ export enum RoleEnum {
     'quality_manager' = 8,
     'supervisor' = 9,
     'operator' = 10,
+    'procedure_publisher' = 11,
+    'procedure_reviewer' = 12,
 }
 
 export const roleNames = {
@@ -27,4 +29,6 @@ export const roleNames = {
     [RoleEnum.quality_manager]  : 'Gerente de calidad',
     [RoleEnum.supervisor]       : 'Supervisor',
     [RoleEnum.operator]         : 'Operador',
+    [RoleEnum.procedure_publisher]: 'Publicador de procedimientos',
+    [RoleEnum.procedure_reviewer] : 'Revisor de procedimientos'
 };

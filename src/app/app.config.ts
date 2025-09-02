@@ -30,6 +30,7 @@ import { inventoryPermissions }   from '@modules/admin/inventory/inventory.permi
 import { appsPermissions }        from '@modules/admin/apps/apps.permissions';
 import { checklistsPermissions }  from '@modules/admin/checklists/checklists.permissions';
 import { tracingPermissions } from '@modules/admin/tracing/tracing.permissions';
+import { proceduresPermissions } from '@modules/admin/procedures/procedures.permissions';
 
 const config: SocketIoConfig = {
     url    : 'localhost:5000/ws/board',
@@ -137,6 +138,7 @@ export const appConfig: ApplicationConfig = {
         provideModulePermissions(appsPermissions),
         provideModulePermissions(checklistsPermissions),
         provideModulePermissions(tracingPermissions),
+        provideModulePermissions(proceduresPermissions),
         // provideModulePermissions(flowBuilderPermissions),
         // Maintainers
         provideModulePermissions(maintainersPermissions),

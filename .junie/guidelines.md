@@ -46,6 +46,19 @@ This is an Angular-based frontend application for an ERP suite of functionalitie
 
 The Table Builder component is a flexible and powerful table component that supports various column types and renderers. It's designed to be easy to use and customize. See the [README.md](src/app/shared/components/table-builder/README.md) for detailed documentation.
 
+## Page Design Guidelines
+
+**MANDATORY**: For all page development (create, list, dashboard, etc.), follow the standardized design patterns and templates documented in the [Page Design Guidelines](.junie/page-design-guidelines.md). This document provides:
+
+- **Page type templates** for create, list/dashboard, and dashboard pages
+- **Component structure patterns** with TypeScript and HTML examples
+- **Layout standards** including mobile-first responsive design
+- **Naming conventions** for components, files, and services
+- **State management patterns** using signals and resources
+- **Best practices** for accessibility, performance, and consistency
+
+**Always consult the Page Design Guidelines before creating any new page to ensure consistency across the application.**
+
 ## Development Guidelines
 
 ### Code Style

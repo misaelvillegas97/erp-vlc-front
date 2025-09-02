@@ -9,6 +9,7 @@ import { APPS_FEATURE_KEY }       from '@modules/admin/apps/apps.permissions';
 import { SCRUMBOARD_FEATURE_KEY } from '@modules/admin/apps/scrumboard/scrumboard.permissions';
 import { CHECKLISTS_FEATURE_KEY } from '@modules/admin/checklists/checklists.permissions';
 import { TRACING_FEATURE_KEY } from '@modules/admin/tracing/tracing.permissions';
+import { PROCEDURES_FEATURE_KEY } from '@modules/admin/procedures/procedures.permissions';
 
 export const appRoutes: Routes = [
 
@@ -126,6 +127,20 @@ export const appRoutes: Routes = [
                 },
                 loadChildren: () => import('app/modules/admin/tracing/tracing.routes')
             },
+            {
+                path        : PROCEDURES_FEATURE_KEY,
+                title       : 'Procedures Management',
+                canActivate : [ rolesGuard ],
+                data        : {
+                    roles: [ RoleEnum.admin, RoleEnum.quality_manager, RoleEnum.supervisor ]
+                },
+                loadChildren: () => import('app/modules/admin/procedures/procedures.routes')
+            },
+            // {
+            //     path        : INBOX_FEATURE_KEY,
+            //     title       : 'Procedure Inbox',
+            //     loadChildren: () => import('app/modules/admin/procedures/inbox/inbox.routes')
+            // },
             {
                 path    : APPS_FEATURE_KEY,
                 title   : 'Aplicaciones',
