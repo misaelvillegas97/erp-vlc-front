@@ -25,10 +25,9 @@
                         <mat-label>Categoría</mat-label>
                         <mat-select [formControl]="categoryControl">
                             <mat-option value="">Todas las Categorías</mat-option>
-                            <mat-option value="Reglamento Interno">Reglamento Interno</mat-option>
-                            <mat-option value="SSO">Seguridad y Salud</mat-option>
-                            <mat-option value="Operacional">Operacional</mat-option>
-                            <mat-option value="Calidad">Calidad</mat-option>
+                            @for (category of categoryOptions(); track category.value) {
+                                <mat-option [value]="category.value">{{ category.label }}</mat-option>
+                            }
                         </mat-select>
                     </mat-form-field>
 

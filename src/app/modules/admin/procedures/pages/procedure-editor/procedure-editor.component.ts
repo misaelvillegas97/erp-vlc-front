@@ -22,9 +22,10 @@ import { FileUploadComponent }                                                  
 
 import { ProcedureStore }                                          from '../../store/procedure.store';
 import { CreateProcedureDto, CreateVersionDto, ProceduresService } from '../../services/procedures.service';
-import { LegalReferenceCategory, ProcedureVersionStatus }                        from '../../domain/enums';
+import { LegalReferenceCategory, ProcedureVersionStatus, ProcedureCategory } from '../../domain/enums';
 import { ProcedurePriority }                                                     from '../../domain/interfaces/base.interface';
 import { RoleEnum, roleNames }                                                   from '@core/user/role.type';
+import { ProcedureCategoryUtils, ProcedureCategoryOption }                   from '../../utils/procedure-category.utils';
 
 @Component({
     selector       : 'app-procedure-editor',
@@ -190,6 +191,11 @@ export class ProcedureEditorComponent implements OnInit, OnDestroy, CanDeactivat
 
     getTags(): string[] {
         return this.procedureForm.get('tags')?.value || [];
+    }
+
+    // Category options
+    getCategoryOptions(): ProcedureCategoryOption[] {
+        return ProcedureCategoryUtils.getAllCategories();
     }
 
     // Legal categories

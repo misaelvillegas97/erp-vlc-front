@@ -84,7 +84,7 @@ interface PdfViewerDialogData {
                 <div class="flex items-center text-sm text-gray-600">
                     @if (hasFilePath()) {
                         <mat-icon class="mr-1 text-base">description</mat-icon>
-                        {{ getFileName() }}
+                        {{ getActualTitle() }}
                     }
                 </div>
                 <div class="flex gap-2">

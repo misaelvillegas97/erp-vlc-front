@@ -21,9 +21,10 @@ import { Color }                                                                
 import { NotyfService }                                                                                 from '@shared/services/notyf.service';
 import { PdfViewerComponent }                                                                                   from '@shared/components/pdf-viewer/pdf-viewer.component';
 
-import { ProcedureStore }         from '../../store/procedure.store';
-import { Procedure }              from '../../domain/interfaces';
-import { ProcedureVersionStatus } from '../../domain/enums';
+import { ProcedureStore }                                  from '../../store/procedure.store';
+import { Procedure }                                       from '../../domain/interfaces';
+import { ProcedureVersionStatus, ProcedureCategory }       from '../../domain/enums';
+import { ProcedureCategoryUtils, ProcedureCategoryOption } from '../../utils/procedure-category.utils';
 
 @Component({
     selector       : 'app-procedure-list',
@@ -77,6 +78,9 @@ export class ProcedureListComponent implements OnInit {
     categoryValue = toSignal(this.categoryControl.valueChanges.pipe(startWith('')), {initialValue: ''});
     statusValue = toSignal(this.statusControl.valueChanges.pipe(startWith('')), {initialValue: ''});
 
+    // Category options
+    categoryOptions = computed(() => ProcedureCategoryUtils.getAllCategories());
+
     // Configuración de columnas
     columnsConfig = computed<ColumnConfig<Procedure>[]>(() => [
         {
@@ -95,7 +99,10 @@ export class ProcedureListComponent implements OnInit {
             key     : 'category',
             header  : 'Categoría',
             sortable: true,
-            visible : true
+            visible: true,
+            render : (value: ProcedureCategory) => {
+                return value ? ProcedureCategoryUtils.getCategoryLabel(value) : '';
+            }
         },
         {
             key    : 'tags',

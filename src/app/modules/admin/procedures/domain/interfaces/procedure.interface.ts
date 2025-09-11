@@ -1,5 +1,5 @@
-import { BaseEntity, ProcedurePriority }                  from './base.interface';
-import { LegalReferenceCategory, ProcedureVersionStatus } from '@modules/admin/procedures/domain/enums';
+import { BaseEntity, ProcedurePriority }                                     from './base.interface';
+import { LegalReferenceCategory, ProcedureVersionStatus, ProcedureCategory } from '@modules/admin/procedures/domain/enums';
 import { User }                                           from '@core/user/user.types';
 import { ProcedureVersion }                               from '@modules/admin/procedures/domain/interfaces/procedure-version.interface';
 import { FileDto }                                        from '@modules/admin/maintainers/users/models/file-dto.model';
@@ -8,7 +8,7 @@ export interface Procedure extends BaseEntity {
     code: string;           // PROC-###
     title: string;
     description: string;
-    category?: string;      // e.g., "Reglamento Interno", "SSO"
+    category?: ProcedureCategory;
     status: ProcedureVersionStatus;
     priority: ProcedurePriority;
     department: string;

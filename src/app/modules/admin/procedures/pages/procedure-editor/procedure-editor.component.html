@@ -68,10 +68,9 @@
                             <mat-form-field>
                                 <mat-label>Categoría</mat-label>
                                 <mat-select formControlName="category">
-                                    <mat-option value="Reglamento Interno">Reglamento Interno</mat-option>
-                                    <mat-option value="SSO">Seguridad y Salud</mat-option>
-                                    <mat-option value="Operacional">Operacional</mat-option>
-                                    <mat-option value="Calidad">Calidad</mat-option>
+                                    @for (category of getCategoryOptions(); track category.value) {
+                                        <mat-option [value]="category.value">{{ category.label }}</mat-option>
+                                    }
                                 </mat-select>
                                 @if (procedureForm.get('category').hasError('required')) {
                                     <mat-error>La categoría es obligatoria</mat-error>
