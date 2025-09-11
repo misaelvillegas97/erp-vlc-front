@@ -1,0 +1,267 @@
+<div class="flex flex-col min-w-0 w-full">
+    <page-header
+        [title]="isEditing() ? 'Editar Procedimiento' : 'Crear Procedimiento'"
+        [subtitle]="isEditing() ? 'Modificar un procedimiento existente en el sistema' : 'Registrar un nuevo procedimiento en el sistema'"
+        icon="heroicons_outline:document-text">
+    </page-header>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full p-6">
+        <!-- Formulario principal -->
+        <div class="md:col-span-8">
+            <!-- Status bar for editing mode -->
+            @if (isEditing()) {
+                <div class="flex items-center justify-between p-4 mb-6 bg-card border rounded-lg shadow-sm">
+                    <div class="flex items-center gap-4">
+                        @if (currentVersion()) {
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                                  [class]="getStatusClass(currentVersion()!.status)">
+                                        {{ getStatusText(currentVersion()!.status) }}
+                                    </span>
+                        }
+                        @if (hasUnsavedChanges()) {
+                            <span class="text-sm text-amber-600 flex items-center">
+                                        <mat-icon class="mr-1 text-sm">edit</mat-icon>
+                                        Cambios sin guardar
+                                    </span>
+                        }
+                    </div>
+                    @if (isAutoSaving()) {
+                        <div class="flex items-center text-sm text-blue-600">
+                            <mat-progress-spinner diameter="16" class="mr-2"></mat-progress-spinner>
+                            Guardando...
+                        </div>
+                    }
+                </div>
+            }
+
+            <form [formGroup]="procedureForm">
+                <!-- Basic Information -->
+                <mat-card class="mb-6">
+                    <mat-card-header>
+                        <mat-card-title>Información Básica</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="pt-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <mat-form-field>
+                                <mat-label>Título</mat-label>
+                                <input matInput formControlName="title" placeholder="Título del procedimiento">
+                                @if (procedureForm.get('title').hasError('required')) {
+                                    <mat-error>El título es obligatorio</mat-error>
+                                }
+                                @if (procedureForm.get('title').hasError('minlength')) {
+                                    <mat-error>El título debe tener al menos 10 caracteres</mat-error>
+                                }
+                            </mat-form-field>
+
+                            <mat-form-field>
+                                <mat-label>Código</mat-label>
+                                <input matInput formControlName="code" placeholder="Código del procedimiento">
+                                <mat-hint>Para referencia interna, debe ser único</mat-hint>
+                                @if (procedureForm.get('code').hasError('required')) {
+                                    <mat-error>El código es obligatorio</mat-error>
+                                }
+                                @if (procedureForm.get('code').hasError('minlength')) {
+                                    <mat-error>El código debe tener al menos 3 caracteres</mat-error>
+                                }
+                            </mat-form-field>
+
+                            <mat-form-field>
+                                <mat-label>Categoría</mat-label>
+                                <mat-select formControlName="category">
+                                    <mat-option value="Reglamento Interno">Reglamento Interno</mat-option>
+                                    <mat-option value="SSO">Seguridad y Salud</mat-option>
+                                    <mat-option value="Operacional">Operacional</mat-option>
+                                    <mat-option value="Calidad">Calidad</mat-option>
+                                </mat-select>
+                                @if (procedureForm.get('category').hasError('required')) {
+                                    <mat-error>La categoría es obligatoria</mat-error>
+                                }
+                            </mat-form-field>
+
+                            <mat-form-field>
+                                <mat-label>Prioridad</mat-label>
+                                <mat-select formControlName="priority">
+                                    <mat-option value="LOW">Baja</mat-option>
+                                    <mat-option value="MEDIUM">Media</mat-option>
+                                    <mat-option value="HIGH">Alta</mat-option>
+                                    <mat-option value="CRITICAL">Crítica</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+
+                            <mat-form-field>
+                                <mat-label>Departamento</mat-label>
+                                <input matInput formControlName="department" placeholder="Departamento responsable">
+                                @if (procedureForm.get('department').hasError('required')) {
+                                    <mat-error>El departamento es obligatorio</mat-error>
+                                }
+                            </mat-form-field>
+
+                            <mat-form-field>
+                                <mat-label>Fecha de Expiración</mat-label>
+                                <input matInput type="datetime-local" formControlName="expiresAt">
+                            </mat-form-field>
+                        </div>
+
+                        <mat-form-field class="w-full">
+                            <mat-label>Descripción</mat-label>
+                            <textarea matInput formControlName="description" cdkTextareaAutosize placeholder="Descripción del procedimiento"></textarea>
+                        </mat-form-field>
+
+                        <!-- Tags -->
+                        <mat-form-field class="w-full">
+                            <mat-label>Etiquetas</mat-label>
+                            <mat-chip-grid #chipGrid aria-label="Etiquetas del procedimiento">
+                                @for (tag of getTags(); track tag) {
+                                    <mat-chip-row (removed)="removeTag(tag)">
+                                        {{ tag }}
+                                        <mat-icon matChipRemove>cancel</mat-icon>
+                                    </mat-chip-row>
+                                }
+                            </mat-chip-grid>
+                            <input matInput [matChipInputFor]="chipGrid"
+                                   (matChipInputTokenEnd)="addTag($event)"
+                                   placeholder="Agregar etiquetas...">
+                        </mat-form-field>
+
+                        <!-- Roles -->
+                        <mat-form-field class="w-full">
+                            <mat-label>Roles Aplicables</mat-label>
+                            <mat-select formControlName="roles" multiple>
+                                @for (option of getRoleOptions(); track option.value) {
+                                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                                }
+                            </mat-select>
+                            @if (procedureForm.get('roles').hasError('required')) {
+                                <mat-error>Debe seleccionar al menos un rol</mat-error>
+                            }
+                        </mat-form-field>
+
+                        <!-- Legal Categories -->
+                        <mat-form-field class="w-full">
+                            <mat-label>Categorías Legales</mat-label>
+                            <mat-select formControlName="legalCategories" multiple>
+                                @for (option of getLegalCategoryOptions(); track option.value) {
+                                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+
+                        <!-- Checkboxes -->
+                        <div class="space-y-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" formControlName="affectsInternalRegulation" class="mr-2">
+                                <span class="text-sm">Este procedimiento afecta el Reglamento Interno (requiere aviso de 30 días)</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" formControlName="requiresQuiz" class="mr-2">
+                                <span class="text-sm">Requiere quiz de comprensión</span>
+                            </label>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <!-- Content Upload -->
+                <mat-card class="mb-6">
+                    <mat-card-header>
+                        <mat-card-title>Contenido del Procedimiento</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="pt-4">
+                        <file-upload
+                            formControlName="content"
+                            [label]="'Subir archivo del procedimiento'"
+                            [acceptedFileTypes]="'.pdf,.doc,.docx'">
+                        </file-upload>
+                        @if (procedureForm.get('content').hasError('required')) {
+                            <div class="text-red-500 text-sm mt-2">El contenido del procedimiento es obligatorio</div>
+                        }
+                        <p class="text-sm text-gray-600 mt-2">
+                            Suba el archivo que contiene el procedimiento completo. Formatos aceptados: PDF, DOC, DOCX. Tamaño máximo: 10MB.
+                        </p>
+                    </mat-card-content>
+                </mat-card>
+
+
+                <!-- Actions -->
+                <div class="flex justify-between items-center py-6 border-t border-gray-200">
+                    <div class="flex gap-2">
+                        <button mat-button type="button" (click)="goBack()">Cancelar</button>
+                        <button mat-button color="accent" type="button" (click)="saveDraft()"
+                                [disabled]="isSaving() || !procedureForm.valid">
+                            @if (isSaving()) {
+                                <mat-progress-spinner diameter="16" class="mr-2"></mat-progress-spinner>
+                            }
+                            Guardar Borrador
+                        </button>
+                    </div>
+
+                    <div class="flex gap-2">
+                        @if (canSubmitForReview()) {
+                            <button mat-raised-button color="primary" type="button"
+                                    (click)="submitForReview()"
+                                    [disabled]="!procedureForm.valid || isSaving()">
+                                Enviar para Revisión
+                            </button>
+                        }
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Panel de información lateral -->
+        <div class="md:col-span-4 flex flex-col gap-6">
+            <!-- Información general -->
+            <mat-card class="rounded-md shadow">
+                <mat-card-content>
+                    <h2 class="text-xl font-medium mb-4 flex items-center">
+                        <mat-icon svgIcon="mat_solid:info"></mat-icon>
+                        <span class="ml-2">Información</span>
+                    </h2>
+                    <div class="text-gray-700 dark:text-gray-300 space-y-3">
+                        <p>Los procedimientos son documentos que establecen la forma específica de llevar a cabo una actividad o proceso.</p>
+                        <p><strong>Título:</strong> Debe ser claro y descriptivo del procedimiento.</p>
+                        <p><strong>Categoría:</strong> Clasifica el procedimiento según su ámbito de aplicación.</p>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Consejos -->
+            <mat-card class="rounded-md shadow">
+                <mat-card-content>
+                    <h2 class="text-xl font-medium mb-4 flex items-center">
+                        <mat-icon svgIcon="mat_solid:tips_and_updates"></mat-icon>
+                        <span class="ml-2">Consejos</span>
+                    </h2>
+                    <div class="text-gray-700 dark:text-gray-300 space-y-3">
+                        <p><strong>Archivo:</strong> Suba el documento completo del procedimiento en formato PDF, DOC o DOCX.</p>
+                        <p><strong>Roles:</strong> Seleccione los roles a los que aplica este procedimiento para una correcta asignación.</p>
+                        <p><strong>Categorías Legales:</strong> Indique las normativas aplicables para garantizar el cumplimiento legal.</p>
+                        <p><strong>Fecha de Expiración:</strong> Establezca cuándo debe revisarse o actualizarse el procedimiento.</p>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Estado del procedimiento -->
+            @if (isEditing() && selectedProcedure()) {
+                <mat-card class="rounded-md shadow">
+                    <mat-card-content>
+                        <h2 class="text-xl font-medium mb-4 flex items-center">
+                            <mat-icon svgIcon="mat_solid:assignment"></mat-icon>
+                            <span class="ml-2">Estado del Procedimiento</span>
+                        </h2>
+                        <div class="text-gray-700 dark:text-gray-300 space-y-3">
+                            <p><strong>Procedimiento:</strong> {{ selectedProcedure()?.title }}</p>
+                            @if (currentVersion()) {
+                                <p><strong>Versión:</strong> {{ currentVersion()?.number }}</p>
+                                <p><strong>Estado:</strong>
+                                    <span [class]="getStatusClass(currentVersion()!.status)">
+                                                {{ getStatusText(currentVersion()!.status) }}
+                                            </span>
+                                </p>
+                            }
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            }
+        </div>
+    </div>
+</div>

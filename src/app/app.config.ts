@@ -31,6 +31,7 @@ import { appsPermissions }        from '@modules/admin/apps/apps.permissions';
 import { checklistsPermissions }  from '@modules/admin/checklists/checklists.permissions';
 import { tracingPermissions } from '@modules/admin/tracing/tracing.permissions';
 import { proceduresPermissions } from '@modules/admin/procedures/procedures.permissions';
+import { NgxEditorModule } from 'ngx-editor';
 
 const config: SocketIoConfig = {
     url    : 'localhost:5000/ws/board',
@@ -57,6 +58,7 @@ export const appConfig: ApplicationConfig = {
         ),
         importProvidersFrom(
             SocketIoModule.forRoot(config),
+            NgxEditorModule.forRoot({}),
             IonicStorageModule.forRoot({
                 name: 'erpDB'
             }),

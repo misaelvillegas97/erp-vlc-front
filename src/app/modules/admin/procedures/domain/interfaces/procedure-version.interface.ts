@@ -1,12 +1,13 @@
-import { BaseEntity, LegalReference, ProcedureContent } from './base.interface';
-import { Procedure }                                    from './procedure.interface';
-import { ProcedureVersionStatus }                       from '../enums';
+import { BaseEntity, LegalReference } from './base.interface';
+import { Procedure }                  from './procedure.interface';
+import { ProcedureVersionStatus }     from '../enums';
+import { FileDto }                    from '@modules/admin/maintainers/users/models/file-dto.model';
 
 export interface ProcedureVersion extends BaseEntity {
     procedureId: string;
     procedure?: Procedure;
     number: number;
-    content: ProcedureContent;
+    content?: FileDto;
     changelog?: string;
     status: ProcedureVersionStatus;
     legalReferences: LegalReference[];

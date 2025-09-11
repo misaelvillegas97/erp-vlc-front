@@ -1,15 +1,27 @@
-import { Injectable, inject }                         from '@angular/core';
+import { inject, Injectable }     from '@angular/core';
 import { HttpClient }                                 from '@angular/common/http';
 import { Observable }                                 from 'rxjs';
 import { Procedure, ProcedureVersion, ReviewRequest } from '../domain/interfaces';
-import { ProcedureVersionStatus }                     from '../domain/enums';
+import { LegalReferenceCategory } from '../domain/enums';
+import { Pagination }             from '@shared/domain/model/pagination';
+import { ProcedurePriority }      from '../domain/interfaces/base.interface';
+import { RoleEnum }               from '@core/user/role.type';
+import { FileDto }                from '@modules/admin/maintainers/users/models/file-dto.model';
 
 export interface CreateProcedureDto {
+    code: string;
     title: string;
-    category?: string;
-    tags?: string[];
-    content: any;
-    legalReferences?: any[];
+    description?: string;
+    category: string;
+    tags: string[];
+    roles: RoleEnum[];
+    priority: ProcedurePriority;
+    department: string;
+    legalCategories: LegalReferenceCategory[];
+    affectsInternalRegulation: boolean;
+    requiresQuiz: boolean;
+    expiresAt?: string; // ISO 8601 date string
+    content: FileDto;
 }
 
 export interface CreateVersionDto {
@@ -37,8 +49,8 @@ export class ProceduresService {
     private readonly apiUrl = '/api/procedures';
 
     // Procedures CRUD
-    getProcedures(): Observable<Procedure[]> {
-        return this.http.get<Procedure[]>(this.apiUrl);
+    getProcedures(): Observable<Pagination<Procedure>> {
+        return this.http.get<Pagination<Procedure>>(this.apiUrl);
     }
 
     getProcedure(id: string): Observable<Procedure> {

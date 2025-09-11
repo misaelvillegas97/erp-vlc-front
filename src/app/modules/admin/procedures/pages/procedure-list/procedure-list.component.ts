@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed, OnInit, TemplateRef, viewChild } from '@angular/core';
-import { CommonModule }                                                                                 from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal, computed, OnInit, TemplateRef, viewChild, Signal } from '@angular/core';
+import { CommonModule }                                                                                         from '@angular/common';
 import { Router, ActivatedRoute, Params }                                                               from '@angular/router';
 import { FormControl, ReactiveFormsModule }                                                             from '@angular/forms';
 import { MatButtonModule }                                                                              from '@angular/material/button';
 import { MatCardModule }                                                                                from '@angular/material/card';
+import { MatDialogModule, MatDialog }                                                                           from '@angular/material/dialog';
 import { MatFormFieldModule }                                                                           from '@angular/material/form-field';
 import { MatIconModule }                                                                                from '@angular/material/icon';
 import { MatInputModule }                                                                               from '@angular/material/input';
@@ -18,6 +19,7 @@ import { TableBuilderComponent }                                                
 import { ColumnConfig }                                                                                 from '@shared/components/table-builder/column.type';
 import { Color }                                                                                        from '@shared/components/badge/domain/model/badge.type';
 import { NotyfService }                                                                                 from '@shared/services/notyf.service';
+import { PdfViewerComponent }                                                                                   from '@shared/components/pdf-viewer/pdf-viewer.component';
 
 import { ProcedureStore }         from '../../store/procedure.store';
 import { Procedure }              from '../../domain/interfaces';
@@ -32,6 +34,7 @@ import { ProcedureVersionStatus } from '../../domain/enums';
         ReactiveFormsModule,
         MatButtonModule,
         MatCardModule,
+        MatDialogModule,
         MatFormFieldModule,
         MatIconModule,
         MatInputModule,
@@ -42,153 +45,17 @@ import { ProcedureVersionStatus } from '../../domain/enums';
         PageHeaderComponent,
         TableBuilderComponent
     ],
-    template       : `
-        <div class="flex flex-col min-w-0 w-full min-h-screen">
-            <page-header
-                title="Lista de Procedimientos"
-                subtitle="Consulta y gestión de procedimientos y documentación de cumplimiento"
-                icon="heroicons_outline:document-text"
-                class="text-white">
-            </page-header>
-
-            <div class="container mx-auto px-4 py-8">
-                <div class="flex flex-col w-full max-w-7xl mx-auto gap-y-8">
-                    <!-- Panel de filtros -->
-                    <div class="w-full bg-card rounded-xl shadow-md p-6 border transition-all duration-300 hover:shadow-lg">
-                        <h2 class="text-lg font-semibold mb-4 flex items-center">
-                            <mat-icon class="mr-2 text-blue-600">filter_list</mat-icon>
-                            Filtros
-                        </h2>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                            <mat-form-field class="w-full fuse-mat-dense" [subscriptSizing]="'dynamic'">
-                                <mat-label>Buscar</mat-label>
-                                <input matInput [formControl]="searchControl" placeholder="Buscar procedimientos...">
-                                <mat-icon matSuffix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
-                            </mat-form-field>
-
-                            <mat-form-field class="w-full fuse-mat-dense" [subscriptSizing]="'dynamic'">
-                                <mat-label>Categoría</mat-label>
-                                <mat-select [formControl]="categoryControl">
-                                    <mat-option value="">Todas las Categorías</mat-option>
-                                    <mat-option value="Reglamento Interno">Reglamento Interno</mat-option>
-                                    <mat-option value="SSO">Seguridad y Salud</mat-option>
-                                    <mat-option value="Operacional">Operacional</mat-option>
-                                    <mat-option value="Calidad">Calidad</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-
-                            <mat-form-field class="w-full fuse-mat-dense" [subscriptSizing]="'dynamic'">
-                                <mat-label>Estado</mat-label>
-                                <mat-select [formControl]="statusControl">
-                                    <mat-option value="">Todos los Estados</mat-option>
-                                    <mat-option value="draft">Borrador</mat-option>
-                                    <mat-option value="in_review">En Revisión</mat-option>
-                                    <mat-option value="approved">Aprobado</mat-option>
-                                    <mat-option value="published">Publicado</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mt-6">
-                            <!-- New Procedure Button -->
-                            <button
-                                mat-flat-button
-                                color="primary"
-                                type="button"
-                                (click)="createProcedure()"
-                                class="rounded-md hover:shadow-md transition-all duration-200">
-                                <mat-icon class="mr-1">add</mat-icon>
-                                Nuevo Procedimiento
-                            </button>
-
-                            <!-- Action Buttons -->
-                            <div class="flex justify-end items-center gap-3">
-                                <button
-                                    mat-flat-button
-                                    color="warn"
-                                    type="button"
-                                    (click)="clearFilters()"
-                                    [disabled]="!hasActiveFilters()"
-                                    class="rounded-md hover:shadow-md transition-all duration-200">
-                                    <mat-icon class="mr-1">clear</mat-icon>
-                                    Limpiar filtros
-                                </button>
-                                <button
-                                    (click)="refresh()"
-                                    [matTooltip]="'Recargar datos'"
-                                    mat-flat-button
-                                    color="accent"
-                                    class="rounded-md hover:shadow-md transition-all duration-200">
-                                    <mat-icon class="mr-1">refresh</mat-icon>
-                                    Actualizar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tabla de datos -->
-                    <div class="bg-card rounded-xl shadow-md p-6 border w-full">
-                        <h2 class="text-lg font-semibold mb-4 flex items-center">
-                            <mat-icon class="mr-2 text-blue-600">document_scanner</mat-icon>
-                            Registro de Procedimientos
-                        </h2>
-                        <div class="relative overflow-hidden w-full rounded-lg">
-                            @if (columnsConfig()) {
-                                <table-builder
-                                    [columns]="columnsConfig()"
-                                    [data]="filteredProcedures() || []"
-                                    class="w-full">
-                                </table-builder>
-                            }
-
-                            <!-- Estado vacío -->
-                            @if (filteredProcedures() && filteredProcedures().length === 0) {
-                                <div class="flex flex-col items-center justify-center p-8 text-center">
-                                    <mat-icon class="text-6xl text-gray-300 mb-4">document_scanner</mat-icon>
-                                    <h3 class="text-xl font-medium">No hay procedimientos</h3>
-                                    <p class="mt-2">No se encontraron procedimientos con los filtros aplicados</p>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Loading overlay -->
-            @if (isLoading()) {
-                <div class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
-                    <div class="bg-card p-6 rounded-lg shadow-xl flex flex-col items-center">
-                        <mat-spinner diameter="48"></mat-spinner>
-                        <p class="mt-4 font-medium">Cargando datos...</p>
-                    </div>
-                </div>
-            }
-        </div>
-
-        <!-- Template for actions column -->
-        <ng-template #actionsTemplate let-data="data">
-            <div class="flex items-center gap-1">
-                <button mat-icon-button matTooltip="Editar" (click)="editProcedure(data.id)">
-                    <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button matTooltip="Versiones" (click)="viewVersions(data.id)">
-                    <mat-icon>history</mat-icon>
-                </button>
-                <button mat-icon-button matTooltip="Publicar" (click)="publishProcedure(data.id)">
-                    <mat-icon>publish</mat-icon>
-                </button>
-            </div>
-        </ng-template>
-    `
+    templateUrl    : './procedure-list.component.html',
 })
 export class ProcedureListComponent implements OnInit {
     private store = inject(ProcedureStore);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private notyf = inject(NotyfService);
+    private dialog = inject(MatDialog);
 
     // Template references
-    actionsTemplate = viewChild.required<TemplateRef<any>>('actionsTemplate');
+    actionsTemplate: Signal<TemplateRef<any>> = viewChild('actionsTemplate');
 
     // Form controls
     searchControl = new FormControl('');
@@ -211,7 +78,7 @@ export class ProcedureListComponent implements OnInit {
     statusValue = toSignal(this.statusControl.valueChanges.pipe(startWith('')), {initialValue: ''});
 
     // Configuración de columnas
-    columnsConfig = signal<ColumnConfig<Procedure>[]>([
+    columnsConfig = computed<ColumnConfig<Procedure>[]>(() => [
         {
             key     : 'code',
             header  : 'Código',
@@ -258,15 +125,15 @@ export class ProcedureListComponent implements OnInit {
                 type: 'date'
             }
         },
-        // {
-        //     key: 'actions',
-        //     header: 'Acciones',
-        //     visible: true,
-        //     display: {
-        //         type: 'custom',
-        //         customTemplate: this.actionsTemplate()
-        //     }
-        // }
+        {
+            key    : 'actions',
+            header : 'Acciones',
+            visible: true,
+            display: {
+                type          : 'custom',
+                customTemplate: this.actionsTemplate()
+            }
+        }
     ]);
 
     ngOnInit(): void {
@@ -383,5 +250,23 @@ export class ProcedureListComponent implements OnInit {
 
     publishProcedure(id: string): void {
         this.router.navigate([ id, 'publish' ], {relativeTo: this.route});
+    }
+
+    openPdfViewer(procedure: Procedure): void {
+        console.log(procedure);
+        if (!procedure.latestVersionFile) {
+            this.notyf.error('No hay archivo disponible para este procedimiento');
+            return;
+        }
+
+        this.dialog.open(PdfViewerComponent, {
+            data        : {
+                filePath: procedure.latestVersionFile.path,
+                title   : `${ procedure.code } - ${ procedure.title }`
+            },
+            disableClose: false,
+            hasBackdrop : true,
+            panelClass  : 'pdf-viewer-dialog-container'
+        });
     }
 }

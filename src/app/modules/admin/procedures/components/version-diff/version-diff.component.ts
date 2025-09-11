@@ -225,63 +225,62 @@ export class VersionDiffComponent {
 
         if (!current || !compare) return [];
 
-        const currentSections = current.content?.sections || [];
-        const compareSections = compare.content?.sections || [];
         const diffs: SectionDiff[] = [];
 
-        // Find all unique section indices
-        const maxLength = Math.max(currentSections.length, compareSections.length);
+        // Compare file-based content
+        const currentFile = current.content;
+        const compareFile = compare.content;
 
-        for (let i = 0; i < maxLength; i++) {
-            const currentSection = currentSections[i];
-            const compareSection = compareSections[i];
+        if (currentFile && compareFile) {
+            // Both versions have files - check if they're different
+            const fileChanged = currentFile.id !== compareFile.id || currentFile.path !== compareFile.path;
 
-            if (currentSection && compareSection) {
-                // Both sections exist - check for changes
-                const titleChanged = currentSection.title !== compareSection.title;
-                const bodyChanged = currentSection.body !== compareSection.body;
-
-                if (titleChanged || bodyChanged) {
-                    diffs.push({
-                        sectionIndex: i,
-                        title       : currentSection.title || `Section ${ i + 1 }`,
-                        oldTitle    : compareSection.title,
-                        newTitle    : currentSection.title,
-                        oldBody     : compareSection.body,
-                        newBody     : currentSection.body,
-                        type        : 'modified',
-                        bodyDiff    : this.generateSimpleDiff(compareSection.body, currentSection.body)
-                    });
-                } else {
-                    diffs.push({
-                        sectionIndex: i,
-                        title       : currentSection.title || `Section ${ i + 1 }`,
-                        newBody     : currentSection.body,
-                        type        : 'unchanged'
-                    });
-                }
-            } else if (currentSection && !compareSection) {
-                // Section added
+            if (fileChanged) {
                 diffs.push({
-                    sectionIndex: i,
-                    title       : currentSection.title || `Section ${ i + 1 }`,
-                    newTitle    : currentSection.title,
-                    newBody     : currentSection.body,
-                    type        : 'added'
+                    sectionIndex: 0,
+                    title       : 'Archivo del Procedimiento',
+                    oldTitle    : this.getFileNameFromPath(compareFile.path),
+                    newTitle    : this.getFileNameFromPath(currentFile.path),
+                    oldBody     : `Archivo anterior: ${ this.getFileNameFromPath(compareFile.path) }`,
+                    newBody     : `Archivo nuevo: ${ this.getFileNameFromPath(currentFile.path) }`,
+                    type        : 'modified',
+                    bodyDiff    : `Archivo cambiado de <del class="bg-red-200 text-red-800 px-1">${ this.getFileNameFromPath(compareFile.path) }</del> a <ins class="bg-green-200 text-green-800 px-1">${ this.getFileNameFromPath(currentFile.path) }</ins>`
                 });
-            } else if (!currentSection && compareSection) {
-                // Section removed
+            } else {
                 diffs.push({
-                    sectionIndex: i,
-                    title       : compareSection.title || `Section ${ i + 1 }`,
-                    oldTitle    : compareSection.title,
-                    oldBody     : compareSection.body,
-                    type        : 'removed'
+                    sectionIndex: 0,
+                    title       : 'Archivo del Procedimiento',
+                    newBody     : `Archivo: ${ this.getFileNameFromPath(currentFile.path) }`,
+                    type        : 'unchanged'
                 });
             }
+        } else if (currentFile && !compareFile) {
+            // File added
+            diffs.push({
+                sectionIndex: 0,
+                title       : 'Archivo del Procedimiento',
+                newTitle    : this.getFileNameFromPath(currentFile.path),
+                newBody     : `Archivo agregado: ${ this.getFileNameFromPath(currentFile.path) }`,
+                type        : 'added'
+            });
+        } else if (!currentFile && compareFile) {
+            // File removed
+            diffs.push({
+                sectionIndex: 0,
+                title       : 'Archivo del Procedimiento',
+                oldTitle    : this.getFileNameFromPath(compareFile.path),
+                oldBody     : `Archivo eliminado: ${ this.getFileNameFromPath(compareFile.path) }`,
+                type        : 'removed'
+            });
         }
 
         return diffs;
+    }
+
+    private getFileNameFromPath(path: string): string {
+        if (!path) return 'Sin nombre';
+        const parts = path.split('/');
+        return parts[parts.length - 1] || 'Sin nombre';
     }
 
     private generateSimpleDiff(oldText: string, newText: string): string {

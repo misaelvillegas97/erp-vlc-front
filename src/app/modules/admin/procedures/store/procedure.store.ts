@@ -1,7 +1,6 @@
-import { Injectable, inject, signal, computed, effect }            from '@angular/core';
-import { toSignal }                                                from '@angular/core/rxjs-interop';
-import { catchError, switchMap, tap }                              from 'rxjs/operators';
-import { of, EMPTY }                                               from 'rxjs';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { catchError, tap }                      from 'rxjs/operators';
+import { firstValueFrom, of }                   from 'rxjs';
 import { ProceduresService }                                       from '../services/procedures.service';
 import { PublicationsService }                                     from '../services/publications.service';
 import { Procedure, ProcedureVersion, Publication, ReviewRequest } from '../domain/interfaces';
@@ -91,19 +90,19 @@ export class ProcedureStore {
 
     canEditCurrentVersion = computed(() => {
         const version = this.currentVersion();
-        return version?.status === ProcedureVersionStatus.Draft ||
-            version?.status === ProcedureVersionStatus.ChangesRequested;
+        return version?.status === ProcedureVersionStatus.DRAFT ||
+            version?.status === ProcedureVersionStatus.REJECTED;
     });
 
     canSubmitForReview = computed(() => {
         const version = this.currentVersion();
-        return version?.status === ProcedureVersionStatus.Draft ||
-            version?.status === ProcedureVersionStatus.ChangesRequested;
+        return version?.status === ProcedureVersionStatus.DRAFT ||
+            version?.status === ProcedureVersionStatus.REJECTED;
     });
 
     canPublish = computed(() => {
         const version = this.currentVersion();
-        return version?.status === ProcedureVersionStatus.Approved;
+        return version?.status === ProcedureVersionStatus.APPROVED;
     });
 
     // Methods to update state
@@ -111,19 +110,15 @@ export class ProcedureStore {
         this.isLoading.set(true);
         this.error.set(null);
 
-        this.proceduresService.getProcedures()
-            .pipe(
-                tap(procedures => {
-                    this.procedures.set(procedures);
-                    this.isLoading.set(false);
-                }),
-                catchError(error => {
-                    this.error.set('Error loading procedures');
-                    this.isLoading.set(false);
-                    return of([]);
-                })
-            )
-            .subscribe();
+        firstValueFrom(this.proceduresService.getProcedures())
+            .then(procedures => {
+                this.procedures.set(procedures.items);
+                this.isLoading.set(false);
+            }).catch(error => {
+            this.error.set('Error loading procedures');
+            this.isLoading.set(false);
+            return of([]);
+        });
     }
 
     selectProcedure(procedureId: string): void {

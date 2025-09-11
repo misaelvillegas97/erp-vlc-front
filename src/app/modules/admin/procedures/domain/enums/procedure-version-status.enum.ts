@@ -1,8 +1,8 @@
 export enum ProcedureVersionStatus {
-    Draft = 'draft',
-    InReview = 'in_review',
-    ChangesRequested = 'changes_requested',
-    Approved = 'approved',
-    Published = 'published',
-    Archived = 'archived'
+    DRAFT = 'DRAFT',
+    IN_REVIEW = 'IN_REVIEW',
+    APPROVED = 'APPROVED',
+    PUBLISHED = 'PUBLISHED',
+    ARCHIVED = 'ARCHIVED',
+    REJECTED = 'REJECTED'
 }

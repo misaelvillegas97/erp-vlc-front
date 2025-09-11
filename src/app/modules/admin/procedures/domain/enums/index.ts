@@ -3,3 +3,4 @@ export { AudienceType }           from './audience-type.enum';
 export { Channel }                from './channel.enum';
 export { SignatureType }          from './signature-type.enum';
 export { ReviewStatus }           from './review-status.enum';
+export { LegalReferenceCategory } from './legal-reference-category.enum';

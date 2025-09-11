@@ -177,24 +177,7 @@ import { VersionDiffComponent }                 from '../../components/version-d
                                                     </div>
                                                 }
 
-                                                <!-- Secciones del procedimiento -->
-                                                @if (currentVersion()?.content?.sections?.length) {
-                                                    <div>
-                                                        <h4 class="text-sm font-medium text-gray-600 mb-3">Secciones del Procedimiento</h4>
-                                                        <div class="space-y-4">
-                                                            @for (section of currentVersion()!.content.sections; track $index) {
-                                                                <div class="border border-gray-200 rounded-lg p-4">
-                                                                    @if (section.title) {
-                                                                        <h5 class="text-lg font-semibold mb-3">{{ section.title }}</h5>
-                                                                    }
-                                                                    <div class="prose prose-sm max-w-none">
-                                                                        <pre class="whitespace-pre-wrap font-sans">{{ section.body }}</pre>
-                                                                    </div>
-                                                                </div>
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                }
+
                                             </div>
                                         }
                                     </div>
@@ -314,9 +297,9 @@ import { VersionDiffComponent }                 from '../../components/version-d
                                             {{ getStatusText(currentVersion()!.status) }}
                                         </span>
                                     </p>
-                                    @if (currentVersion()?.author) {
-                                        <p><strong>Autor:</strong> {{ currentVersion()?.author }}</p>
-                                    }
+                                    <!--                                    @if (currentVersion()?.author) {-->
+                                    <!--                                        <p><strong>Autor:</strong> {{ currentVersion()?.author }}</p>-->
+                                    <!--                                    }-->
                                     @if (currentVersion()?.modifiesInternalRegulations) {
                                         <div class="p-2 bg-amber-50 rounded-md border border-amber-200">
                                             <p class="text-sm text-amber-800">
@@ -379,7 +362,7 @@ export class ProcedureVersionDetailComponent implements OnInit {
 
     canReview = computed(() => {
         const version = this.currentVersion();
-        return version?.status === ProcedureVersionStatus.InReview;
+        return version?.status === ProcedureVersionStatus.IN_REVIEW;
         // TODO: Add permission check for reviewer role
     });
 
@@ -445,24 +428,25 @@ export class ProcedureVersionDetailComponent implements OnInit {
 
     getStatusClass(status: ProcedureVersionStatus): string {
         const classes: Record<ProcedureVersionStatus, string> = {
-            [ProcedureVersionStatus.Draft]           : 'bg-gray-100 text-gray-800',
-            [ProcedureVersionStatus.InReview]        : 'bg-blue-100 text-blue-800',
-            [ProcedureVersionStatus.ChangesRequested]: 'bg-amber-100 text-amber-800',
-            [ProcedureVersionStatus.Approved]        : 'bg-green-100 text-green-800',
-            [ProcedureVersionStatus.Published]       : 'bg-purple-100 text-purple-800',
-            [ProcedureVersionStatus.Archived]        : 'bg-gray-100 text-gray-600'
+            [ProcedureVersionStatus.DRAFT]    : 'bg-gray-100 text-gray-800',
+            [ProcedureVersionStatus.IN_REVIEW]: 'bg-blue-100 text-blue-800',
+            [ProcedureVersionStatus.REJECTED] : 'bg-red-100 text-red-800',
+            // [ProcedureVersionStatus.ChangesRequested]: 'bg-amber-100 text-amber-800',
+            [ProcedureVersionStatus.APPROVED] : 'bg-green-100 text-green-800',
+            [ProcedureVersionStatus.PUBLISHED]: 'bg-purple-100 text-purple-800',
+            [ProcedureVersionStatus.ARCHIVED] : 'bg-gray-100 text-gray-600'
         };
         return classes[status] || 'bg-gray-100 text-gray-800';
     }
 
     getStatusText(status: ProcedureVersionStatus): string {
         const texts: Record<ProcedureVersionStatus, string> = {
-            [ProcedureVersionStatus.Draft]           : 'Borrador',
-            [ProcedureVersionStatus.InReview]        : 'En Revisión',
-            [ProcedureVersionStatus.ChangesRequested]: 'Cambios Solicitados',
-            [ProcedureVersionStatus.Approved]        : 'Aprobado',
-            [ProcedureVersionStatus.Published]       : 'Publicado',
-            [ProcedureVersionStatus.Archived]        : 'Archivado'
+            [ProcedureVersionStatus.DRAFT]    : 'Borrador',
+            [ProcedureVersionStatus.IN_REVIEW]: 'En Revisión',
+            [ProcedureVersionStatus.REJECTED] : 'Rechazado',
+            [ProcedureVersionStatus.APPROVED] : 'Aprobado',
+            [ProcedureVersionStatus.PUBLISHED]: 'Publicado',
+            [ProcedureVersionStatus.ARCHIVED] : 'Archivado'
         };
         return texts[status] || 'Desconocido';
     }
